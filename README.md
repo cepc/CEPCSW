@@ -1,15 +1,18 @@
 # cepc-offline
 
-CEPC offline software prototype
+CEPC offline software prototype based on Gaudi
 
 ## Packages
 
 * Core: Core Software Based on Gaudi
 
-* Simulation: Physics Generator & Detector Simulation
+* Generator: Physics Generator
 
-* Reconstruction
+* Simulation: Detector Simulation
 
-* Examples: For new comers
+* Reconstruction: Reconstruction
+
+* Examples: For new comers and users
 
 * cepcenv: tools to help developers build packages
+
