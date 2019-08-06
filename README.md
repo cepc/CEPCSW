@@ -6,8 +6,8 @@ CEPC offline software prototype based on Gaudi
 
 ```
 $ source /cvmfs/cepcsw.ihep.ac.cn/prototype/setup.sh
-$ git clone git@cepcgit.ihep.ac.cn:cepc-prototype/cepc-offline.git
-$ cd cepc-offline
+$ git clone git@cepcgit.ihep.ac.cn:cepc-prototype/CEPCSW.git
+$ cd CEPCSW
 $ mkdir build && cd build
 $ cmake ..
 $ make
