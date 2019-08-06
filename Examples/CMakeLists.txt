@@ -9,3 +9,7 @@ gaudi_add_module(Examples ${Examples_srcs}
     INCLUDE_DIRS GaudiKernel
     LINK_LIBRARIES GaudiKernel
 )
+
+# Examples
+gaudi_add_test(HelloAlg
+               FRAMEWORK options/helloalg.py)
