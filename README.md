@@ -1,4 +1,4 @@
-# cepc-offline
+# CEPCSW
 
 CEPC offline software prototype based on Gaudi
 
