@@ -11,6 +11,7 @@ $ cd CEPCSW
 $ mkdir build && cd build
 $ cmake ..
 $ make
+$ ./run gaudirun.py '$EXAMPLESROOT/options/helloalg.py'
 ```
 
 ## Packages
