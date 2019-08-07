@@ -20,3 +20,6 @@ gaudi_add_module(Examples ${Examples_srcs}
 # Unit tests
 gaudi_add_test(HelloAlg
                FRAMEWORK options/helloalg.py)
+
+gaudi_add_test(SecondAlg
+               FRAMEWORK options/secondalg.py)
