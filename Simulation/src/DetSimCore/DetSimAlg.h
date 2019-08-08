@@ -25,6 +25,9 @@ private:
     Gaudi::Property<std::vector<std::string>> m_run_macs{this, "RunMacs"};
     Gaudi::Property<std::vector<std::string>> m_run_cmds{this, "RunCmds"};
     Gaudi::Property<std::vector<std::string>> m_vis_macs{this, "VisMacs"};
+
+private:
+    int i_event;
 };
 
 
