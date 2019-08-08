@@ -7,7 +7,7 @@
 #include <GaudiKernel/Algorithm.h>
 #include <GaudiKernel/Property.h>
 
-
+#include <DetSimInterface/IDetSimSvc.h>
 
 class DetSimAlg: public Algorithm {
 public:
@@ -16,6 +16,9 @@ public:
     StatusCode initialize() override;
     StatusCode execute() override;
     StatusCode finalize() override;
+
+private:
+    SmartIF<IDetSimSvc> m_detsimsvc;
 
 private:
 
