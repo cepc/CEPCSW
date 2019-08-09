@@ -5,7 +5,7 @@ gaudi_depends_on_subdirs(
     Simulation/DetSimInterface
 )
 
-find_package(Geant4)
+find_package(Geant4 REQUIRED ui_all vis_all)
 include(${Geant4_USE_FILE})
 
 set(DetSimCore_srcs
