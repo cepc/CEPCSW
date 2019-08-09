@@ -11,6 +11,7 @@ include(${Geant4_USE_FILE})
 set(DetSimCore_srcs
     src/DetSimAlg.cpp
     src/DetectorConstruction.cpp
+    src/PrimaryGeneratorAction.cpp
 )
 
 gaudi_add_module(DetSimCore ${DetSimCore_srcs}

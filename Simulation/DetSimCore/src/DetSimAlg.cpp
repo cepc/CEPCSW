@@ -6,6 +6,7 @@
 
 #include "G4PhysListFactory.hh"
 
+#include "PrimaryGeneratorAction.h"
 
 DECLARE_COMPONENT(DetSimAlg)
 
@@ -33,8 +34,9 @@ DetSimAlg::initialize() {
         return StatusCode::FAILURE;
     }
 
+    // Detector Construction
     runmgr->SetUserInitialization(new DetectorConstruction());
-
+    // Physics List
     G4VUserPhysicsList *physicsList = nullptr;
     if (m_physics_lists_name.value() == "CEPC") {
 
@@ -44,8 +46,8 @@ DetSimAlg::initialize() {
     }
     assert(physicsList);
     runmgr->SetUserInitialization(physicsList);
-
-    runmgr->SetUserAction((G4VUserPrimaryGeneratorAction*)0);
+    // Primary Generator Action
+    runmgr->SetUserAction(new PrimaryGeneratorAction());
 
     // after set up the user initialization and user actions, start the initialization.
     m_detsimsvc->initializeRM();
