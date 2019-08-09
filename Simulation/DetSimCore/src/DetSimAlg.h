@@ -26,6 +26,7 @@ private:
     Gaudi::Property<std::vector<std::string>> m_run_cmds{this, "RunCmds"};
     Gaudi::Property<std::vector<std::string>> m_vis_macs{this, "VisMacs"};
 
+    Gaudi::Property<std::string> m_physics_lists_name{this, "PhysicsList", "QGSP_BERT"};
 private:
     int i_event;
 };

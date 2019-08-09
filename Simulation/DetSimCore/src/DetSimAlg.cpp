@@ -2,6 +2,11 @@
 
 #include "G4RunManager.hh"
 
+#include "DetectorConstruction.h"
+
+#include "G4PhysListFactory.hh"
+
+
 DECLARE_COMPONENT(DetSimAlg)
 
 DetSimAlg::DetSimAlg(const std::string& name, ISvcLocator* pSvcLocator)
@@ -28,8 +33,18 @@ DetSimAlg::initialize() {
         return StatusCode::FAILURE;
     }
 
-    runmgr->SetUserInitialization((G4VUserDetectorConstruction*)0);
-    runmgr->SetUserInitialization((G4VUserPhysicsList*)0);
+    runmgr->SetUserInitialization(new DetectorConstruction());
+
+    G4VUserPhysicsList *physicsList = nullptr;
+    if (m_physics_lists_name.value() == "CEPC") {
+
+    } else {
+        G4PhysListFactory *physListFactory = new G4PhysListFactory();
+        physicsList = physListFactory->GetReferencePhysList(m_physics_lists_name.value());
+    }
+    assert(physicsList);
+    runmgr->SetUserInitialization(physicsList);
+
     runmgr->SetUserAction((G4VUserPrimaryGeneratorAction*)0);
 
     // after set up the user initialization and user actions, start the initialization.

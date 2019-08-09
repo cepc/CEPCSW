@@ -9,7 +9,8 @@ find_package(Geant4)
 include(${Geant4_USE_FILE})
 
 set(DetSimCore_srcs
-    src/*.cpp
+    src/DetSimAlg.cpp
+    src/DetectorConstruction.cpp
 )
 
 gaudi_add_module(DetSimCore ${DetSimCore_srcs}
