@@ -5,7 +5,9 @@
 #include "DetectorConstruction.h"
 
 #include "G4PhysListFactory.hh"
-
+#include "G4UImanager.hh"
+#include "G4VisExecutive.hh"
+#include "G4UIExecutive.hh"
 #include "PrimaryGeneratorAction.h"
 
 DECLARE_COMPONENT(DetSimAlg)
@@ -48,6 +50,50 @@ DetSimAlg::initialize() {
     runmgr->SetUserInitialization(physicsList);
     // Primary Generator Action
     runmgr->SetUserAction(new PrimaryGeneratorAction());
+
+    // Vis Mac
+    bool hasVis = false;
+    G4VisManager* visManager = nullptr;
+    G4UIExecutive* ui = nullptr;
+    if (not m_vis_macs.value().empty()) {
+        hasVis = true;
+        info() << "Start Geant4 Visualization." << endmsg;
+        // initialize Vis
+        visManager = new G4VisExecutive;
+        char* argv[1] = {"geant4Vis"};
+        ui = new G4UIExecutive(1,argv);
+    }
+    for (auto vismac: m_vis_macs.value()) {
+        G4UImanager *UImanager = G4UImanager::GetUIpointer();
+        std::string command = "/control/execute ";
+        UImanager->ApplyCommand( command + vismac);
+    }
+
+    // Run Mac & Run Cmds
+    for (auto runmac: m_run_macs.value()) {
+        G4UImanager *UImanager = G4UImanager::GetUIpointer();
+        std::string command = "/control/execute ";
+        UImanager->ApplyCommand( command + runmac);
+    }
+    for (auto runcmd: m_run_cmds.value()) {
+        G4UImanager *UImanager = G4UImanager::GetUIpointer();
+        UImanager->ApplyCommand(runcmd);
+    }
+
+    // if has vis, we stop here
+    if (hasVis) {
+
+        ui->SessionStart();
+
+        delete ui;
+        delete visManager;
+
+        // fixme: how to stop the run?
+        return StatusCode::FAILURE;
+    }
+
+    // Initialize G4 Kernel
+    runmgr->Initialize();
 
     // after set up the user initialization and user actions, start the initialization.
     m_detsimsvc->initializeRM();

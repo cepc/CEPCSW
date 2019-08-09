@@ -10,6 +10,7 @@ include(${Geant4_USE_FILE})
 
 set(DetSimCore_srcs
     src/DetSimAlg.cpp
+    src/DetSimSvc.cpp
     src/DetectorConstruction.cpp
     src/PrimaryGeneratorAction.cpp
 )
