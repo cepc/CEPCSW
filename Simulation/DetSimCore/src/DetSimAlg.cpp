@@ -1,4 +1,7 @@
 #include "DetSimAlg.h"
+#include "GaudiKernel/IEventProcessor.h"
+#include "GaudiKernel/IAppMgrUI.h"
+#include "GaudiKernel/GaudiException.h"
 
 #include "G4RunManager.hh"
 
@@ -60,7 +63,7 @@ DetSimAlg::initialize() {
         info() << "Start Geant4 Visualization." << endmsg;
         // initialize Vis
         visManager = new G4VisExecutive;
-        char* argv[1] = {"geant4Vis"};
+        char* argv[1] = {strdup("geant4Vis")};
         ui = new G4UIExecutive(1,argv);
     }
     for (auto vismac: m_vis_macs.value()) {
@@ -89,6 +92,20 @@ DetSimAlg::initialize() {
         delete visManager;
 
         // fixme: how to stop the run?
+        // auto ep = serviceLocator()->as<IEventProcessor>();
+        // if ( !ep ) {
+        //     error() << "Cannot get IEventProcessor" << endmsg;
+        //     return StatusCode::FAILURE;
+        // }
+        // ep->stopRun();
+
+        // auto ep = serviceLocator()->as<IAppMgrUI>();
+        // if ( !ep ) {
+        //     error() << "Cannot get IAppMgrUI" << endmsg;
+        //     return StatusCode::FAILURE;
+        // }
+        // ep->terminate();
+        // throw GaudiException( "Stopping loop", "Stop", StatusCode::SUCCESS);
         return StatusCode::FAILURE;
     }
 
