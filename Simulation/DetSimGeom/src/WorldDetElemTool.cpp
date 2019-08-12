@@ -1,5 +1,7 @@
 #include "WorldDetElemTool.h"
 
+#include <GaudiKernel/ToolHandle.h>
+
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
 
@@ -30,6 +32,21 @@ WorldDetElemTool::getLV() {
     G4VSolid* solidWorld= new G4Box("sWorld", 60*m, 60*m, 60*m);
     G4LogicalVolume* logicWorld= new G4LogicalVolume( solidWorld, Galactic, "lWorld", 0, 0, 0);
 
+    // An example, get a detelem first, then place the detector components inside world.
+    ToolHandle<IDetElemTool> inner_detelem_tool("AnExampleDetElemTool");
+    G4LogicalVolume* inner_lv = inner_detelem_tool->getLV();
+
+    if (inner_lv) {
+        new G4PVPlacement(0,                   // no rotation
+                          G4ThreeVector(),     // at (0,0,0)
+                          inner_lv,            // logical volume
+                          "pAnExampleDetElem", // name
+                          logicWorld,          // mother volume
+                          false,               // no boolean operations
+                          0);                  // no field
+    } else {
+        warning() << "Can't Find the logical volume ExampleDetElem " << std::endl;
+    }
     return logicWorld;
 }
 

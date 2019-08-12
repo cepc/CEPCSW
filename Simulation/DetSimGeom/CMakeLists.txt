@@ -10,6 +10,7 @@ include(${Geant4_USE_FILE})
 
 set(DetSimGeom_srcs
     src/WorldDetElemTool.cpp
+    src/AnExampleDetElemTool.cpp
 )
 
 gaudi_add_module(DetSimGeom ${DetSimGeom_srcs}
