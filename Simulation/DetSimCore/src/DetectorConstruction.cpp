@@ -25,7 +25,8 @@
 #include "G4ios.hh"
 
 
-DetectorConstruction::DetectorConstruction() {
+DetectorConstruction::DetectorConstruction(ToolHandle<IDetElemTool>& root_elem) 
+    : m_root_detelem(root_elem) {
 
 }
 
@@ -49,8 +50,8 @@ DetectorConstruction::Construct() {
     // =======================================================================
     // World
     // =======================================================================
-    G4VSolid* solidWorld= new G4Box("sWorld", 60*m, 60*m, 60*m);
-    G4LogicalVolume* logicWorld= new G4LogicalVolume( solidWorld, Galactic, "lWorld", 0, 0, 0);
+    G4LogicalVolume* logicWorld = m_root_detelem->getLV();
+
     G4VPhysicalVolume* physiWorld = new G4PVPlacement(0,               // no rotation
                                                       G4ThreeVector(), // at (0,0,0)
                                                       logicWorld,      // its logical volume
@@ -60,4 +61,5 @@ DetectorConstruction::Construct() {
                                                       0);              // no field specific to volume
 
     return physiWorld;
+
 }

@@ -1,6 +1,9 @@
 #ifndef DetectorConstruction_h
 #define DetectorConstruction_h
 
+#include "GaudiKernel/ToolHandle.h"
+#include "DetSimInterface/IDetElemTool.h"
+
 #include "globals.hh"
 #include "G4VUserDetectorConstruction.hh"
 #include "G4OpticalSurface.hh"
@@ -13,13 +16,13 @@
 class DetectorConstruction: public G4VUserDetectorConstruction {
 
 public:
-    DetectorConstruction();
+    DetectorConstruction(ToolHandle<IDetElemTool>& root_elem);
     ~DetectorConstruction();
 public:
     G4VPhysicalVolume* Construct();
 
 private:
-
+    ToolHandle<IDetElemTool>& m_root_detelem;
 };
 
 #endif
