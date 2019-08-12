@@ -152,9 +152,7 @@ datatypes :
       - plcio::MCParticle parents // The parents of this particle.
       - plcio::MCParticle daughters // The daughters this particle.
     ExtraCode :
-      includes: "#include <math.h>\n
-                 #include <vector_view.h>\n
-      "
+      includes: "#include <math.h>\n"
       const_declaration: "
       // define the bit positions for the simulation flag\n
       static const int BITEndpoint = 31;\n
@@ -169,8 +167,8 @@ datatypes :
       /// return energy computed from momentum and mass \n
       double getEnergy() { return sqrt( getMomentum()[0]*getMomentum()[0]+getMomentum()[1]*getMomentum()[1]+\n
                                         getMomentum()[2]*getMomentum()[2] + getMass()*getMass()  )  ;}    \n
-      vector_view<ConstMCParticle> getParents() const { return vector_view<ConstMCParticle>( parents_begin(), parents_end()) ; } \n
-      vector_view<ConstMCParticle> getDaughters() const { return vector_view<ConstMCParticle>( daughters_begin(), daughters_end()) ; } \n
+      const std::vector<ConstMCParticle> & getParents() const { return *(m_obj->m_parents) ; } \n
+      const std::vector<ConstMCParticle> & getDaughters() const { return *(m_obj->m_daughters) ; } \n
       /// True if the particle has been created by the simulation program (rather than the generator).     \n
       bool isCreatedInSimulation() const { return ( getSimulatorStatus() & ( 0x1 << BITCreatedInSimulation ))  ; }    \n
       /// True if the particle is the result of a backscatter from a calorimeter shower. \n
