@@ -1,6 +1,7 @@
 #include "SteppingAction.h"
 
-SteppingAction::SteppingAction() {
+SteppingAction::SteppingAction(ToolHandleArray<IAnaElemTool>& anatools)
+    : m_anaelemtools(anatools) {
 
 }
 

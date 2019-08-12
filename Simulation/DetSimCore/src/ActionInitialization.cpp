@@ -5,8 +5,9 @@
 #include "TrackingAction.h"
 #include "SteppingAction.h"
 
-ActionInitialization::ActionInitialization()
-    : G4VUserActionInitialization() {
+ActionInitialization::ActionInitialization(ToolHandleArray<IAnaElemTool>& anatools)
+    : G4VUserActionInitialization(),
+      m_anaelemtools(anatools) {
 
 }
 
@@ -23,16 +24,16 @@ void
 ActionInitialization::Build() const {
 
 
-    RunAction* runAction = new RunAction();
+    RunAction* runAction = new RunAction(m_anaelemtools);
     SetUserAction(runAction);
 
-    EventAction* eventAction = new EventAction();
+    EventAction* eventAction = new EventAction(m_anaelemtools);
     SetUserAction(eventAction);
 
-    TrackingAction* trackingAction = new TrackingAction();
+    TrackingAction* trackingAction = new TrackingAction(m_anaelemtools);
     SetUserAction(trackingAction);
 
-    SteppingAction* steppingAction = new SteppingAction();
+    SteppingAction* steppingAction = new SteppingAction(m_anaelemtools);
     SetUserAction(steppingAction);
 
 }

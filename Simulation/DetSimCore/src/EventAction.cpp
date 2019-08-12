@@ -1,7 +1,8 @@
 #include "EventAction.h"
 
-EventAction::EventAction() 
-    : G4UserEventAction() {
+EventAction::EventAction(ToolHandleArray<IAnaElemTool>& anatools) 
+    : G4UserEventAction(),
+      m_anaelemtools(anatools) {
 
 }
 

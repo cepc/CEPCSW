@@ -56,7 +56,10 @@ DetSimAlg::initialize() {
     runmgr->SetUserAction(new PrimaryGeneratorAction());
 
     // User Actions
-    runmgr->SetUserInitialization(new ActionInitialization());
+    for (auto anaelem: m_ana_elems.value()) {
+        m_anaelemtools.push_back(anaelem);
+    }
+    runmgr->SetUserInitialization(new ActionInitialization(m_anaelemtools));
 
     // Vis Mac
     bool hasVis = false;

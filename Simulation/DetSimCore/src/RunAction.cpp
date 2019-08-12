@@ -2,8 +2,9 @@
 
 #include "G4Run.hh"
 
-RunAction::RunAction() 
-    : G4UserRunAction() {
+RunAction::RunAction(ToolHandleArray<IAnaElemTool>& anatools) 
+    : G4UserRunAction(),
+      m_anaelemtools(anatools) {
 
 }
 

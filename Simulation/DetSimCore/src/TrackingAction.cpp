@@ -1,7 +1,8 @@
 #include "TrackingAction.h"
 
-TrackingAction::TrackingAction()
-    : G4UserTrackingAction() {
+TrackingAction::TrackingAction(ToolHandleArray<IAnaElemTool>& anatools)
+    : G4UserTrackingAction(),
+      m_anaelemtools(anatools) {
 
 }
 

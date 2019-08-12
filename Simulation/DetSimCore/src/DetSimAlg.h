@@ -6,8 +6,10 @@
 
 #include <GaudiKernel/Algorithm.h>
 #include <GaudiKernel/Property.h>
+#include <GaudiKernel/ToolHandle.h>
 
 #include <DetSimInterface/IDetSimSvc.h>
+#include <DetSimInterface/IAnaElemTool.h>
 
 class DetSimAlg: public Algorithm {
 public:
@@ -19,6 +21,7 @@ public:
 
 private:
     SmartIF<IDetSimSvc> m_detsimsvc;
+    ToolHandleArray<IAnaElemTool> m_anaelemtools;
 
 private:
 
@@ -27,6 +30,10 @@ private:
     Gaudi::Property<std::vector<std::string>> m_vis_macs{this, "VisMacs"};
 
     Gaudi::Property<std::string> m_physics_lists_name{this, "PhysicsList", "QGSP_BERT"};
+
+    Gaudi::Property<std::vector<std::string>> m_ana_elems{this, "AnaElems"};
+
+
 private:
     int i_event;
 };
