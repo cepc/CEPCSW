@@ -11,12 +11,16 @@ EventAction::~EventAction() {
 }
 
 void
-EventAction::BeginOfEventAction(const G4Event*) {
-
+EventAction::BeginOfEventAction(const G4Event* anEvent) {
+    for (auto ana: m_anaelemtools) {
+        ana->BeginOfEventAction(anEvent);
+    }
 }
 
 void
-EventAction::EndOfEventAction(const G4Event*) {
-
+EventAction::EndOfEventAction(const G4Event* anEvent) {
+    for (auto ana: m_anaelemtools) {
+        ana->EndOfEventAction(anEvent);
+    }
 }
 

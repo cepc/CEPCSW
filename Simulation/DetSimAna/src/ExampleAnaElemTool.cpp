@@ -1,20 +1,22 @@
 #include "ExampleAnaElemTool.h"
 
+#include "G4Event.hh"
+
 DECLARE_COMPONENT(ExampleAnaElemTool)
 
 void
 ExampleAnaElemTool::BeginOfRunAction(const G4Run*) {
-
+    G4cout << "Begin Run of detector simultion..." << G4endl;
 }
 
 void
 ExampleAnaElemTool::EndOfRunAction(const G4Run*) {
-
+    G4cout << "End Run of detector simultion..." << G4endl;
 }
 
 void
-ExampleAnaElemTool::BeginOfEventAction(const G4Event*) {
-
+ExampleAnaElemTool::BeginOfEventAction(const G4Event* anEvent) {
+    msg() << "Event " << anEvent->GetEventID() << endmsg;
 }
 
 void

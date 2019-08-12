@@ -11,6 +11,8 @@ SteppingAction::~SteppingAction() {
 
 void
 SteppingAction::UserSteppingAction(const G4Step* aStep) {
-
+    for (auto ana: m_anaelemtools) {
+        ana->UserSteppingAction(aStep);
+    }
 }
 
