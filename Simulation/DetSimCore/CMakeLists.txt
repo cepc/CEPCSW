@@ -16,6 +16,8 @@ set(DetSimCore_srcs
     src/ActionInitialization.cpp
     src/RunAction.cpp
     src/EventAction.cpp
+    src/TrackingAction.cpp
+    src/SteppingAction.cpp
 )
 
 gaudi_add_module(DetSimCore ${DetSimCore_srcs}
