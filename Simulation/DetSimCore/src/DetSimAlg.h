@@ -10,6 +10,7 @@
 
 #include <DetSimInterface/IDetSimSvc.h>
 #include <DetSimInterface/IAnaElemTool.h>
+#include <DetSimInterface/IDetElemTool.h>
 
 class DetSimAlg: public Algorithm {
 public:
@@ -22,6 +23,7 @@ public:
 private:
     SmartIF<IDetSimSvc> m_detsimsvc;
     ToolHandleArray<IAnaElemTool> m_anaelemtools;
+    ToolHandle<IDetElemTool> m_root_detelem;
 
 private:
 
@@ -32,6 +34,7 @@ private:
     Gaudi::Property<std::string> m_physics_lists_name{this, "PhysicsList", "QGSP_BERT"};
 
     Gaudi::Property<std::vector<std::string>> m_ana_elems{this, "AnaElems"};
+    Gaudi::Property<std::string> m_root_det_elem{this, "RootDetElem"};
 
 
 private:

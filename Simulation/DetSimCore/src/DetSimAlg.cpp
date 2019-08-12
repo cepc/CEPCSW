@@ -41,6 +41,7 @@ DetSimAlg::initialize() {
     }
 
     // Detector Construction
+    m_root_detelem = ToolHandle<IDetElemTool>(m_root_det_elem.value());
     runmgr->SetUserInitialization(new DetectorConstruction());
     // Physics List
     G4VUserPhysicsList *physicsList = nullptr;
