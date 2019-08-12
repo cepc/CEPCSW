@@ -1,0 +1,599 @@
+---
+# LCIO EDM Description
+# based on LCIO v02-12
+# Dec 2018
+
+
+# specify some options for code generation
+options:
+  getSyntax : True
+  exposePODMembers : False
+  
+#################################################################################################################
+#
+# some helper components - simple data structs (PODs)
+#
+#################################################################################################################
+ 
+components:
+    #  Vector3D with floats
+    plcio::FloatThree : 
+      x : float
+      y : float
+      z : float
+      ExtraCode :
+        declaration: "
+        FloatThree() : x(0),y(0),z(0) {}\n
+        FloatThree(float xx, float yy, float zz) : x(xx),y(yy),z(zz) {}\n
+        FloatThree(const float* v) : x(v[0]),y(v[1]),z(v[2]) {}\n
+        float operator[](unsigned i) const { return *( &x + i ) ; }\n
+        "
+      
+
+    # Vector3D with doubles
+    plcio::DoubleThree :
+      x : double
+      y : double
+      z : double
+      ExtraCode :
+        declaration: "  
+        DoubleThree() : x(0),y(0),z(0) {}\n
+        DoubleThree(const double* v) : x(v[0]),y(v[1]),z(v[2]) {}\n
+        DoubleThree(const float* v) : x(v[0]),y(v[1]),z(v[2]) {}\n
+        double operator[](unsigned i) const { return *( &x + i ) ; }\n
+        "
+
+    # Vector2D with ints
+    plcio::IntTwo :
+      a : int
+      b : int
+      ExtraCode :
+        declaration: "
+        IntTwo() : a(0),b(0) {}\n
+        IntTwo( const int* v) : a(v[0]), b(v[1]) {}\n
+        int operator[](unsigned i) const { return *( &a + i ) ; }\n
+      "
+
+#    # helper struct for MCP contributions to the SimCalorimterHit
+#    plcio::CaloHitCont :
+#      PDG : int
+#      energy : float
+#      time : float
+#      stepPosition : plcio::FloatThree
+#      ExtraCode :
+#        declaration: "
+#        CaloHitCont() =  default;\n
+#        CaloHitCont(int pdgID, float e, const plcio::FloatThree& pos, float t) : PDG(pdgID),energy(e),stepPosition(pos),time(t){}\n
+#      "
+      
+    #-------- LCIO TrackState
+    plcio::TrackState:
+      location       : int
+      D0             : float
+      phi            : float
+      omega          : float
+      Z0             : float
+      tanLambda      : float
+      referencePoint : plcio::FloatThree
+      covMatrix      : std::array<float,15>
+
+    #------ ObjectID helper struct for references/relations
+    plcio::ObjectID:
+      index        : int
+      collectionID : int
+      ExtraCode :
+        includes: "#include <podio/ObjectID.h>\n"
+        declaration: "
+        ObjectID() = default;\n
+        ObjectID(const podio::ObjectID& id ): index(id.index), collectionID(id.collectionID) {}\n
+      "
+#################################################################################################################
+#
+# the actual EDM data types
+#
+#################################################################################################################
+
+
+
+datatypes :
+
+  #------------- LCIO LCRunHeader
+  plcio::LCRunHeader:
+    Description: "Interface for the run header."
+    Author : "F.Gaede, DESY"
+    Members:
+      - int runNumber            //run number
+      - std::string detectorName //name of the detector setup used in the simulation. 
+      - std::string description  //description of the simulation, physics channels etc. 
+    VectorMembers:
+      - std::string activeSubdetectors //active subdetectors used in the simulation.
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO     \n             
+      {name}* operator->() { return ({name}*) this ; }  \n
+      "
+
+  #------------- LCIO EventHeader
+  plcio::EventHeader:
+    Description: "Meta information on the eventEvent header information - including collection maes and types"
+    Author : "F.Gaede"
+    Members:
+      - int eventNumber          //event number
+      - int runNumber            //run number
+      - long timeStamp            //time stamp
+      - std::string detectorName //detector model
+    VectorMembers:
+      - std::string collectionNames //collection names
+      - std::string collectionTypes //collection Types
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO     \n             
+      {name}* operator->() { return ({name}*) this ; }  \n
+      "
+
+  #------------- LCIO MCParticle
+  plcio::MCParticle:
+    Description: "The Monte Carlo particle."
+    Author : "F.Gaede, DESY"
+    Members:
+      - int PDG                         //PDG code of the particle
+      - int generatorStatus             //status of the particle as defined by the generator
+      - int simulatorStatus             //status of the particle from the simulation program
+      - float charge                    //particle charge
+      - float time                      //creation time of the particle in [ns] wrt. the event, e.g. for preassigned decays or decays in flight from the simulator.
+      - double mass                     //mass of the particle in [GeV]
+      - plcio::DoubleThree vertex              //production vertex of the particle in [mm].
+      - plcio::DoubleThree endpoint            //endpoint of the particle in [mm]
+      - plcio::FloatThree momentum             //particle 3-momentum at the production vertex in [GeV]
+      - plcio::FloatThree momentumAtEndpoint   //particle 3-momentum at the endpoint in [GeV]
+      - plcio::FloatThree spin                 //spin (helicity) vector of the particle. 
+      - plcio::IntTwo colorFlow                //color flow as defined by the generator
+    OneToManyRelations:
+      - plcio::MCParticle parents // The parents of this particle.
+      - plcio::MCParticle daughters // The daughters this particle.
+    ExtraCode :
+      includes: "#include <math.h>\n
+                 #include <vector_view.h>\n
+      "
+      const_declaration: "
+      // define the bit positions for the simulation flag\n
+      static const int BITEndpoint = 31;\n
+      static const int BITCreatedInSimulation = 30;\n
+      static const int BITBackscatter = 29 ;\n
+      static const int BITVertexIsNotEndpointOfParent = 28 ;  \n
+      static const int BITDecayedInTracker = 27 ; \n
+      static const int BITDecayedInCalorimeter = 26 ;   \n
+      static const int BITLeftDetector = 25 ;     \n
+      static const int BITStopped = 24 ;    \n
+      static const int BITOverlay = 23 ;    \n
+      /// return energy computed from momentum and mass \n
+      double getEnergy() { return sqrt( getMomentum()[0]*getMomentum()[0]+getMomentum()[1]*getMomentum()[1]+\n
+                                        getMomentum()[2]*getMomentum()[2] + getMass()*getMass()  )  ;}    \n
+      vector_view<ConstMCParticle> getParents() const { return vector_view<ConstMCParticle>( parents_begin(), parents_end()) ; } \n
+      vector_view<ConstMCParticle> getDaughters() const { return vector_view<ConstMCParticle>( daughters_begin(), daughters_end()) ; } \n
+      /// True if the particle has been created by the simulation program (rather than the generator).     \n
+      bool isCreatedInSimulation() const { return ( getSimulatorStatus() & ( 0x1 << BITCreatedInSimulation ))  ; }    \n
+      /// True if the particle is the result of a backscatter from a calorimeter shower. \n
+      bool isBackscatter() const { return ( getSimulatorStatus() & ( 0x1 << BITBackscatter )) ; }   \n
+      /// True if the particle's vertex is not the endpoint of the  parent particle.     \n
+      bool vertexIsNotEndpointOfParent() const { return ( getSimulatorStatus() & ( 0x1 << BITVertexIsNotEndpointOfParent )) ; } \n
+      /// True if the particle has interacted in a tracking region.                \n
+      bool isDecayedInTracker() const { return ( getSimulatorStatus() & ( 0x1 << BITDecayedInTracker )) ; }     \n
+      /// True if the particle has interacted in a calorimeter region.             \n
+      bool isDecayedInCalorimeter() const { return ( getSimulatorStatus() & ( 0x1 << BITDecayedInCalorimeter )) ; }   \n
+      /// True if the particle has left the world volume undecayed.                \n
+      bool hasLeftDetector() const { return ( getSimulatorStatus() & ( 0x1 << BITLeftDetector )) ; }\n
+      /// True if the particle has been stopped by the simulation program.         \n
+      bool isStopped() const { return ( getSimulatorStatus() & ( 0x1 << BITStopped )) ; }     \n
+      /// True if the particle has been overlayed by the simulation (or digitization)  program.\n
+      bool isOverlay() const { return ( getSimulatorStatus() & ( 0x1 << BITOverlay )) ; }     \n
+      "                                                                                                          
+      declaration: "                                                                                             
+      /// operator to allow pointer like calling of members a la LCIO     \n                                     
+      {name}* operator->() { return ({name}*) this ; }  \n
+      int  set_bit(int val, int num, bool bitval){ return (val & ~(1<<num)) | (bitval << num); }                               \n
+      void setCreatedInSimulation(bool bitval) { setSimulatorStatus( set_bit( getSimulatorStatus() , BITCreatedInSimulation , bitval ) ) ;  }  		     \n
+      void setBackscatter(bool bitval) { setSimulatorStatus( set_bit( getSimulatorStatus() , BITBackscatter , bitval ) ) ;   }  			     \n
+      void setVertexIsNotEndpointOfParent(bool bitval) { setSimulatorStatus( set_bit( getSimulatorStatus() , BITVertexIsNotEndpointOfParent , bitval ) ) ; } \n
+      void setDecayedInTracker(bool bitval) { setSimulatorStatus( set_bit( getSimulatorStatus() , BITDecayedInTracker , bitval ) ) ;   }  		     \n
+      void setDecayedInCalorimeter(bool bitval) { setSimulatorStatus( set_bit( getSimulatorStatus() , BITLeftDetector , bitval ) ) ;   }  		     \n
+      void setHasLeftDetector(bool bitval) { setSimulatorStatus( set_bit( getSimulatorStatus() , BITLeftDetector , bitval ) ) ;   }  			     \n
+      void setStopped(bool bitval) { setSimulatorStatus( set_bit( getSimulatorStatus() , BITStopped , bitval ) ) ;   }  				     \n
+      void setOverlay(bool bitval) { setSimulatorStatus( set_bit( getSimulatorStatus() , BITOverlay , bitval ) ) ;   }         \n 
+      "
+      implementation : ""
+
+  #----------- LCIO SimTrackerHit
+  plcio::SimTrackerHit:
+    Description: "LCIO simulated tracker hit"
+    Author : "F.Gaede, DESY"
+    Members:
+      - int cellID0          //ID of the sensor that created this hit
+      - int cellID1          //second ID of the sensor that created this hit
+      - float EDep           //energy deposited in the hit [GeV].
+      - float time           //proper time of the hit in the lab frame in [ns].
+      - float pathLength     //path length of the particle in the sensitive material that resulted in this hit.
+      - int   quality        //quality bit flag. 
+      - plcio::DoubleThree position //the hit position in [mm].
+      - plcio::FloatThree momentum  //the 3-momentum of the particle at the hits position in [GeV]
+    OneToOneRelations:
+      - plcio::MCParticle MCParticle //MCParticle that caused the hit.
+    ExtraCode :
+      const_declaration: "
+      static const int  BITOverlay = 31;\n
+      static const int  BITProducedBySecondary = 30;\n
+      bool isOverlay() const { return getQuality() & (1 << BITOverlay) ; }\n
+      bool isProducedBySecondary() const { return getQuality() & (1 << BITProducedBySecondary) ; }\n
+      "
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO\n             
+      {name}* operator->() { return ({name}*) this ; }  \n
+      int  set_bit(int val, int num, bool bitval){ return (val & ~(1<<num)) | (bitval << num); }\n
+      void setOverlay(bool val) { setQuality( set_bit( getQuality() , BITOverlay , val ) ) ;   }\n
+      void setProducedBySecondary(bool val) { setQuality( set_bit( getQuality() , BITProducedBySecondary , val ) ) ;   }\n
+      " 
+
+  #------------- LCIO CaloHitContribution
+  plcio::CaloHitContribution:
+    Description: "Monte Carlo contribution to SimCalorimeterHit"
+    Author : "F.Gaede, DESY"
+    Members:
+      - int   PDG                        //PDG code of the shower particle that caused this contribution.
+      - float energy                     //energy in [GeV] of the this contribution
+      - float time                       //time in [ns] of this contribution
+      - plcio::FloatThree stepPosition   //position of this energy deposition (step)
+    OneToOneRelations:
+      - plcio::MCParticle particle       //primary MCParticle that caused the shower responsible for this contribution to the hit.
+
+  #------------- LCIO SimCalorimeterHit
+  plcio::SimCalorimeterHit:
+    Description: "LCIO simulated calorimeter hit"
+    Author : "F.Gaede, DESY"
+    Members:
+      - int cellID0                       //detector specific (geometrical) cell id.
+      - int cellID1                       //second detector specific (geometrical) cell id.
+      - float energy                      //energy of the hit in [GeV]. 
+      - plcio::FloatThree position        //position of the hit in world coordinates.
+    OneToManyRelations:
+      - plcio::CaloHitContribution contributions  //Monte Carlo step contribution - parallel to particle
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO     \n             
+      {name}* operator->() { return ({name}*) this ; }  \n
+      "
+
+
+  #------------- LCIO LCFloatVec
+  plcio::LCFloatVec:
+    Description: "LCIO LCFloatVec"
+    Author : "F.Gaede, DESY"
+    VectorMembers:
+      - float values /// float values
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO     \n             
+      {name}* operator->() { return ({name}*) this ; }  \n
+      void push_back(float val){ addValue(val) ;}
+      "
+  #------------- LCIO LCIntVec
+  plcio::LCIntVec:
+    Description: "LCIO LCIntVec"
+    Author : "F.Gaede, DESY"
+    VectorMembers:
+      - int values /// int values
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO     \n             
+      {name}* operator->() { return ({name}*) this ; }  \n
+      void push_back(int val){ addValue(val) ;}
+      "
+  #------------- LCIO LCStrVec
+  plcio::LCStrVec:
+    Description: "LCIO LCStrVec"
+    Author : "F.Gaede, DESY"
+    VectorMembers:
+      - std::string values /// string values
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO     \n             
+      {name}* operator->() { return ({name}*) this ; }  \n
+      void push_back(const std::string& val){ addValue(val) ;}
+      "
+
+  #-------------  LCIO RawCalorimeterHit
+  plcio::RawCalorimeterHit:
+    Description: "LCIO raw calorimeter hit"
+    Author : "F.Gaede, DESY"
+    Members:
+      - int cellID0   //detector specific (geometrical) cell id.
+      - int cellID1   //second detector specific (geometrical) cell id.
+      - int amplitude //amplitude of the hit in ADC counts.
+      - int timeStamp //time stamp for the hit.
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO     \n             
+      {name}* operator->() { return ({name}*) this ; }  \n
+      "
+
+  #-------------  LCIO CalorimeterHit
+  plcio::CalorimeterHit:
+    Description: "LCIO calorimeter hit"
+    Author : "F.Gaede, DESY"
+    Members:
+      - int cellID0                //detector specific (geometrical) cell id.
+      - int cellID1                //second detector specific (geometrical) cell id.
+      - float energy               //energy of the hit in [GeV].
+      - float energyError          //error of the hit energy in [GeV].
+      - float time                 //time of the hit in [ns].
+      - plcio::FloatThree position //position of the hit in world coordinates.
+      - int type                   //type of hit. Mapping of integer types to names via collection parameters "CalorimeterHitTypeNames" and "CalorimeterHitTypeValues". 
+      - plcio::ObjectID rawHit     //reference to RawCalorimeterHit. 
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO     \n             
+      {name}* operator->() { return ({name}*) this ; }  \n
+      "
+
+  #-------------  LCIO TrackerHit
+  #   o FIXME: no specialisation for the different kind of geometries: TrackerHitPlane, TrackerHitZCylinder
+  #   o FIXME: should we define a FloatSix for the covMatrix or use the std::array ??? 
+  plcio::TrackerHit:
+    Description : "LCIO tracker hit"
+    Author : "F.Gaede, DESY"
+    Members :
+      - int cellID0                    //ID of the sensor that created this hit
+      - int cellID1                    //second ID of the sensor that created this hit
+      - int type                       //type of raw data hit, either one ofLCIO::TPCHIT, LCIO::SIMTRACKERHIT - see collection parameters "TrackerHitTypeNames" and "TrackerHitTypeValues". 
+      - int quality                    //quality bit flag of the hit.    
+      - float time                     //time of the hit.
+      - float eDep                     //energy deposited on the hit [GeV]. 
+      - float eDepError                //error measured on EDep [GeV].
+      - float edx                      //dE/dx of the hit in [GeV]. 
+      - plcio::DoubleThree position    //hit position in [mm].
+      - std::array<float,6> covMatrix  //covariance of the position (x,y,z), stored as lower triangle matrix. i.e. cov(x,x) , cov(y,x) , cov(y,y) , cov(z,x) , cov(z,y) , cov(z,z)
+    VectorMembers:
+      - plcio::ObjectID  rawHits       //raw data hits. Check getType to get actual data type. 
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO     \n             
+      {name}* operator->() { return ({name}*) this ; }  \n
+      "
+
+  #------------- LCIO LCGenericObject
+  #   o FIXME: this implementation is rather inefficicent ....
+  plcio::LCGenericObject:
+    Description: "LCIO LCGenericObject"
+    Author : "F.Gaede, DESY"
+    Members:
+      - int isFixedSize             //true if all objects have a fixed size, i.e getNInt, getNFloat and getNDouble will return values that are constant during the lifetime of the object
+      - std::string typeName        // The type name of the user class (typically the class name)
+      - std::string dataDescription // The description string. A comma separated list of pairs of type identifier, one of 'i','f','d' followed by ':' and an attribute name, e.g. "i cellId,f offset,f gain". 
+    VectorMembers:
+      - int    intVals // Returns the integer value for the given index. 
+      - float  floatVals // Returns the float value for the given index. 
+      - double doubleVals // Returns the double value for the given index. 
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO\n
+      {name}* operator->() { return ({name}*) this ; }\n
+      int getNInt()    const { return intVals_size() ; }\n
+      int getNFloat()  const { return floatVals_size() ; }\n
+      int getNDouble() const { return doubleVals_size() ; }\n
+      "
+
+
+  #---------- LCIO TPCHit
+  plcio::TPCHit:
+    Description: "LCIO TPCHit"
+    Author : "F.Gaede, DESY"
+    Members:
+       - int cellID         //detector specific cell id. 
+       - int quality        //quality flag for the hit. 
+       - float time         //time of the hit. 
+       - float charge       //integrated charge of the hit. 
+    VectorMembers:
+        - int rawDataWords //raw data (32-bit) word at i.
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO     \n             
+      {name}* operator->() { return ({name}*) this ; }  \n
+      "
+
+  #-------- LCIO Track 
+  plcio::Track:
+    Description: "LCIO reconstructed track"
+    Author : "F.Gaede, DESY"
+    Members:
+      - int type                         //flagword that defines the type of track.Bits 16-31 are used internally
+      - float chi2                       //Chi^2 of the track fit
+      - int ndf                          //number of degrees of freedom of the track fit
+      - float dEdx                       //dEdx of the track.
+      - float dEdxError                  //error of dEdx.
+      - float radiusOfInnermostHit       //radius of the innermost hit that has been used in the track fit
+    VectorMembers:
+      - int subDetectorHitNumbers        //number of hits in particular subdetectors.Check/set collection variable TrackSubdetectorNames for decoding the indices 
+      - plcio::TrackState trackStates    //track states
+    OneToManyRelations:
+      - plcio::TrackerHit trackerHits     //Optionaly ( check/set flag(LCIO::TRBIT_HITS)==1) return the hits that have been used to create this track
+      - plcio::Track tracks              //tracks (segemenbts) that have been combined to this track
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO     \n             
+      {name}* operator->() { return ({name}*) this ; }  \n
+      "
+
+  #----------- LCIO relations
+  plcio::LCRelation:
+    Description: "LCIO LCRelation"
+    Author : "F.Gaede, DESY"
+    Members:
+      - plcio::ObjectID from     //from-object of the given relation. 
+      - plcio::ObjectID to       //to-object of the given relation. 
+      - float           weight   //weight of the given relation
+
+      
+  #----------- LCIO reference (pointer)
+  plcio::LCReference:
+    Description: "LCIO reference (pointer) to be used for subset collections"
+    Author : "F.Gaede, DESY"
+    Members:
+      - plcio::ObjectID object  //object pointed to
+
+      
+  #----  LCIO ParticleID
+  plcio::ParticleID:
+    Description: "LCIO ParticleID - in pLCIO these are stored in separate collections"
+    Author : "F.Gaede, DESY"
+    Members:
+      - int   type           //userdefined type 
+      - int   pDG            //PDG code of this id - ( 999999 ) if unknown. 
+      - int   algorythmType  //type of the algorithm/module that created this hypothesis
+      - float likelihood     //likelihood of this hypothesis - in a user defined normalization.
+    VectorMembers:
+      - float parameters     //parameters associated with this hypothesis. Check/set collection parameters ParameterNames_PIDAlgorithmTypeName for decoding the indices.
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO     \n             
+      {name}* operator->() { return ({name}*) this ; }  \n
+      "
+
+     
+  #------ LCIO cluster
+  #   Changes w.r.t. to original
+  #     o ParticleIDs are now in external collection
+  plcio::Cluster:
+    Description: "LCIO cluster"
+    Author : "F.Gaede, DESY"
+    Members:
+      - int                  type            //flagword that defines the type of cluster. Bits 16-31 are used internally. 
+      - float                energy          //energy of the cluster [GeV]
+      - float                energyError     //error on the energy
+      - plcio::FloatThree    position        //position of the cluster.
+      - std::array<float,6>  positionError   //covariance matrix of the position (6 Parameters)
+      - float                iTheta          //intrinsic direction of cluster at position  Theta. Not to be confused with direction cluster is seen from IP. 
+      - float                phi             //intrinsic direction of cluster at position - Phi. Not to be confused with direction cluster is seen from IP. 
+      - plcio::FloatThree    directionError  //covariance matrix of the direction (3 Parameters)
+    VectorMembers:
+      - float   shape                //shape parameters - check/set collection parameter ClusterShapeParameters for size and names of parameters.
+      - float   weight               //weight of a particular cluster
+      - float   hitContributions     //energy contribution of the hits Runs parallel to the CalorimeterHitVec from getCalorimeterHits(). 
+      - float   subdetectorEnergies  //energy observed in a particular subdetector. Check/set collection parameter ClusterSubdetectorNames for decoding the indices of the array. 
+    OneToManyRelations:
+      - plcio::Cluster        clusters     //clusters that have been combined to this cluster.
+      - plcio::CalorimeterHit hits         //hits that have been combined to this cluster.
+      - plcio::ParticleID     particleIDs  //particle IDs (sorted by their likelihood) 
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO     \n             
+      {name}* operator->() { return ({name}*) this ; }  \n
+      "
+
+      
+  #------- LCIO ReconstructedParticle
+  #   Changes w.r.t. to original
+  #     o ParticleIDs are now in external collection
+  plcio::ReconstructedParticle:
+    Description: "LCIO Reconstructed Particle"
+    Author : "F.Gaede, DESY"
+    Members:
+      - int                    type           //type of reconstructed particle. Check/set collection parameters ReconstructedParticleTypeNames and ReconstructedParticleTypeValues.
+      - float                  energy         //energy of the reconstructed particle.
+      - plcio::FloatThree      momentum       //particle momentum
+      - plcio::FloatThree      referencePoint //reference, i.e. where the particle has been measured
+      - float                  charge         //charge of the reconstructed particle.
+      - float                  mass           //mass of the reconstructed particle, set independently from four vector
+      - float                  goodnessOfPID  //overall goodness of the PID on a scale of [0;1]
+      - std::array<float,10>   covMatrix      //cvariance matrix of the reconstructed particle 4vector (10 parameters). Stored as lower triangle matrix of the four momentum (px,py,pz,E), i.e. cov(px,px), cov(py,##
+    OneToOneRelations:
+      - plcio::Vertex          startVertex    //start vertex associated to this particle
+      - plcio::ParticleID      particleIDUsed //particle Id used for the kinematics of this particle
+    OneToManyRelations:
+      - plcio::Cluster               clusters     //clusters that have been used for this particle. 
+      - plcio::Track                 tracks       //tracks that have been used for this particle. 
+      - plcio::ReconstructedParticle particles    //reconstructed particles that have been combined to this particle.
+      - plcio::ParticleID            particleIDs  //particle Ids (not sorted by their likelihood) 
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO\n
+      {name}* operator->() { return ({name}*) this ; }\n
+      bool isCompound() { return particles_size() > 0 ;}\n
+      //vertex where the particle decays This method actually returns the start vertex from the first daughter particle found. 
+      plcio::Vertex  getEndVertex() { return  plcio::Vertex(  (getParticles(0).isAvailable() ? getParticles(0).getStartVertex() :  plcio::Vertex(0,0) ) ) ; }\n     
+      "
+
+  #---------- LCIO Vertex
+  #FIXME: lcio interface has algorithmType as string but stores int ...
+  plcio::Vertex:
+    Description: "LCIO vertex"
+    Author : "F.Gaede, DESY"
+    Members:
+      - int                 primary       //boolean flag, if vertex is the primary vertex of the event
+      - float               chi2          //chi-squared of the vertex fit
+      - float               probability   //probability of the vertex fit
+      - plcio::FloatThree   position      //position of the vertex.
+      - std::array<float,6> covMatrix     //covariance matrix of the position (stored as lower triangle matrix, i.e. cov(xx),cov(y,x),cov(z,x),cov(y,y),... )
+      - int                 algorithmType //type code for the algorithm that has been used to create the vertex - check/set the collection parameters AlgorithmName and AlgorithmType. 
+    VectorMembers:
+      - float               parameters    //additional parameters related to this vertex - check/set the collection parameter "VertexParameterNames" for the parameters meaning. 
+    OneToOneRelations:
+      - plcio::ReconstructedParticle   associatedParticle //reconstructed particle associated to this vertex.
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO     \n             
+      {name}* operator->() { return ({name}*) this ; }  \n
+      "
+
+  #-------   LCIO TrackerData
+  plcio::TrackerData:
+    Description: "LCIO tracker data"
+    Author : "F.Gaede, DESY"
+    Members:
+      - int      cellID0      //first detector specific (geometrical) cell id 
+      - int      cellID1      //second detector specific (geometrical) cell id
+      - float    time         //Returns a time measurement associated with the adc values, e.g. the t0 of the spectrum for the TPC. Subdetector dependent. 
+    VectorMembers:
+      - float    chargeValues //corrected (calibrated) FADC spectrum.
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO     \n             
+      {name}* operator->() { return ({name}*) this ; }  \n
+      "
+
+  #------ LCIO TrackerRawData
+  plcio::TrackerRawData:
+    Description: "LCIO tracker raw data"
+    Author : "F.Gaede, DESY"
+    Members:
+      - int    cellID0      //detector specific (geometrical) cell id.
+      - int    cellID1      //second detector specific (geometrical) cell id.Optional, check/set flag(LCIO::TRAWBIT_ID1)==1. 
+      - int    time         //time measurement associated with the adc values, e.g. the t0 of the spectrum for the TPC. Subdetector dependent. 
+    VectorMembers:
+      - short ADCValues     //FADC spectrum.
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO     \n             
+      {name}* operator->() { return ({name}*) this ; }  \n
+      "
+
+
+
+  #------  LCIO TrackerPulse
+  plcio::TrackerPulse:
+    Description : "LCIO tracker pulse"
+    Author : "F. Gaede, DESY"
+    Members:
+      - int                cellID0    //detector specific (geometrical) cell id.
+      - int                cellID1    //second detector specific (geometrical) cell id. Optional, check/set flag(LCIO::TRAWBIT_ID1)==1. 
+      - int                quality    //quality bit flag of the pulse - check/set collection parameters TrackerPulseQualityNames and TrackerPulseQualityNamesValues. 
+      - float              time       //time of the pulse - arbitrary units. 
+      - float              charge     //integrated charge of the pulse - arbitrary units.
+      - plcio::FloatThree  covMatrix  //covariance matrix of the charge (c) and time (t) measurements. Stored as lower triangle matrix, i.e. cov(c,c) , cov(t,c) , cov(t,t)
+    OneToOneRelations:
+      - plcio::TrackerData trackerData //TrackerData that has been used to create the pulse can be stored with the pulse
+    ExtraCode :
+      declaration: "
+      /// operator to allow pointer like calling of members a la LCIO     \n             
+      {name}* operator->() { return ({name}*) this ; }  \n
+      "
+
+
