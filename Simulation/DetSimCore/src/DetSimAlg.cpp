@@ -4,14 +4,15 @@
 #include "GaudiKernel/GaudiException.h"
 
 #include "G4RunManager.hh"
-
-#include "DetectorConstruction.h"
-
-#include "G4PhysListFactory.hh"
 #include "G4UImanager.hh"
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
+
+#include "DetectorConstruction.h"
+#include "G4PhysListFactory.hh"
 #include "PrimaryGeneratorAction.h"
+
+#include "ActionInitialization.h"
 
 DECLARE_COMPONENT(DetSimAlg)
 
@@ -53,6 +54,9 @@ DetSimAlg::initialize() {
     runmgr->SetUserInitialization(physicsList);
     // Primary Generator Action
     runmgr->SetUserAction(new PrimaryGeneratorAction());
+
+    // User Actions
+    runmgr->SetUserInitialization(new ActionInitialization());
 
     // Vis Mac
     bool hasVis = false;

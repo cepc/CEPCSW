@@ -13,6 +13,9 @@ set(DetSimCore_srcs
     src/DetSimSvc.cpp
     src/DetectorConstruction.cpp
     src/PrimaryGeneratorAction.cpp
+    src/ActionInitialization.cpp
+    src/RunAction.cpp
+    src/EventAction.cpp
 )
 
 gaudi_add_module(DetSimCore ${DetSimCore_srcs}
