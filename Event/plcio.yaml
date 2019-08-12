@@ -85,7 +85,7 @@ components:
         includes: "#include <podio/ObjectID.h>\n"
         declaration: "
         ObjectID() = default;\n
-        ObjectID(const podio::ObjectID& id ): index(id.index), collectionID(id.collectionID) {}\n
+        ObjectID(const podio::ObjectID& id ): collectionID(id.collectionID), index(id.index) {}\n
       "
 #################################################################################################################
 #
