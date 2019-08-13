@@ -22,6 +22,8 @@ private:
     Gaudi::Property<double> m_x{this, "X", 30.*m};
     Gaudi::Property<double> m_y{this, "Y", 30.*m};
     Gaudi::Property<double> m_z{this, "Z", 30.*m};
+    // DD4hep XML compact file path
+    Gaudi::Property<std::string> m_dd4hep_xmls{this, "detxml"};
 };
 
 #endif

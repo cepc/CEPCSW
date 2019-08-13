@@ -7,6 +7,7 @@ gaudi_depends_on_subdirs(
 
 find_package(Geant4 REQUIRED ui_all vis_all)
 include(${Geant4_USE_FILE})
+find_package(DD4hep COMPONENTS DDG4 REQUIRED)
 
 set(DetSimGeom_srcs
     src/WorldDetElemTool.cpp
@@ -14,6 +15,6 @@ set(DetSimGeom_srcs
 )
 
 gaudi_add_module(DetSimGeom ${DetSimGeom_srcs}
-    INCLUDE_DIRS DetSimInterface GaudiKernel Geant4
-    LINK_LIBRARIES DetSimInterface GaudiKernel Geant4
+    INCLUDE_DIRS DetSimInterface DD4hep GaudiKernel Geant4
+    LINK_LIBRARIES DetSimInterface DD4hep ${DD4hep_COMPONENT_LIBRARIES} GaudiKernel Geant4
 )
