@@ -30,13 +30,15 @@ file(GLOB headers Event/*.h)
 include_directories(Event)
 
 # Dictionary and Modules
+add_library(Event SHARED ${sources} ${headers})
+target_link_libraries(Event podio)
+install(TARGETS Event DESTINATION lib)
+
 REFLEX_GENERATE_DICTIONARY(Event ${headers} SELECTION src/selection.xml)
 add_library(EventDict SHARED Event.cxx)
 add_dependencies(EventDict Event-dictgen)
-target_link_libraries(EventDict Event ROOT::Core)
-
-add_library(Event SHARED ${sources} ${headers})
-target_link_libraries(Event podio ROOT::RIO ROOT::Tree)
+target_link_libraries(EventDict Event)
+install(TARGETS EventDict DESTINATION lib)
 
 # Headers and Libraries
 gaudi_install_headers(Event)
@@ -44,6 +46,13 @@ gaudi_install_headers(Event)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/EventDict.rootmap DESTINATION lib)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Event_rdict.pcm DESTINATION lib)
 
-# Unit tests
-#gaudi_add_test(HelloAlg
-#               FRAMEWORK options/helloalg.py)
+# tests
+add_executable( write tests/write.cpp )
+target_link_libraries( write EventDict )
+install(TARGETS write DESTINATION tests)
+add_test(NAME write COMMAND write)
+set_property(TEST write PROPERTY ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$ENV{LD_LIBRARY_PATH})
+
+#add_test(NAME read COMMAND read)
+#set_property(TEST read PROPERTY ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$ENV{LD_LIBRARY_PATH})
+#set_property(TEST read PROPERTY DEPENDS write)
