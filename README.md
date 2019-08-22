@@ -1,6 +1,9 @@
 # CEPCSW
 
-CEPC offline software prototype based on Gaudi
+CEPC offline software prototype based on Gaudi.
+
+The core part of this project (CEPCSW/FWCore) is taken from FCCSW/FWCore.
+Please refer to https://github.com/HEP-FCC/FCCSW
 
 ## Quick start
 
