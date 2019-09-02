@@ -1,4 +1,5 @@
 #include "PlcioWriteAlg.h"
+#include "plcio/EventHeaderCollection.h"
 #include "plcio/MCParticleCollection.h"
 
 DECLARE_COMPONENT(PlcioWriteAlg)
@@ -6,7 +7,8 @@ DECLARE_COMPONENT(PlcioWriteAlg)
 PlcioWriteAlg::PlcioWriteAlg(const std::string& name, ISvcLocator* svcLoc)
     : GaudiAlgorithm(name, svcLoc)
 {
-    declareProperty("MCParticleCol", m_hdl, "MCParticle collection (output)");
+    declareProperty("HeaderCol", m_headerCol);
+    declareProperty("OutputCol", m_mcParCol, "MCParticle collection (output)");
 }
 
 StatusCode PlcioWriteAlg::initialize()
@@ -19,7 +21,17 @@ StatusCode PlcioWriteAlg::execute()
 {
     debug() << "begin execute PlcioWriteAlg" << endmsg;
 
-    auto mcCol = new plcio::MCParticleCollection;
+    static int evtNo = 0;
+
+    auto headers = m_headerCol.createAndPut();
+    auto header = headers->create();
+    header->setRunNumber(-999);
+    header->setEventNumber(evtNo++);
+    header->setDetectorName("TEST");
+
+    //auto mcCol = new plcio::MCParticleCollection;
+    //m_mcParCol.put(mcCol);
+    auto mcCol = m_mcParCol.createAndPut();
 
     auto p1 = mcCol->create();
     auto p2 = mcCol->create();
@@ -31,8 +43,6 @@ StatusCode PlcioWriteAlg::execute()
         p1.addDaughter(d);
         p2.addDaughter(d);
     }
-
-    m_hdl.put(mcCol);
 
     return StatusCode::SUCCESS;
 }

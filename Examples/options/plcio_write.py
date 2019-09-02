@@ -7,6 +7,7 @@ dsvc = CEPCDataSvc("EventDataSvc")
 
 from Configurables import PlcioWriteAlg
 alg = PlcioWriteAlg("PlcioWriteAlg")
+alg.OutputCol.Path = "MCParticleCol"
 
 from Configurables import PodioOutput
 out = PodioOutput("out")

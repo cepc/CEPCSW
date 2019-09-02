@@ -1,4 +1,5 @@
 #include "PlcioReadAlg.h"
+#include "plcio/EventHeaderCollection.h"
 #include "plcio/MCParticleCollection.h"
 
 DECLARE_COMPONENT(PlcioReadAlg)
@@ -6,7 +7,8 @@ DECLARE_COMPONENT(PlcioReadAlg)
 PlcioReadAlg::PlcioReadAlg(const std::string& name, ISvcLocator* svcLoc)
     : GaudiAlgorithm(name, svcLoc)
 {
-    declareProperty("MCParticleCol", m_hdl, "MCParticle collection (input)");
+    declareProperty("HeaderCol", m_headerCol);
+    declareProperty("InputCol", m_mcParCol, "MCParticle collection (input)");
 }
 
 StatusCode PlcioReadAlg::initialize()
@@ -18,16 +20,20 @@ StatusCode PlcioReadAlg::initialize()
 StatusCode PlcioReadAlg::execute()
 {
     debug() << "begin execute PlcioReadAlg" << endmsg;
-    auto mcCol = m_hdl.get();
 
+    auto headers = m_headerCol.get();
+    auto header = headers->at(0);
+    auto mcCol = m_mcParCol.get();
+
+    info() << "Run " << header.getRunNumber() << " Event " << header.getEventNumber() << " { ";
     for ( auto p : *mcCol ) {
-        debug() << p.getObjectID().index << " : [";
+        info() << p.getObjectID().index << " : [";
         for ( auto it = p.daughters_begin(), end = p.daughters_end(); it != end; ++it ) {
-            debug() << " " << it->getObjectID().index;
+            info() << " " << it->getObjectID().index;
         }
-        debug() << " ]; ";
+        info() << " ]; ";
     }
-    debug() << endmsg;
+    info() << "}" << endmsg;
 
     return StatusCode::SUCCESS;
 }
