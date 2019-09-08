@@ -6,7 +6,9 @@
 #include "G4ParticleDefinition.hh"
 
 
-PrimaryGeneratorAction::PrimaryGeneratorAction() {
+PrimaryGeneratorAction::PrimaryGeneratorAction(ToolHandle<IG4PrimaryCnvTool>& cnvtool) 
+    : G4VUserPrimaryGeneratorAction(), 
+      tool(cnvtool) {
 
 }
 
@@ -17,6 +19,10 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
 void
 PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
     // Generate Vertex (G4PrimaryVertex) and Particle (G4PrimaryParticle).
+    if (tool) {
+        tool->mutate(anEvent);
+    }
+
 
     // Following is an example:
     double x = 0.0;

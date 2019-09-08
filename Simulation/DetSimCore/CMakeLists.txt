@@ -14,6 +14,7 @@ set(DetSimCore_srcs
     src/DetSimSvc.cpp
     src/DetectorConstruction.cpp
     src/PrimaryGeneratorAction.cpp
+    src/G4PrimaryCnvTool.cpp
     src/ActionInitialization.cpp
     src/RunAction.cpp
     src/EventAction.cpp

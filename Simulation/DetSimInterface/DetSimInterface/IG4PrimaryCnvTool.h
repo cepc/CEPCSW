@@ -16,7 +16,7 @@ public:
 
     virtual ~IG4PrimaryCnvTool() {};
 
-    virtual mutate(G4Event* anEvent) = 0;
+    virtual bool mutate(G4Event* anEvent) = 0;
 };
 
 #endif

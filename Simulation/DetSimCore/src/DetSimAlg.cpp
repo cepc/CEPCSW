@@ -54,7 +54,11 @@ DetSimAlg::initialize() {
     assert(physicsList);
     runmgr->SetUserInitialization(physicsList);
     // Primary Generator Action
-    runmgr->SetUserAction(new PrimaryGeneratorAction());
+    if (!m_prim_cnvtool) {
+        error() << "Failed to get the primary cnvtool." << endmsg;
+        return StatusCode::FAILURE;
+    }
+    runmgr->SetUserAction(new PrimaryGeneratorAction(m_prim_cnvtool));
 
     // User Actions
     for (auto anaelem: m_ana_elems.value()) {

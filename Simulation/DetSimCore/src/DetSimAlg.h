@@ -9,6 +9,7 @@
 #include <GaudiKernel/ToolHandle.h>
 
 #include <DetSimInterface/IDetSimSvc.h>
+#include <DetSimInterface/IG4PrimaryCnvTool.h>
 #include <DetSimInterface/IAnaElemTool.h>
 #include <DetSimInterface/IDetElemTool.h>
 
@@ -24,6 +25,7 @@ private:
     SmartIF<IDetSimSvc> m_detsimsvc;
     ToolHandleArray<IAnaElemTool> m_anaelemtools;
     ToolHandle<IDetElemTool> m_root_detelem;
+    ToolHandle<IG4PrimaryCnvTool> m_prim_cnvtool{"G4PrimaryCnvTool", this};
 
 private:
 
