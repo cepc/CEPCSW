@@ -63,3 +63,8 @@ DetectorConstruction::Construct() {
     return physiWorld;
 
 }
+
+void
+DetectorConstruction::ConstructSDandField() {
+
+}

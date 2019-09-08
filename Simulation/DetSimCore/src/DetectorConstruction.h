@@ -19,7 +19,8 @@ public:
     DetectorConstruction(ToolHandle<IDetElemTool>& root_elem);
     ~DetectorConstruction();
 public:
-    G4VPhysicalVolume* Construct();
+    G4VPhysicalVolume* Construct() override;
+    void ConstructSDandField() override;
 
 private:
     ToolHandle<IDetElemTool>& m_root_detelem;
