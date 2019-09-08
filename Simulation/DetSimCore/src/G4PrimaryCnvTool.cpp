@@ -25,8 +25,11 @@ bool G4PrimaryCnvTool::mutate(G4Event* anEvent) {
 
         // vertex
         const plcio::DoubleThree& vertex = p.getVertex();
-        double t = p.getMass();
-        G4PrimaryVertex* g4vtx = new G4PrimaryVertex(vertex.x, vertex.y, vertex.z, t);
+        double t = p.getTime()*CLHEP::ns;
+        G4PrimaryVertex* g4vtx = new G4PrimaryVertex(vertex.x*CLHEP::mm,
+                                                     vertex.y*CLHEP::mm,
+                                                     vertex.z*CLHEP::mm,
+                                                     t);
         // pdg/particle
         int pdgcode = p.getPDG();
         G4ParticleTable* particletbl = G4ParticleTable::GetParticleTable();
@@ -35,9 +38,9 @@ bool G4PrimaryCnvTool::mutate(G4Event* anEvent) {
         // momentum
         const plcio::FloatThree& momentum = p.getMomentum();
         G4PrimaryParticle* g4prim = new G4PrimaryParticle(particle_def,
-                                                          momentum.x,
-                                                          momentum.y,
-                                                          momentum.z);
+                                                          momentum.x*CLHEP::GeV,
+                                                          momentum.y*CLHEP::GeV,
+                                                          momentum.z*CLHEP::GeV);
 
         g4vtx->SetPrimary(g4prim);
 
