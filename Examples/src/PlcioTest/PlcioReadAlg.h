@@ -5,7 +5,6 @@
 #include "GaudiAlg/GaudiAlgorithm.h"
 
 namespace plcio {
-    class EventHeaderCollection;
     class MCParticleCollection;
 }
 
@@ -23,8 +22,7 @@ class PlcioReadAlg : public GaudiAlgorithm
 
     private :
 
-        DataHandle<plcio::EventHeaderCollection> m_headerCol{"EventHeaderCol", Gaudi::DataHandle::Reader, this};
-        DataHandle<plcio::MCParticleCollection> m_mcParCol{"MCParticleCol", Gaudi::DataHandle::Reader, this};
+        DataHandle<plcio::MCParticleCollection> m_hdl{"MCParticle", Gaudi::DataHandle::Reader, this};
 
 };
 
