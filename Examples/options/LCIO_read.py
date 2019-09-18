@@ -7,9 +7,12 @@ dsvc = LCIODataSvc("EventDataSvc", input="/cefs/data/FullSim/CEPC240/CEPC_v4/hig
 
 from Configurables import PlcioReadAlg
 alg = PlcioReadAlg("PlcioReadAlg")
+alg.InputCol.Path = "MCParticle"
+alg.HeaderCol.Path = "EventHeader"
 
 from Configurables import LCIOInput
 lcioinput = LCIOInput("LCIOReader", collections=[
+    "EventHeader",
     "MCParticle",
     "COILCollection",
     "EcalBarrelSiliconCollection",
