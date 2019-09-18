@@ -3,6 +3,7 @@ gaudi_subdir(Examples v0r0)
 
 find_package(podio REQUIRED)
 find_package(plcio REQUIRED)
+find_package(LCIO REQUIRED)
 
 set(Examples_srcs
     src/HelloWorld/*.cpp
@@ -17,8 +18,8 @@ gaudi_install_headers(Examples)
 
 # Modules
 gaudi_add_module(Examples ${Examples_srcs}
-    INCLUDE_DIRS GaudiKernel FWCore ${plcio_INCLUDE_DIRS} ${podio_INCLUDE_DIRS}
-    LINK_LIBRARIES GaudiKernel FWCore ${podio_LIBRARIES} $ENV{PLCIO}/lib/libplcio.so
+    INCLUDE_DIRS GaudiKernel FWCore ${plcio_INCLUDE_DIRS} ${podio_INCLUDE_DIRS} ${LCIO_INCLUDE_DIRS}
+    LINK_LIBRARIES GaudiKernel FWCore ${podio_LIBRARIES} ${LCIO_LIBRARIES} $ENV{PLCIO}/lib/libplcio.so
 )
 
 # Unit tests
@@ -33,3 +34,7 @@ gaudi_add_test(PlcioWriteAlg
 
 gaudi_add_test(PlcioReadAlg
                FRAMEWORK options/plcio_read.py)
+
+gaudi_add_test(LCIOReadAlg
+               FRAMEWORK options/LCIO_read.py)
+
