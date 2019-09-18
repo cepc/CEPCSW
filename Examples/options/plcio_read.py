@@ -7,12 +7,13 @@ dsvc = CEPCDataSvc("EventDataSvc", input="test.root")
 
 from Configurables import PlcioReadAlg
 alg = PlcioReadAlg("PlcioReadAlg")
-alg.InputCol.Path = "MCParticleCol"
+alg.HeaderCol.Path = "EventHeader"
+alg.InputCol.Path = "MCParticle"
 
 from Configurables import PodioInput
 podioinput = PodioInput("PodioReader", collections=[
-    "EventHeaderCol",
-    "MCParticleCol"
+    "EventHeader",
+    "MCParticle"
     ])
 
 # ApplicationMgr
