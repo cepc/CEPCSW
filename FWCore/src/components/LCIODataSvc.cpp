@@ -74,7 +74,7 @@ void LCIODataSvc::endOfRead() {
   if (m_eventMax != -1) {
     // m_provider.clearCaches();
     // m_reader.endOfEvent();
-    if (m_eventNum++ > m_eventMax) {
+    if ( ++m_eventNum >= m_eventMax ) {
       info() << "Reached end of file with event " << m_eventMax << endmsg;
       IEventProcessor* eventProcessor;
       service("ApplicationMgr", eventProcessor);
