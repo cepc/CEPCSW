@@ -34,11 +34,10 @@ StatusCode LCIODataSvc::initialize() {
   }
 
   if (m_filenames.size() > 0) {
-    if (m_filenames[0] != "") {
-      m_reader->open(m_filenames);
-      m_eventMax = m_reader->getNumberOfEvents();
-    }
+    m_reader->open(m_filenames[0]);
+    m_eventMax = m_reader->getNumberOfEvents();
   }
+
   return status;
 }
 /// Service reinitialisation
@@ -48,6 +47,9 @@ StatusCode LCIODataSvc::reinitialize() {
 }
 /// Service finalization
 StatusCode LCIODataSvc::finalize() {
+  m_reader->close();
+  delete m_reader;
+  m_reader = nullptr;
   m_cnvSvc = 0;  // release
   DataSvc::finalize().ignore();
   return StatusCode::SUCCESS;
@@ -75,10 +77,17 @@ void LCIODataSvc::endOfRead() {
     // m_provider.clearCaches();
     // m_reader.endOfEvent();
     if ( ++m_eventNum >= m_eventMax ) {
-      info() << "Reached end of file with event " << m_eventMax << endmsg;
-      IEventProcessor* eventProcessor;
-      service("ApplicationMgr", eventProcessor);
-      eventProcessor->stopRun();
+      if ( ++m_fileIndex < m_filenames.size() ) {  // move to next file
+        m_reader->close();
+        m_reader->open( m_filenames[m_fileIndex] );
+        m_eventMax += m_reader->getNumberOfEvents();
+      }
+      else {  // reach to the end of the file list
+        info() << "Reached end of file with event " << m_eventMax << endmsg;
+        IEventProcessor* eventProcessor;
+        service("ApplicationMgr", eventProcessor);
+        eventProcessor->stopRun();
+      }
     }
   }
   evt = nullptr;
