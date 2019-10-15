@@ -50,6 +50,14 @@ WorldDetElemTool::getLV() {
     return logicWorld;
 }
 
+void
+WorldDetElemTool::ConstructSDandField() {
+    // After the whole detector volumes are constructed,
+    // now start the construction of SD.
+   ToolHandle<IDetElemTool> inner_detelem_tool("AnExampleDetElemTool");
+   inner_detelem_tool->ConstructSDandField();
+}
+
 StatusCode
 WorldDetElemTool::initialize() {
     StatusCode sc;

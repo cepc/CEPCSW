@@ -66,5 +66,6 @@ DetectorConstruction::Construct() {
 
 void
 DetectorConstruction::ConstructSDandField() {
-
+    // Each detelem is responsible for associating SD/Field and its volumes.
+    m_root_detelem->ConstructSDandField();
 }

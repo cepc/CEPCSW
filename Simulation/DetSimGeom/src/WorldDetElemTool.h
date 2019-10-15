@@ -10,6 +10,7 @@ public:
     using extends::extends;
 
     G4LogicalVolume* getLV() override;
+    void ConstructSDandField() override;
 
     StatusCode initialize() override;
     StatusCode finalize() override;

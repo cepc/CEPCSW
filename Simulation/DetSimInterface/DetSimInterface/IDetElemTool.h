@@ -19,7 +19,7 @@ public:
 
     // return the constructed detector
     virtual G4LogicalVolume* getLV() = 0;
-
+    virtual void ConstructSDandField() {}
 };
 
 #endif
