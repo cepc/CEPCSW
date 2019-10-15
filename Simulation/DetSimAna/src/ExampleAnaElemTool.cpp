@@ -51,7 +51,14 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
             warning() << "Collection iCol " << icol << " is missing" << endmsg;
             continue;
         }
-        info() << "Collection " << collect->GetName() << endmsg;
+        size_t nhits = collect->GetSize();
+        info() << "Collection " << collect->GetName()
+               << " #" << icol
+               << " has " << nhits << " hits."
+               << endmsg;
+
+
+        
     }
 }
 

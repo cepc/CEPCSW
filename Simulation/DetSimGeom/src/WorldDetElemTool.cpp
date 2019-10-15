@@ -27,27 +27,28 @@ DECLARE_COMPONENT(WorldDetElemTool)
 G4LogicalVolume*
 WorldDetElemTool::getLV() {
 
-    G4Material* Galactic = G4Material::GetMaterial("Galactic");
+    // G4Material* Galactic = G4Material::GetMaterial("Galactic");
 
-    G4VSolid* solidWorld= new G4Box("sWorld", 60*m, 60*m, 60*m);
-    G4LogicalVolume* logicWorld= new G4LogicalVolume( solidWorld, Galactic, "lWorld", 0, 0, 0);
+    // G4VSolid* solidWorld= new G4Box("sWorld", 60*m, 60*m, 60*m);
+    // G4LogicalVolume* logicWorld= new G4LogicalVolume( solidWorld, Galactic, "lWorld", 0, 0, 0);
 
     // An example, get a detelem first, then place the detector components inside world.
     ToolHandle<IDetElemTool> inner_detelem_tool("AnExampleDetElemTool");
     G4LogicalVolume* inner_lv = inner_detelem_tool->getLV();
 
     if (inner_lv) {
-        new G4PVPlacement(0,                   // no rotation
-                          G4ThreeVector(),     // at (0,0,0)
-                          inner_lv,            // logical volume
-                          "pAnExampleDetElem", // name
-                          logicWorld,          // mother volume
-                          false,               // no boolean operations
-                          0);                  // no field
+        // new G4PVPlacement(0,                   // no rotation
+        //                   G4ThreeVector(),     // at (0,0,0)
+        //                   inner_lv,            // logical volume
+        //                   "pAnExampleDetElem", // name
+        //                   logicWorld,          // mother volume
+        //                   false,               // no boolean operations
+        //                   0);                  // no field
     } else {
         warning() << "Can't Find the logical volume ExampleDetElem " << std::endl;
     }
-    return logicWorld;
+    // return logicWorld;
+    return inner_lv;
 }
 
 void

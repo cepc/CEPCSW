@@ -29,10 +29,10 @@ DECLARE_COMPONENT(AnExampleDetElemTool)
 G4LogicalVolume*
 AnExampleDetElemTool::getLV() {
 
-    G4Material* Galactic = G4Material::GetMaterial("Galactic");
+    // G4Material* Galactic = G4Material::GetMaterial("Galactic");
 
-    G4VSolid* solidAnExample= new G4Box("sAnExample", m_x.value(), m_y.value(), m_z.value());
-    G4LogicalVolume* logicAnExample= new G4LogicalVolume( solidAnExample, Galactic, "lAnExample", 0, 0, 0);
+    // G4VSolid* solidAnExample= new G4Box("sAnExample", m_x.value(), m_y.value(), m_z.value());
+    // G4LogicalVolume* logicAnExample= new G4LogicalVolume( solidAnExample, Galactic, "lAnExample", 0, 0, 0);
 
     // Following is an example to get the DD4hep volume
     dd4hep::Detector* dd4hep_geo = &(dd4hep::Detector::getInstance());
@@ -48,19 +48,20 @@ AnExampleDetElemTool::getLV() {
     G4LogicalVolume* logicDD4hepExample = m_world->GetLogicalVolume();
 
     if (logicDD4hepExample) {
-        new G4PVPlacement(0,                   // no rotation
-                          G4ThreeVector(),     // at (0,0,0)
-                          logicDD4hepExample,  // logical volume
-                          "lDD4hepExampleDetElem", // name
-                          logicAnExample,      // mother volume
-                          false,               // no boolean operations
-                          0);                  // no field
+        // new G4PVPlacement(0,                   // no rotation
+        //                   G4ThreeVector(),     // at (0,0,0)
+        //                   logicDD4hepExample,  // logical volume
+        //                   "lDD4hepExampleDetElem", // name
+        //                   logicAnExample,      // mother volume
+        //                   false,               // no boolean operations
+        //                   0);                  // no field
     } else {
         warning() << "Can't Find the logical volume lDD4hepExampleDetElem " << std::endl;
     }
 
 
-    return logicAnExample;
+    // return logicAnExample;
+    return logicDD4hepExample;
 }
 
 void
@@ -89,7 +90,7 @@ AnExampleDetElemTool::ConstructSDandField() {
         G4VSensitiveDetector* g4sd = dd4hep::PluginService::Create<G4VSensitiveDetector*>(typ, nam, lcdd);
         if (g4sd == nullptr) {
             std::string tmp = typ;
-            // tmp[0] = ::toupper(tmp[0]);
+            tmp[0] = ::toupper(tmp[0]);
             typ = "Geant4" + tmp;
             g4sd = dd4hep::PluginService::Create<G4VSensitiveDetector*>(typ, nam, lcdd);
             if (g4sd == nullptr) {
@@ -112,6 +113,7 @@ AnExampleDetElemTool::ConstructSDandField() {
                 throw std::runtime_error("ConstructSDandField: Failed to access G4LogicalVolume for SD " + nam + " of type " +
                                          typ + ".");
             }
+            info() << " -> Adding " << g4v->GetName() << endmsg;
             G4SDManager::GetSDMpointer()->AddNewDetector(g4sd);
             g4v->SetSensitiveDetector(g4sd);
         }
