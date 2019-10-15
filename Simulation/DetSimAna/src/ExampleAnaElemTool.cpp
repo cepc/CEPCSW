@@ -59,6 +59,10 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
                << " #" << icol
                << " has " << nhits << " hits."
                << endmsg;
+        if (nhits==0) {
+            // just skip this collection.
+            continue;
+        }
         // There are different types (new and old)
 
         dd4hep::sim::Geant4HitCollection* coll = dynamic_cast<dd4hep::sim::Geant4HitCollection*>(collect);
