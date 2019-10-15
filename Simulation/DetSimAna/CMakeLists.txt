@@ -2,6 +2,7 @@
 gaudi_subdir(DetSimAna v0r0)
 
 gaudi_depends_on_subdirs(
+    FWCore
     Simulation/DetSimInterface
 )
 
@@ -20,8 +21,8 @@ set(DetSimAna_srcs
 message("podio_LIBRARIES: ${podio_LIBRARIES}")
 message("plcio_LIBRARIES: ${plcio_LIBRARIES}")
 gaudi_add_module(DetSimAna ${DetSimAna_srcs}
-    INCLUDE_DIRS DetSimInterface DD4hep GaudiKernel Geant4 
+    INCLUDE_DIRS DetSimInterface FWCore DD4hep GaudiKernel Geant4 
                  ${plcio_INCLUDE_DIRS} ${podio_INCLUDE_DIRS}
-    LINK_LIBRARIES DetSimInterface DD4hep ${DD4hep_COMPONENT_LIBRARIES} GaudiKernel Geant4
+    LINK_LIBRARIES DetSimInterface FWCore DD4hep ${DD4hep_COMPONENT_LIBRARIES} GaudiKernel Geant4
                  ${plcio_LIBRARIES} ${podio_LIBRARIES}
 )

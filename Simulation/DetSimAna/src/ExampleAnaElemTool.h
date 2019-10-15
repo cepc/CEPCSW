@@ -2,7 +2,10 @@
 #define ExampleAnaElemTool_h
 
 #include "GaudiKernel/AlgTool.h"
+#include "FWCore/DataHandle.h"
 #include "DetSimInterface/IAnaElemTool.h"
+
+#include "plcio/SimTrackerHitCollection.h"
 
 class ExampleAnaElemTool: public extends<AlgTool, IAnaElemTool> {
 
@@ -30,6 +33,10 @@ public:
     /// Overriding initialize and finalize
     StatusCode initialize() override;
     StatusCode finalize() override;
+
+private:
+    DataHandle<plcio::SimTrackerHitCollection> m_trackerCol{"SimTrackerCol", 
+            Gaudi::DataHandle::Writer, this};
 
 };
 

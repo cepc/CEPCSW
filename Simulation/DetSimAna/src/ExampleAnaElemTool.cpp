@@ -33,6 +33,9 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
 
     // save all data
 
+    // create collections.
+    auto trackercols = m_trackerCol.createAndPut();
+
     // readout defined in DD4hep
     auto lcdd = &(dd4hep::Detector::getInstance());
     auto allReadouts = lcdd->readouts();
@@ -107,6 +110,9 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
                 dd4hep::sim::Geant4TrackerHit* trk_hit = dynamic_cast<dd4hep::sim::Geant4TrackerHit*>(h);
                 if (trk_hit) {
                     info() << " cast to dd4hep::sim::Geant4TrackerHit. " << endmsg;
+
+                    auto edm_trk_hit = trackercols->create();
+
                 }
 
                 dd4hep::sim::Geant4CalorimeterHit* cal_hit = dynamic_cast<dd4hep::sim::Geant4CalorimeterHit*>(h);
