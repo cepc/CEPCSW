@@ -9,15 +9,23 @@
 #include "lcio.h"
 // #include "IO/LCReader.h"
 // #include "EVENT/LCCollection.h"
-#include "EVENT/MCParticle.h"
+#include "EVENT/Vertex.h"
 #include "EVENT/SimTrackerHit.h"
-#include "EVENT/SimCalorimeterHit.h"
 #include "plcio/SimTrackerHit.h"
 #include "plcio/SimTrackerHitCollection.h"
+#include "EVENT/SimCalorimeterHit.h"
 #include "plcio/SimCalorimeterHit.h"
 #include "plcio/SimCalorimeterHitCollection.h"
+#include "EVENT/MCParticle.h"
 #include "plcio/MCParticle.h"
 #include "plcio/MCParticleCollection.h"
+#include "plcio/VertexCollection.h"
+#include "EVENT/TPCHit.h"
+#include "plcio/TPCHit.h"
+#include "plcio/TPCHitCollection.h"
+#include "EVENT/Cluster.h"
+#include "plcio/Cluster.h"
+#include "plcio/ClusterCollection.h"
 
 #include <utility>
 // Forward declarations
@@ -53,13 +61,13 @@ public:
   static podio::CollectionBase* Convertor_LCRunHeader(EVENT::LCCollection*);
   static podio::CollectionBase* Convertor_SimTrackerHit(EVENT::LCCollection*);
   static podio::CollectionBase* Convertor_SimCalorimeterHit(EVENT::LCCollection*);
+  static podio::CollectionBase* Convertor_Cluster(EVENT::LCCollection*);
+  static podio::CollectionBase* Convertor_Vertex(EVENT::LCCollection*);
+  static podio::CollectionBase* Convertor_TPCHit(EVENT::LCCollection*);
 
-  static void void_Core_MCParticle(EVENT::MCParticle*, plcio::MCParticle&);
-  static plcio::MCParticleCollection* Core_MCParticle(EVENT::LCCollection*);
+  static void setMCParticle(EVENT::MCParticle*, plcio::MCParticle&);
 
   bool isReady(const std::string&);
-  void setPlcioMCParticleCollection(plcio::MCParticleCollection*);
-  void setLCIOMCParticleCollection(EVENT::LCCollection*);
 
 private:
   std::string TypeName;
