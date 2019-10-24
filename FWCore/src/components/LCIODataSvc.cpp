@@ -158,6 +158,7 @@ StatusCode LCIODataSvc::readCollection(const std::string& collName, int collecti
 //    LCIO2Plcio::setLCIOMCParticleCollection(mcpcol_lc);
 //    LCIO2Plcio::setPlcioMCParticleCollection(mcpcol_pl);
 //  }
+  cvtor.setCollName(collName);
   collection = cvtor.Convertor_getPlcio( lc_col );
   pl_evtcol->at(0)->addCollectionName(collName);
   pl_evtcol->at(0)->addCollectionType(TypeName);

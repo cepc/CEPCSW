@@ -9,15 +9,35 @@
 #include "lcio.h"
 // #include "IO/LCReader.h"
 // #include "EVENT/LCCollection.h"
-#include "EVENT/MCParticle.h"
+#include "EVENT/Vertex.h"
 #include "EVENT/SimTrackerHit.h"
-#include "EVENT/SimCalorimeterHit.h"
 #include "plcio/SimTrackerHit.h"
 #include "plcio/SimTrackerHitCollection.h"
+#include "EVENT/SimCalorimeterHit.h"
 #include "plcio/SimCalorimeterHit.h"
 #include "plcio/SimCalorimeterHitCollection.h"
+#include "EVENT/MCParticle.h"
 #include "plcio/MCParticle.h"
 #include "plcio/MCParticleCollection.h"
+#include "plcio/VertexCollection.h"
+#include "EVENT/TPCHit.h"
+#include "plcio/TPCHit.h"
+#include "plcio/TPCHitCollection.h"
+#include "EVENT/Cluster.h"
+#include "plcio/Cluster.h"
+#include "plcio/ClusterCollection.h"
+#include "EVENT/ParticleID.h"
+#include "EVENT/CalorimeterHit.h"
+#include "plcio/CalorimeterHit.h"
+#include "podio/CollectionIDTable.h"
+#include "EVENT/Track.h" 
+#include "EVENT/TrackerHit.h"
+#include "EVENT/TrackState.h" 
+#include "plcio/Track.h"  
+#include "plcio/TrackCollection.h"  
+#include "EVENT/ReconstructedParticle.h" 
+#include "plcio/ReconstructedParticle.h"  
+#include "plcio/ReconstructedParticleCollection.h"  
 
 #include <utility>
 // Forward declarations
@@ -53,16 +73,21 @@ public:
   static podio::CollectionBase* Convertor_LCRunHeader(EVENT::LCCollection*);
   static podio::CollectionBase* Convertor_SimTrackerHit(EVENT::LCCollection*);
   static podio::CollectionBase* Convertor_SimCalorimeterHit(EVENT::LCCollection*);
+  static podio::CollectionBase* Convertor_Cluster(EVENT::LCCollection*);
+  static podio::CollectionBase* Convertor_Track(EVENT::LCCollection*);
+  static podio::CollectionBase* Convertor_ReconstructedParticle(EVENT::LCCollection*);
+  static podio::CollectionBase* Convertor_LCRelation(EVENT::LCCollection*);
+  static podio::CollectionBase* Convertor_Vertex(EVENT::LCCollection*);
+  static podio::CollectionBase* Convertor_TPCHit(EVENT::LCCollection*);
 
-  static void void_Core_MCParticle(EVENT::MCParticle*, plcio::MCParticle&);
-  static plcio::MCParticleCollection* Core_MCParticle(EVENT::LCCollection*);
+  static void setMCParticle(EVENT::MCParticle*, plcio::MCParticle&);
+  void setCollName(const std::string &collName){ CollName = collName; };
 
   bool isReady(const std::string&);
-  void setPlcioMCParticleCollection(plcio::MCParticleCollection*);
-  void setLCIOMCParticleCollection(EVENT::LCCollection*);
 
 private:
   std::string TypeName;
+  static std::string CollName;
   // maintain a log vec about data read;
   std::vector<std::string> vec_Types;
 
