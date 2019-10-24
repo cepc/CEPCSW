@@ -12,9 +12,36 @@
 typedef std::vector<EVENT::MCParticle*> MCParticleVec ;
 
 CollectionsMap LCIO2Plcio::map_cols;
+std::string LCIO2Plcio::CollName;
 
 void lp_info(std::string s){
   printf("[LCIO2Plcio]:\t\t%s.\n", &s[0]);
+}
+
+template<typename T>
+static plcio::FloatThree FloatThreeFROMConstPtr(const T* vpos){
+  float tmp[3];
+  for(unsigned i=0; i<3; i++){
+    tmp[i] = vpos[i];
+  }
+  return plcio::FloatThree(tmp);
+}
+
+template<typename T>
+static plcio::FloatThree FloatThreeFROMFloatVec(std::vector<T> vec){
+  float tmp[3];
+  for(unsigned i=0; i<3; i++){
+    tmp[i] = vec[i];
+  }
+  return plcio::FloatThree(tmp);
+}
+
+std::array<float, 6> vec6_2_arr6(std::vector<float> vec){
+  std::array<float, 6> arr;
+  for(unsigned i=0; i<6; i++){
+    arr[i] = vec[i];
+  }
+  return arr;
 }
 
 LCIO2Plcio::LCIO2Plcio(){
@@ -22,6 +49,9 @@ LCIO2Plcio::LCIO2Plcio(){
   map_cvt.insert(std::make_pair<std::string, fptr>("LCRunHeader", Convertor_LCRunHeader));
   map_cvt.insert(std::make_pair<std::string, fptr>("SimTrackerHit", Convertor_SimTrackerHit));
   map_cvt.insert(std::make_pair<std::string, fptr>("SimCalorimeterHit", Convertor_SimCalorimeterHit));
+  map_cvt.insert(std::make_pair<std::string, fptr>("Cluster", Convertor_Cluster));
+  map_cvt.insert(std::make_pair<std::string, fptr>("Track", Convertor_Track));
+  map_cvt.insert(std::make_pair<std::string, fptr>("TPCHit", Convertor_TPCHit));
 }
 LCIO2Plcio::LCIO2Plcio(EVENT::LCCollection* collection){
   LCIO2Plcio();
@@ -67,20 +97,8 @@ void LCIO2Plcio::setMCParticle(EVENT::MCParticle* lc_var, plcio::MCParticle& pl_
   pl_var.setColorFlow( plcio::IntTwo( lc_var->getColorFlow() ) );
   pl_var.setVertex( plcio::DoubleThree( lc_var->getVertex()));
   pl_var.setEndpoint( plcio::DoubleThree( lc_var->getEndpoint() ) );
-
-  // send float ptr as parameter to FloatThree.
-  float plcio_v[3];
-  const double* lcio_v = lc_var->getMomentum();
-  plcio_v[0] = lcio_v[0];
-  plcio_v[1] = lcio_v[1];
-  plcio_v[2] = lcio_v[2];
-  pl_var.setMomentum( plcio::FloatThree( plcio_v ) );
-
-  lcio_v = lc_var->getMomentumAtEndpoint();
-  plcio_v[0] = lcio_v[0];
-  plcio_v[1] = lcio_v[1];
-  plcio_v[2] = lcio_v[2];
-  pl_var.setMomentumAtEndpoint( plcio::FloatThree( plcio_v ) );
+  pl_var.setMomentum( FloatThreeFROMConstPtr(lc_var->getMomentum()) );
+  pl_var.setMomentumAtEndpoint( FloatThreeFROMConstPtr(lc_var->getMomentumAtEndpoint()) );
 }
 
 podio::CollectionBase* LCIO2Plcio::Convertor_MCParticle(EVENT::LCCollection* lc_col){
@@ -168,23 +186,13 @@ podio::CollectionBase* LCIO2Plcio::Convertor_SimCalorimeterHit(EVENT::LCCollecti
     pl_var.setCellID0( lc_var->getCellID0() );
     pl_var.setCellID1( lc_var->getCellID1() );
     pl_var.setEnergy( lc_var->getEnergy() );
-
-    float plcio_v[3];
-    const float* lcio_v = lc_var->getPosition();
-    plcio_v[0] = lcio_v[0];
-    plcio_v[1] = lcio_v[1];
-    plcio_v[2] = lcio_v[2];
-    pl_var.setPosition( plcio::FloatThree( plcio_v ) );
+    pl_var.setPosition( FloatThreeFROMConstPtr(lc_var->getPosition()) );
 
     // converting from lc_var to pl_var on the contribution variables;
     for( unsigned j=0, N=lc_var->getNMCContributions(); j<N; j++){
-      plcio_v[0] = lc_var->getStepPosition(j)[0];
-      plcio_v[1] = lc_var->getStepPosition(j)[1];
-      plcio_v[2] = lc_var->getStepPosition(j)[2];
-
       plcio::ConstCaloHitContribution tmp(
 	lc_var->getPDGCont(j), lc_var->getEnergyCont(j),
-	lc_var->getTimeCont(j), plcio::FloatThree(plcio_v) 
+	lc_var->getTimeCont(j), FloatThreeFROMConstPtr(lc_var->getStepPosition(j)) 
       );
       pl_var.addContribution( tmp );
     }
@@ -204,30 +212,233 @@ podio::CollectionBase* LCIO2Plcio::Convertor_Cluster(EVENT::LCCollection* lc_col
     pl_var.setEnergyError(lc_var->getEnergyError());
     pl_var.setPhi(lc_var->getIPhi());
     pl_var.setITheta(lc_var->getITheta());
+    pl_var.setPosition( FloatThreeFROMConstPtr(lc_var->getPosition()) );
+    pl_var.setPositionError( vec6_2_arr6(lc_var->getPositionError()) );
+    pl_var.setDirectionError( FloatThreeFROMFloatVec(lc_var->getDirectionError()) );
 
-    float plcio_v[3];
-    const float* lcio_v = lc_var->getPosition();
-    plcio_v[0] = lcio_v[0];
-    plcio_v[1] = lcio_v[1];
-    plcio_v[2] = lcio_v[2];
-    pl_var.setPosition( plcio::FloatThree(plcio_v) );
-
-    std::vector<float> lcio_vecfloat = lc_var->getPositionError();
-    std::array<float, 6> plcio_arr6;
-    for(unsigned j=0; j<6; j++){
-      plcio_arr6[j] = lcio_vecfloat[j];
+    std::vector<float> lcio_seq0 = lc_var->getShape();
+    for(unsigned j=0; j<lcio_seq0.size(); j++){
+      pl_var.addShap( lcio_seq0[j] );
     }
-    pl_var.setPositionError(plcio_arr6);
 
-//    pl_var.(lc_var->getDirectionError());
-//    pl_var.(lc_var->getShape());
-//    pl_var.(lc_var->getParticleIDs());
-//    pl_var.(lc_var->getClusters());
-//    pl_var.(lc_var->getCalorimeterHits());
-//    pl_var.(lc_var->getHitContributions());
-//    pl_var.(lc_var->getSubdetectorEnergies());
+    lcio_seq0 = lc_var->getHitContributions();
+    for(unsigned j=0; j<lcio_seq0.size(); j++){
+      pl_var.addHitContribution( lcio_seq0[j] );
+    }
+
+    lcio_seq0 = lc_var->getSubdetectorEnergies();
+    for(unsigned j=0; j<lcio_seq0.size(); j++){
+      pl_var.addSubdetectorEnergie( lcio_seq0[j] );
+    }
+
+    EVENT::ParticleIDVec lcio_seq1 = lc_var->getParticleIDs();
+    for(unsigned j=0; j<lcio_seq1.size(); j++){
+      EVENT::ParticleID* lc_locx = lcio_seq1[j];
+
+      pl_var.addParticleID( plcio::ConstParticleID(
+        lc_locx->getType(), 
+	lc_locx->getPDG(),
+	lc_locx->getAlgorithmType(), 
+	lc_locx->getLikelihood()
+      ) );
+    }
+
+    EVENT::CalorimeterHitVec lcio_seq2 = lc_var->getCalorimeterHits();
+    for(unsigned j=0; j<lcio_seq2.size(); j++){
+      EVENT::CalorimeterHit* lc_locx = lcio_seq2[j];
+
+      podio::CollectionIDTable col2id;
+      plcio::ObjectID tmp;
+      tmp.index = i;
+      tmp.collectionID = col2id.collectionID(CollName);
+
+      pl_var.addHit( plcio::ConstCalorimeterHit(
+        lc_locx->getCellID0(),
+        lc_locx->getCellID1(),
+        lc_locx->getEnergy(),
+        lc_locx->getEnergyError(),
+        lc_locx->getTime(),
+        FloatThreeFROMConstPtr(lc_locx->getPosition()),
+        lc_locx->getType(),
+        tmp
+      ) );
+    }
   }
 
+  for(unsigned i=0,N=lc_col->getNumberOfElements(); i<N; i++){
+    EVENT::Cluster* lc_var = (EVENT::Cluster*) lc_col->getElementAt(i);
+    plcio::Cluster pl_var = pl_col->at(i);
+    EVENT::ClusterVec lcio_seq3 = lc_var->getClusters();
+
+    for(unsigned j=0; j<lcio_seq3.size(); j++){
+      for(unsigned k=0,K=lc_col->getNumberOfElements(); k<K; k++){
+        if(lcio_seq3[j] == lc_col->getElementAt(k)){
+          pl_var.addCluster(pl_col->at(k));
+	}
+      }
+    }
+  }
+
+  return pl_col;
+}
+
+podio::CollectionBase* LCIO2Plcio::Convertor_ReconstructedParticle(EVENT::LCCollection* lc_col){
+  plcio::ReconstructedParticleCollection* pl_col = new plcio::ReconstructedParticleCollection();
+
+  for(unsigned i=0,N=lc_col->getNumberOfElements(); i<N; i++){
+    EVENT::ReconstructedParticle* lc_var = (EVENT::ReconstructedParticle*) lc_col->getElementAt(i);
+    plcio::ReconstructedParticle pl_var = (plcio::ReconstructedParticle) pl_col->create();
+
+    pl_var.setType( lc_var->getType() );
+    pl_var.setEnergy( lc_var->getEnergy() );
+    pl_var.setCharge( lc_var->getCharge() );
+    pl_var.setMass( lc_var->getMass() );
+    pl_var.setGoodnessOfPID( lc_var->getGoodnessOfPID() );
+
+    pl_var.setMomentum( FloatThreeFROMConstPtr(lc_var->getMomentum()) );
+    pl_var.setReferencePoint( FloatThreeFROMConstPtr(lc_var->getReferencePoint()) );
+
+    std::vector<float> vec = lc_var->getCovMatrix();
+    for(unsigned j=0,N=vec.size(); j<N; j++){
+      pl_var.setCovMatrix( j, vec[j] );
+    }
+
+    // QUEST: boolean to int: isPrimary, str2int: getAlgorithmType;
+    // pl_var.setStartVertex( lc_var->getStartVertex() ) 
+    std::array<float, 6> arr_6;
+    EVENT::FloatVec fvec = lc_var->getStartVertex()->getCovMatrix();
+    for(unsigned j=0; j<6; j++){
+      arr_6[j] = fvec[j];
+    }
+    pl_var.setStartVertex( plcio::ConstVertex(
+      lc_var->getStartVertex()->isPrimary(),
+      lc_var->getStartVertex()->getChi2(),
+      lc_var->getStartVertex()->getProbability(),
+      FloatThreeFROMConstPtr( lc_var->getStartVertex()->getPosition() ),
+      arr_6,
+      0
+      //lc_var->getStartVertex()->getAlgorithmType()
+    ) );
+
+    // QUEST: LCIO/ParticleID has a int algType;
+    //pl_var.setParticleIDUsed( lc_var->igetParticleIDUsed() );
+    pl_var.setParticleIDUsed( plcio::ConstParticleID(
+      lc_var->getParticleIDUsed()->getType(),
+      lc_var->getParticleIDUsed()->getPDG(),
+      lc_var->getParticleIDUsed()->getAlgorithmType(),
+      lc_var->getParticleIDUsed()->getLikelihood()
+    ) );
+
+    //pl_var.addCluster();
+    // QUEST: set value directly;
+
+    std::vector<EVENT::Cluster*> vec_clust = lc_var->getClusters();
+    for(unsigned j=0; j<vec_clust.size(); j++){
+      for(unsigned k=0; k<6; k++){
+        arr_6[k] = vec_clust[j]->getPositionError()[k];
+      }
+
+      pl_var.addCluster( plcio::ConstCluster(
+        vec_clust[j]->getType(),
+        vec_clust[j]->getEnergy(),
+        vec_clust[j]->getEnergyError(),
+        FloatThreeFROMConstPtr( vec_clust[j]->getPosition() ),
+        arr_6,
+        vec_clust[j]->getITheta(),
+        vec_clust[j]->getIPhi(),
+        FloatThreeFROMFloatVec( vec_clust[j]->getDirectionError() )
+      ) );
+    }
+
+    //pl_var.addTrack();
+    // QUEST: set value directly;
+    EVENT::TrackVec vec_track = lc_var->getTracks();
+    for(unsigned j=0; j<vec_track.size(); j++){
+      pl_var.addTrack(plcio::ConstTrack(
+       // plcio/include/plcio/TrackConst.h
+       //  LCIO/include/EVENT/Track.h 
+      ));
+    }
+
+    //pl_var.addParticle();
+    //pl_var.addParticleID();
+  }
+  return pl_col;
+}
+
+podio::CollectionBase* LCIO2Plcio::Convertor_Track(EVENT::LCCollection* lc_col){
+  plcio::TrackCollection* pl_col = new plcio::TrackCollection();
+
+  for(unsigned i=0,N=lc_col->getNumberOfElements(); i<N; i++){
+    EVENT::Track* lc_var = (EVENT::Track*) lc_col->getElementAt(i);
+    plcio::Track pl_var = (plcio::Track) pl_col->create();
+
+    pl_var.setType( lc_var->getType() );
+    pl_var.setChi2( lc_var->getChi2() );
+    pl_var.setNdf( lc_var->getNdf() );
+    pl_var.setDEdx( lc_var->getdEdx() );
+    pl_var.setDEdxError( lc_var->getdEdxError() );
+    pl_var.setRadiusOfInnermostHit( lc_var->getRadiusOfInnermostHit() );
+
+    //pl_var.addTrackerHit( lc_var->getTrackerHits() );
+    EVENT::TrackerHitVec lcio_seq1 = lc_var->getTrackerHits();
+    for(unsigned j=0; j<lcio_seq1.size(); j++){
+      EVENT::TrackerHit* lc_locx = lcio_seq1[j];
+
+      const double* lcio_v = lc_locx->getPosition();
+      double plcio_v[3];
+      plcio_v[0] = lcio_v[0];
+      plcio_v[1] = lcio_v[1];
+      plcio_v[2] = lcio_v[2];
+
+      std::array<float, 6> plcio_arr6;
+      for(unsigned k=0; k<6; k++){
+        plcio_arr6[k] = lc_locx->getCovMatrix()[k];
+      }
+
+      pl_var.addTrackerHit(plcio::ConstTrackerHit(
+        lc_locx->getCellID0(),
+        lc_locx->getCellID1(),
+        lc_locx->getType(),
+        lc_locx->getQuality(),
+        lc_locx->getTime(),
+        lc_locx->getEDep(),
+        lc_locx->getEDepError(),
+        lc_locx->getdEdx(),
+        plcio::DoubleThree(plcio_v),
+        plcio_arr6
+      ));
+    }
+
+    //pl_var.( lc_var->getSubdetectorHitNumbers() );
+    std::vector<int> lcio_IntVec1 = lc_var->getSubdetectorHitNumbers();
+    for(unsigned j=0; j<lcio_IntVec1.size(); j++){
+      pl_var.addSubDetectorHitNumber(lcio_IntVec1[j]);
+    }
+
+    //pl_var.( lc_var->getTracks() );
+    EVENT::TrackVec lcio_seq2 = lc_var->getTracks();
+    for(unsigned j=0; j<lcio_seq2.size(); j++){
+      EVENT::Track* lc_locx = lcio_seq2[j];
+
+      pl_var.addTrack(plcio::ConstTrack(
+        lc_locx->getType(),
+        lc_locx->getChi2(),
+        lc_locx->getNdf(),
+        lc_locx->getdEdx(),
+        lc_locx->getdEdxError(),
+        lc_locx->getRadiusOfInnermostHit()
+      ));
+    }
+
+    //pl_var.( lc_var->getTrackStates() );
+    EVENT::TrackStateVec lcio_seq3 = lc_var->getTrackStates();
+    for(unsigned j=0; j<lcio_seq3.size(); j++){
+      EVENT::TrackState* lc_locx = lcio_seq3[j];
+
+      //pl_var.addTrackState(plcio::TrackState());
+    }
+  }
   return pl_col;
 }
 

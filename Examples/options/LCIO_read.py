@@ -3,7 +3,8 @@
 from Gaudi.Configuration import *
 
 from Configurables import LCIODataSvc
-dsvc = LCIODataSvc("EventDataSvc", input="/cefs/data/FullSim/CEPC240/CEPC_v4/higgs/E240.Pe2e2h_bb.e0.p0.whizard195/e2e2h_bb.e0.p0.00001_000000_sim.slcio")
+# dsvc = LCIODataSvc("EventDataSvc", input="/cefs/data/FullSim/CEPC240/CEPC_v4/higgs/E240.Pe2e2h_bb.e0.p0.whizard195/e2e2h_bb.e0.p0.00001_000000_sim.slcio")
+dsvc = LCIODataSvc("EventDataSvc", input="/cefs/data/DstData/CEPC240/CEPC_v4/higgs/E240.Pe2e2h_X.e0.p0.whizard195/e2e2h_X.e0.p0.00001_001000_dst.slcio")
 
 from Configurables import PlcioReadAlg
 alg = PlcioReadAlg("PlcioReadAlg")
