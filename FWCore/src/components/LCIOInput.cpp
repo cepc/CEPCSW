@@ -14,7 +14,8 @@ StatusCode LCIOInput::initialize() {
   if (GaudiAlgorithm::initialize().isFailure()) return StatusCode::FAILURE;
 
   // check whether we have the LCIOEvtSvc active
-  m_LCIODataSvc = dynamic_cast<LCIODataSvc*>(evtSvc().get());
+  auto pSvc = service( m_dataSvc );
+  m_LCIODataSvc = dynamic_cast<LCIODataSvc*>(pSvc.get());
   if (nullptr == m_LCIODataSvc) return StatusCode::FAILURE;
 
   auto idTable = m_LCIODataSvc->getCollectionIDs();

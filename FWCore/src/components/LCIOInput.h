@@ -33,6 +33,7 @@ public:
 
 private:
   /// Name of collections to read. Set by option collections (this is temporary)
+  Gaudi::Property<std::string> m_dataSvc{ this, "DataSvc", "LCIOInputSvc" };
   Gaudi::Property<std::vector<std::string>> m_collectionNames{this, "collections", {}, "Places of collections to read"};
   /// Collection IDs (retrieved with CollectionIDTable from ROOT file, using collection names)
   std::vector<int> m_collectionIDs;

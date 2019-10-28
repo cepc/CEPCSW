@@ -73,6 +73,8 @@ private:
   IO::LCReader* m_reader;
   /// LCIO reader for ROOT files
   plcio::EventHeaderCollection* pl_evtcol;
+  /// the handle of DataProvider
+  IDataProviderSvc* m_pIDP{nullptr};
   /// podio::ROOTReader m_reader;
   /// LCIO EventStore, used to initialise collections
   /// podio::EventStore m_provider;
