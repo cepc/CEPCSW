@@ -112,7 +112,22 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
                     info() << " cast to dd4hep::sim::Geant4TrackerHit. " << endmsg;
 
                     auto edm_trk_hit = trackercols->create();
+                    // Refer to: ./DDG4/lcio/LCIOConversions.cpp
+                    edm_trk_hit->setCellID0((trk_hit->cellID >>    0         ) & 0xFFFFFFFF);
+                    edm_trk_hit->setCellID1((trk_hit->cellID >> sizeof(int)*8) & 0xFFFFFFFF);
+                    edm_trk_hit->setEDep(trk_hit->energyDeposit/CLHEP::GeV);
+                    edm_trk_hit->setTime(trk_hit->truth.time/CLHEP::ns);
+                    edm_trk_hit->setPathLength(trk_hit->length/CLHEP::mm);
+                    // lc_hit->setMCParticle(lc_mcp);
+                    double pos[3] = {trk_hit->position.x()/CLHEP::mm,
+                                     trk_hit->position.y()/CLHEP::mm,
+                                     trk_hit->position.z()/CLHEP::mm};
+                    edm_trk_hit->setPosition(plcio::DoubleThree(pos));
 
+                    float mom[3] = {trk_hit->momentum.x()/CLHEP::GeV,
+                                    trk_hit->momentum.y()/CLHEP::GeV,
+                                    trk_hit->momentum.z()/CLHEP::GeV};
+                    edm_trk_hit->setMomentum(plcio::FloatThree(mom));
                 }
 
                 dd4hep::sim::Geant4CalorimeterHit* cal_hit = dynamic_cast<dd4hep::sim::Geant4CalorimeterHit*>(h);
