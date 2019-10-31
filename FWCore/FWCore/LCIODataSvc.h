@@ -73,6 +73,8 @@ private:
   IO::LCReader* m_reader;
   /// LCIO reader for ROOT files
   plcio::EventHeaderCollection* pl_evtcol;
+  /// the handle of DataProvider
+  IDataProviderSvc* m_pIDP{nullptr};
   /// podio::ROOTReader m_reader;
   /// LCIO EventStore, used to initialise collections
   /// podio::EventStore m_provider;
@@ -80,6 +82,8 @@ private:
   int m_eventNum{0};
   /// Number of events in the file / to process
   int m_eventMax{-1};
+  /// the current file index in the m_filenames vector
+  int m_fileIndex{0};
 
 
   SmartIF<IConversionSvc> m_cnvSvc;

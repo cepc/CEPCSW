@@ -27,6 +27,14 @@ StatusCode LCIODataSvc::initialize() {
   m_cnvSvc = svc_loc->service("EventPersistencySvc");
   status = setDataLoader(m_cnvSvc);
 
+  if ( name() != "EventDataSvc" ) {
+    service("EventDataSvc", m_pIDP, true);
+    if ( m_pIDP == nullptr ) {
+      error() << "Could not get the EventDataSvc instance" << endmsg;
+      return StatusCode::FAILURE;
+    }
+  }
+
   m_reader = IOIMPL::LCFactory::getInstance()->createLCReader();
 
   if (m_filename != "") {
@@ -34,11 +42,10 @@ StatusCode LCIODataSvc::initialize() {
   }
 
   if (m_filenames.size() > 0) {
-    if (m_filenames[0] != "") {
-      m_reader->open(m_filenames);
-      m_eventMax = m_reader->getNumberOfEvents();
-    }
+    m_reader->open(m_filenames[0]);
+    m_eventMax = m_reader->getNumberOfEvents();
   }
+
   return status;
 }
 /// Service reinitialisation
@@ -48,6 +55,9 @@ StatusCode LCIODataSvc::reinitialize() {
 }
 /// Service finalization
 StatusCode LCIODataSvc::finalize() {
+  m_reader->close();
+  delete m_reader;
+  m_reader = nullptr;
   m_cnvSvc = 0;  // release
   DataSvc::finalize().ignore();
   return StatusCode::SUCCESS;
@@ -75,10 +85,17 @@ void LCIODataSvc::endOfRead() {
     // m_provider.clearCaches();
     // m_reader.endOfEvent();
     if ( ++m_eventNum >= m_eventMax ) {
-      info() << "Reached end of file with event " << m_eventMax << endmsg;
-      IEventProcessor* eventProcessor;
-      service("ApplicationMgr", eventProcessor);
-      eventProcessor->stopRun();
+      if ( ++m_fileIndex < m_filenames.size() ) {  // move to next file
+        m_reader->close();
+        m_reader->open( m_filenames[m_fileIndex] );
+        m_eventMax += m_reader->getNumberOfEvents();
+      }
+      else {  // reach to the end of the file list
+        info() << "Reached end of file with event " << m_eventMax << endmsg;
+        IEventProcessor* eventProcessor;
+        service("ApplicationMgr", eventProcessor);
+        eventProcessor->stopRun();
+      }
     }
   }
   evt = nullptr;
@@ -106,6 +123,8 @@ LCIODataSvc::~LCIODataSvc() {}
 
 
 StatusCode LCIODataSvc::readCollection(const std::string& collName, int collectionID) {
+
+  StatusCode stat = StatusCode::SUCCESS;
   podio::CollectionBase* collection(nullptr);
 
   if( evt == nullptr ){
@@ -126,9 +145,14 @@ StatusCode LCIODataSvc::readCollection(const std::string& collName, int collecti
     int id = m_collectionIDs->add("EventHeader");
     pl_evtcol->setID(id);
     wrapper->setData(pl_evtcol);
-    m_readCollections.emplace_back(std::make_pair("EventHeader", pl_evtcol));
 
-    DataSvc::registerObject("EventHeader", wrapper);
+    if ( m_pIDP ) {
+      m_pIDP->registerObject("EventHeader", wrapper);
+    }
+    else {
+      m_readCollections.emplace_back(std::make_pair("EventHeader", pl_evtcol));
+      DataSvc::registerObject("EventHeader", wrapper);
+    }
   }
 
   debug() << "reading collection name: " << collName  << "." << endmsg;
@@ -138,7 +162,8 @@ StatusCode LCIODataSvc::readCollection(const std::string& collName, int collecti
   if( it != vec_colns.end() ){
     lc_col = evt->getCollection(collName); 
   }
-  else return StatusCode::SUCCESS;
+  else
+    return stat;
 //  debug() << "Got collection: " << collName  << "." << endmsg;
 
   std::string TypeName = lc_col->getTypeName();
@@ -149,6 +174,7 @@ StatusCode LCIODataSvc::readCollection(const std::string& collName, int collecti
 //    LCIO2Plcio::setLCIOMCParticleCollection(mcpcol_lc);
 //    LCIO2Plcio::setPlcioMCParticleCollection(mcpcol_pl);
 //  }
+  cvtor.setCollName(collName);
   collection = cvtor.Convertor_getPlcio( lc_col );
   pl_evtcol->at(0)->addCollectionName(collName);
   pl_evtcol->at(0)->addCollectionType(TypeName);
@@ -157,11 +183,17 @@ StatusCode LCIODataSvc::readCollection(const std::string& collName, int collecti
   int id = m_collectionIDs->add(collName);
   collection->setID(id);
   wrapper->setData(collection);
-  m_readCollections.emplace_back(std::make_pair(collName, collection));
 
 //  info() << "readCollection completed." << endmsg;
 
-  return DataSvc::registerObject(collName, wrapper);
+  if ( m_pIDP ) {
+    stat = m_pIDP->registerObject(collName, wrapper);
+  }
+  else {
+    m_readCollections.emplace_back(std::make_pair(collName, collection));
+    stat = DataSvc::registerObject(collName, wrapper);
+  }
+  return stat;
 }
 
 StatusCode LCIODataSvc::registerObject(const std::string& fullPath, DataObject* pObject) {
