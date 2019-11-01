@@ -87,6 +87,9 @@ bool StdHepRdr::mutate(MyHepMC::GenEvent& event){
      
     event.SetEventHeader( m_processed_event, -99, 9999, "Generator");
     //std::cout<<"end event :"<< m_processed_event <<std::endl;
+
+    delete mc_vec;
+
     return true;
 }
 
