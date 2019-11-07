@@ -39,6 +39,14 @@ private:
             Gaudi::DataHandle::Writer, this};
     DataHandle<plcio::SimTrackerHitCollection> m_VXDCol{"VXDCollection", 
             Gaudi::DataHandle::Writer, this};
+    DataHandle<plcio::SimTrackerHitCollection> m_FTDCol{"FTDCollection", 
+            Gaudi::DataHandle::Writer, this};
+    DataHandle<plcio::SimTrackerHitCollection> m_SITCol{"SITCollection", 
+            Gaudi::DataHandle::Writer, this};
+    DataHandle<plcio::SimTrackerHitCollection> m_TPCCol{"TPCCollection", 
+            Gaudi::DataHandle::Writer, this};
+    DataHandle<plcio::SimTrackerHitCollection> m_SETCol{"SETCollection", 
+            Gaudi::DataHandle::Writer, this};
 
 };
 

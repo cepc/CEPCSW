@@ -36,6 +36,10 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
     // create collections.
     auto trackercols = m_trackerCol.createAndPut();
     auto vxdcols = m_VXDCol.createAndPut();
+    auto ftdcols = m_FTDCol.createAndPut();
+    auto sitcols = m_SITCol.createAndPut();
+    auto tpccols = m_TPCCol.createAndPut();
+    auto setcols = m_SETCol.createAndPut();
 
     // readout defined in DD4hep
     auto lcdd = &(dd4hep::Detector::getInstance());
@@ -72,6 +76,14 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
 
         if (collect->GetName() == "VXDCollection") {
             tracker_col_ptr = vxdcols;
+        } else if (collect->GetName() == "FTDCollection") {
+            tracker_col_ptr = ftdcols;
+        } else if (collect->GetName() == "SITCollection") {
+            tracker_col_ptr = sitcols;
+        } else if (collect->GetName() == "TPCCollection") {
+            tracker_col_ptr = tpccols;
+        } else if (collect->GetName() == "SETCollection") {
+            tracker_col_ptr = setcols;
         } else {
             tracker_col_ptr = trackercols;
         }
@@ -112,6 +124,9 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
         if (coll2) {
             info() << " cast to G4THitsCollection<dd4hep::sim::Geant4Hit>. " << endmsg;
 
+            int n_trk_hit = 0;
+            int n_cal_hit = 0;
+
             for(size_t i=0; i<nhits; ++i)   {
                 dd4hep::sim::Geant4Hit* h = dynamic_cast<dd4hep::sim::Geant4Hit*>(coll2->GetHit(i));
                 if (!h) {
@@ -121,8 +136,7 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
 
                 dd4hep::sim::Geant4TrackerHit* trk_hit = dynamic_cast<dd4hep::sim::Geant4TrackerHit*>(h);
                 if (trk_hit) {
-                    info() << " cast to dd4hep::sim::Geant4TrackerHit. " << endmsg;
-
+                    ++n_trk_hit;
                     // auto edm_trk_hit = trackercols->create();
                     auto edm_trk_hit = tracker_col_ptr->create();
 
@@ -146,10 +160,14 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
 
                 dd4hep::sim::Geant4CalorimeterHit* cal_hit = dynamic_cast<dd4hep::sim::Geant4CalorimeterHit*>(h);
                 if (cal_hit) {
-                    info() << " cast to dd4hep::sim::Geant4CalorimeterHit. " << endmsg;
+                    ++n_cal_hit;
                 }
 
             }
+
+            info() << n_trk_hit << " hits cast to dd4hep::sim::Geant4TrackerHit. " << endmsg;
+            info() << n_cal_hit << " hits cast to dd4hep::sim::Geant4CalorimeterHit. " << endmsg;
+
 
             continue;
         }
