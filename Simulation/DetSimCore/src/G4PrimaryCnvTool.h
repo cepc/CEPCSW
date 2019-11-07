@@ -16,7 +16,7 @@ public:
     bool mutate(G4Event* anEvent) override;
 
 private:
-    DataHandle<plcio::MCParticleCollection> m_mcParCol{"MCParticleCol", Gaudi::DataHandle::Reader, this};
+    DataHandle<plcio::MCParticleCollection> m_mcParCol{"MCParticle", Gaudi::DataHandle::Reader, this};
 
 };
 

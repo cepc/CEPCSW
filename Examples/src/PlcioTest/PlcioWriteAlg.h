@@ -23,8 +23,8 @@ class PlcioWriteAlg : public GaudiAlgorithm
 
     private :
 
-        DataHandle<plcio::EventHeaderCollection> m_headerCol{"EventHeaderCol", Gaudi::DataHandle::Writer, this};
-        DataHandle<plcio::MCParticleCollection> m_mcParCol{"MCParticleCol", Gaudi::DataHandle::Writer, this};
+        DataHandle<plcio::EventHeaderCollection> m_headerCol{"EventHeader", Gaudi::DataHandle::Writer, this};
+        DataHandle<plcio::MCParticleCollection> m_mcParCol{"MCParticle", Gaudi::DataHandle::Writer, this};
 
 };
 

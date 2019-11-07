@@ -25,7 +25,7 @@ using namespace std;
 DECLARE_COMPONENT(GenAlgo)
 
 GenAlgo::GenAlgo(const std::string& name, ISvcLocator* pSvcLocator): GaudiAlgorithm(name, pSvcLocator) {
-    declareProperty("MCParticleCol", m_hdl, "MCParticle collection (output)");
+    declareProperty("MCParticle", m_hdl, "MCParticle collection (output)");
     m_evtid = 0;
 
 }

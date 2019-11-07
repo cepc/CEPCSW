@@ -23,8 +23,8 @@ class PlcioReadAlg : public GaudiAlgorithm
 
     private :
 
-        DataHandle<plcio::EventHeaderCollection> m_headerCol{"EventHeaderCol", Gaudi::DataHandle::Reader, this};
-        DataHandle<plcio::MCParticleCollection> m_mcParCol{"MCParticleCol", Gaudi::DataHandle::Reader, this};
+        DataHandle<plcio::EventHeaderCollection> m_headerCol{"EventHeader", Gaudi::DataHandle::Reader, this};
+        DataHandle<plcio::MCParticleCollection> m_mcParCol{"MCParticle", Gaudi::DataHandle::Reader, this};
 
 };
 
