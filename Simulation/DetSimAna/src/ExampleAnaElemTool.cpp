@@ -35,6 +35,7 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
 
     // create collections.
     auto trackercols = m_trackerCol.createAndPut();
+    auto vxdcols = m_VXDCol.createAndPut();
 
     // readout defined in DD4hep
     auto lcdd = &(dd4hep::Detector::getInstance());
@@ -111,7 +112,17 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
                 if (trk_hit) {
                     info() << " cast to dd4hep::sim::Geant4TrackerHit. " << endmsg;
 
-                    auto edm_trk_hit = trackercols->create();
+                    plcio::SimTrackerHitCollection* colptr = nullptr;
+
+                    if (collect->GetName() == "VXDCollection") {
+                        colptr = vxdcols;
+                    } else {
+                        colptr = trackercols;
+                    }
+
+                    // auto edm_trk_hit = trackercols->create();
+                    auto edm_trk_hit = (*colptr)->create();
+
                     // Refer to: ./DDG4/lcio/LCIOConversions.cpp
                     edm_trk_hit->setCellID0((trk_hit->cellID >>    0         ) & 0xFFFFFFFF);
                     edm_trk_hit->setCellID1((trk_hit->cellID >> sizeof(int)*8) & 0xFFFFFFFF);

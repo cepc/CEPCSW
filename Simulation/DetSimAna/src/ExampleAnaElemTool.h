@@ -37,6 +37,8 @@ public:
 private:
     DataHandle<plcio::SimTrackerHitCollection> m_trackerCol{"SimTrackerCol", 
             Gaudi::DataHandle::Writer, this};
+    DataHandle<plcio::SimTrackerHitCollection> m_VXDCol{"VXDCollection", 
+            Gaudi::DataHandle::Writer, this};
 
 };
 
