@@ -67,6 +67,17 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
             // just skip this collection.
             continue;
         }
+
+        plcio::SimTrackerHitCollection* tracker_col_ptr = nullptr;
+
+        if (collect->GetName() == "VXDCollection") {
+            tracker_col_ptr = vxdcols;
+        } else {
+            tracker_col_ptr = trackercols;
+        }
+
+
+
         // There are different types (new and old)
 
         dd4hep::sim::Geant4HitCollection* coll = dynamic_cast<dd4hep::sim::Geant4HitCollection*>(collect);
@@ -112,16 +123,8 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
                 if (trk_hit) {
                     info() << " cast to dd4hep::sim::Geant4TrackerHit. " << endmsg;
 
-                    plcio::SimTrackerHitCollection* colptr = nullptr;
-
-                    if (collect->GetName() == "VXDCollection") {
-                        colptr = vxdcols;
-                    } else {
-                        colptr = trackercols;
-                    }
-
                     // auto edm_trk_hit = trackercols->create();
-                    auto edm_trk_hit = (*colptr)->create();
+                    auto edm_trk_hit = tracker_col_ptr->create();
 
                     // Refer to: ./DDG4/lcio/LCIOConversions.cpp
                     edm_trk_hit->setCellID0((trk_hit->cellID >>    0         ) & 0xFFFFFFFF);
