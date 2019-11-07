@@ -19,7 +19,9 @@ $ ./run gaudirun.py '$EXAMPLESROOT/options/helloalg.py'
 
 ## Packages
 
-* Core: Core Software Based on Gaudi
+* Examples: For new comers and users
+
+* Detector: Geometry
 
 * Generator: Physics Generator
 
@@ -27,7 +29,24 @@ $ ./run gaudirun.py '$EXAMPLESROOT/options/helloalg.py'
 
 * Reconstruction: Reconstruction
 
-* Examples: For new comers and users
+* Service: Common Service
+
+* FWCore: Core Software Based on Gaudi
 
 * cepcenv: tools to help developers build packages
 
+## Full Chain
+
+Detector simulation: 
+```
+$ ./run gaudirun.py '$EXAMPLESROOT/options/tut_detsim.py'
+```
+
+## Conventions for collections
+Keep the collection names compatible between the prototype and the existing CEPC software.
+
+* MCParticle
+* VXDCollection
+* SITCollection
+* TPCCollection
+* SETCollection
