@@ -1,9 +1,10 @@
 //
 //  IGeoSvc.h
 //
-//  Based on FCCSW.
-//  Created by Julia Hrdinka on 30/03/15.
-//
+//  Based on FCCSW with some modification.
+//  In the design, the geometry shoud only depends on DD4hep. 
+//  
+//  -- Tao Lin, 2019/11/09
 //
 
 #ifndef IGEOSVC_H
@@ -16,7 +17,7 @@ class Detector;
 class DetElement;
 }
 
-class G4VUserDetectorConstruction;
+// class G4VUserDetectorConstruction;
 
 class GAUDI_API IGeoSvc : virtual public IService {
 
@@ -27,7 +28,7 @@ public:
   virtual dd4hep::DetElement getDD4HepGeo() = 0;
   virtual dd4hep::Detector* lcdd() = 0;
   // receive Geant4 Geometry
-  virtual G4VUserDetectorConstruction* getGeant4Geo() = 0;
+  // virtual G4VUserDetectorConstruction* getGeant4Geo() = 0;
 
   virtual ~IGeoSvc() {}
 };
