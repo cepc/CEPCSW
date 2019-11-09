@@ -3,6 +3,7 @@ gaudi_subdir(DetSimGeom v0r0)
 
 gaudi_depends_on_subdirs(
     Simulation/DetSimInterface
+    Detector/DetInterface
 )
 
 find_package(Geant4 REQUIRED ui_all vis_all)
@@ -15,6 +16,6 @@ set(DetSimGeom_srcs
 )
 
 gaudi_add_module(DetSimGeom ${DetSimGeom_srcs}
-    INCLUDE_DIRS DetSimInterface DD4hep GaudiKernel Geant4
+    INCLUDE_DIRS DetSimInterface DetInterface DD4hep GaudiKernel Geant4
     LINK_LIBRARIES DetSimInterface DD4hep ${DD4hep_COMPONENT_LIBRARIES} GaudiKernel Geant4
 )

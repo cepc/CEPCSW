@@ -24,6 +24,7 @@
 #include "DDG4/Geant4Converter.h"
 #include "DDG4/Geant4Mapping.h"
 
+
 DECLARE_COMPONENT(AnExampleDetElemTool)
 
 G4LogicalVolume*
@@ -35,9 +36,13 @@ AnExampleDetElemTool::getLV() {
     // G4LogicalVolume* logicAnExample= new G4LogicalVolume( solidAnExample, Galactic, "lAnExample", 0, 0, 0);
 
     // Following is an example to get the DD4hep volume
-    dd4hep::Detector* dd4hep_geo = &(dd4hep::Detector::getInstance());
-    dd4hep_geo->fromCompact(m_dd4hep_xmls.value());
-    dd4hep::DetElement world = dd4hep_geo->world();
+    // dd4hep::Detector* dd4hep_geo = &(dd4hep::Detector::getInstance());
+    // dd4hep_geo->fromCompact(m_dd4hep_xmls.value());
+    // dd4hep::DetElement world = dd4hep_geo->world();
+
+    dd4hep::Detector* dd4hep_geo = m_geosvc->lcdd();
+    dd4hep::DetElement world = m_geosvc->getDD4HepGeo();
+
     dd4hep::sim::Geant4Converter conv((*dd4hep_geo), dd4hep::DEBUG);
 
     dd4hep::sim::Geant4GeometryInfo* geo_info = conv.create(world).detach();
@@ -76,7 +81,7 @@ AnExampleDetElemTool::ConstructSDandField() {
     dd4hep::sim::Geant4GeometryInfo* p = dd4hep::sim::Geant4Mapping::instance().ptr();
     _SV& vols = p->sensitives;
 
-    auto lcdd = &(dd4hep::Detector::getInstance());
+    auto lcdd = m_geosvc->lcdd();
 
     for (_SV::const_iterator iv = vols.begin(); iv != vols.end(); ++iv) {
         dd4hep::SensitiveDetector sd = (*iv).first;
@@ -125,6 +130,13 @@ AnExampleDetElemTool::ConstructSDandField() {
 StatusCode
 AnExampleDetElemTool::initialize() {
     StatusCode sc;
+
+    m_geosvc = service<IGeoSvc>("GeoSvc");
+    if (!m_geosvc) {
+        error() << "Failed to find GeoSvc." << endmsg;
+        return StatusCode::FAILURE;
+    }
+
     return sc;
 }
 

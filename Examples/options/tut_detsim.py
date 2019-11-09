@@ -13,6 +13,27 @@ from Gaudi.Configuration import *
 from Configurables import CEPCDataSvc
 dsvc = CEPCDataSvc("EventDataSvc")
 
+
+##############################################################################
+# Geometry Svc
+##############################################################################
+
+# geometry_option = "CepC_v4-onlyTracker.xml"
+geometry_option = "CepC_v4-onlyVXD.xml"
+
+if not os.getenv("DETCEPCV4ROOT"):
+    print("Can't find the geometry. Please setup envvar DETCEPCV4ROOT." )
+    sys.exit(-1)
+
+geometry_path = os.path.join(os.getenv("DETCEPCV4ROOT"), "compact", geometry_option)
+if not os.path.exists(geometry_path):
+    print("Can't find the compact geometry file: %s"%geometry_path)
+    sys.exit(-1)
+
+from Configurables import GeoSvc
+geosvc = GeoSvc("GeoSvc")
+geosvc.compact = geometry_path
+
 ##############################################################################
 # Physics Generator
 ##############################################################################
@@ -51,14 +72,6 @@ detsimalg.RootDetElem = "WorldDetElemTool"
 from Configurables import AnExampleDetElemTool
 example_dettool = AnExampleDetElemTool("AnExampleDetElemTool")
 
-# geometry_option = "CepC_v4-onlyTracker.xml"
-geometry_option = "CepC_v4-onlyVXD.xml"
-
-if os.getenv("DETCEPCV4ROOT"):
-    example_dettool.detxml = os.path.join(os.getenv("DETCEPCV4ROOT"), "compact", geometry_option)
-else:
-    print("Can't find the geometry. Please setup envvar DETCEPCV4ROOT." )
-    sys.exit(-1)
 
 ##############################################################################
 # POD I/O

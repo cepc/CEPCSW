@@ -7,6 +7,8 @@
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
 
+#include "DetInterface/IGeoSvc.h"
+
 
 class AnExampleDetElemTool: public extends<AlgTool, IDetElemTool> {
 
@@ -25,6 +27,9 @@ private:
     Gaudi::Property<double> m_z{this, "Z", 30.*m};
     // DD4hep XML compact file path
     Gaudi::Property<std::string> m_dd4hep_xmls{this, "detxml"};
+
+    SmartIF<IGeoSvc> m_geosvc;
+
 };
 
 #endif
