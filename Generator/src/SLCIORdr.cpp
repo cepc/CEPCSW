@@ -31,13 +31,7 @@ using namespace IMPL;
 using namespace plcio;
 using namespace std;
 
-
-SLCIORdr::SLCIORdr(string name){
-
-m_slcio_rdr = IOIMPL::LCFactory::getInstance()->createLCReader();
-m_slcio_rdr->open(name.c_str());
-m_processed_event=0;
-}
+DECLARE_COMPONENT(SLCIORdr)
 
 SLCIORdr::~SLCIORdr(){
 delete m_slcio_rdr;
@@ -160,10 +154,37 @@ bool SLCIORdr::isEnd(){
 return false;
 }
 
-bool SLCIORdr::configure(){
-return true;
+bool SLCIORdr::configure_gentool(){
+    m_slcio_rdr = IOIMPL::LCFactory::getInstance()->createLCReader();
+    m_slcio_rdr->open(m_filename.value().c_str());
+    m_processed_event=0;
+
+
+    return true;
 }
 
 bool SLCIORdr::finish(){
 return true;
+}
+
+
+StatusCode
+SLCIORdr::initialize() {
+    StatusCode sc;
+    if (not configure_gentool()) {
+        error() << "failed to initialize." << endmsg;
+        return StatusCode::FAILURE;
+    }
+
+    return sc;
+}
+
+StatusCode
+SLCIORdr::finalize() {
+    StatusCode sc;
+    if (not finish()) {
+        error() << "Failed to finalize." << endmsg;
+        return StatusCode::FAILURE;
+    }
+    return sc;
 }

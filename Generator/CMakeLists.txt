@@ -9,7 +9,7 @@ set(GenAlgo_srcs
     src/GenPrinter.cpp
     # src/LCAscHepRdr.cc
     # src/HepevtRdr.cpp
-    # src/SLCIORdr.cpp
+    src/SLCIORdr.cpp
     # src/HepMCRdr.cpp
     src/GtGunTool.cpp
 )
