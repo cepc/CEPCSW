@@ -8,6 +8,20 @@ import sys
 from Gaudi.Configuration import *
 
 ##############################################################################
+# Random Number Svc
+##############################################################################
+from Configurables import RndmGenSvc, HepRndm__Engine_CLHEP__RanluxEngine_
+
+# rndmengine = HepRndm__Engine_CLHEP__RanluxEngine_() # The default engine in Gaudi
+rndmengine = HepRndm__Engine_CLHEP__HepJamesRandom_() # The default engine in Geant4
+rndmengine.SetSingleton = True
+rndmengine.Seeds = [42]
+
+# rndmgensvc = RndmGenSvc("RndmGenSvc")
+# rndmgensvc.Engine = rndmengine.name()
+
+
+##############################################################################
 # Event Data Svc
 ##############################################################################
 from Configurables import CEPCDataSvc
@@ -89,5 +103,5 @@ from Configurables import ApplicationMgr
 ApplicationMgr( TopAlg = [genalg, detsimalg, out],
                 EvtSel = 'NONE',
                 EvtMax = 10,
-                ExtSvc = [dsvc],
+                ExtSvc = [rndmengine, dsvc, geosvc],
 )
