@@ -52,11 +52,31 @@ geosvc.compact = geometry_path
 # Physics Generator
 ##############################################################################
 from Configurables import GenAlgo
+from Configurables import GtGunTool
+from Configurables import StdHepRdr
+from Configurables import SLCIORdr
+from Configurables import HepMCRdr
+from Configurables import GenPrinter
 
-genalg = GenAlgo("read")
-genalg.Input = "/cefs/data/stdhep/CEPC250/2fermions/E250.Pbhabha.e0.p0.whizard195/bhabha.e0.p0.00001.stdhep"
-genalg.FileFormat = "stdhep"
-genalg.PrintEvent = False # true for printing mc info
+# gun = GtGunTool("GtGunTool")
+
+stdheprdr = StdHepRdr("StdHepRdr")
+stdheprdr.Input = "/cefs/data/stdhep/CEPC250/2fermions/E250.Pbhabha.e0.p0.whizard195/bhabha.e0.p0.00001.stdhep"
+
+# lciordr = SLCIORdr("SLCIORdr")
+# lciordr.Input = "/cefs/data/stdhep/lcio250/signal/Higgs/E250.Pbbh.whizard195/E250.Pbbh_X.e0.p0.whizard195/Pbbh_X.e0.p0.00001.slcio"
+
+# hepmcrdr = HepMCRdr("HepMCRdr")
+# hepmcrdr.Input = "example_UsingIterators.txt"
+
+genprinter = GenPrinter("GenPrinter")
+
+genalg = GenAlgo("GenAlgo")
+# genalg.GenTools = ["GtGunTool"]
+genalg.GenTools = ["StdHepRdr"]
+# genalg.GenTools = ["StdHepRdr", "GenPrinter"]
+# genalg.GenTools = ["SLCIORdr", "GenPrinter"]
+# genalg.GenTools = ["HepMCRdr", "GenPrinter"]
 
 ##############################################################################
 # Detector Simulation
