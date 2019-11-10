@@ -24,13 +24,7 @@
 using namespace plcio;
 using namespace std;
 
-
-HepMCRdr::HepMCRdr(string name){
-
-ascii_in = new HepMC::IO_GenEvent(name.c_str(),std::ios::in);
-
-m_processed_event=0;
-}
+DECLARE_COMPONENT(HepMCRdr)
 
 HepMCRdr::~HepMCRdr(){
 delete ascii_in;
@@ -104,10 +98,34 @@ bool HepMCRdr::isEnd(){
 return false;
 }
 
-bool HepMCRdr::configure(){
-return true;
+bool HepMCRdr::configure_gentool(){
+    ascii_in = new HepMC::IO_GenEvent(m_filename.value().c_str(),std::ios::in);
+
+    m_processed_event=0;
+    return true;
 }
 
 bool HepMCRdr::finish(){
-return true;
+    return true;
+}
+
+StatusCode
+HepMCRdr::initialize() {
+    StatusCode sc;
+    if (not configure_gentool()) {
+        error() << "failed to initialize." << endmsg;
+        return StatusCode::FAILURE;
+    }
+
+    return sc;
+}
+
+StatusCode
+HepMCRdr::finalize() {
+    StatusCode sc;
+    if (not finish()) {
+        error() << "Failed to finalize." << endmsg;
+        return StatusCode::FAILURE;
+    }
+    return sc;
 }
