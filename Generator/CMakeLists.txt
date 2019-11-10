@@ -15,7 +15,10 @@ set(GenAlgo_srcs
 )
 set(GenAlgo_incs src)
 
-find_package(ROOT COMPONENTS RIO Tree TreePlayer MathCore Net Graf3d Graf Gpad REQUIRED)
+find_package(Geant4 REQUIRED)
+include(${Geant4_USE_FILE})
+
+find_package(ROOT COMPONENTS RIO Tree TreePlayer MathCore Net Graf3d Graf Gpad EG REQUIRED)
 find_package(LCIO)
 find_package(podio)
 find_package(plcio)
@@ -39,16 +42,26 @@ endif(HepMC_FOUND)
 INCLUDE_DIRECTORIES(${GenAlgo_incs})
 
 gaudi_add_module(GenAlgo ${GenAlgo_srcs} 
-INCLUDE_DIRS 
-GaudiKernel
-FWCore
-${LCIO_INCLUDE_DIRS}
-${podio_INCLUDE_DIRS}
-${plcio_INCLUDE_DIRS}
-${ROOT_INCLUDE_DIRS}
-HepMC
-LINK_LIBRARIES GaudiKernel ${LCIO_LIBRARIES} ${podio_LIBRARIES}  ROOT ${plcio_LIBRARY_DIR}/libplcio.so  ${plcio_LIBRARY_DIR}/libplcioDict.so FWCore HepMC
-)
+  INCLUDE_DIRS 
+    GaudiKernel
+    FWCore
+    Geant4
+    ${LCIO_INCLUDE_DIRS}
+    ${podio_INCLUDE_DIRS}
+    ${plcio_INCLUDE_DIRS}
+    ${ROOT_INCLUDE_DIRS}
+    HepMC
+  LINK_LIBRARIES 
+    GaudiKernel 
+    ${LCIO_LIBRARIES}
+    ${podio_LIBRARIES}
+    ROOT
+    ${plcio_LIBRARY_DIR}/libplcio.so
+    ${plcio_LIBRARY_DIR}/libplcioDict.so
+    FWCore 
+    HepMC
+    Geant4
+  )
 #gaudi_add_test(Reader FRAMEWORK options/read.py)
 
 ###########################

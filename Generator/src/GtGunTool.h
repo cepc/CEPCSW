@@ -12,7 +12,10 @@
  */
 
 #include <GaudiKernel/AlgTool.h>
+#include <GaudiKernel/Property.h>
 #include "IGenTool.h"
+
+#include <vector>
 
 class GtGunTool: public extends<AlgTool, IGenTool> {
 public:
@@ -26,6 +29,18 @@ public:
     bool mutate(MyHepMC::GenEvent& event) override;
     bool finish() override;
     bool configure_gentool() override;
+
+private:
+
+    Gaudi::Property<std::vector<std::string>> m_particles{this, "Particles"};
+
+    Gaudi::Property<std::vector<double>> m_energies{this, "Energies"};
+
+    Gaudi::Property<std::vector<double>> m_thetamins{this, "ThetaMins"};
+    Gaudi::Property<std::vector<double>> m_thetamaxs{this, "ThetaMaxs"};
+
+    Gaudi::Property<std::vector<double>> m_phimins{this, "PhiMins"};
+    Gaudi::Property<std::vector<double>> m_phimaxs{this, "PhiMaxs"};
 
 };
 
