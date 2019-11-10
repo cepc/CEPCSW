@@ -5,7 +5,7 @@ set(GenAlgo_srcs
     src/GenAlgo.cpp 
     src/GenEvent.cpp 
     src/GenReader.cpp 
-    # src/StdHepRdr.cpp 
+    src/StdHepRdr.cpp 
     # src/GenPrinter.cpp
     # src/LCAscHepRdr.cc
     # src/HepevtRdr.cpp

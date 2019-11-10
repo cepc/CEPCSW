@@ -26,17 +26,10 @@ using namespace IMPL;
 using namespace plcio;
 using namespace std;
 
-
-StdHepRdr::StdHepRdr(string name){
-
-m_stdhep_rdr = new LCStdHepRdrNew(name.c_str());
-m_stdhep_rdr->printHeader();
-m_total_event = m_stdhep_rdr->getNumberOfEvents() - 1 ;
-m_processed_event=0;
-}
+DECLARE_COMPONENT(StdHepRdr)
 
 StdHepRdr::~StdHepRdr(){
-delete m_stdhep_rdr;
+    delete m_stdhep_rdr;
 }
 
 bool StdHepRdr::mutate(MyHepMC::GenEvent& event){
@@ -98,10 +91,40 @@ if(m_processed_event == m_total_event) {std::cout<<"Have read all events, end no
 else return false;
 }
 
-bool StdHepRdr::configure(){
-return true;
+bool StdHepRdr::configure_gentool(){
+    m_stdhep_rdr = new LCStdHepRdrNew(m_filename.value().c_str());
+    m_stdhep_rdr->printHeader();
+    if (m_stdhep_rdr->getNumberOfEvents()<=1) {
+        return false;
+    }
+
+    m_total_event = m_stdhep_rdr->getNumberOfEvents() - 1 ;
+    m_processed_event=0;
+
+    return true;
 }
 
 bool StdHepRdr::finish(){
-return true;
+    return true;
+}
+
+StatusCode
+StdHepRdr::initialize() {
+    StatusCode sc;
+    if (not configure_gentool()) {
+        error() << "failed to initialize." << endmsg;
+        return StatusCode::FAILURE;
+    }
+
+    return sc;
+}
+
+StatusCode
+StdHepRdr::finalize() {
+    StatusCode sc;
+    if (not finish()) {
+        error() << "Failed to finalize." << endmsg;
+        return StatusCode::FAILURE;
+    }
+    return sc;
 }

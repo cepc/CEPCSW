@@ -92,10 +92,10 @@ GenAlgo::execute() {
 
 StatusCode
 GenAlgo::finalize() {
-    cout << "finalize" << endl; 
-    for(auto gentool: m_genTools) {
-        if (gentool->finish()) {} 
-        else {cout << "finish Failed" << endl; return StatusCode::FAILURE; }
-    }
+    // cout << "finalize" << endl; 
+    // for(auto gentool: m_genTools) {
+    //     if (gentool->finish()) {} 
+    //     else {cout << "finish Failed" << endl; return StatusCode::FAILURE; }
+    // }
     return StatusCode::SUCCESS;
 }
