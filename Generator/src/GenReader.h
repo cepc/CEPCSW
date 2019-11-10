@@ -6,11 +6,11 @@
 
 using namespace std;
 
-class GenReader: public IGenTool{
+class GenReader: virtual public IGenTool{
 
     public:
         ~GenReader();
-        virtual bool configure()=0;               
+        virtual bool configure_gentool()=0;               
         virtual bool mutate(MyHepMC::GenEvent& event)=0;    
         virtual bool finish()=0;
         virtual bool isEnd()=0;

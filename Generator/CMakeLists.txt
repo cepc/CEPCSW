@@ -1,6 +1,18 @@
 ########################################
 gaudi_subdir(Generator v0r0)
-set(GenAlgo_srcs src/GenAlgo.cpp src/GenEvent.cpp src/IGenTool.cpp src/StdHepRdr.cpp src/GenReader.cpp src/GenPrinter.cpp src/LCAscHepRdr.cc src/HepevtRdr.cpp src/SLCIORdr.cpp src/HepMCRdr.cpp)
+set(GenAlgo_srcs 
+    src/IGenTool.cpp 
+    src/GenAlgo.cpp 
+    src/GenEvent.cpp 
+    src/GenReader.cpp 
+    # src/StdHepRdr.cpp 
+    # src/GenPrinter.cpp
+    # src/LCAscHepRdr.cc
+    # src/HepevtRdr.cpp
+    # src/SLCIORdr.cpp
+    # src/HepMCRdr.cpp
+    src/GtGunTool.cpp
+)
 set(GenAlgo_incs src)
 
 find_package(ROOT COMPONENTS RIO Tree TreePlayer MathCore Net Graf3d Graf Gpad REQUIRED)

@@ -4,6 +4,7 @@
 
 #include <GaudiKernel/Algorithm.h>
 #include "GaudiKernel/Property.h"
+#include <GaudiKernel/ToolHandle.h>
 
 #include "GaudiAlg/GaudiAlgorithm.h"
 #include "FWCore/DataHandle.h"
@@ -36,7 +37,9 @@ private:
     Gaudi::Property<bool> m_do_write{this, "WriteFile", "NULL"};
 
     std::vector<std::string> m_genToolNames;                                                         
-    std::vector<IGenTool*> m_genTools;                                                               
+    // std::vector<IGenTool*> m_genTools;
+    ToolHandleArray<IGenTool> m_genTools;
+
     int m_evtid;                               
     int m_evtMax;
     //MyHepMC::GenEvent m_event;
