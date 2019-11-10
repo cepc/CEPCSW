@@ -1,11 +1,7 @@
 #include "GenPrinter.h"
 #include "GenEvent.h"
 
-GenPrinter::GenPrinter(string name){}
-
-
-GenPrinter::~GenPrinter(){
-}
+DECLARE_COMPONENT(GenPrinter)
 
 bool GenPrinter::mutate(MyHepMC::GenEvent& event){
     std::cout << "print mc info for event "<< event.getID() << ", mc size ="<< event.m_mc_vec.size() <<  std::endl;
@@ -19,12 +15,12 @@ bool GenPrinter::mutate(MyHepMC::GenEvent& event){
     << "Charge            :"<< p.getCharge            ()<<std::endl 
     << "Time              :"<< p.getTime              ()<<std::endl 
     << "Mass              :"<< p.getMass              ()<<std::endl 
-    << "Vertex            :"<< p.getVertex            ()[0]<<std::endl 
-    << "Endpoint          :"<< p.getEndpoint          ()[1]<<std::endl 
-    << "Momentum          :"<< p.getMomentum          ()[2]<<std::endl 
-    << "MomentumAtEndpoint:"<< p.getMomentumAtEndpoint()[0]<<std::endl 
-    << "Spin              :"<< p.getSpin              ()[1]<<std::endl 
-    << "ColorFlow         :"<< p.getColorFlow         ()[1]<<std::endl 
+    << "Vertex            :"<< p.getVertex            ()<<std::endl 
+    << "Endpoint          :"<< p.getEndpoint          ()<<std::endl 
+    << "Momentum          :"<< p.getMomentum          ()<<std::endl 
+    << "MomentumAtEndpoint:"<< p.getMomentumAtEndpoint()<<std::endl 
+    << "Spin              :"<< p.getSpin              ()<<std::endl 
+    << "ColorFlow         :"<< p.getColorFlow         ()<<std::endl 
     << "Parent size       :"<< p.parents_size         ()<<std::endl 
     << "Daughter size     :"<< p.daughters_size       ()<<std::endl; 
     //for(unsigned int j=0; j<p.parents_size(); j++) std::cout << " for parent: "<< j << ",PDG="<< p.getParents(j).getPDG() << ",id=:"<< p.getParents(j).id()<<std::endl;
@@ -33,10 +29,32 @@ bool GenPrinter::mutate(MyHepMC::GenEvent& event){
     return true;
 }
 
-bool GenPrinter::configure(){
-return true;
+bool GenPrinter::configure_gentool(){
+    return true;
 }
 
 bool GenPrinter::finish(){
-return true;
+    return true;
 }
+
+StatusCode
+GenPrinter::initialize() {
+    StatusCode sc;
+    if (not configure_gentool()) {
+        error() << "failed to initialize." << endmsg;
+        return StatusCode::FAILURE;
+    }
+
+    return sc;
+}
+
+StatusCode
+GenPrinter::finalize() {
+    StatusCode sc;
+    if (not finish()) {
+        error() << "Failed to finalize." << endmsg;
+        return StatusCode::FAILURE;
+    }
+    return sc;
+}
+
