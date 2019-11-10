@@ -87,6 +87,7 @@ GtGunTool::mutate(MyHepMC::GenEvent& event) {
         mcp.setSimulatorStatus(1);
         // mcp.setCharge();
         mcp.setTime(0.0);
+        mcp.setMass(mass);
         // mcp.setVertex(); 
         // mcp.setEndpoint();
 
@@ -123,6 +124,11 @@ GtGunTool::mutate(MyHepMC::GenEvent& event) {
                 info() << "phi is fixed: " << phimin << endmsg;
             }
         }
+
+        debug() << "Direction: "
+                << " cos(theta): " << costheta
+                << " phi: " << phi
+                << endmsg;
         
         double px = p*sintheta*cos(phi);
         double py = p*sintheta*sin(phi);

@@ -59,6 +59,14 @@ from Configurables import HepMCRdr
 from Configurables import GenPrinter
 
 # gun = GtGunTool("GtGunTool")
+# gun.Particles = ["pi+"]
+# gun.Energies = [100.] # GeV
+
+# gun.ThetaMins = [] # rad; 45deg
+# gun.ThetaMaxs = [] # rad; 45deg
+
+# gun.PhiMins = [] # rad; 0deg
+# gun.PhiMaxs = [] # rad; 360deg
 
 stdheprdr = StdHepRdr("StdHepRdr")
 stdheprdr.Input = "/cefs/data/stdhep/CEPC250/2fermions/E250.Pbhabha.e0.p0.whizard195/bhabha.e0.p0.00001.stdhep"
