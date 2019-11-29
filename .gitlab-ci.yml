@@ -1,4 +1,3 @@
-
 build:
   stage: build
   before_script:
@@ -8,7 +7,9 @@ build:
     - cd build
     - cmake ..
     - make
-
+  artifacts:
+    paths:
+      - build/
 
 # run tests using the binary built before
 test:
