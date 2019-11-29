@@ -3,18 +3,12 @@ build:
   before_script:
     - source /cvmfs/cepcsw.ihep.ac.cn/prototype/setup.sh
   script:
-    - cmake -Bbuild -H.
-    - make -Cbuild
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make
   artifacts:
     paths:
       - build/
 
-# run tests using the binary built before
-test:
-  stage: test
-  dependencies:
-    - build
-  script:
-    - cd build
-    - ./run gaudirun.py '$EXAMPLESROOT/options/tut_detsim.py'
 
