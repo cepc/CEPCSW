@@ -3,10 +3,8 @@ build:
   before_script:
     - source /cvmfs/cepcsw.ihep.ac.cn/prototype/setup.sh
   script:
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make
+    - cmake -Bbuild -H.
+    - make -Cbuild
   artifacts:
     paths:
       - build/
