@@ -61,6 +61,7 @@ LCIO2Plcio::LCIO2Plcio(){
   map_cvt.insert(std::make_pair<std::string, fptr>("Track", Convertor_Track));
   map_cvt.insert(std::make_pair<std::string, fptr>("TrackerHit", Convertor_TrackerHit));
   map_cvt.insert(std::make_pair<std::string, fptr>("TPCHit", Convertor_TPCHit));
+  map_cvt.insert(std::make_pair<std::string, fptr>("ReconstructedParticle", Convertor_ReconstructedParticle));
   map_cvt.insert(std::make_pair<std::string, fptr>("ParticleID", Convertor_ParticleID));
 }
 LCIO2Plcio::LCIO2Plcio(EVENT::LCCollection* collection){

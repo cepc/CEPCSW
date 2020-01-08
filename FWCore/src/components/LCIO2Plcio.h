@@ -81,7 +81,6 @@ public:
   static podio::CollectionBase* Convertor_Track(EVENT::LCCollection*);
   static podio::CollectionBase* Convertor_TrackerHit(EVENT::LCCollection*);
   static podio::CollectionBase* Convertor_TPCHit(EVENT::LCCollection*);
-
   static podio::CollectionBase* Convertor_ReconstructedParticle(EVENT::LCCollection*);
   static podio::CollectionBase* Convertor_ParticleID(EVENT::LCCollection*);
 
