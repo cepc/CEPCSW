@@ -34,10 +34,14 @@
 #include "EVENT/TrackerHit.h"
 #include "EVENT/TrackState.h" 
 #include "plcio/Track.h"  
+#include "plcio/TrackerHit.h"  
 #include "plcio/TrackCollection.h"  
+#include "plcio/TrackerHitCollection.h"  
 #include "EVENT/ReconstructedParticle.h" 
 #include "plcio/ReconstructedParticle.h"  
 #include "plcio/ReconstructedParticleCollection.h"  
+#include "plcio/ParticleID.h"  
+#include "plcio/ParticleIDCollection.h"  
 
 #include <utility>
 // Forward declarations
@@ -75,10 +79,14 @@ public:
   static podio::CollectionBase* Convertor_SimCalorimeterHit(EVENT::LCCollection*);
   static podio::CollectionBase* Convertor_Cluster(EVENT::LCCollection*);
   static podio::CollectionBase* Convertor_Track(EVENT::LCCollection*);
+  static podio::CollectionBase* Convertor_TrackerHit(EVENT::LCCollection*);
+  static podio::CollectionBase* Convertor_TPCHit(EVENT::LCCollection*);
+
   static podio::CollectionBase* Convertor_ReconstructedParticle(EVENT::LCCollection*);
+  static podio::CollectionBase* Convertor_ParticleID(EVENT::LCCollection*);
+
   static podio::CollectionBase* Convertor_LCRelation(EVENT::LCCollection*);
   static podio::CollectionBase* Convertor_Vertex(EVENT::LCCollection*);
-  static podio::CollectionBase* Convertor_TPCHit(EVENT::LCCollection*);
 
   static void setMCParticle(EVENT::MCParticle*, plcio::MCParticle&);
   void setCollName(const std::string &collName){ CollName = collName; };
