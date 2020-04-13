@@ -30,11 +30,15 @@ ExampleAnaElemTool::BeginOfEventAction(const G4Event* anEvent) {
 
 void
 ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
-
+    auto mcCol = m_mcParCol.get();
+    msg() << "mcCol size: " << mcCol->size() << endmsg;
     // save all data
 
     // create collections.
     auto trackercols = m_trackerCol.createAndPut();
+    auto calorimetercols = m_calorimeterCol.createAndPut();
+    auto calocontribcols = m_caloContribCol.createAndPut();
+
     auto vxdcols = m_VXDCol.createAndPut();
     auto ftdcols = m_FTDCol.createAndPut();
     auto sitcols = m_SITCol.createAndPut();
@@ -73,7 +77,9 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
         }
 
         plcio::SimTrackerHitCollection* tracker_col_ptr = nullptr;
+        plcio::SimCalorimeterHitCollection* calo_col_ptr = nullptr;
 
+        // the mapping between hit collection and the data handler
         if (collect->GetName() == "VXDCollection") {
             tracker_col_ptr = vxdcols;
         } else if (collect->GetName() == "FTDCollection") {
@@ -84,7 +90,13 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
             tracker_col_ptr = tpccols;
         } else if (collect->GetName() == "SETCollection") {
             tracker_col_ptr = setcols;
+        } else if (collect->GetName() == "SETCollection") {
+            tracker_col_ptr = setcols;
+        } else if (collect->GetName() == "CaloHitsCollection") {
+            calo_col_ptr = calorimetercols;
         } else {
+            warning() << "Unknown collection name: " << collect->GetName()
+                      << ". The SimTrackerCol will be used. " << endmsg;
             tracker_col_ptr = trackercols;
         }
 
@@ -161,6 +173,31 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
                 dd4hep::sim::Geant4CalorimeterHit* cal_hit = dynamic_cast<dd4hep::sim::Geant4CalorimeterHit*>(h);
                 if (cal_hit) {
                     ++n_cal_hit;
+                    auto edm_calo_hit = calo_col_ptr->create();
+                    edm_calo_hit->setCellID0((cal_hit->cellID >> 0            ) & 0xFFFFFFFF);
+                    edm_calo_hit->setCellID1((cal_hit->cellID >> sizeof(int)*8) & 0xFFFFFFFF);
+                    edm_calo_hit->setEnergy(cal_hit->energyDeposit);
+                    float pos[3] = {cal_hit->position.x()/CLHEP::mm,
+                                    cal_hit->position.y()/CLHEP::mm,
+                                    cal_hit->position.z()/CLHEP::mm};
+                    edm_calo_hit->setPosition(plcio::FloatThree(pos));
+
+                    // contribution
+                    typedef dd4hep::sim::Geant4CalorimeterHit::Contributions Contributions;
+                    typedef dd4hep::sim::Geant4CalorimeterHit::Contribution Contribution;
+                    for (Contributions::const_iterator j = cal_hit->truth.begin();
+                         j != cal_hit->truth.end(); ++j) {
+                        const Contribution& c = *j;
+                        // The legacy Hit object does not contains positions of contributions.
+                        // float contrib_pos[] = {float(c.x/mm), float(c.y/mm), float(c.z/mm)};
+                        auto edm_calo_contrib = calocontribcols->create();
+                        edm_calo_contrib.setPDG(c.pdgID);
+                        edm_calo_contrib.setEnergy(c.deposit/CLHEP::GeV);
+                        edm_calo_contrib.setTime(c.time/CLHEP::ns);
+                        edm_calo_contrib.setStepPosition(plcio::FloatThree(pos));
+                        edm_calo_contrib.setParticle(mcCol->at(0));
+                        edm_calo_hit->addContribution(edm_calo_contrib);
+                    }
                 }
 
             }

@@ -33,7 +33,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 
     dd4hep::Volume motherVol = theDetector.pickMotherVolume(sdet);
 
-    dd4hep::Material det_mat(theDetector.material("Air"));
+    dd4hep::Material det_mat(theDetector.material("G4_BGO"));
     dd4hep::Volume det_vol(det_name+"_vol", dd4hep::Box(60, 60, 60), det_mat);
 
     dd4hep::Transform3D transform(dd4hep::Rotation3D(),

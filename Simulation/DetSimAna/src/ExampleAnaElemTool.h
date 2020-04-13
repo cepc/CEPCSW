@@ -5,7 +5,10 @@
 #include "FWCore/DataHandle.h"
 #include "DetSimInterface/IAnaElemTool.h"
 
+#include "plcio/MCParticleCollection.h"
 #include "plcio/SimTrackerHitCollection.h"
+#include "plcio/SimCalorimeterHitCollection.h"
+#include "plcio/CaloHitContributionCollection.h"
 
 class ExampleAnaElemTool: public extends<AlgTool, IAnaElemTool> {
 
@@ -35,8 +38,19 @@ public:
     StatusCode finalize() override;
 
 private:
+    // In order to associate MCParticle with contribution, we need to access MC Particle.
+    DataHandle<plcio::MCParticleCollection> m_mcParCol{"MCParticle", 
+            Gaudi::DataHandle::Writer, this};
+
+    // Generic collections for Tracker and Calorimeter
     DataHandle<plcio::SimTrackerHitCollection> m_trackerCol{"SimTrackerCol", 
             Gaudi::DataHandle::Writer, this};
+    DataHandle<plcio::SimCalorimeterHitCollection> m_calorimeterCol{"SimCalorimeterCol", 
+            Gaudi::DataHandle::Writer, this};
+    DataHandle<plcio::CaloHitContributionCollection> m_caloContribCol{"SimCaloContributionCol", 
+            Gaudi::DataHandle::Writer, this};
+
+    // Dedicated collections for CEPC
     DataHandle<plcio::SimTrackerHitCollection> m_VXDCol{"VXDCollection", 
             Gaudi::DataHandle::Writer, this};
     DataHandle<plcio::SimTrackerHitCollection> m_FTDCol{"FTDCollection", 

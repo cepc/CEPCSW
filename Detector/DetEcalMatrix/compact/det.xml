@@ -11,8 +11,8 @@
   </info>
 
   <includes>
-    <gdmlFile  ref="${DD4hepINSTALL}/DDDetectors/compact/elements.xml"/>
-    <gdmlFile  ref="${DD4hepINSTALL}/DDDetectors/compact/materials.xml"/>
+    <gdmlFile  ref="elements.xml"/>
+    <gdmlFile  ref="materials.xml"/>
   </includes>
 
   <define>
@@ -31,13 +31,13 @@
   </display>
 
   <detectors>
-    <detector id="1" name="CaloDetector" type="EcalMatrix" readout="CaloHits" vis="VisibleGreen" sensitive="true">
+    <detector id="1" name="CaloDetector" type="EcalMatrix" readout="CaloHitsCollection" vis="VisibleGreen" sensitive="true">
       <position x="0"  y="0"  z="1800*mm"/>
     </detector>
   </detectors>
   
   <readouts>
-    <readout name="CaloHits">
+    <readout name="CaloHitsCollection">
       <id>system:8</id>
     </readout>
   </readouts>
