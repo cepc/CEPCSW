@@ -21,7 +21,6 @@ using namespace std;
 
 class GenAlgo: public GaudiAlgorithm {
 
-    friend class AlgFactory<GenAlgo>;
 public:
     GenAlgo(const std::string& name, ISvcLocator* pSvcLocator);
 

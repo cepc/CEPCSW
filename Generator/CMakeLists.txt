@@ -23,6 +23,7 @@ find_package(LCIO)
 find_package(podio)
 find_package(plcio)
 find_package(HepMC)
+find_package(CLHEP)
 if(ROOT_FOUND)
     message("found ROOT: ${ROOT_INCLUDE_DIRS} ${ROOT_LIBRARIES}")
 endif(ROOT_FOUND)
@@ -38,29 +39,33 @@ endif(plcio_FOUND)
 if(HepMC_FOUND)
     message("found HepMC: ${HepMC_INCLUDE_DIRS} ${HepMC_LIBRARY_DIR}")
 endif(HepMC_FOUND)
+if(CLHEP_FOUND)
+    message("found CLHEP: ${CLHEP_INCLUDE_DIRS} ${CLHEP_LIBRARY_DIR}")
+endif(CLHEP_FOUND)
 ############## for producing plcio library #############
 INCLUDE_DIRECTORIES(${GenAlgo_incs})
 
 gaudi_add_module(GenAlgo ${GenAlgo_srcs} 
   INCLUDE_DIRS 
-    GaudiKernel
+  #   GaudiKernel
     FWCore
-    Geant4
-    ${LCIO_INCLUDE_DIRS}
-    ${podio_INCLUDE_DIRS}
-    ${plcio_INCLUDE_DIRS}
-    ${ROOT_INCLUDE_DIRS}
-    HepMC
+  #   Geant4
+  #   ${LCIO_INCLUDE_DIRS}
+  #   ${podio_INCLUDE_DIRS}
+  #   ${plcio_INCLUDE_DIRS}
+  #   ${ROOT_INCLUDE_DIRS}
+  #   HepMC
   LINK_LIBRARIES 
-    GaudiKernel 
-    ${LCIO_LIBRARIES}
-    ${podio_LIBRARIES}
+  #   GaudiKernel 
+  #   ${LCIO_LIBRARIES}
+  #   ${podio_LIBRARIES}
     ROOT
-    ${plcio_LIBRARY_DIR}/libplcio.so
-    ${plcio_LIBRARY_DIR}/libplcioDict.so
+  #   ${plcio_LIBRARY_DIR}/libplcio.so
+  #   ${plcio_LIBRARY_DIR}/libplcioDict.so
     FWCore 
     HepMC
-    Geant4
+    CLHEP
+  #   Geant4
   )
 #gaudi_add_test(Reader FRAMEWORK options/read.py)
 
