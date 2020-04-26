@@ -19,7 +19,6 @@ class LCIODataSvc;
  */
 
 class LCIOInput : public GaudiAlgorithm {
-  friend class AlgFactory<LCIOInput>;
 
 public:
   /// Constructor.

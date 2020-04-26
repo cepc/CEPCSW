@@ -6,7 +6,7 @@
 
 // Instantiation of a static factory class used by clients to create
 // instances of this service
-DECLARE_SERVICE_FACTORY(CEPCDataSvc)
+DECLARE_COMPONENT(CEPCDataSvc)
 
 /// Standard Constructor
 CEPCDataSvc::CEPCDataSvc(const std::string& name, ISvcLocator* svc)

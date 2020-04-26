@@ -16,7 +16,7 @@
 
 typedef std::vector<lcio::MCParticle*> MCParticleVec ;  
 
-DECLARE_SERVICE_FACTORY(LCIODataSvc)
+DECLARE_COMPONENT(LCIODataSvc)
 /// Service initialisation
 StatusCode LCIODataSvc::initialize() {
   // Nothing to do: just call base class initialisation

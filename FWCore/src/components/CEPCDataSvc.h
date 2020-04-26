@@ -5,7 +5,6 @@
 
 class CEPCDataSvc : public PodioDataSvc
 {
-  friend class SvcFactory<CEPCDataSvc>;
 
 public:
   /// Standard Constructor

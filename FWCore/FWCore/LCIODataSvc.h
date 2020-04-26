@@ -29,8 +29,6 @@
 class LCIODataSvc : public DataSvc {
 public:
 
-  friend class SvcFactory<LCIODataSvc>;
-
   typedef std::vector<std::pair<std::string, podio::CollectionBase*>> CollRegistry;
 
   virtual StatusCode initialize();
