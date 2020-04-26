@@ -9,6 +9,7 @@ gaudi_depends_on_subdirs(GaudiKernel)
 
 
 find_package(DD4hep COMPONENTS DDRec DDG4 DDParsers REQUIRED)
+# find_package(DD4hep)
 find_package(Geant4)
 include(${Geant4_USE_FILE})
 
@@ -31,8 +32,18 @@ set(DetCEPCv4_src
 
 gaudi_add_module(DetCEPCv4
                   ${DetCEPCv4_src}
-		  INCLUDE_DIRS DD4hep ROOT Geant4 src/include
-		  LINK_LIBRARIES GaudiKernel DD4hep ${DD4hep_COMPONENT_LIBRARIES} ROOT Geant4)
+		  INCLUDE_DIRS 
+                  # DD4hep 
+                  # ROOT 
+                  # Geant4 
+                  src/include
+		  LINK_LIBRARIES
+                  # GaudiKernel
+                  DD4hep
+                  ${DD4hep_COMPONENT_LIBRARIES}
+                  # ROOT 
+                  # Geant4
+)
 
 set(LIBRARY_OUTPUT_PATH ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 message(STATUS "LIBRARY_OUTPUT_PATH -> ${LIBRARY_OUTPUT_PATH}")
