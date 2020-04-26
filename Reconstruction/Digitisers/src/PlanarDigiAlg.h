@@ -44,7 +44,6 @@ class IEventSeeder;
 
 class PlanarDigiAlg : public GaudiAlgorithm
 {
-  friend class AlgFactory<PlanarDigiAlg>;
  
 public:
  

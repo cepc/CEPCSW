@@ -4,6 +4,7 @@ find_package(CLHEP REQUIRED)
 find_package(GEAR REQUIRED)
 find_package(GSL REQUIRED ) 
 find_package(LCIO REQUIRED ) 
+find_package(podio REQUIRED ) 
 
 gaudi_depends_on_subdirs(
     Service/GearSvc
