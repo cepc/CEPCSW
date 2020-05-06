@@ -27,6 +27,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     MYDEBUGVAL(det_name);
     MYDEBUGVAL(det_type);
     xml_dim_t   pos    (x_det.child(_U(position)));
+    xml_dim_t   dim    (x_det.child(_U(dimensions)));
 
 
     dd4hep::DetElement sdet(det_name, x_det.id());
@@ -34,7 +35,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     dd4hep::Volume motherVol = theDetector.pickMotherVolume(sdet);
 
     dd4hep::Material det_mat(theDetector.material("G4_BGO"));
-    dd4hep::Volume det_vol(det_name+"_vol", dd4hep::Box(60, 60, 60), det_mat);
+    dd4hep::Volume det_vol(det_name+"_vol", dd4hep::Box(dim.dx(), dim.dy(), dim.dz()), det_mat);
 
     dd4hep::Transform3D transform(dd4hep::Rotation3D(),
                                   dd4hep::Position(pos.x(),pos.y(),pos.z()));
