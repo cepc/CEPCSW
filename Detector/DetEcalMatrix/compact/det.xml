@@ -39,7 +39,11 @@
   
   <readouts>
     <readout name="CaloHitsCollection">
-      <id>system:8</id>
+      <segmentation type="CartesianGridXYZ" 
+                    grid_size_x="1*cm" 
+                    grid_size_y="1*cm" 
+                    grid_size_z="1*cm"/>
+      <id>system:8,x:32:-6,y:-6,z:-6</id>
     </readout>
   </readouts>
 
