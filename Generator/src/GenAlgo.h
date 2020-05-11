@@ -42,7 +42,7 @@ private:
     int m_evtid;                               
     int m_evtMax;
     //MyHepMC::GenEvent m_event;
-    DataHandle<plcio::MCParticleCollection> m_hdl{"MCParticle", Gaudi::DataHandle::Writer, this};
+    DataHandle<edm4hep::MCParticleCollection> m_hdl{"MCParticle", Gaudi::DataHandle::Writer, this};
 
 
 };

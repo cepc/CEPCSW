@@ -107,7 +107,8 @@ detsimalg.RunCmds = [
 ]
 detsimalg.AnaElems = [
     # example_anatool.name()
-    "ExampleAnaElemTool"
+    # "ExampleAnaElemTool"
+    "Edm4hepWriterAnaElemTool"
 ]
 detsimalg.RootDetElem = "WorldDetElemTool"
 

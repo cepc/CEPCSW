@@ -5,8 +5,8 @@
 #include "DetSimInterface/IG4PrimaryCnvTool.h"
 #include "FWCore/DataHandle.h"
 
-#include "plcio/EventHeaderCollection.h"
-#include "plcio/MCParticleCollection.h"
+#include "edm4hep/EventHeaderCollection.h"
+#include "edm4hep/MCParticleCollection.h"
 
 class G4PrimaryCnvTool: public extends<AlgTool, IG4PrimaryCnvTool> {
 public:
@@ -16,7 +16,7 @@ public:
     bool mutate(G4Event* anEvent) override;
 
 private:
-    DataHandle<plcio::MCParticleCollection> m_mcParCol{"MCParticle", Gaudi::DataHandle::Reader, this};
+    DataHandle<edm4hep::MCParticleCollection> m_mcParCol{"MCParticle", Gaudi::DataHandle::Reader, this};
 
 };
 

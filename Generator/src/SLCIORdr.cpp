@@ -12,12 +12,10 @@
 #include "IMPL/LCCollectionVec.h"
 
 
-#include "plcio/MCParticle.h" //plcio
-#include "plcio/MCParticleObj.h"
-#include "plcio/MCParticleCollection.h"
-#include "plcio/DoubleThree.h"
-#include "plcio/FloatThree.h"
-#include "plcio/EventHeaderCollection.h"
+#include "edm4hep/MCParticle.h" //edm4hep
+#include "edm4hep/MCParticleObj.h"
+#include "edm4hep/MCParticleCollection.h"
+#include "edm4hep/EventHeaderCollection.h"
 
 
 
@@ -28,7 +26,7 @@
 
 using namespace lcio;
 using namespace IMPL;
-using namespace plcio;
+using namespace edm4hep;
 using namespace std;
 
 DECLARE_COMPONENT(SLCIORdr)
@@ -75,7 +73,7 @@ bool SLCIORdr::mutate(MyHepMC::GenEvent& event){
 	    for(i=0;i<NHEP;i++){
 	      if(p==lcCol->getElementAt(i)) break;
 	    }
-	    if(i==NHEP) cout << "HepLCIOInterfaceNew: error" << endl;
+	    if(i==NHEP) cout << "Heedm4hepInterfaceNew: error" << endl;
 	    mcp->addParent(dynamic_cast<MCParticleImpl*>(lcMCVec->getElementAt(i)));
 	  }
 	  //ignore daughter table, auto-regonize relationship while addParent()
@@ -88,7 +86,7 @@ bool SLCIORdr::mutate(MyHepMC::GenEvent& event){
             for(i=0;i<NHEP;i++){
               if(d==lcCol->getElementAt(i)) break;
             }
-            if(i==NHEP) cout << "HepLCIOInterfaceNew: error" << endl;
+            if(i==NHEP) cout << "Heedm4hepInterfaceNew: error" << endl;
             mcp->addDaughter(dynamic_cast<MCParticleImpl*>(lcMCVec->getElementAt(i)));
           }
           */
@@ -108,7 +106,7 @@ bool SLCIORdr::mutate(MyHepMC::GenEvent& event){
     for (int i=0; i < n_mc; i++){
         MCParticleImpl* mc = (MCParticleImpl*) lcMCVec->getElementAt(i);
         //std::cout<<"At mc :"<< i <<std::endl;
-        plcio::MCParticle mcp = event.m_mc_vec.create();
+        edm4hep::MCParticle mcp = event.m_mc_vec.create();
         pmcid_lmcid.insert(std::pair<int, int>(mc->id(),i));
         //std::cout<<"map<id,i>:"<<mc->id()<<","<< i <<std::endl;
                                  
@@ -120,8 +118,8 @@ bool SLCIORdr::mutate(MyHepMC::GenEvent& event){
         mcp.setMass               (mc->getMass());
         mcp.setVertex             (mc->getVertex()); 
         mcp.setEndpoint           (mc->getEndpoint());
-        mcp.setMomentum           (FloatThree(float(mc->getMomentum()[0]), float(mc->getMomentum()[1]), float(mc->getMomentum()[2]) ));
-        mcp.setMomentumAtEndpoint (FloatThree(float(mc->getMomentumAtEndpoint()[0]), float(mc->getMomentumAtEndpoint()[1]), float(mc->getMomentumAtEndpoint()[2]) ));
+        mcp.setMomentum           (Vector3f(float(mc->getMomentum()[0]), float(mc->getMomentum()[1]), float(mc->getMomentum()[2]) ));
+        mcp.setMomentumAtEndpoint (Vector3f(float(mc->getMomentumAtEndpoint()[0]), float(mc->getMomentumAtEndpoint()[1]), float(mc->getMomentumAtEndpoint()[2]) ));
         mcp.setSpin               (mc->getSpin());
         mcp.setColorFlow          (mc->getColorFlow());
     }
@@ -131,7 +129,7 @@ bool SLCIORdr::mutate(MyHepMC::GenEvent& event){
         MCParticleImpl* mc = (MCParticleImpl*) lcMCVec->getElementAt(i);
         const MCParticleVec & mc_parents = mc->getParents();
         const MCParticleVec & mc_daughters = mc->getDaughters();
-        plcio::MCParticle pmc = event.m_mc_vec.at(i);
+        edm4hep::MCParticle pmc = event.m_mc_vec.at(i);
         //std::cout<<"mc at "<< i<<", parent size "<<mc_parents.size() <<std::endl;
         for(unsigned int j=0; j< mc_parents.size(); j++){int p_id = mc_parents.at(j)->id();
                                                  //std::cout<<"parent id "<<p_id<<std::endl;

@@ -81,7 +81,7 @@ GtGunTool::mutate(MyHepMC::GenEvent& event) {
         double energy = m_energies.value()[i];
 
         // create the MC particle
-        plcio::MCParticle mcp = event.m_mc_vec.create();
+        edm4hep::MCParticle mcp = event.m_mc_vec.create();
         mcp.setPDG(pdgcode);
         mcp.setGeneratorStatus(1);
         mcp.setSimulatorStatus(1);
@@ -134,7 +134,7 @@ GtGunTool::mutate(MyHepMC::GenEvent& event) {
         double py = p*sintheta*sin(phi);
         double pz = p*costheta;
 
-        mcp.setMomentum(plcio::FloatThree(px,py,pz));
+        mcp.setMomentum(edm4hep::Vector3f(px,py,pz));
         // mcp.setMomentumAtEndpoint();
         // mcp.setSpin();
         // mcp.setColorFlow();

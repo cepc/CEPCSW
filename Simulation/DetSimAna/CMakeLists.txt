@@ -13,10 +13,12 @@ find_package(DD4hep COMPONENTS DDG4 REQUIRED)
 # For EDM & I/O
 find_package(podio REQUIRED)
 find_package(plcio REQUIRED)
+find_package(EDM4HEP REQUIRED)
 # find_package(LCIO REQUIRED)
 
 set(DetSimAna_srcs
     src/ExampleAnaElemTool.cpp
+    src/Edm4hepWriterAnaElemTool.cpp
 )
 message("podio_LIBRARIES: ${podio_LIBRARIES}")
 message("plcio_LIBRARIES: ${plcio_LIBRARIES}")
@@ -37,5 +39,6 @@ gaudi_add_module(DetSimAna ${DetSimAna_srcs}
       GaudiKernel
       # Geant4
       ${plcio_LIBRARIES} 
+      EDM4HEP::edm4hep
       # ${podio_LIBRARIES}
 )

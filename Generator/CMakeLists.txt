@@ -22,6 +22,7 @@ find_package(ROOT COMPONENTS RIO Tree TreePlayer MathCore Net Graf3d Graf Gpad E
 find_package(LCIO)
 find_package(podio)
 find_package(plcio)
+find_package(EDM4HEP)
 find_package(HepMC)
 find_package(CLHEP)
 if(ROOT_FOUND)
@@ -66,6 +67,7 @@ gaudi_add_module(GenAlgo ${GenAlgo_srcs}
     HepMC
     CLHEP
   #   Geant4
+    EDM4HEP::edm4hep
   )
 #gaudi_add_test(Reader FRAMEWORK options/read.py)
 
