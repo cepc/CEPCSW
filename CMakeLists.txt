@@ -14,4 +14,6 @@ endif()
 
 
 gaudi_project(CEPCSW v0r1
-              USE Gaudi v33r1 )
+              USE Gaudi v33r1 
+                  K4FWCore v0r1
+)
