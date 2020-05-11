@@ -9,7 +9,6 @@ gaudi_depends_on_subdirs(
 find_package(Geant4 REQUIRED ui_all vis_all)
 include(${Geant4_USE_FILE})
 find_package(podio REQUIRED)
-find_package(plcio REQUIRED) 
 find_package(EDM4HEP REQUIRED)
 find_package(DD4hep COMPONENTS DDG4 REQUIRED)
 
@@ -40,7 +39,6 @@ gaudi_add_module(DetSimCore ${DetSimCore_srcs}
       # Geant4
       # ${Geant4_LIBRARIES}
       DD4hep ${DD4hep_COMPONENT_LIBRARIES} 
-      plcio
-      EDM4HEP::edm4hep
+      EDM4HEP::edm4hep EDM4HEP::edm4hepDict
       # podio
 )
