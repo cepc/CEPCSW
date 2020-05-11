@@ -22,8 +22,9 @@ gaudi_install_headers(Examples)
 # Modules
 gaudi_add_module(Examples ${Examples_srcs}
     INCLUDE_DIRS K4FWCore GaudiAlgLib GaudiKernel  ${plcio_INCLUDE_DIRS} ${podio_INCLUDE_DIRS} ${LCIO_INCLUDE_DIRS}
-    LINK_LIBRARIES K4FWCore GaudiAlgLib GaudiKernel ${podio_LIBRARIES} ${LCIO_LIBRARIES} $ENV{PLCIO}/lib/libplcio.so 
-      EDM4HEP::edm4hep EDM4HEP::edm4hepDict
+    LINK_LIBRARIES K4FWCore GaudiAlgLib GaudiKernel ${LCIO_LIBRARIES} $ENV{PLCIO}/lib/libplcio.so
+      # Force loading the libraries.
+      -Wl,--no-as-needed EDM4HEP::edm4hep EDM4HEP::edm4hepDict ${podio_LIBRARIES} podio::podioRootIO -Wl,--as-needed
 )
 
 # Unit tests
