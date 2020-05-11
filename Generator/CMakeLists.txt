@@ -24,6 +24,8 @@ find_package(podio)
 find_package(EDM4HEP)
 find_package(HepMC)
 find_package(CLHEP)
+find_package(K4FWCore REQUIRED)
+
 if(ROOT_FOUND)
     message("found ROOT: ${ROOT_INCLUDE_DIRS} ${ROOT_LIBRARIES}")
 endif(ROOT_FOUND)
@@ -44,12 +46,14 @@ INCLUDE_DIRECTORIES(${GenAlgo_incs})
 
 gaudi_add_module(GenAlgo ${GenAlgo_srcs} 
   INCLUDE_DIRS 
-    FWCore
+    K4FWCore
   LINK_LIBRARIES 
     ROOT
-    FWCore 
+    K4FWCore 
+    GaudiAlgLib GaudiKernel
     HepMC
     CLHEP
+    LCIO
     EDM4HEP::edm4hep EDM4HEP::edm4hepDict
   )
 #gaudi_add_test(Reader FRAMEWORK options/read.py)

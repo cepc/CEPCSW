@@ -5,6 +5,7 @@ find_package(podio REQUIRED)
 find_package(plcio REQUIRED)
 find_package(LCIO REQUIRED)
 find_package(EDM4HEP REQUIRED)
+find_package(K4FWCore REQUIRED)
 
 set(Examples_srcs
     src/HelloWorld/*.cpp
@@ -20,8 +21,8 @@ gaudi_install_headers(Examples)
 
 # Modules
 gaudi_add_module(Examples ${Examples_srcs}
-    INCLUDE_DIRS GaudiKernel FWCore ${plcio_INCLUDE_DIRS} ${podio_INCLUDE_DIRS} ${LCIO_INCLUDE_DIRS}
-    LINK_LIBRARIES GaudiKernel FWCore ${podio_LIBRARIES} ${LCIO_LIBRARIES} $ENV{PLCIO}/lib/libplcio.so 
+    INCLUDE_DIRS K4FWCore GaudiAlgLib GaudiKernel  ${plcio_INCLUDE_DIRS} ${podio_INCLUDE_DIRS} ${LCIO_INCLUDE_DIRS}
+    LINK_LIBRARIES K4FWCore GaudiAlgLib GaudiKernel ${podio_LIBRARIES} ${LCIO_LIBRARIES} $ENV{PLCIO}/lib/libplcio.so 
       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
 )
 
