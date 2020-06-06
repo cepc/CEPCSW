@@ -173,7 +173,7 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
                     ++n_cal_hit;
                     auto edm_calo_hit = calo_col_ptr->create();
                     edm_calo_hit.setCellID(cal_hit->cellID);
-                    edm_calo_hit.setEnergy(cal_hit->energyDeposit);
+                    edm_calo_hit.setEnergy(cal_hit->energyDeposit/CLHEP::GeV);
                     float pos[3] = {cal_hit->position.x()/CLHEP::mm,
                                     cal_hit->position.y()/CLHEP::mm,
                                     cal_hit->position.z()/CLHEP::mm};
