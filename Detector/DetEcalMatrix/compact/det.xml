@@ -32,7 +32,7 @@
 
   <detectors>
     <detector id="1" name="CaloDetector" type="EcalMatrix" readout="CaloHitsCollection" vis="VisibleGreen" sensitive="true">
-      <position x="0"  y="0"  z="1835*mm+30*cm"/>
+      <position x="200*cm"  y="0"  z="0"/>
       <dimensions dx="30*cm"  dy="30*cm"  dz="30*cm"/>
     </detector>
   </detectors>
@@ -43,7 +43,7 @@
                     grid_size_x="1*cm" 
                     grid_size_y="1*cm" 
                     grid_size_z="1*cm"/>
-      <id>system:8,x:32:-6,y:-6,z:-6</id>
+      <id>system:8,x:-16,y:-16,z:-16</id>
     </readout>
   </readouts>
 

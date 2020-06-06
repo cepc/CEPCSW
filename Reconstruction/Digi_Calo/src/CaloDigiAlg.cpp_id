@@ -1,0 +1,91 @@
+/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+#include "CaloDigiAlg.h"
+
+
+#include "edm4hep/SimCalorimeterHit.h"
+#include "edm4hep/CalorimeterHit.h"
+
+#include "DD4hep/Detector.h"
+#include <DD4hep/Objects.h>
+
+#include <cmath>
+#include <algorithm>
+
+DECLARE_COMPONENT( CaloDigiAlg )
+
+CaloDigiAlg::CaloDigiAlg(const std::string& name, ISvcLocator* svcLoc)
+  : GaudiAlgorithm(name, svcLoc),
+    _nEvt(0)
+{
+  
+  // Input collections
+  declareProperty("SimCaloHitCollection", r_SimCaloCol, "Handle of the Input SimCaloHit collection");
+  
+  // Output collections
+  declareProperty("CaloHitCollection", w_DigiCaloCol, "Handle of Digi CaloHit collection");
+  
+   
+}
+
+StatusCode CaloDigiAlg::initialize()
+{
+
+  m_geosvc = service<IGeoSvc>("GeoSvc");
+  if ( !m_geosvc )  throw "CaloDigiAlg :Failed to find GeoSvc ...";
+  dd4hep::Detector* m_dd4hep = m_geosvc->lcdd();
+  m_cellIDConverter = new dd4hep::rec::CellIDPositionConverter(*m_dd4hep);
+
+  std::cout<<"m_scale="<<m_scale<<std::endl;
+
+  return GaudiAlgorithm::initialize();
+}
+
+StatusCode CaloDigiAlg::execute()
+{
+  std::map<unsigned long long, edm4hep::SimCalorimeterHit> id_hit_map;
+  std::map<unsigned long long, int > test_map;
+  edm4hep::CalorimeterHitCollection* caloVec   = w_DigiCaloCol.createAndPut();
+  const edm4hep::SimCalorimeterHitCollection* SimHitCol =  r_SimCaloCol.get();
+  double tot_e = 0 ;
+  if(SimHitCol == 0) 
+  {
+     std::cout<<"not found SimCalorimeterHitCollection"<< std::endl;
+     return StatusCode::SUCCESS;
+  }
+  std::cout<<"digi, input sim hit size="<< SimHitCol->size() <<std::endl;
+  for( int i = 0; i < SimHitCol->size(); i++ ) 
+  {
+      edm4hep::SimCalorimeterHit SimHit = SimHitCol->at(i);
+      unsigned long long id = SimHit.getCellID();
+      /*
+      dd4hep::Position gpos(SimHit.getPosition().x, SimHit.getPosition().y, SimHit.getPosition().z);
+      long long int cell_id = m_cellIDConverter->cellID(gpos); 
+      signed long long id2 = (signed long long) SimHit.getCellID();
+      std::cout<<"sim gpos x="<<gpos.x()<<",y="<<gpos.y()<<",z="<<gpos.z()<<",id0="<<id<<",id1="<<cell_id<<",id2="<<id2<<std::endl;
+      */   
+      float en = SimHit.getEnergy();
+      tot_e += en;
+      test_map[id] = 1;
+      if ( id_hit_map.find(id) != id_hit_map.end()) id_hit_map[id].setEnergy(id_hit_map[id].getEnergy() + en);
+      else id_hit_map[id] = SimHit ;
+  }
+  for(std::map<unsigned long long, edm4hep::SimCalorimeterHit>::iterator iter = id_hit_map.begin(); iter != id_hit_map.end(); iter++)
+  {
+    auto caloHit = caloVec->create();
+    caloHit.setCellID((iter->second).getCellID());
+    caloHit.setEnergy((iter->second).getEnergy()*m_scale);
+    caloHit.setPosition((iter->second).getPosition());
+  }
+    
+  std::cout<<"total sim e ="<< tot_e <<std::endl;
+  std::cout<<"digi, output digi hit size="<< caloVec->size() <<std::endl;
+  _nEvt ++ ;
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode CaloDigiAlg::finalize()
+{
+  info() << "Processed " << _nEvt << " events " << endmsg;
+  return GaudiAlgorithm::finalize();
+}
