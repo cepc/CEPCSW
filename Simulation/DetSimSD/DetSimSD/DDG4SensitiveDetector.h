@@ -65,9 +65,6 @@ protected:
     /// Reference to the readout structure
     dd4hep::Readout m_readout;
 
-    /// Geant4 event context
-    G4HCofThisEvent* m_hce;
-
 };
 
 #endif

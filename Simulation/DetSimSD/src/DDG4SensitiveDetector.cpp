@@ -24,8 +24,7 @@ static const double MM_2_CM = (dd4hep::millimeter/CLHEP::millimeter);
 
 DDG4SensitiveDetector::DDG4SensitiveDetector(const std::string& name, dd4hep::Detector& description)
     : G4VSensitiveDetector(name), m_detDesc(description),
-      m_detector(), m_sensitive(), m_readout(),
-      m_hce(nullptr) {
+      m_detector(), m_sensitive(), m_readout() {
     m_detector = description.detector(name);
     m_sensitive = description.sensitiveDetector(name);
     m_readout = m_sensitive.readout();
