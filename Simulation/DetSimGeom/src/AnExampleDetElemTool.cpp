@@ -96,7 +96,7 @@ AnExampleDetElemTool::ConstructSDandField() {
         if (g4sd == nullptr) {
             std::string tmp = typ;
             tmp[0] = ::toupper(tmp[0]);
-            typ = "Geant4" + tmp;
+            typ = "Geant4CEPC" + tmp;
             g4sd = dd4hep::PluginService::Create<G4VSensitiveDetector*>(typ, nam, lcdd);
             if (g4sd == nullptr) {
                 dd4hep::PluginDebug dbg;

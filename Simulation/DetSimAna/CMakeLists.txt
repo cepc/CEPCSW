@@ -36,6 +36,9 @@ gaudi_add_module(DetSimAna ${DetSimAna_srcs}
       ${DD4hep_COMPONENT_LIBRARIES} 
       GaudiKernel
       # Geant4
+
+      -Wl,--no-as-needed 
       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
+      -Wl,--as-needed 
       # ${podio_LIBRARIES}
 )
