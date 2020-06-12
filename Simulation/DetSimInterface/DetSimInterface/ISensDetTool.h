@@ -21,7 +21,7 @@ public:
 
     virtual ~ISensDetTool() {};
 
-    virtual G4VSensitiveDetector* createSD(const std::string& name);
+    virtual G4VSensitiveDetector* createSD(const std::string& name) = 0;
 
 };
 
