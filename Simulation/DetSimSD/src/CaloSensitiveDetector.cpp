@@ -27,6 +27,8 @@ CaloSensitiveDetector::Initialize(G4HCofThisEvent* HCE) {
 G4bool
 CaloSensitiveDetector::ProcessHits(G4Step* step, G4TouchableHistory*) {
 
+    // std::cout << "CaloSensitiveDetector::ProcessHits" << std::endl;
+
     dd4hep::sim::Geant4StepHandler h(step);
     dd4hep::Position pos = 0.5 * (h.prePos() + h.postPos());
     HitContribution contrib = dd4hep::sim::Geant4Hit::extractContribution(step);

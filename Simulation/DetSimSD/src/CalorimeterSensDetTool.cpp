@@ -2,7 +2,7 @@
 
 #include "G4VSensitiveDetector.hh"
 
-#include "DetSimSD/DDG4SensitiveDetector.h"
+#include "DetSimSD/CaloSensitiveDetector.h"
 
 #include "DD4hep/Detector.h"
 
@@ -35,7 +35,7 @@ CalorimeterSensDetTool::createSD(const std::string& name) {
 
     dd4hep::Detector* dd4hep_geo = m_geosvc->lcdd();
 
-    G4VSensitiveDetector* sd = new DDG4SensitiveDetector(name, *dd4hep_geo);
+    G4VSensitiveDetector* sd = new CaloSensitiveDetector(name, *dd4hep_geo);
 
     return sd;
 }
