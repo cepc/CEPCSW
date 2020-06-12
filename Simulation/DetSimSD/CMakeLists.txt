@@ -12,6 +12,8 @@ find_package(DD4hep COMPONENTS DDG4 REQUIRED)
 
 set(DetSimSD_srcs
     src/CalorimeterSensDetTool.cpp
+
+    src/DDG4SensitiveDetector.cpp
 )
 
 gaudi_add_module(DetSimSD ${DetSimSD_srcs}

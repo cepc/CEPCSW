@@ -28,10 +28,9 @@ class DDG4SensitiveDetector: public G4VSensitiveDetector {
 public:
     typedef G4THitsCollection<dd4hep::sim::Geant4Hit> HitCollection;
     typedef dd4hep::sim::Geant4Hit::Contribution      HitContribution;
-    typedef dd4hep::sim::Geant4StepHandler            StepHandler;
 
 public:
-    DDG4SensitiveDetector();
+    DDG4SensitiveDetector(const std::string& name, dd4hep::Detector& description);
 
 public:
     // Geant4 interface
