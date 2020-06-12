@@ -3,6 +3,7 @@ gaudi_subdir(DetSimSD v0r0)
 
 gaudi_depends_on_subdirs(
     FWCore
+    Detector/DetInterface
     Simulation/DetSimInterface
 )
 

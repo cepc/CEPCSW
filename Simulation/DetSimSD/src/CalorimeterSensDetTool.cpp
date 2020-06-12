@@ -2,11 +2,23 @@
 
 #include "G4VSensitiveDetector.hh"
 
+#include "DetSimSD/DDG4SensitiveDetector.h"
+
+#include "DD4hep/Detector.h"
+
 DECLARE_COMPONENT(CalorimeterSensDetTool);
 
 StatusCode
 CalorimeterSensDetTool::initialize() {
     StatusCode sc;
+
+
+    m_geosvc = service<IGeoSvc>("GeoSvc");
+    if (!m_geosvc) {
+        error() << "Failed to find GeoSvc." << endmsg;
+        return StatusCode::FAILURE;
+    }
+
 
     return sc;
 }
@@ -21,7 +33,11 @@ CalorimeterSensDetTool::finalize() {
 G4VSensitiveDetector*
 CalorimeterSensDetTool::createSD(const std::string& name) {
 
-    return nullptr;
+    dd4hep::Detector* dd4hep_geo = m_geosvc->lcdd();
+
+    G4VSensitiveDetector* sd = new DDG4SensitiveDetector(name, *dd4hep_geo);
+
+    return sd;
 }
 
 
