@@ -38,10 +38,10 @@ StatusCode Edm4hepWriteAlg::execute()
 
     for ( int i = 0; i < 4; ++i ) {
         auto d = mcCol->create();
-        d.addParent(p1);
-        d.addParent(p2);
-        p1.addDaughter(d);
-        p2.addDaughter(d);
+        d.addToParents(p1);
+        d.addToParents(p2);
+        p1.addToDaughters(d);
+        p2.addToDaughters(d);
     }
 
     return StatusCode::SUCCESS;

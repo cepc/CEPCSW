@@ -193,7 +193,7 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
                         edm_calo_contrib.setTime(c.time/CLHEP::ns);
                         edm_calo_contrib.setStepPosition(edm4hep::Vector3f(pos));
                         edm_calo_contrib.setParticle(mcCol->at(0)); // todo
-                        edm_calo_hit.addContribution(edm_calo_contrib);
+                        edm_calo_hit.addToContributions(edm_calo_contrib);
                     }
                 }
 

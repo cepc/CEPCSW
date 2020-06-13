@@ -67,12 +67,12 @@ bool StdHepRdr::mutate(MyHepMC::GenEvent& event){
         //std::cout<<"mc at "<< i<<", parent size "<<mc_parents.size() <<std::endl;
         for(unsigned int j=0; j< mc_parents.size(); j++){int p_id = mc_parents.at(j)->id();
                                                  //std::cout<<"parent id "<<p_id<<std::endl;
-                                                 pmc.addParent( event.m_mc_vec.at( pmcid_lmcid.at(p_id) ) );
+                                                 pmc.addToParents( event.m_mc_vec.at( pmcid_lmcid.at(p_id) ) );
                                                 }
         //std::cout<<"mc at "<< i<<", daughter size "<<mc_daughters.size() <<std::endl;
         for(unsigned int j=0; j< mc_daughters.size(); j++){int d_id = mc_daughters.at(j)->id();
                                                  //std::cout<<"daughter id "<<d_id<<std::endl;
-                                                 pmc.addDaughter( event.m_mc_vec.at( pmcid_lmcid.at(d_id) ) );
+                                                 pmc.addToDaughters( event.m_mc_vec.at( pmcid_lmcid.at(d_id) ) );
                                                 }
     }
      

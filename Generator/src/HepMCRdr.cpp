@@ -76,12 +76,12 @@ bool HepMCRdr::mutate(MyHepMC::GenEvent& event){
         index++;
         if ( (*p)->production_vertex() ) {
             for ( HepMC::GenVertex::particle_iterator mother = (*p)->production_vertex()-> particles_begin(HepMC::parents); mother != (*p)->production_vertex()-> particles_end(HepMC::parents); ++mother ) {
-                pmc.addParent( event.m_mc_vec.at( pmcid_lmcid.at((*mother)->barcode()) ) );
+                pmc.addToParents( event.m_mc_vec.at( pmcid_lmcid.at((*mother)->barcode()) ) );
             }
         }
         if ( (*p)->end_vertex() ) {
             for ( HepMC::GenVertex::particle_iterator des =(*p)->end_vertex()-> particles_begin(HepMC::descendants); des != (*p)->end_vertex()-> particles_end(HepMC::descendants); ++des ) {
-                pmc.addDaughter( event.m_mc_vec.at( pmcid_lmcid.at((*des)->barcode()) ) );
+                pmc.addToDaughters( event.m_mc_vec.at( pmcid_lmcid.at((*des)->barcode()) ) );
                 }
         }   
     }

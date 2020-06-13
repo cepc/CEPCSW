@@ -12,12 +12,12 @@ gaudi_depends_on_subdirs(
     Service/EventSeeder
 )
 
-set(Digitisers_srcs
-    src/*.cpp
-)
+# set(Digitisers_srcs
+#     src/*.cpp
+# )
 
-# Modules
-gaudi_add_module(Digitisers ${Digitisers_srcs}
-    INCLUDE_DIRS K4FWCore GaudiKernel GaudiAlgLib CLHEP gear ${plcio_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${LCIO_INCLUDE_DIRS}
-    LINK_LIBRARIES K4FWCore GaudiKernel GaudiAlgLib CLHEP $ENV{GEAR}/lib/libgearsurf.so ${GSL_LIBRARIES} $ENV{PLCIO}/lib/libplcio.so ${LCIO_LIBRARIES}
-)
+# # Modules
+# gaudi_add_module(Digitisers ${Digitisers_srcs}
+#     INCLUDE_DIRS K4FWCore GaudiKernel GaudiAlgLib CLHEP gear ${plcio_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${LCIO_INCLUDE_DIRS}
+#     LINK_LIBRARIES K4FWCore GaudiKernel GaudiAlgLib CLHEP $ENV{GEAR}/lib/libgearsurf.so ${GSL_LIBRARIES} $ENV{PLCIO}/lib/libplcio.so ${LCIO_LIBRARIES}
+# )

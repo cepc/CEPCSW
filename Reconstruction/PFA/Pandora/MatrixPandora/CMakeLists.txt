@@ -14,7 +14,7 @@ find_package(EDM4HEP REQUIRED )
 #message("EDM4HEP_INCLUDE_DIRS: ${EDM4HEP_INCLUDE_DIR}")
 #message("EDM4HEP_LIB: ${EDM4HEP_LIBRARIES}")
 include_directories(${EDM4HEP_INCLUDE_DIR})
-link_libraries("/cvmfs/cepcsw.ihep.ac.cn/prototype/releases/externals/97.0.0/EDM4hep/lib64/libedm4hep.so")
+
 find_package(PandoraSDK REQUIRED ) 
 #message("PandoraSDK_INCLUDE_DIRS: ${PandoraSDK_INCLUDE_DIRS}")
 #message("PandoraSDK_LIB:          ${PandoraSDK_LIBRARIES}")
@@ -54,4 +54,7 @@ set(dir_include include)
 gaudi_add_module(MatrixPandora ${dir_srcs}
     INCLUDE_DIRS ${gsl_include} ${dir_include} GaudiKernel FWCore CLHEP  ${LCIO_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} gear DD4hep  
     LINK_LIBRARIES ${gsl_lib1} ${gsl_lib2} GaudiKernel FWCore CLHEP ROOT ${LCIO_LIBRARIES} $ENV{GEAR}/lib/libgear.so $ENV{GEAR}/lib/libgearxml.so DD4hep ${DD4hep_COMPONENT_LIBRARIES} DDRec
+      -Wl,--no-as-needed 
+      EDM4HEP::edm4hep EDM4HEP::edm4hepDict
+      -Wl,--as-needed 
 )

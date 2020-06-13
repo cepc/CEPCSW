@@ -13,7 +13,7 @@ message("ENV GEAR: $ENV{GEAR}")
 
 find_package(EDM4HEP REQUIRED )
 include_directories(${EDM4HEP_INCLUDE_DIR})
-link_libraries("/cvmfs/cepcsw.ihep.ac.cn/prototype/releases/externals/97.0.0/EDM4hep/lib64/libedm4hep.so")
+
 find_package(PandoraSDK REQUIRED ) 
 include_directories(${PandoraSDK_INCLUDE_DIRS})
 link_libraries(${PandoraSDK_LIBRARIES})
@@ -48,4 +48,8 @@ set(dir_include include)
 gaudi_add_module(GaudiPandora ${dir_srcs}
     INCLUDE_DIRS ${gsl_include} ${dir_include} GaudiKernel FWCore CLHEP  ${LCIO_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} gear  
     LINK_LIBRARIES ${gsl_lib1} ${gsl_lib2} GaudiKernel FWCore CLHEP ROOT ${LCIO_LIBRARIES} $ENV{GEAR}/lib/libgear.so $ENV{GEAR}/lib/libgearxml.so 
+      -Wl,--no-as-needed 
+      EDM4HEP::edm4hep EDM4HEP::edm4hepDict
+      -Wl,--as-needed 
+
 )

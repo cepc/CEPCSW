@@ -618,7 +618,7 @@ StatusCode PandoraPFAlg::updateMap()
                                 edm4hep::SimCalorimeterHit sim_hit( it->getCellID(), it->getEnergy(), it->getPosition() );
                                 edm4hep::CaloHitContribution conb ( MCParticle->at(i).getPDG(), it->getEnergy(), 0, it->getPosition() ); 
                                 conb.setParticle( MCParticle->at(i) );
-                                sim_hit.addContribution(conb);
+                                sim_hit.addToContributions(conb);
                                 edm4hep::MCRecoCaloAssociation calo_association;
                                 calo_association.setRec(*it);
                                 calo_association.setSim(sim_hit);

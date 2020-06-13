@@ -97,7 +97,7 @@ pandora::StatusCode PfoCreator::CreateParticleFlowObjects(CollectionMaps& collec
 
             //pClusterCollection->addElement(p_Cluster);
             edm4hep::ConstCluster p_ClusterCon = *p_Cluster;
-            pReconstructedParticle->addCluster(p_ClusterCon);
+            pReconstructedParticle->addToClusters(p_ClusterCon);
         }
 
         if (!hasTrack)
@@ -157,7 +157,7 @@ void PfoCreator::SetClusterSubDetectorEnergies(const pandora::StringVector &subD
         edm4hep::CalorimeterHit *const pCalorimeterHit0 = (edm4hep::CalorimeterHit*)(pPandoraCaloHit->GetParentAddress());
         const edm4hep::CalorimeterHit pCalorimeterHit = *pCalorimeterHit0;
         
-        p_Cluster->addHit(pCalorimeterHit);
+        p_Cluster->addToHits(pCalorimeterHit);
 
         const float caloHitEnergy(pCalorimeterHit.getEnergy());
         hitE.push_back(caloHitEnergy);
@@ -401,7 +401,7 @@ void PfoCreator::AddTracksToRecoParticle(const pandora::ParticleFlowObject *cons
         const pandora::Track *const pTrack(*tIter);
         const edm4hep::Track *const pLcioTrack0 = (edm4hep::Track*)(pTrack->GetParentAddress());
         const edm4hep::Track pLcioTrack = *pLcioTrack0;
-        pReconstructedParticle->addTrack(pLcioTrack);
+        pReconstructedParticle->addToTracks(pLcioTrack);
 
     }
 }
