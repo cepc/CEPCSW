@@ -16,7 +16,8 @@ CaloSensitiveDetector::Initialize(G4HCofThisEvent* HCE) {
 
     // the collection name is provided by DD4hep
     const std::string& coll_name = collectionName[0];
-    m_hc = new G4THitsCollection<CalorimeterHit>(GetName(), coll_name);
+    // m_hc = new G4THitsCollection<CalorimeterHit>(GetName(), coll_name);
+    m_hc = new HitCollection(GetName(), coll_name);
 
     int HCID = -1;
     if(HCID<0) HCID = G4SDManager::GetSDMpointer()->GetCollectionID(m_hc);

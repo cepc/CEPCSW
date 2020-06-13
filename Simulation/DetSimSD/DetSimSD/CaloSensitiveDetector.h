@@ -12,7 +12,7 @@
 class CaloSensitiveDetector: public DDG4SensitiveDetector {
 public:
     typedef dd4hep::sim::Geant4CalorimeterHit CalorimeterHit;
-    typedef G4THitsCollection<CalorimeterHit> HitCollection;
+    typedef G4THitsCollection<CalorimeterHit> CaloHitCollection;
 
 public:
     CaloSensitiveDetector(const std::string& name, dd4hep::Detector& description);

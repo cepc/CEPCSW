@@ -26,6 +26,7 @@
 
 class DDG4SensitiveDetector: public G4VSensitiveDetector {
 public:
+    typedef dd4hep::sim::Geant4Hit                    Geant4Hit;
     typedef G4THitsCollection<dd4hep::sim::Geant4Hit> HitCollection;
     typedef dd4hep::sim::Geant4Hit::Contribution      HitContribution;
 
