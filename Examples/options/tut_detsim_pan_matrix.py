@@ -130,7 +130,8 @@ example_CaloDigiAlg.CaloHitCollection    = "ECALBarrel"
 ##############################################################################
 from Configurables import GearSvc
 gearSvc  = GearSvc("GearSvc")
-gearSvc.GearXMLFile = "/junofs/users/wxfang/CEPC/CEPCOFF/doSim/fullDet/GearOutput.xml"
+#gearSvc.GearXMLFile = "/junofs/users/wxfang/CEPC/CEPCOFF/doSim/fullDet/GearOutput.xml"
+gearSvc.GearXMLFile = "../Detector/DetCEPCv4/compact/FullDetGear.xml"
 ##############################################################################
 #from Configurables import PandoraPFAlg
 from Configurables import PandoraMatrixAlg
