@@ -8,7 +8,7 @@ Please refer to https://github.com/HEP-FCC/FCCSW
 ## Quick start
 
 ```
-$ source /cvmfs/cepcsw.ihep.ac.cn/prototype/releases/externals/97.0.0/setup.sh
+$ source /cvmfs/cepcsw.ihep.ac.cn/prototype/releases/externals/97.0.1/setup.sh
 $ git clone git@cepcgit.ihep.ac.cn:cepc-prototype/CEPCSW.git
 $ cd CEPCSW
 $ git checkout lcg97
