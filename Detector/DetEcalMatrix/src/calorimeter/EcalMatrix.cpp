@@ -69,23 +69,23 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
               << std::endl;
 
 
-    // double cellSize_x = ::atof( seg.segmentation()->parameter("grid_size_x")->value().c_str() ) * 10;// from cm to mm
-    // double cellSize_y = ::atof( seg.segmentation()->parameter("grid_size_y")->value().c_str() ) * 10;// from cm to mm
-    // double cellSize_z = ::atof( seg.segmentation()->parameter("grid_size_z")->value().c_str() ) * 10;// from cm to mm
-    // int n_layer = int(2*dim.dx()*10/cellSize_x) ; // here the calorimeter is placed in barrel, so x direaction is layer direction
-    // std::cout<<"cellx="<<cellSize_x<<",celly="<<cellSize_y<<",cellz="<<cellSize_z<<",dx="<<dim.dx()*10<<"mm,n_layer="<<n_layer<<std::endl;
-    // for(int i=1 ; i <= n_layer; i++)
-    // {
-    //     LayeredCalorimeterData::Layer caloLayer ;
-    //     caloLayer.distance = caloData->extent[0] + (i-0.5)*cellSize_x; //NEED TO START FROM ORIGIN, to mm
-    //     caloLayer.sensitive_thickness = cellSize_x ;
-    //     caloLayer.inner_thickness = cellSize_x ;
-    //     caloLayer.outer_thickness = cellSize_x ;
-    //     caloLayer.absorberThickness = cellSize_x;
-    //     caloLayer.cellSize0 = cellSize_y;
-    //     caloLayer.cellSize1 = cellSize_z;
-    //     caloData->layers.push_back(caloLayer); 
-    // }
+    double cellSize_x = ::atof( seg.segmentation()->parameter("grid_size_x")->value().c_str() ) * 10;// from cm to mm
+    double cellSize_y = ::atof( seg.segmentation()->parameter("grid_size_y")->value().c_str() ) * 10;// from cm to mm
+    double cellSize_z = ::atof( seg.segmentation()->parameter("grid_size_z")->value().c_str() ) * 10;// from cm to mm
+    int n_layer = int(2*dim.dx()*10/cellSize_x) ; // here the calorimeter is placed in barrel, so x direaction is layer direction
+    std::cout<<"cellx="<<cellSize_x<<",celly="<<cellSize_y<<",cellz="<<cellSize_z<<",dx="<<dim.dx()*10<<"mm,n_layer="<<n_layer<<std::endl;
+    for(int i=1 ; i <= n_layer; i++)
+    {
+        LayeredCalorimeterData::Layer caloLayer ;
+        caloLayer.distance = caloData->extent[0] + (i-0.5)*cellSize_x; //NEED TO START FROM ORIGIN, to mm
+        caloLayer.sensitive_thickness = cellSize_x ;
+        caloLayer.inner_thickness = cellSize_x ;
+        caloLayer.outer_thickness = cellSize_x ;
+        caloLayer.absorberThickness = cellSize_x;
+        caloLayer.cellSize0 = cellSize_y;
+        caloLayer.cellSize1 = cellSize_z;
+        caloData->layers.push_back(caloLayer); 
+    }
 
     if ( x_det.isSensitive() )   {
         dd4hep::SensitiveDetector sd = sens;
@@ -96,7 +96,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         phv.addPhysVolID("system",x_det.id());
     }
     sdet.setPlacement(phv);
-    // sdet.addExtension< LayeredCalorimeterData >(caloData) ; 
+    sdet.addExtension< LayeredCalorimeterData >(caloData) ; 
     MYDEBUG("create_detector DONE. ");
     return sdet;
 }
