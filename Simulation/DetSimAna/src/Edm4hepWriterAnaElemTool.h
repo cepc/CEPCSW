@@ -1,6 +1,8 @@
 #ifndef Edm4hepWriterAnaElemTool_h
 #define Edm4hepWriterAnaElemTool_h
 
+#include <map>
+
 #include "GaudiKernel/AlgTool.h"
 #include "FWCore/DataHandle.h"
 #include "DetSimInterface/IAnaElemTool.h"
@@ -61,6 +63,20 @@ private:
             Gaudi::DataHandle::Writer, this};
     DataHandle<edm4hep::SimTrackerHitCollection> m_SETCol{"SETCollection", 
             Gaudi::DataHandle::Writer, this};
+
+private:
+    // in order to associate the hit contribution with the primary track,
+    // we have a bookkeeping of every track.
+    // The primary track will assign the same key/value.
+
+    // Following is an example:
+    //    1 -> 1,
+    //    2 -> 2,
+    //    3 -> 1,
+    // Now, if parent of trk #4 is trk #3, using the mapping {3->1} could 
+    // locate the primary trk #1.
+
+    std::map<int, int> m_track2primary;
 
 };
 

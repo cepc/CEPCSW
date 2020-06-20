@@ -26,6 +26,10 @@ Edm4hepWriterAnaElemTool::EndOfRunAction(const G4Run*) {
 void
 Edm4hepWriterAnaElemTool::BeginOfEventAction(const G4Event* anEvent) {
     msg() << "Event " << anEvent->GetEventID() << endmsg;
+
+    // reset
+    m_track2primary.clear();
+
 }
 
 void
@@ -192,7 +196,15 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
                         edm_calo_contrib.setEnergy(c.deposit/CLHEP::GeV);
                         edm_calo_contrib.setTime(c.time/CLHEP::ns);
                         edm_calo_contrib.setStepPosition(edm4hep::Vector3f(pos));
-                        edm_calo_contrib.setParticle(mcCol->at(0)); // todo
+
+                        // from the track id, get the primary track
+                        int pritrkid = m_track2primary[c.trackID];
+                        if (pritrkid<=0) {
+                            error() << "Failed to find the primary track for trackID #" << c.trackID << endmsg;
+                            pritrkid = 1;
+                        }
+
+                        edm_calo_contrib.setParticle(mcCol->at(pritrkid-1)); // todo
                         edm_calo_hit.addToContributions(edm_calo_contrib);
                     }
                 }
@@ -214,8 +226,26 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
 }
 
 void
-Edm4hepWriterAnaElemTool::PreUserTrackingAction(const G4Track*) {
+Edm4hepWriterAnaElemTool::PreUserTrackingAction(const G4Track* track) {
+    int curtrkid = track->GetTrackID();
+    int curparid = track->GetParentID();
+    int pritrkid = curparid;
 
+    // try to find the primary track id from the parent track id.
+    if (curparid) {
+        auto it = m_track2primary.find(curparid);
+        if (it == m_track2primary.end()) {
+            error() << "Failed to find primary track for track id " << curparid << endmsg;
+        } else {
+            pritrkid = it->second;
+        }
+    } else {
+        // curparid is 0, it is primary
+        pritrkid = curtrkid;
+    }
+
+
+    m_track2primary[curtrkid] = pritrkid;
 }
 
 void
