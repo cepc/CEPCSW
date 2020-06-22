@@ -5,7 +5,6 @@ find_package(EDM4HEP REQUIRED )
 message("EDM4HEP_INCLUDE_DIRS: ${EDM4HEP_INCLUDE_DIR}")
 message("EDM4HEP_LIB: ${EDM4HEP_LIBRARIES}")
 include_directories(${EDM4HEP_INCLUDE_DIR})
-link_libraries("/cvmfs/cepcsw.ihep.ac.cn/prototype/releases/externals/97.0.0/EDM4hep/lib64/libedm4hep.so")
 
 find_package(CLHEP REQUIRED)
 find_package(podio REQUIRED )
@@ -21,8 +20,6 @@ gaudi_depends_on_subdirs(
 gaudi_add_module(Digi_Calo ${srcs}
     INCLUDE_DIRS FWCore GaudiKernel GaudiAlgLib CLHEP DD4hep 
     LINK_LIBRARIES FWCore GaudiKernel GaudiAlgLib CLHEP DD4hep ${DD4hep_COMPONENT_LIBRARIES} DDRec
+    -Wl,--no-as-needed 
+    EDM4HEP::edm4hep EDM4HEP::edm4hepDict
 )
-#gaudi_add_module(Digi_Calo ${srcs}
-#    INCLUDE_DIRS FWCore GaudiKernel GaudiAlgLib CLHEP  
-#    LINK_LIBRARIES FWCore GaudiKernel GaudiAlgLib CLHEP
-#)

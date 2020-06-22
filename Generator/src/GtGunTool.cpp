@@ -96,15 +96,20 @@ GtGunTool::mutate(MyHepMC::GenEvent& event) {
 
         // assume energy is momentum
         double p = energy_min==energy_max ? energy_max : CLHEP::RandFlat::shoot(energy_min, energy_max);
+        double p1 = m_p1.value() ;
         
         // direction
         // by default, randomize the direction
         double theta = m_thetamins.value()[0]==m_thetamaxs.value()[0] ? m_thetamins.value()[0] : CLHEP::RandFlat::shoot(m_thetamins.value()[0], m_thetamaxs.value()[0]);
         double phi =   m_phimins  .value()[0]==m_phimaxs  .value()[0] ? m_phimins  .value()[0] : CLHEP::RandFlat::shoot(m_phimins  .value()[0], m_phimaxs  .value()[0]);
+        double theta1 = m_dtheta.value() + theta;
+        double phi1   = m_dphi.value()   + phi  ;
         double costheta = cos(theta*acos(-1)/180);
-        phi = phi*acos(-1)/180;
+        double costheta1 = cos(theta1*acos(-1)/180);
+        double phi_  = phi*acos(-1)/180;
+        double phi1_ = phi1*acos(-1)/180;
         double sintheta = sqrt(1.-costheta*costheta);
-
+        double sintheta1 = sqrt(1.-costheta1*costheta1);
         // check if theta min/max is set
         /*
         if (i < m_thetamins.value().size() 
@@ -135,14 +140,28 @@ GtGunTool::mutate(MyHepMC::GenEvent& event) {
                 << " phi: " << phi
                 << endmsg;
         */ 
-        double px = p*sintheta*cos(phi);
-        double py = p*sintheta*sin(phi);
+        double px = p*sintheta*cos(phi_);
+        double py = p*sintheta*sin(phi_);
         double pz = p*costheta;
-        std::cout<<"GenGt p="<<p<<", px="<<px<<",py="<<py<<",pz="<<pz<<",costheta="<<costheta<<std::endl;
+        std::cout<<"GenGt p="<<p<<", px="<<px<<",py="<<py<<",pz="<<pz<<",theta="<<theta<<",phi="<<phi<<std::endl;
         mcp.setMomentum(edm4hep::Vector3f(px,py,pz));
         // mcp.setMomentumAtEndpoint();
         // mcp.setSpin();
         // mcp.setColorFlow();
+        if(m_create_second)
+        {
+            edm4hep::MCParticle mcp1 = event.m_mc_vec.create();
+            mcp1.setPDG(pdgcode);
+            mcp1.setGeneratorStatus(1);
+            mcp1.setSimulatorStatus(1);
+            mcp1.setTime(0.0);
+            mcp1.setMass(mass);
+            double px1 = p1*sintheta1*cos(phi1_);
+            double py1 = p1*sintheta1*sin(phi1_);
+            double pz1 = p1*costheta1;
+            std::cout<<"GenGt p1="<<p1<<", px1="<<px1<<",py1="<<py1<<",pz1="<<pz1<<",theta1="<<theta1<<",phi1="<<phi1<<std::endl;
+            mcp1.setMomentum(edm4hep::Vector3f(px1,py1,pz1));
+        }
 
     }
 

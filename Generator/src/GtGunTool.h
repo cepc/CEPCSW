@@ -44,6 +44,10 @@ private:
     Gaudi::Property<std::vector<double>> m_phimins{this, "PhiMins"};
     Gaudi::Property<std::vector<double>> m_phimaxs{this, "PhiMaxs"};
 
+    Gaudi::Property<bool> m_create_second{this, "Create_second", false};
+    Gaudi::Property< double > m_p1{this, "Energy1",1};
+    Gaudi::Property< double > m_dtheta{this, "dtheta",1};
+    Gaudi::Property< double > m_dphi  {this, "dphi"  ,1};
 };
 
 

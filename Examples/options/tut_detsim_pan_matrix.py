@@ -65,12 +65,17 @@ gun = GtGunTool("GtGunTool")
 gun.Particles = ["gamma"]
 #gun.Energies =  [0.5, 1] # GeV
 #gun.EnergyMin = [0.1] # GeV
-gun.EnergyMin = [1] # GeV
-gun.EnergyMax = [1] # GeV
+gun.EnergyMin = [10] # GeV
+gun.EnergyMax = [10] # GeV
 gun.ThetaMins = [90] # rad; 45deg
 gun.ThetaMaxs = [90] # rad; 45deg
 gun.PhiMins   = [0] # rad; 0deg
 gun.PhiMaxs   = [0] # rad; 360deg
+
+gun.Create_second = True
+gun.Energy1       = 10
+gun.dtheta        = 0
+gun.dphi          = 1
 
 stdheprdr = StdHepRdr("StdHepRdr")
 #stdheprdr.Input = "/cefs/data/stdhep/CEPC250/2fermions/E250.Pbhabha.e0.p0.whizard195/bhabha.e0.p0.00001.stdhep"
@@ -127,6 +132,7 @@ example_CaloDigiAlg = CaloDigiAlg("CaloDigiAlg")
 example_CaloDigiAlg.Scale = 1
 example_CaloDigiAlg.SimCaloHitCollection = "SimCalorimeterCol"
 example_CaloDigiAlg.CaloHitCollection    = "ECALBarrel"
+example_CaloDigiAlg.CaloAssociationCollection    = "RecoCaloAssociation_ECALBarrel"
 ##############################################################################
 from Configurables import GearSvc
 gearSvc  = GearSvc("GearSvc")
@@ -155,10 +161,11 @@ pandoralg.ReadProngVertices                    = "ProngVertices"
 pandoralg.ReadSplitVertices                    = "SplitVertices"                
 pandoralg.ReadV0Vertices                       = "V0Vertices"                   
 pandoralg.ReadTracks                           = "MarlinTrkTracks"                       
+pandoralg.MCRecoCaloAssociation                = "RecoCaloAssociation_ECALBarrel"                       
 pandoralg.WriteClusterCollection               = "PandoraClusters"              
 pandoralg.WriteReconstructedParticleCollection = "PandoraPFOs" 
 pandoralg.WriteVertexCollection                = "PandoraPFANewStartVertices"               
-pandoralg.AnaOutput = "/cefs/higgs/wxfang/cepc/Pandora/Ana/gamma/Ana_gamma_Matrix_NewTest.root"
+pandoralg.AnaOutput = "/cefs/higgs/wxfang/cepc/Pandora/Ana/gamma/Ana_gamma_Matrix_Rel_10GeV_test.root"
 
 pandoralg.PandoraSettingsDefault_xml = "/junofs/users/wxfang/MyGit/MarlinPandora/scripts/PandoraSettingsDefault_wx.xml"
 #### Do not chage the collection name, only add or delete ###############
@@ -211,7 +218,7 @@ ApplicationMgr(
         #TopAlg = [genalg, detsimalg,  write],
         #TopAlg = [read, pandoralg],
         EvtSel = 'NONE',
-        EvtMax = 100,
+        EvtMax = 10,
         #ExtSvc = [rndmengine, dsvc, geosvc, gearSvc],
         ExtSvc = [rndmengine, dsvc, geosvc, gearSvc,detsimsvc],
         OutputLevel=INFO
