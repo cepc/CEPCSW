@@ -15,6 +15,7 @@
 
 #include "LCContent.h"
 
+#include "TInterpreter.h"
 
 pandora::Pandora* PandoraMatrixAlg::m_pPandora=0;
 
@@ -103,12 +104,17 @@ void PandoraMatrixAlg::FinaliseSteeringParameters(ISvcLocator* svcloc)
 StatusCode PandoraMatrixAlg::initialize()
 {
 
+  gInterpreter->GenerateDictionary("vector<vector<float> >", "vector");
+  gInterpreter->GenerateDictionary("vector<vector<int> >", "vector");
+
   std::cout<<"hi init PandoraMatrixAlg"<<std::endl;
 
   std::string s_output =m_AnaOutput; 
   m_fout = new TFile(s_output.c_str(),"RECREATE"); 
   m_tree = new TTree("evt","tree");
   m_tree->Branch("m_pReco_PID"   , &m_pReco_PID);
+  m_tree->Branch("m_pReco_mc_id" , &m_pReco_mc_id);
+  m_tree->Branch("m_pReco_mc_weight", &m_pReco_mc_weight);
   m_tree->Branch("m_pReco_mass"  , &m_pReco_mass);
   m_tree->Branch("m_pReco_energy", &m_pReco_energy);
   m_tree->Branch("m_pReco_px"    , &m_pReco_px);
@@ -116,6 +122,7 @@ StatusCode PandoraMatrixAlg::initialize()
   m_tree->Branch("m_pReco_pz"    , &m_pReco_pz);
   m_tree->Branch("m_pReco_charge", &m_pReco_charge);
 
+  m_tree->Branch("m_mc_id"    , &m_mc_id);
   m_tree->Branch("m_mc_p_size", &m_mc_p_size);
   m_tree->Branch("m_mc_pid"   , &m_mc_pid   );
   m_tree->Branch("m_mc_mass"  , &m_mc_mass  );
@@ -312,7 +319,7 @@ StatusCode PandoraMatrixAlg::execute()
         updateMap();
         PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pMCParticleCreator->CreateMCParticles(*m_CollectionMaps));
         PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pCaloHitCreator->CreateCaloHits(*m_CollectionMaps));
-        //PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pMCParticleCreator->CreateCaloHitToMCParticleRelationships(*m_CollectionMaps, m_pCaloHitCreator->GetCalorimeterHitVector() ));
+        PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pMCParticleCreator->CreateCaloHitToMCParticleRelationships(*m_CollectionMaps, m_pCaloHitCreator->GetCalorimeterHitVector() ));
         //PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pTrackCreator->CreateTrackAssociations(*m_CollectionMaps));
         //PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pTrackCreator->CreateTracks(*m_CollectionMaps));
         //PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pMCParticleCreator->CreateTrackToMCParticleRelationships(*m_CollectionMaps, m_pTrackCreator->GetTrackVector() ));
@@ -374,10 +381,6 @@ pandora::StatusCode PandoraMatrixAlg::RegisterUserComponents() const
         "NonLinearity", pandora::HADRONIC, m_settings.m_inputEnergyCorrectionPoints, m_settings.m_outputEnergyCorrectionPoints));
     
     
-    /*
-    PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::RegisterAlgorithmFactory(*m_pPandora,
-        "ExternalClustering", new ExternalClusteringAlgorithm::Factory));
-    */
 
     return pandora::STATUS_CODE_SUCCESS;
 }
@@ -390,6 +393,8 @@ void PandoraMatrixAlg::Reset()
     m_pMCParticleCreator->Reset();
 
     std::vector<int>()  .swap(m_pReco_PID   );
+    std::vector< std::vector<int> >()  .swap(m_pReco_mc_id);
+    std::vector< std::vector<float> >().swap(m_pReco_mc_weight);
     std::vector<float>().swap(m_pReco_mass);
     std::vector<float>().swap(m_pReco_energy);
     std::vector<float>().swap(m_pReco_px);
@@ -397,6 +402,7 @@ void PandoraMatrixAlg::Reset()
     std::vector<float>().swap(m_pReco_pz);
     std::vector<float>().swap(m_pReco_charge);
 
+    std::vector<int>()  .swap(m_mc_id);
     std::vector<int>()  .swap(m_mc_p_size);
     std::vector<int>()  .swap(m_mc_pid   );
     std::vector<float>().swap(m_mc_mass  );
@@ -600,8 +606,8 @@ StatusCode PandoraMatrixAlg::updateMap()
         if (NULL != mcRecoCaloAssociation )
         {
             std::vector<edm4hep::MCRecoCaloAssociation> v_cal;
-            m_CollectionMaps->collectionMap_CaloRel["RecoCaloAssociation"] = v_cal ;
-            for(unsigned int i=0 ; i< mcRecoCaloAssociation->size(); i++) m_CollectionMaps->collectionMap_CaloRel ["RecoCaloAssociation"].push_back(mcRecoCaloAssociation->at(i));
+            m_CollectionMaps->collectionMap_CaloRel["RecoCaloAssociation_ECALBarrel"] = v_cal ;
+            for(unsigned int i=0 ; i< mcRecoCaloAssociation->size(); i++) m_CollectionMaps->collectionMap_CaloRel ["RecoCaloAssociation_ECALBarrel"].push_back(mcRecoCaloAssociation->at(i));
         }
         
         else
@@ -841,11 +847,17 @@ StatusCode PandoraMatrixAlg::Ana()
         m_pReco_px.push_back(px);
         m_pReco_py.push_back(py);
         m_pReco_pz.push_back(pz);
+        std::vector<int> tmp_mc_id;
+        std::vector<float> tmp_mc_weight;
         for(int j=0; j < reco_associa_col->size(); j++)
         {
             if(reco_associa_col->at(j).getRec().id() != pReco.id() ) continue;
-            std::cout<<"MC pid ="<<reco_associa_col->at(j).getSim().getPDG()<<", px="<<reco_associa_col->at(j).getSim().getMomentum()[0]<<", py="<<reco_associa_col->at(j).getSim().getMomentum()[1]<<",pz="<<reco_associa_col->at(j).getSim().getMomentum()[2]<<std::endl;
+            std::cout<<"MC pid ="<<reco_associa_col->at(j).getSim().getPDG()<<",weight="<<reco_associa_col->at(j).getWeight()<<", px="<<reco_associa_col->at(j).getSim().getMomentum()[0]<<", py="<<reco_associa_col->at(j).getSim().getMomentum()[1]<<",pz="<<reco_associa_col->at(j).getSim().getMomentum()[2]<<std::endl;
+            tmp_mc_id    .push_back(reco_associa_col->at(j).getSim().id());
+            tmp_mc_weight.push_back(reco_associa_col->at(j).getWeight());
         }
+        m_pReco_mc_id    .push_back(tmp_mc_id);
+        m_pReco_mc_weight.push_back(tmp_mc_weight);
     }
     const edm4hep::MCParticleCollection*     MCParticle = nullptr;
     StatusCode sc = StatusCode::SUCCESS;
@@ -854,6 +866,7 @@ StatusCode PandoraMatrixAlg::Ana()
     { 
         for(unsigned int i=0 ; i< MCParticle->size(); i++)
         {
+            m_mc_id    .push_back(MCParticle->at(i).id());
             m_mc_p_size.push_back(MCParticle->at(i).parents_size());
             m_mc_pid   .push_back(MCParticle->at(i).getPDG());
             m_mc_mass  .push_back(MCParticle->at(i).getMass());
@@ -901,6 +914,8 @@ StatusCode PandoraMatrixAlg::CreateMCRecoParticleAssociation()
     for(int i=0; i<reco_col->size();i++)
     {
         std::map<int, edm4hep::ConstMCParticle> mc_map;
+        std::map<int, float > id_edep_map;
+        float tot_en = 0 ;
         const edm4hep::ReconstructedParticle pReco = reco_col->at(i);
         for(int j=0; j < pReco.clusters_size(); j++)
         {
@@ -916,6 +931,9 @@ StatusCode PandoraMatrixAlg::CreateMCRecoParticleAssociation()
                         for(std::vector<edm4hep::ConstCaloHitContribution>::const_iterator itc = it->getSim().contributions_begin(); itc != it->getSim().contributions_end(); itc++)
                         {
                             if(mc_map.find(itc->getParticle().id()) == mc_map.end()) mc_map[itc->getParticle().id()] = itc->getParticle() ;
+                            if(id_edep_map.find(itc->getParticle().id()) != id_edep_map.end()) id_edep_map[itc->getParticle().id()] = id_edep_map[itc->getParticle().id()] + itc->getEnergy() ;
+                            else                                                               id_edep_map[itc->getParticle().id()] = itc->getEnergy() ;
+                            tot_en += itc->getEnergy() ;
                         }
                     }
                 }
@@ -926,7 +944,15 @@ StatusCode PandoraMatrixAlg::CreateMCRecoParticleAssociation()
             edm4hep::MCRecoParticleAssociation association = pMCRecoParticleAssociationCollection->create();
             association.setRec(pReco);
             association.setSim(it->second);
+            if(tot_en==0) 
+            {
+                association.setWeight(0);
+                std::cout<<"Found 0 cluster energy"<<std::endl;
+            }  
+            else if(id_edep_map.find(it->first) != id_edep_map.end()) association.setWeight(id_edep_map[it->first]/tot_en);
+            else std::cout<<"Error in creating MCRecoParticleAssociation"<<std::endl;
         }
     }
     return StatusCode::SUCCESS;
 }
+

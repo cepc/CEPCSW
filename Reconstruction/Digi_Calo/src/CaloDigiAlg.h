@@ -8,6 +8,7 @@
 #include "edm4hep/CalorimeterHit.h"
 #include "edm4hep/CalorimeterHitCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
+#include "edm4hep/MCRecoCaloAssociationCollection.h"
 
 #include <DDRec/DetectorData.h>
 #include <DDRec/CellIDPositionConverter.h>
@@ -51,6 +52,7 @@ protected:
   DataHandle<edm4hep::SimCalorimeterHitCollection> r_SimCaloCol{"SimCaloCol", Gaudi::DataHandle::Reader, this};
   // Output collections
   DataHandle<edm4hep::CalorimeterHitCollection>    w_DigiCaloCol{"DigiCaloCol", Gaudi::DataHandle::Writer, this};
+  DataHandle<edm4hep::MCRecoCaloAssociationCollection>    w_CaloAssociationCol{"MCRecoCaloAssociationCollection", Gaudi::DataHandle::Writer, this};
 };
 
 #endif

@@ -270,6 +270,8 @@ protected:
   //### For Ana #################
   TFile* m_fout;
   TTree* m_tree;
+  std::vector< std::vector<int>   > m_pReco_mc_id;
+  std::vector< std::vector<float> > m_pReco_mc_weight;
   std::vector<int  > m_pReco_PID;    
   std::vector<float> m_pReco_mass;
   std::vector<float> m_pReco_energy;
@@ -278,6 +280,7 @@ protected:
   std::vector<float> m_pReco_pz;
   std::vector<float> m_pReco_charge;
 
+  std::vector<int>   m_mc_id;
   std::vector<int>   m_mc_p_size;
   std::vector<int>   m_mc_pid   ;
   std::vector<float> m_mc_mass  ;

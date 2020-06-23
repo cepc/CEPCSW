@@ -35,8 +35,6 @@ private:
     Gaudi::Property<std::vector<std::string>> m_particles{this, "Particles"};
 
     Gaudi::Property<std::vector<double>> m_energies{this, "Energies"};
-    Gaudi::Property<std::vector<double>> m_energies_min{this, "EnergyMin"};
-    Gaudi::Property<std::vector<double>> m_energies_max{this, "EnergyMax"};
 
     Gaudi::Property<std::vector<double>> m_thetamins{this, "ThetaMins"};
     Gaudi::Property<std::vector<double>> m_thetamaxs{this, "ThetaMaxs"};
