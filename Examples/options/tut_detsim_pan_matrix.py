@@ -63,7 +63,8 @@ from Configurables import GenPrinter
 
 gun = GtGunTool("GtGunTool")
 gun.Particles = ["gamma","gamma"]
-gun.Energies =  [10, 10] # GeV
+gun.EnergyMins= [10, 10] # GeV
+gun.EnergyMaxs= [10, 10] # GeV
 gun.ThetaMins = [90, 90] # degree
 gun.ThetaMaxs = [90, 90] # degree
 gun.PhiMins   = [0,  1 ] # degree
