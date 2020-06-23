@@ -16,7 +16,7 @@ GtGunTool::initialize() {
         return StatusCode::FAILURE;
     }
     
-    if (m_energies.value().size() != m_particles.value().size()) {
+    if (m_energymins.value().size() != m_particles.value().size()) {
         error() << "Mismatched energies and particles." << endmsg;
         return StatusCode::FAILURE;
     }
@@ -79,7 +79,7 @@ GtGunTool::mutate(MyHepMC::GenEvent& event) {
             }
         }
 
-        double energy = m_energies.value()[i];
+        double energy = m_energymins.value()[i]==m_energymaxs.value()[i] ? m_energymins.value()[i] : CLHEP::RandFlat::shoot(m_energymins.value()[i], m_energymaxs.value()[i]);
 
         // create the MC particle
         edm4hep::MCParticle mcp = event.m_mc_vec.create();
