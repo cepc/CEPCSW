@@ -25,6 +25,7 @@ link_libraries(${LCContent_LIBRARIES})
 list(APPEND CMAKE_MODULE_PATH "$ENV{ROOTSYS}/etc/cmake/")
 find_package(ROOT 5.26.00 REQUIRED COMPONENTS Eve Geom RGL EG)
 
+#In order to use ClusterShape.cc
 include_directories("../CED/CED/")
 include_directories("../MarlinUtil/01-08/source/")
 

@@ -1,5 +1,4 @@
 /**
- *  @file   MarlinPandora/include/GeometryCreator.h
  * 
  *  @brief  Header file for the geometry creator class.
  * 
@@ -12,7 +11,6 @@
 #include "Api/PandoraApi.h"
 
 #include "GaudiKernel/ISvcLocator.h"
-//namespace gear { class CalorimeterParameters; }
 namespace gear { class CalorimeterParameters; class GearMgr; }
 
 //------------------------------------------------------------------------------------------------------------------------------------------
@@ -73,7 +71,6 @@ public:
     /**
      *  @brief  Create geometry
      */
-    //pandora::StatusCode CreateGeometry() const;
     pandora::StatusCode CreateGeometry(ISvcLocator* svcloc);
 
 private:

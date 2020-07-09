@@ -1,4 +1,3 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 #include "GearSvc/IGearSvc.h"
 #include "PandoraPFAlg.h"
 #include "EventSeeder/IEventSeeder.h"
@@ -7,7 +6,7 @@
 #include "edm4hep/SimCalorimeterHit.h"
 #include "edm4hep/CaloHitContribution.h"
 #include "edm4hep/ClusterConst.h"
-#include "UTIL/ILDConf.h"
+//#include "UTIL/ILDConf.h"
 #include <cmath>
 #include <algorithm>
 #include "gear/BField.h"
@@ -84,7 +83,6 @@ void PandoraPFAlg::FinaliseSteeringParameters(ISvcLocator* svcloc)
     m_trackCreatorSettings.m_prongSplitVertexCollections.insert(m_trackCreatorSettings.m_prongSplitVertexCollections.end(),
         m_trackCreatorSettings.m_splitVertexCollections.begin(), m_trackCreatorSettings.m_splitVertexCollections.end());
     
-    //m_settings.m_innerBField = marlin::Global::GEAR->getBField().at(gear::Vector3D(0., 0., 0.)).z();
     IGearSvc*  iSvc = 0;
     StatusCode sc = svcloc->service("GearSvc", iSvc, false);
     if ( !sc ) 
@@ -103,7 +101,7 @@ void PandoraPFAlg::FinaliseSteeringParameters(ISvcLocator* svcloc)
 StatusCode PandoraPFAlg::initialize()
 {
 
-  std::cout<<"hi init PandoraPFAlg"<<std::endl;
+  std::cout<<"init PandoraPFAlg"<<std::endl;
 
   std::string s_output =m_AnaOutput; 
   m_fout = new TFile(s_output.c_str(),"RECREATE"); 
@@ -297,17 +295,9 @@ StatusCode PandoraPFAlg::initialize()
 
 StatusCode PandoraPFAlg::execute()
 {
-    /*
-    if (_nEvt < m_settings.m_nEventsToSkip)
-    {
-        _nEvt++;
-        return StatusCode::SUCCESS;
-    }
-    */
     
     try
     {
-        std::cout<<"execute PandoraPFAlg"<<std::endl;
         
         updateMap();
         PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pMCParticleCreator->CreateMCParticles(*m_CollectionMaps));
@@ -366,19 +356,12 @@ pandora::StatusCode PandoraPFAlg::RegisterUserComponents() const
     PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LCContent::RegisterAlgorithms(*m_pPandora));
     PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LCContent::RegisterBasicPlugins(*m_pPandora));
 
-    
     PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LCContent::RegisterBFieldPlugin(*m_pPandora,
         m_settings.m_innerBField, m_settings.m_muonBarrelBField, m_settings.m_muonEndCapBField));
 
     PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LCContent::RegisterNonLinearityEnergyCorrection(*m_pPandora,
         "NonLinearity", pandora::HADRONIC, m_settings.m_inputEnergyCorrectionPoints, m_settings.m_outputEnergyCorrectionPoints));
     
-    
-    /*
-    PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::RegisterAlgorithmFactory(*m_pPandora,
-        "ExternalClustering", new ExternalClusteringAlgorithm::Factory));
-    */
-
     return pandora::STATUS_CODE_SUCCESS;
 }
 
@@ -427,10 +410,6 @@ CollectionMaps::CollectionMaps()
 }
 void CollectionMaps::clear()
 {
-CollectionMap_MC.clear();
-CollectionMap_CaloHit.clear();
-CollectionMap_Vertex.clear();
-CollectionMap_Track.clear();
 collectionMap_MC.clear();
 collectionMap_CaloHit.clear();
 collectionMap_Vertex.clear();
@@ -482,112 +461,96 @@ StatusCode PandoraPFAlg::updateMap()
         if (NULL != MCParticle   )  
         {
             std::vector<edm4hep::MCParticle> v_mc;
-            m_CollectionMaps->CollectionMap_MC ["MCParticle"] = MCParticle ;
             m_CollectionMaps->collectionMap_MC ["MCParticle"] = v_mc;
             for(unsigned int i=0 ; i< MCParticle->size(); i++) m_CollectionMaps->collectionMap_MC ["MCParticle"].push_back(MCParticle->at(i));
         }
         if (NULL != ECALBarrel   )
         {
             std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->CollectionMap_CaloHit["ECALBarrel"] = ECALBarrel ;
             m_CollectionMaps->collectionMap_CaloHit["ECALBarrel"] = v_cal ;
             for(unsigned int i=0 ; i< ECALBarrel->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["ECALBarrel"].push_back(ECALBarrel->at(i));
         }
         if (NULL != ECALEndcap   )
         {
             std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->CollectionMap_CaloHit["ECALEndcap"] = ECALEndcap ;
             m_CollectionMaps->collectionMap_CaloHit["ECALEndcap"] = v_cal ;
             for(unsigned int i=0 ; i< ECALEndcap->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["ECALEndcap"].push_back(ECALEndcap->at(i));
         }
         if (NULL != ECALOther   )
         {
             std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->CollectionMap_CaloHit["ECALOther"] = ECALOther ;
             m_CollectionMaps->collectionMap_CaloHit["ECALOther"] = v_cal ;
             for(unsigned int i=0 ; i< ECALOther->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["ECALOther"].push_back(ECALOther->at(i));
         }
         if (NULL != HCALBarrel   )
         {
             std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->CollectionMap_CaloHit["HCALBarrel"] = HCALBarrel ;
             m_CollectionMaps->collectionMap_CaloHit["HCALBarrel"] = v_cal ;
             for(unsigned int i=0 ; i< HCALBarrel->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["HCALBarrel"].push_back(HCALBarrel->at(i));
         }
         if (NULL != HCALEndcap   )
         {
             std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->CollectionMap_CaloHit["HCALEndcap"] = HCALEndcap ;
             m_CollectionMaps->collectionMap_CaloHit["HCALEndcap"] = v_cal ;
             for(unsigned int i=0 ; i< HCALEndcap->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["HCALEndcap"].push_back(HCALEndcap->at(i));
         }
         if (NULL != HCALOther   )
         {
             std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->CollectionMap_CaloHit["HCALOther"] = HCALOther ;
             m_CollectionMaps->collectionMap_CaloHit["HCALOther"] = v_cal ;
             for(unsigned int i=0 ; i< HCALOther->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["HCALOther"].push_back(HCALOther->at(i));
         }
         if (NULL != MUON   )
         {
             std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->CollectionMap_CaloHit["MUON"] = MUON ;
             m_CollectionMaps->collectionMap_CaloHit["MUON"] = v_cal ;
             for(unsigned int i=0 ; i< MUON->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["MUON"].push_back(MUON->at(i));
         }
         if (NULL != LCAL   )
         {
             std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->CollectionMap_CaloHit["LCAL"] = LCAL ;
             m_CollectionMaps->collectionMap_CaloHit["LCAL"] = v_cal ;
             for(unsigned int i=0 ; i< LCAL->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["LCAL"].push_back(LCAL->at(i));
         }
         if (NULL != LHCAL   )
         {
             std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->CollectionMap_CaloHit["LHCAL"] = LHCAL ;
             m_CollectionMaps->collectionMap_CaloHit["LHCAL"] = v_cal ;
             for(unsigned int i=0 ; i< LHCAL->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["LHCAL"].push_back(LHCAL->at(i));
         }
         if (NULL != BCAL   )
         {
             std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->CollectionMap_CaloHit["BCAL"] = BCAL ;
             m_CollectionMaps->collectionMap_CaloHit["BCAL"] = v_cal ;
             for(unsigned int i=0 ; i< BCAL->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["BCAL"].push_back(BCAL->at(i));
         }
         if (NULL != KinkVertices   )
         {
             std::vector<edm4hep::Vertex> v_cal;
-            m_CollectionMaps->CollectionMap_Vertex["KinkVertices"] = KinkVertices ;
             m_CollectionMaps->collectionMap_Vertex["KinkVertices"] = v_cal ;
             for(unsigned int i=0 ; i< KinkVertices->size(); i++) m_CollectionMaps->collectionMap_Vertex ["KinkVertices"].push_back(KinkVertices->at(i));
         }
         if (NULL != ProngVertices   )
         {
             std::vector<edm4hep::Vertex> v_cal;
-            m_CollectionMaps->CollectionMap_Vertex["ProngVertices"] = ProngVertices ;
             m_CollectionMaps->collectionMap_Vertex["ProngVertices"] = v_cal ;
             for(unsigned int i=0 ; i< ProngVertices->size(); i++) m_CollectionMaps->collectionMap_Vertex ["ProngVertices"].push_back(ProngVertices->at(i));
         }
         if (NULL != SplitVertices   )
         {
             std::vector<edm4hep::Vertex> v_cal;
-            m_CollectionMaps->CollectionMap_Vertex["SplitVertices"] = SplitVertices ;
             m_CollectionMaps->collectionMap_Vertex["SplitVertices"] = v_cal ;
             for(unsigned int i=0 ; i< SplitVertices->size(); i++) m_CollectionMaps->collectionMap_Vertex ["SplitVertices"].push_back(SplitVertices->at(i));
         }
         if (NULL != V0Vertices   )
         {
             std::vector<edm4hep::Vertex> v_cal;
-            m_CollectionMaps->CollectionMap_Vertex["V0Vertices"] = V0Vertices ;
             m_CollectionMaps->collectionMap_Vertex["V0Vertices"] = v_cal ;
             for(unsigned int i=0 ; i< V0Vertices->size(); i++) m_CollectionMaps->collectionMap_Vertex ["V0Vertices"].push_back(V0Vertices->at(i));
         }
         if (NULL != MarlinTrkTracks   )
         {
             std::vector<edm4hep::Track> v_cal;
-            m_CollectionMaps->CollectionMap_Track["MarlinTrkTracks"] = MarlinTrkTracks ;
             m_CollectionMaps->collectionMap_Track["MarlinTrkTracks"] = v_cal ;
             for(unsigned int i=0 ; i< MarlinTrkTracks->size(); i++) m_CollectionMaps->collectionMap_Track ["MarlinTrkTracks"].push_back(MarlinTrkTracks->at(i));
         }
@@ -596,39 +559,6 @@ StatusCode PandoraPFAlg::updateMap()
             std::vector<edm4hep::MCRecoCaloAssociation> v_cal;
             m_CollectionMaps->collectionMap_CaloRel["RecoCaloAssociation"] = v_cal ;
             for(unsigned int i=0 ; i< mcRecoCaloAssociation->size(); i++) m_CollectionMaps->collectionMap_CaloRel ["RecoCaloAssociation"].push_back(mcRecoCaloAssociation->at(i));
-        }
-        else
-        {
-            if (NULL != MCParticle   )
-            {
-                for(unsigned int i=0 ; i< MCParticle->size(); i++)
-                {
-                    if(MCParticle->at(i).parents_size()==0)
-                    {
-                        std::cout<<"create recoCaloAssociation by hand now"<<std::endl;
-                        for(std::map<std::string, std::vector<edm4hep::CalorimeterHit> >::iterator iter = m_CollectionMaps->collectionMap_CaloHit.begin(); iter != m_CollectionMaps->collectionMap_CaloHit.end(); iter++)
-                        {
-                            std::string prefix = "RecoCaloAssociation_";
-                            std::string key = prefix + iter->first;
-                            std::cout<<"create for "<<key<<std::endl;
-                            std::vector<edm4hep::MCRecoCaloAssociation> v_cal;
-                            m_CollectionMaps->collectionMap_CaloRel[key] = v_cal ;
-                            for(std::vector<edm4hep::CalorimeterHit>::iterator it=iter->second.begin(); it != iter->second.end(); it ++)
-                            {
-                                edm4hep::SimCalorimeterHit sim_hit( it->getCellID(), it->getEnergy(), it->getPosition() );
-                                edm4hep::CaloHitContribution conb ( MCParticle->at(i).getPDG(), it->getEnergy(), 0, it->getPosition() ); 
-                                conb.setParticle( MCParticle->at(i) );
-                                sim_hit.addToContributions(conb);
-                                edm4hep::MCRecoCaloAssociation calo_association;
-                                calo_association.setRec(*it);
-                                calo_association.setSim(sim_hit);
-                                m_CollectionMaps->collectionMap_CaloRel[key].push_back(calo_association); 
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
         }
         if (NULL != mcRecoTrackerAssociation )
         {
@@ -640,172 +570,6 @@ StatusCode PandoraPFAlg::updateMap()
 }
 
 
-StatusCode PandoraPFAlg::updateMap(CollectionMaps & tmp_map)
-{
-        const edm4hep::MCParticleCollection*     MCParticle = nullptr;
-        const edm4hep::CalorimeterHitCollection* ECALBarrel = nullptr;        
-        const edm4hep::CalorimeterHitCollection* ECALEndcap = nullptr; 
-        const edm4hep::CalorimeterHitCollection* ECALOther  = nullptr; 
-        const edm4hep::CalorimeterHitCollection* HCALBarrel = nullptr; 
-        const edm4hep::CalorimeterHitCollection* HCALEndcap = nullptr; 
-        const edm4hep::CalorimeterHitCollection* HCALOther  = nullptr; 
-        const edm4hep::CalorimeterHitCollection* MUON       = nullptr; 
-        const edm4hep::CalorimeterHitCollection* LCAL       = nullptr; 
-        const edm4hep::CalorimeterHitCollection* LHCAL      = nullptr; 
-        const edm4hep::CalorimeterHitCollection* BCAL       = nullptr; 
-        const edm4hep::VertexCollection* KinkVertices       = nullptr; 
-        const edm4hep::VertexCollection* ProngVertices      = nullptr; 
-        const edm4hep::VertexCollection* SplitVertices      = nullptr; 
-        const edm4hep::VertexCollection* V0Vertices         = nullptr; 
-        const edm4hep::TrackCollection*  MarlinTrkTracks    = nullptr; 
-        const edm4hep::MCRecoCaloAssociationCollection*  mcRecoCaloAssociation    = nullptr; 
-        const edm4hep::MCRecoTrackerAssociationCollection*  mcRecoTrackerAssociation    = nullptr; 
-        StatusCode sc = StatusCode::SUCCESS;
-        sc =  getCol(m_mcParCol_r  , MCParticle );
-        sc =  getCol(m_ECALBarrel_r, ECALBarrel );
-        sc =  getCol(m_ECALEndcap_r, ECALEndcap );
-        sc =  getCol(m_ECALOther_r , ECALOther  );
-        sc =  getCol(m_HCALBarrel_r, HCALBarrel );
-        sc =  getCol(m_HCALEndcap_r, HCALEndcap );
-        sc =  getCol(m_HCALOther_r , HCALOther  );
-        sc =  getCol(m_MUON_r      , MUON       );
-        sc =  getCol(m_LCAL_r      , LCAL       );
-        sc =  getCol(m_LHCAL_r     , LHCAL      );
-        sc =  getCol(m_BCAL_r      , BCAL       );        
-        sc =  getCol(m_KinkVertices_r  , KinkVertices );        
-        sc =  getCol(m_ProngVertices_r , ProngVertices);        
-        sc =  getCol(m_SplitVertices_r , SplitVertices);        
-        sc =  getCol(m_V0Vertices_r    , V0Vertices   );        
-        sc =  getCol(m_MarlinTrkTracks_r , MarlinTrkTracks   );        
-        sc =  getCol(m_MCRecoCaloAssociation_r , mcRecoCaloAssociation   );        
-        sc =  getCol(m_MCRecoTrackerAssociation_r , mcRecoTrackerAssociation  );        
-
-        if (NULL != MCParticle   )  
-        {
-            std::vector<edm4hep::MCParticle> v_mc;
-            tmp_map.CollectionMap_MC ["MCParticle"] = MCParticle ;
-            tmp_map.collectionMap_MC ["MCParticle"] = v_mc;
-            for(unsigned int i=0 ; i< MCParticle->size(); i++) tmp_map.collectionMap_MC ["MCParticle"].push_back(MCParticle->at(i));
-        }
-        if (NULL != ECALBarrel   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            tmp_map.CollectionMap_CaloHit["ECALBarrel"] = ECALBarrel ;
-            tmp_map.collectionMap_CaloHit["ECALBarrel"] = v_cal ;
-            for(unsigned int i=0 ; i< ECALBarrel->size(); i++) tmp_map.collectionMap_CaloHit ["ECALBarrel"].push_back(ECALBarrel->at(i));
-        }
-        if (NULL != ECALEndcap   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            tmp_map.CollectionMap_CaloHit["ECALEndcap"] = ECALEndcap ;
-            tmp_map.collectionMap_CaloHit["ECALEndcap"] = v_cal ;
-            for(unsigned int i=0 ; i< ECALEndcap->size(); i++) tmp_map.collectionMap_CaloHit ["ECALEndcap"].push_back(ECALEndcap->at(i));
-        }
-        if (NULL != ECALOther   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            tmp_map.CollectionMap_CaloHit["ECALOther"] = ECALOther ;
-            tmp_map.collectionMap_CaloHit["ECALOther"] = v_cal ;
-            for(unsigned int i=0 ; i< ECALOther->size(); i++) tmp_map.collectionMap_CaloHit ["ECALOther"].push_back(ECALOther->at(i));
-        }
-        if (NULL != HCALBarrel   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            tmp_map.CollectionMap_CaloHit["HCALBarrel"] = HCALBarrel ;
-            tmp_map.collectionMap_CaloHit["HCALBarrel"] = v_cal ;
-            for(unsigned int i=0 ; i< HCALBarrel->size(); i++) tmp_map.collectionMap_CaloHit ["HCALBarrel"].push_back(HCALBarrel->at(i));
-        }
-        if (NULL != HCALEndcap   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            tmp_map.CollectionMap_CaloHit["HCALEndcap"] = HCALEndcap ;
-            tmp_map.collectionMap_CaloHit["HCALEndcap"] = v_cal ;
-            for(unsigned int i=0 ; i< HCALEndcap->size(); i++) tmp_map.collectionMap_CaloHit ["HCALEndcap"].push_back(HCALEndcap->at(i));
-        }
-        if (NULL != HCALOther   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            tmp_map.CollectionMap_CaloHit["HCALOther"] = HCALOther ;
-            tmp_map.collectionMap_CaloHit["HCALOther"] = v_cal ;
-            for(unsigned int i=0 ; i< HCALOther->size(); i++) tmp_map.collectionMap_CaloHit ["HCALOther"].push_back(HCALOther->at(i));
-        }
-        if (NULL != MUON   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            tmp_map.CollectionMap_CaloHit["MUON"] = MUON ;
-            tmp_map.collectionMap_CaloHit["MUON"] = v_cal ;
-            for(unsigned int i=0 ; i< MUON->size(); i++) tmp_map.collectionMap_CaloHit ["MUON"].push_back(MUON->at(i));
-        }
-        if (NULL != LCAL   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            tmp_map.CollectionMap_CaloHit["LCAL"] = LCAL ;
-            tmp_map.collectionMap_CaloHit["LCAL"] = v_cal ;
-            for(unsigned int i=0 ; i< LCAL->size(); i++) tmp_map.collectionMap_CaloHit ["LCAL"].push_back(LCAL->at(i));
-        }
-        if (NULL != LHCAL   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            tmp_map.CollectionMap_CaloHit["LHCAL"] = LHCAL ;
-            tmp_map.collectionMap_CaloHit["LHCAL"] = v_cal ;
-            for(unsigned int i=0 ; i< LHCAL->size(); i++) tmp_map.collectionMap_CaloHit ["LHCAL"].push_back(LHCAL->at(i));
-        }
-        if (NULL != BCAL   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            tmp_map.CollectionMap_CaloHit["BCAL"] = BCAL ;
-            tmp_map.collectionMap_CaloHit["BCAL"] = v_cal ;
-            for(unsigned int i=0 ; i< BCAL->size(); i++) tmp_map.collectionMap_CaloHit ["BCAL"].push_back(BCAL->at(i));
-        }
-        if (NULL != KinkVertices   )
-        {
-            std::vector<edm4hep::Vertex> v_cal;
-            tmp_map.CollectionMap_Vertex["KinkVertices"] = KinkVertices ;
-            tmp_map.collectionMap_Vertex["KinkVertices"] = v_cal ;
-            for(unsigned int i=0 ; i< KinkVertices->size(); i++) tmp_map.collectionMap_Vertex ["KinkVertices"].push_back(KinkVertices->at(i));
-        }
-        if (NULL != ProngVertices   )
-        {
-            std::vector<edm4hep::Vertex> v_cal;
-            tmp_map.CollectionMap_Vertex["ProngVertices"] = ProngVertices ;
-            tmp_map.collectionMap_Vertex["ProngVertices"] = v_cal ;
-            for(unsigned int i=0 ; i< ProngVertices->size(); i++) tmp_map.collectionMap_Vertex ["ProngVertices"].push_back(ProngVertices->at(i));
-        }
-        if (NULL != SplitVertices   )
-        {
-            std::vector<edm4hep::Vertex> v_cal;
-            tmp_map.CollectionMap_Vertex["SplitVertices"] = SplitVertices ;
-            tmp_map.collectionMap_Vertex["SplitVertices"] = v_cal ;
-            for(unsigned int i=0 ; i< SplitVertices->size(); i++) tmp_map.collectionMap_Vertex ["SplitVertices"].push_back(SplitVertices->at(i));
-        }
-        if (NULL != V0Vertices   )
-        {
-            std::vector<edm4hep::Vertex> v_cal;
-            tmp_map.CollectionMap_Vertex["V0Vertices"] = V0Vertices ;
-            tmp_map.collectionMap_Vertex["V0Vertices"] = v_cal ;
-            for(unsigned int i=0 ; i< V0Vertices->size(); i++) tmp_map.collectionMap_Vertex ["V0Vertices"].push_back(V0Vertices->at(i));
-        }
-        if (NULL != MarlinTrkTracks   )
-        {
-            std::vector<edm4hep::Track> v_cal;
-            tmp_map.CollectionMap_Track["MarlinTrkTracks"] = MarlinTrkTracks ;
-            tmp_map.collectionMap_Track["MarlinTrkTracks"] = v_cal ;
-            for(unsigned int i=0 ; i< MarlinTrkTracks->size(); i++) tmp_map.collectionMap_Track ["MarlinTrkTracks"].push_back(MarlinTrkTracks->at(i));
-        }
-        if (NULL != mcRecoCaloAssociation )
-        {
-            std::vector<edm4hep::MCRecoCaloAssociation> v_cal;
-            tmp_map.collectionMap_CaloRel["RecoCaloAssociation"] = v_cal ;
-            for(unsigned int i=0 ; i< mcRecoCaloAssociation->size(); i++) tmp_map.collectionMap_CaloRel ["RecoCaloAssociation"].push_back(mcRecoCaloAssociation->at(i));
-        }
-        if (NULL != mcRecoTrackerAssociation )
-        {
-            std::vector<edm4hep::MCRecoTrackerAssociation> v_cal;
-            tmp_map.collectionMap_TrkRel["RecoTrackerAssociation"] = v_cal ;
-            for(unsigned int i=0 ; i< mcRecoTrackerAssociation->size(); i++) tmp_map.collectionMap_TrkRel ["RecoTrackerAssociation"].push_back(mcRecoTrackerAssociation->at(i));
-        }
-    return StatusCode::SUCCESS;
-}
 
 
 StatusCode PandoraPFAlg::Ana()
@@ -813,10 +577,8 @@ StatusCode PandoraPFAlg::Ana()
     int n_current = m_tree->GetEntries()+1;
     const edm4hep::ReconstructedParticleCollection* reco_col = m_ReconstructedParticleCollection_w.get();
     const edm4hep::MCRecoParticleAssociationCollection* reco_associa_col = m_MCRecoParticleAssociation_w.get();
-    std::cout<<"reco_col size="<<reco_col->size()<<std::endl;
     for(int i=0; i<reco_col->size();i++)
     {
-        std::cout<<"reco="<<i<<std::endl;
         const edm4hep::ReconstructedParticle pReco = reco_col->at(i);
         const float px = pReco.getMomentum()[0];
         const float py = pReco.getMomentum()[1];
@@ -825,7 +587,6 @@ StatusCode PandoraPFAlg::Ana()
         const float mass = pReco.getMass();
         const float charge = pReco.getCharge();
         const int type = pReco.getType();
-        //std::cout<<"MYDBUG evt="<<n_current<<",rec i="<<i<<",particleId="<<type<<",mass="<<mass<<",charge="<<charge<<",energy="<<energy<<",px="<<px<<",py="<<py<<",pz="<<pz<<std::endl;
         m_pReco_PID.push_back(type);
         m_pReco_mass.push_back(mass);
         m_pReco_charge.push_back(charge);
@@ -836,7 +597,7 @@ StatusCode PandoraPFAlg::Ana()
         for(int j=0; j < reco_associa_col->size(); j++)
         {
             if(reco_associa_col->at(j).getRec().id() != pReco.id() ) continue;
-            std::cout<<"MC pid ="<<reco_associa_col->at(j).getSim().getPDG()<<", px="<<reco_associa_col->at(j).getSim().getMomentum()[0]<<", py="<<reco_associa_col->at(j).getSim().getMomentum()[1]<<",pz="<<reco_associa_col->at(j).getSim().getMomentum()[2]<<std::endl;
+            std::cout<<"MC pid ="<<reco_associa_col->at(j).getSim().getPDG()<<",weight="<<reco_associa_col->at(j).getWeight()<<", px="<<reco_associa_col->at(j).getSim().getMomentum()[0]<<", py="<<reco_associa_col->at(j).getSim().getMomentum()[1]<<",pz="<<reco_associa_col->at(j).getSim().getMomentum()[2]<<std::endl;
         }
     }
     const edm4hep::MCParticleCollection*     MCParticle = nullptr;
@@ -853,8 +614,7 @@ StatusCode PandoraPFAlg::Ana()
             m_mc_py    .push_back(MCParticle->at(i).getMomentum()[1]);
             m_mc_pz    .push_back(MCParticle->at(i).getMomentum()[2]);
             m_mc_charge.push_back(MCParticle->at(i).getCharge());
-            //for(unsigned int j =0 ; j< MCParticle->at(i).daughters_size(); j++) da_pids.push_back( MCParticle->at(i).getDaughters(j).getPDG());
-            if(MCParticle->at(i).parents_size()==0) std::cout<<"MYDBUG evt="<<n_current<<", mc i="<<i<<",px="<<MCParticle->at(i).getMomentum()[0]<<",py="<<MCParticle->at(i).getMomentum()[1]<<",pz="<<MCParticle->at(i).getMomentum()[2]<<std::endl;
+            //if(MCParticle->at(i).parents_size()==0) std::cout<<"MYDBUG evt="<<n_current<<", mc i="<<i<<",px="<<MCParticle->at(i).getMomentum()[0]<<",py="<<MCParticle->at(i).getMomentum()[1]<<",pz="<<MCParticle->at(i).getMomentum()[2]<<std::endl;
             if (MCParticle->at(i).getPDG() != 22) continue;
             int hasEm = 0;
             int hasEp = 0;
@@ -870,15 +630,17 @@ StatusCode PandoraPFAlg::Ana()
     return StatusCode::SUCCESS;
 }
 
-// create simple MCRecoParticleAssociation using calorimeter hit only
+
+// create simple MCRecoParticleAssociation using calorimeter hit only now
 StatusCode PandoraPFAlg::CreateMCRecoParticleAssociation()
 {
     edm4hep::MCRecoParticleAssociationCollection* pMCRecoParticleAssociationCollection  = m_MCRecoParticleAssociation_w.createAndPut();
     const edm4hep::ReconstructedParticleCollection* reco_col = m_ReconstructedParticleCollection_w.get();
-    std::cout<<"CreateMCRecoParticleAssociation, reco_col size="<<reco_col->size()<<std::endl;
     for(int i=0; i<reco_col->size();i++)
     {
         std::map<int, edm4hep::ConstMCParticle> mc_map;
+        std::map<int, float > id_edep_map;
+        float tot_en = 0 ;
         const edm4hep::ReconstructedParticle pReco = reco_col->at(i);
         for(int j=0; j < pReco.clusters_size(); j++)
         {
@@ -894,6 +656,9 @@ StatusCode PandoraPFAlg::CreateMCRecoParticleAssociation()
                         for(std::vector<edm4hep::ConstCaloHitContribution>::const_iterator itc = it->getSim().contributions_begin(); itc != it->getSim().contributions_end(); itc++)
                         {
                             if(mc_map.find(itc->getParticle().id()) == mc_map.end()) mc_map[itc->getParticle().id()] = itc->getParticle() ;
+                            if(id_edep_map.find(itc->getParticle().id()) != id_edep_map.end()) id_edep_map[itc->getParticle().id()] = id_edep_map[itc->getParticle().id()] + itc->getEnergy() ;
+                            else                                                               id_edep_map[itc->getParticle().id()] = itc->getEnergy() ;
+                            tot_en += itc->getEnergy() ;
                         }
                     }
                 }
@@ -904,7 +669,16 @@ StatusCode PandoraPFAlg::CreateMCRecoParticleAssociation()
             edm4hep::MCRecoParticleAssociation association = pMCRecoParticleAssociationCollection->create();
             association.setRec(pReco);
             association.setSim(it->second);
+            if(tot_en==0) 
+            {
+                association.setWeight(0);
+                std::cout<<"Found 0 cluster energy"<<std::endl;
+            }  
+            else if(id_edep_map.find(it->first) != id_edep_map.end()) association.setWeight(id_edep_map[it->first]/tot_en);
+            else std::cout<<"Error in creating MCRecoParticleAssociation"<<std::endl;
         }
     }
     return StatusCode::SUCCESS;
 }
+
+
