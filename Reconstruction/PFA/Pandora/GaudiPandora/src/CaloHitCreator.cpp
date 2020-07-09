@@ -1,5 +1,4 @@
 /**
- *  @file   MarlinPandora/src/CaloHitCreator.cc
  * 
  *  @brief  Implementation of the calo hit creator class.
  * 
@@ -16,7 +15,6 @@
 #include "gear/PadRowLayout2D.h"
 #include "gear/LayerLayout.h"
 
-#include "UTIL/CellIDDecoder.h"
 #include "cellIDDecoder.h"
 #include "GaudiKernel/IService.h"
 #include "GearSvc/IGearSvc.h"
@@ -27,16 +25,6 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
-/*
-template<typename T>
-static float* FloatFromFloatThree(T vec, float &){
-  float tmp[3];
-  for(unsigned i=0; i<3; i++){
-    tmp[i] = vec[i];
-  }
-  return tmp;
-}
-*/
 
 
 CaloHitCreator::CaloHitCreator(const Settings &settings, const pandora::Pandora *const pPandora, ISvcLocator* svcloc, bool encoder_style) :
@@ -47,9 +35,9 @@ CaloHitCreator::CaloHitCreator(const Settings &settings, const pandora::Pandora 
     m_encoder_str_MUON = ""; 
     m_encoder_str_LCal = ""; 
     m_encoder_str_LHCal = ""; 
-    if(encoder_style==0) 
+    if(encoder_style==0) // LCIO style
     {
-        m_encoder_str     = "M:3,S-1:3,I:9,J:9,K-1:6";// LCIO style
+        m_encoder_str     = "M:3,S-1:3,I:9,J:9,K-1:6";
         m_encoder_str_MUON="S-1:4,M:3,K-1:6,I:16,GRZone:3,J:32:16";
         m_encoder_str_LCal="I:10,J:10,K:10,S-1:2";
         m_encoder_str_LHCal=m_encoder_str;
@@ -122,7 +110,6 @@ pandora::StatusCode CaloHitCreator::CreateCaloHits(const CollectionMaps& collect
 
 pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& collectionMaps)
 {
-    std::cout<<"start CreateECalCaloHits:"<<std::endl;
     for (StringVector::const_iterator iter = m_settings.m_eCalCaloHitCollections.begin(), iterEnd = m_settings.m_eCalCaloHitCollections.end();
         iter != iterEnd; ++iter)
     {
@@ -132,14 +119,12 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
             const std::vector<edm4hep::CalorimeterHit>& pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(*iter))->second;
             const int nElements(pCaloHitCollection.size());
 
-            std::cout<<(*iter)<<"has nElements="<<nElements<<std::endl;
             if (0 == nElements)
                 continue;
 
             const gear::LayerLayout &endcapLayerLayout(_GEAR->getEcalEndcapParameters().getLayerLayout());
             const gear::LayerLayout &barrelLayerLayout(_GEAR->getEcalBarrelParameters().getLayerLayout()); 
 
-            //UTIL::CellIDDecoder<edm4hep::CalorimeterHit> cellIdDecoder(m_encoder_str);
             ID_UTIL::CellIDDecoder<const edm4hep::CalorimeterHit> cellIdDecoder(m_encoder_str);
             const std::string layerCodingString(m_encoder_str);
             const std::string layerCoding(this->GetLayerCoding(layerCodingString));
@@ -187,9 +172,8 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
 
                     PandoraApi::CaloHit::Parameters caloHitParameters;
                     caloHitParameters.m_hitType = pandora::ECAL;
-                    caloHitParameters.m_isDigital = false;//why false ?
-                    caloHitParameters.m_layer = cellIdDecoder(pCaloHit)[layerCoding.c_str()] + 1;//FIXME, should use + 1? because the decoded layer is start from 0.
-                    //std::cout << "ECAL layer=" << caloHitParameters.m_layer.Get() << std::endl;
+                    caloHitParameters.m_isDigital = false;
+                    caloHitParameters.m_layer = cellIdDecoder(pCaloHit)[layerCoding.c_str()] + 1;
                     caloHitParameters.m_isInOuterSamplingLayer = false;
                     this->GetCommonCaloHitProperties(pCaloHit, caloHitParameters);
 
@@ -201,14 +185,11 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
                             cellIdDecoder(pCaloHit)[ staveCoding], caloHitParameters, absorberCorrection);
 
                         caloHitParameters.m_hadronicEnergy = eCalToHadGeVBarrel * pCaloHit->getEnergy();
-                        
-                        //std::cout << "ECAL: eCalToHadGeVBarrel="<<eCalToHadGeVBarrel<< std::endl;
                     }
                     else
                     {
                         this->GetEndCapCaloHitProperties(pCaloHit, endcapLayerLayout, caloHitParameters, absorberCorrection);
                         caloHitParameters.m_hadronicEnergy = eCalToHadGeVEndCap * pCaloHit->getEnergy();
-                        //std::cout << "ECAL: eCalToHadGeVEndCap="<<eCalToHadGeVEndCap<< std::endl;
                     }
 
                     caloHitParameters.m_mipEquivalentEnergy = pCaloHit->getEnergy() * eCalToMip * absorberCorrection;
@@ -217,7 +198,6 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
                         continue;
 
                     caloHitParameters.m_electromagneticEnergy = eCalToEMGeV * pCaloHit->getEnergy();
-                        //std::cout << "ECAL: eCalToEMGeV="<<eCalToEMGeV<< std::endl;
 
                     // ATTN If using strip splitting, must correct cell sizes for use in PFA to minimum of strip width and strip length
                     if (m_settings.m_stripSplittingOn)
@@ -229,26 +209,14 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
 
                     PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::CaloHit::Create(*m_pPandora, caloHitParameters));
                     m_calorimeterHitVector.push_back(const_cast<edm4hep::CalorimeterHit*>(pCaloHit));
-                    /*
-                    std::cout<<"i="<<i<<"\n"
-                    <<",layer="<<caloHitParameters.m_layer.Get()<<"\n"
-                    <<",m_hadronicEnergy="<<caloHitParameters.m_hadronicEnergy.Get()<<"\n"
-                    <<",m_electromagneticEnergy="<<caloHitParameters.m_electromagneticEnergy.Get()<<"\n"
-                    <<",m_mipEquivalentEnergy="<<caloHitParameters.m_mipEquivalentEnergy.Get()<<"\n"
-                    <<",m_inputEnergy="<<caloHitParameters.m_inputEnergy.Get()<<"\n"
-                    <<",m_positionVector0="<<caloHitParameters.m_positionVector.Get().GetX()<<"\n"
-                    <<",m_positionVector1="<<caloHitParameters.m_positionVector.Get().GetY()<<"\n"
-                    <<",m_positionVector2="<<caloHitParameters.m_positionVector.Get().GetZ()<<"\n"
-                    <<std::endl;
-                    */
                 }
                 catch (pandora::StatusCodeException &statusCodeException)
                 {
-                    std::cout<<"ERROR Failed to extract ecal calo hit: " << statusCodeException.ToString() << std::endl;
+                    std::cout<<"Failed to extract ecal calo hit: " << statusCodeException.ToString() << std::endl;
                 }
                 catch (...)
                 {
-                    std::cout<<"WARNING Failed to extract ecal calo hit: " <<  std::endl;
+                    std::cout<<"Failed to extract ecal calo hit" <<  std::endl;
                 }
             }
         }
@@ -274,14 +242,12 @@ pandora::StatusCode CaloHitCreator::CreateHCalCaloHits(const CollectionMaps& col
             const std::vector<edm4hep::CalorimeterHit>& pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(*iter))->second;
             const int nElements(pCaloHitCollection.size());
 
-            std::cout<<(*iter)<<"has nElements="<<nElements<<std::endl;
             if (0 == nElements)
                 continue;
 
             const gear::LayerLayout &endcapLayerLayout(_GEAR->getHcalEndcapParameters().getLayerLayout());
             const gear::LayerLayout &barrelLayerLayout(_GEAR->getHcalBarrelParameters().getLayerLayout());
 
-            //UTIL::CellIDDecoder<edm4hep::CalorimeterHit> cellIdDecoder(m_encoder_str);
             ID_UTIL::CellIDDecoder<const edm4hep::CalorimeterHit> cellIdDecoder(m_encoder_str);
             const std::string layerCodingString(m_encoder_str);
             const std::string layerCoding(this->GetLayerCoding(layerCodingString));
@@ -329,11 +295,11 @@ pandora::StatusCode CaloHitCreator::CreateHCalCaloHits(const CollectionMaps& col
                 }
                 catch (pandora::StatusCodeException &statusCodeException)
                 {
-                    std::cout << "Error, Failed to extract hcal calo hit: " << statusCodeException.ToString() << std::endl;
+                    std::cout << "Failed to extract hcal calo hit: " << statusCodeException.ToString() << std::endl;
                 }
                 catch (...)
                 {
-                    std::cout<<"WARNING Failed to extract hcal calo hit: " << std::endl;
+                    std::cout<<"Failed to extract hcal calo hit" << std::endl;
                 }
             }
         }
@@ -359,7 +325,6 @@ pandora::StatusCode CaloHitCreator::CreateMuonCaloHits(const CollectionMaps& col
             const std::vector<edm4hep::CalorimeterHit>& pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(*iter))->second;
             const int nElements(pCaloHitCollection.size());
 
-            std::cout<<(*iter)<<"has nElements="<<nElements<<std::endl;
             if (0 == nElements)
                 continue;
 
@@ -367,7 +332,6 @@ pandora::StatusCode CaloHitCreator::CreateMuonCaloHits(const CollectionMaps& col
             const gear::LayerLayout &barrelLayerLayout(_GEAR->getYokeBarrelParameters().getLayerLayout()); 
             const gear::LayerLayout &plugLayerLayout(_GEAR->getYokePlugParameters().getLayerLayout());
 
-            //UTIL::CellIDDecoder<edm4hep::CalorimeterHit> cellIdDecoder(m_encoder_str_MUON);
             ID_UTIL::CellIDDecoder<const edm4hep::CalorimeterHit> cellIdDecoder(m_encoder_str_MUON);
             const std::string layerCodingString(m_encoder_str_MUON);
             const std::string layerCoding(this->GetLayerCoding(layerCodingString));
@@ -385,7 +349,7 @@ pandora::StatusCode CaloHitCreator::CreateMuonCaloHits(const CollectionMaps& col
 
                     PandoraApi::CaloHit::Parameters caloHitParameters;
                     caloHitParameters.m_hitType = pandora::MUON;
-                    caloHitParameters.m_layer = cellIdDecoder(pCaloHit)[layerCoding.c_str()] + 1;//FIXME, should use +1? it starts from 0.
+                    caloHitParameters.m_layer = cellIdDecoder(pCaloHit)[layerCoding.c_str()] + 1;
                     caloHitParameters.m_isInOuterSamplingLayer = true;
                     this->GetCommonCaloHitProperties(pCaloHit, caloHitParameters);
 
@@ -437,7 +401,7 @@ pandora::StatusCode CaloHitCreator::CreateMuonCaloHits(const CollectionMaps& col
                 }
                 catch (...)
                 {
-                    std::cout << "Failed to extract muon hit: "  << std::endl;
+                    std::cout << "Failed to extract muon hit"  << std::endl;
                 }
             }
         }
@@ -463,13 +427,11 @@ pandora::StatusCode CaloHitCreator::CreateLCalCaloHits(const CollectionMaps& col
             const std::vector<edm4hep::CalorimeterHit>& pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(*iter))->second;
             const int nElements(pCaloHitCollection.size());
 
-            std::cout<<(*iter)<<"has nElements="<<nElements<<std::endl;
             if (0 == nElements)
                 continue;
 
             const gear::LayerLayout &endcapLayerLayout(_GEAR->getLcalParameters().getLayerLayout()); 
 
-            //UTIL::CellIDDecoder<edm4hep::CalorimeterHit> cellIdDecoder(m_encoder_str_LCal);
             ID_UTIL::CellIDDecoder<const edm4hep::CalorimeterHit> cellIdDecoder(m_encoder_str_LCal);
             const std::string layerCodingString(m_encoder_str_LCal);
             const std::string layerCoding(this->GetLayerCoding(layerCodingString));
@@ -511,7 +473,7 @@ pandora::StatusCode CaloHitCreator::CreateLCalCaloHits(const CollectionMaps& col
                 }
                 catch (...)
                 {
-                    std::cout << "Failed to extract lcal calo hit: " << std::endl;
+                    std::cout << "Failed to extract lcal calo hit" << std::endl;
                 }
             }
         }
@@ -537,13 +499,11 @@ pandora::StatusCode CaloHitCreator::CreateLHCalCaloHits(const CollectionMaps& co
             const std::vector<edm4hep::CalorimeterHit>& pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(*iter))->second;
             const int nElements(pCaloHitCollection.size());
 
-            std::cout<<(*iter)<<"has nElements="<<nElements<<std::endl;
             if (0 == nElements)
                 continue;
 
             const gear::LayerLayout &endcapLayerLayout(_GEAR->getLHcalParameters().getLayerLayout());
 
-            //UTIL::CellIDDecoder<edm4hep::CalorimeterHit> cellIdDecoder(m_encoder_str_LHCal);
             ID_UTIL::CellIDDecoder<const edm4hep::CalorimeterHit> cellIdDecoder(m_encoder_str_LHCal);
             const std::string layerCodingString(m_encoder_str_LHCal);
             const std::string layerCoding(this->GetLayerCoding(layerCodingString));
@@ -585,7 +545,7 @@ pandora::StatusCode CaloHitCreator::CreateLHCalCaloHits(const CollectionMaps& co
                 }
                 catch (...)
                 {
-                    std::cout << "Failed to extract lhcal calo hit: " << std::endl;
+                    std::cout << "Failed to extract lhcal calo hit" << std::endl;
                 }
             }
         }
@@ -608,7 +568,6 @@ void CaloHitCreator::GetCommonCaloHitProperties(const edm4hep::CalorimeterHit *c
     caloHitParameters.m_cellGeometry = pandora::RECTANGULAR;
     caloHitParameters.m_positionVector = positionVector;
     caloHitParameters.m_expectedDirection = positionVector.GetUnitVector();
-    //caloHitParameters.m_pParentAddress = (void*)pCaloHit;
     caloHitParameters.m_pParentAddress = pCaloHit;
     caloHitParameters.m_inputEnergy = pCaloHit->getEnergy();
     caloHitParameters.m_time = pCaloHit->getTime();
@@ -637,7 +596,6 @@ void CaloHitCreator::GetEndCapCaloHitProperties(const edm4hep::CalorimeterHit *c
 
     if (caloHitParameters.m_nCellRadiationLengths.Get() < std::numeric_limits<float>::epsilon() || caloHitParameters.m_nCellInteractionLengths.Get() < std::numeric_limits<float>::epsilon())
     {
-        //std::cout<<"interactionLength="<<interactionLength<<",layerAbsorberThickness="<<layerAbsorberThickness<<",radiationLength="<<radiationLength<<",physicalLayer="<<physicalLayer<<std::endl;
         std::cout<<"WARNING CaloHitCreator::GetEndCapCaloHitProperties Calo hit has 0 radiation length or interaction length: \
             not creating a Pandora calo hit." << std::endl;
         throw pandora::StatusCodeException(pandora::STATUS_CODE_INVALID_PARAMETER);
@@ -683,10 +641,8 @@ void CaloHitCreator::GetBarrelCaloHitProperties(const edm4hep::CalorimeterHit *c
     caloHitParameters.m_nCellRadiationLengths = radiationLength * layerAbsorberThickness;
     caloHitParameters.m_nCellInteractionLengths = interactionLength * layerAbsorberThickness;
 
-    //std::cout<<"m_layer="<<caloHitParameters.m_layer.Get()<<",layerLayout.getNLayers() - 1="<<layerLayout.getNLayers() - 1<<",layerAbsorberThickness="<<layerAbsorberThickness<<std::endl;
     if (caloHitParameters.m_nCellRadiationLengths.Get() < std::numeric_limits<float>::epsilon() || caloHitParameters.m_nCellInteractionLengths.Get() < std::numeric_limits<float>::epsilon())
     {
-        std::cout<<"interactionLength="<<interactionLength<<",layerAbsorberThickness="<<layerAbsorberThickness<<",radiationLength="<<radiationLength<<",physicalLayer="<<physicalLayer<<",l1="<<caloHitParameters.m_layer.Get()<<",l2="<<layerLayout.getNLayers()-1<<std::endl;
         std::cout<<"WARNIN CaloHitCreator::GetBarrelCaloHitProperties Calo hit has 0 radiation length or interaction length: \
             not creating a Pandora calo hit." << std::endl;
         throw pandora::StatusCodeException(pandora::STATUS_CODE_INVALID_PARAMETER);

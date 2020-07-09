@@ -1,6 +1,4 @@
 /**
- *  @file   MarlinPandora/include/PfoCreator.h
- * 
  *  @brief  Header file for the pfo creator class.
  * 
  *  $Log: $
@@ -25,8 +23,6 @@
 #include "ClusterShapes.h"
 #include "Api/PandoraApi.h"
 
-//namespace IMPL { class ClusterImpl; class ReconstructedParticleImpl; }
-//namespace EVENT { class LCEvent; }
 class CollectionMaps;
 //------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -60,8 +56,6 @@ public:
     /**
      *  @brief  Constructor
      * 
-     *  @param  settings the creator settings
-     *  @param  pPandora address of the relevant pandora instance
      */
      PfoCreator(const Settings &settings, const pandora::Pandora *const pPandora);
 
@@ -73,10 +67,7 @@ public:
     /**
      *  @brief  Create particle flow objects
      * 
-     *  @param  pLCEvent the lcio event
      */    
-    //pandora::StatusCode CreateParticleFlowObjects(EVENT::LCEvent *pLCEvent);
-    //pandora::StatusCode CreateParticleFlowObjects(const CollectionMaps& collectionMaps);
     pandora::StatusCode CreateParticleFlowObjects(CollectionMaps& collectionMaps, DataHandle<edm4hep::ClusterCollection>& _pClusterCollection, DataHandle<edm4hep::ReconstructedParticleCollection>& _pReconstructedParticleCollection, DataHandle<edm4hep::VertexCollection>& _pStartVertexCollection);
 
     CollectionMaps* m_collectionMaps;
@@ -106,7 +97,7 @@ private:
      *  @brief  Set sub detector energies for a cluster
      * 
      *  @param  subDetectorNames the list of sub detector names
-     *  @param  pLcioCluster the address of the lcio cluster to be set sub detector energies
+     *  @param  pLcioCluster the address of the cluster to be set sub detector energies
      *  @param  pandoraCaloHitList the pandora calorimeter hit list
      *  @param  hitE the vector to receive the energy of hits
      *  @param  hitX the vector to receive the x position of hits
@@ -122,7 +113,7 @@ private:
      * 
      *  @param  pPandoraPfo the address of the pandora pfo
      *  @param  pPandoraCluster the address of the pandora cluster
-     *  @param  pLcioCluster the address of the lcio cluster to be set energies and erros
+     *  @param  pLcioCluster the address of the cluster to be set energies and erros
      *  @param  clusterCorrectEnergy a number to receive the cluster correct energy
      */
     void SetClusterEnergyAndError(const pandora::ParticleFlowObject *const pPandoraPfo, const pandora::Cluster *const pPandoraCluster, 
@@ -136,7 +127,7 @@ private:
      *  @param  hitX the vector of the x position of hits
      *  @param  hitY the vector of the y position of hits
      *  @param  hitZ the vector of the z position of hits
-     *  @param  pLcioCluster the lcio cluster to be set positions and errors
+     *  @param  pLcioCluster the cluster to be set positions and errors
      *  @param  clusterPosition a CartesianVector to receive the cluster position
      */
     void SetClusterPositionAndError(const unsigned int nHitsInCluster, pandora::FloatVector &hitE, pandora::FloatVector &hitX, 

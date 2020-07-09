@@ -1,12 +1,10 @@
 /**
- *  @file   MarlinPandora/src/GeometryCreator.cc
  * 
  *  @brief  Implementation of the geometry creator class.
  * 
  *  $Log: $
  */
 #include "GaudiKernel/IService.h"
-
 #include "GearSvc/IGearSvc.h"
 #include "gear/BField.h"
 #include "gear/GEAR.h"
@@ -15,9 +13,7 @@
 #include "gear/TPCParameters.h"
 #include "gear/PadRowLayout2D.h"
 #include "gear/LayerLayout.h"
-
 #include "GeometryCreator.h"
-//#include "PandoraPFANewProcessor.h"
 
 GeometryCreator::GeometryCreator(const Settings &settings, const pandora::Pandora *const pPandora) :
     m_settings(settings),
@@ -33,8 +29,6 @@ GeometryCreator::~GeometryCreator()
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-//pandora::StatusCode GeometryCreator::CreateGeometry() const
-//pandora::StatusCode GeometryCreator::CreateGeometry(ISvcLocator* svcloc) const
 pandora::StatusCode GeometryCreator::CreateGeometry(ISvcLocator* svcloc) 
 {
     IGearSvc*  iSvc = 0;
@@ -44,12 +38,6 @@ pandora::StatusCode GeometryCreator::CreateGeometry(ISvcLocator* svcloc)
         throw "Failed to find GearSvc ...";
     }
     _GEAR = iSvc->getGearMgr();
-    //auto _gear = service<IGearSvc>("GearSvc");
-    //if ( !_gear ) 
-    //{
-    //    throw "Failed to find GearSvc ...";
-    //}
-    //_GEAR = _gear->getGearMgr();
     
 
     try
@@ -204,7 +192,6 @@ void GeometryCreator::SetDefaultSubDetectorParameters(const gear::CalorimeterPar
     parameters.m_outerSymmetryOrder = inputParameters.getSymmetryOrder();
     parameters.m_isMirroredInZ = true;
     parameters.m_nLayers = layerLayout.getNLayers();
-    //std::cout << "m_nLayers="<<layerLayout.getNLayers() << std::endl;
 
     // ATTN Not always going to be correct for any optional subdetectors, but impact of this is negligible for ILD
     const float radiationLength(((pandora::ECAL_BARREL == subDetectorType) || (pandora::ECAL_ENDCAP == subDetectorType)) ? m_settings.m_absorberRadLengthECal :

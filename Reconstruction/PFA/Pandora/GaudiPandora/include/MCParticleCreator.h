@@ -1,5 +1,4 @@
 /**
- *  @file   MarlinPandora/include/MCParticleCreator.h
  * 
  *  @brief  Header file for the mc particle creator class.
  * 
@@ -17,8 +16,6 @@
 /**
  *  @brief  MCParticleCreator class
  */
-//typedef std::map<unsigned int, edm4hep::MCParticle*> id_MCParticleMap;
-//typedef std::map<unsigned int, const edm4hep::MCParticle*> id_MCParticleMap;
 
 class CollectionMaps;
 
@@ -60,29 +57,20 @@ public:
     /**
      *  @brief  Create MCParticles
      * 
-     *  @param  pLCEvent the lcio event
      */    
-    //pandora::StatusCode CreateMCParticles(const EVENT::LCEvent *const pLCEvent) const;
-    //pandora::StatusCode CreateMCParticles(const std::map<std::string, const podio::CollectionBase*>& collectionMap ) const;
     pandora::StatusCode CreateMCParticles(const CollectionMaps& collectionMaps ) const;
 
     /**
      *  @brief  Create Track to mc particle relationships
      *
-     *  @param  pLCEvent the lcio event
-     *  @param  trackVector the vector containing all tracks successfully passed to pandora
      */
- //   pandora::StatusCode CreateTrackToMCParticleRelationships(const EVENT::LCEvent *const pLCEvent, const TrackVector &trackVector) const;
      pandora::StatusCode CreateTrackToMCParticleRelationships(const CollectionMaps& collectionMaps, const TrackVector &trackVector) const;
 
      void Reset();
     /**
      *  @brief  Create calo hit to mc particle relationships
      *
-     *  @param  pLCEvent the lcio event
-     *  @param  calorimeterHitVector the vector containing all calorimeter hits successfully passed to pandora
      */
-//    pandora::StatusCode CreateCaloHitToMCParticleRelationships(const EVENT::LCEvent *const pLCEvent, const CalorimeterHitVector &calorimeterHitVector) const;
       pandora::StatusCode CreateCaloHitToMCParticleRelationships(const CollectionMaps& collectionMaps, const CalorimeterHitVector &calorimeterHitVector) const;
 
 private:

@@ -1,10 +1,7 @@
 #ifndef cellIDDecoder_h
 #define cellIDDecoder_h 1
 
-//#include <vector>
-//#include "EVENT/LCObject.h"
 #include "EVENT/LCCollection.h"
-//#include "EVENT/SimTrackerHit.h"
 #include "UTIL/BitField64.h"
 #include "lcio.h"
 #include <string>
@@ -12,11 +9,7 @@
 // fixes problem in gcc 4.0.3
 #include "EVENT/LCParameters.h"
 
-//#include <sstream>
-//#include <typeinfo>
-
 //##################### changed for EMD4HEP ########
-//need check !!
 
 namespace ID_UTIL{
 

@@ -3,7 +3,7 @@
 
 #include "FWCore/DataHandle.h"
 #include "GaudiAlg/GaudiAlgorithm.h"
-#include <gsl/gsl_rng.h>
+//#include <gsl/gsl_rng.h>
 #include "edm4hep/ClusterCollection.h"
 #include "edm4hep/ReconstructedParticleCollection.h"
 #include "edm4hep/EventHeaderCollection.h"
@@ -49,21 +49,12 @@
  */
 namespace pandora {class Pandora;}
 
-class IEventSeeder;
 
 class CollectionMaps
 {
 public:
-    /**
-     *  @brief  Default constructor
-     */
     CollectionMaps();
     void clear();
-    std::map<std::string, const edm4hep::MCParticleCollection*> CollectionMap_MC;
-    std::map<std::string, const edm4hep::CalorimeterHitCollection*> CollectionMap_CaloHit;
-    std::map<std::string, const edm4hep::VertexCollection*> CollectionMap_Vertex;
-    std::map<std::string, const edm4hep::TrackCollection*> CollectionMap_Track;
-
     std::map<std::string, std::vector<edm4hep::MCParticle> >     collectionMap_MC;
     std::map<std::string, std::vector<edm4hep::CalorimeterHit> > collectionMap_CaloHit;
     std::map<std::string, std::vector<edm4hep::Vertex> >         collectionMap_Vertex;
@@ -76,7 +67,6 @@ public:
 
 class PandoraPFAlg : public GaudiAlgorithm
 {
-  //friend class AlgFactory<PandoraPFAlg>;//gives error in 97 version
  
 public:
  
@@ -95,7 +85,6 @@ public:
    */
   virtual StatusCode finalize() ;
  
-  //void FinaliseSteeringParameters();
   void FinaliseSteeringParameters(ISvcLocator* svcloc);
   pandora::StatusCode RegisterUserComponents() const;
   void Reset();
@@ -129,17 +118,14 @@ public:
      */
     const pandora::Pandora *GetPandora() const;
     StatusCode updateMap();
-    StatusCode updateMap(CollectionMaps & tmp_map);
     StatusCode Ana();
     StatusCode CreateMCRecoParticleAssociation();
-    //StatusCode Create_MC(); 
 protected:
  
   typedef std::vector<float> FloatVec;
 
   int _nEvt ;
 
-  IEventSeeder * _SEEDER;
  
 
   Gaudi::Property< std::string >              m_PandoraSettingsXmlFile { this, "PandoraSettingsDefault_xml", "/junofs/users/wxfang/MyGit/MarlinPandora/scripts/PandoraSettingsDefault_wx.xml" };
