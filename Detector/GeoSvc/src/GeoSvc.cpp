@@ -22,7 +22,7 @@
 DECLARE_COMPONENT(GeoSvc)
 
 GeoSvc::GeoSvc(const std::string& name, ISvcLocator* svc)
-: base_class(name, svc), m_dd4hep_geo(nullptr), m_vxdData(nullptr), m_beamData(nullptr){
+: base_class(name, svc), m_dd4hep_geo(nullptr), m_vxdData(nullptr), m_beamPipeData(nullptr){
 
 }
 
@@ -52,6 +52,12 @@ GeoSvc::initialize() {
       for(std::map<std::string, dd4hep::DetElement>::const_iterator it=pipes.begin();it!=pipes.end();it++){
 	dd4hep::DetElement pipe = it->second;
 	//info() << " " << it->first << " " << pipe.id() << " " << pipe.path() << " " << pipe.placementPath() << endmsg;
+      }
+      try{
+	m_beamPipeData = sub.extension<dd4hep::rec::ConicalSupportData>();
+      }
+      catch(std::runtime_error& e){
+	info() << e.what() << " " << m_beamPipeData << endmsg;
       }
     }
     if(it->first=="VXD"){

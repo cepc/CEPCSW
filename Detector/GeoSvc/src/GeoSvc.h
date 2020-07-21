@@ -37,7 +37,7 @@ class GeoSvc: public extends<Service, IGeoSvc> {
   
   const gear::ZPlanarParametersImpl*  getVXDParameters() override {return m_vxdParameters;};
   const dd4hep::rec::ZPlanarData* getVXDData() override {return m_vxdData;};
-  const dd4hep::rec::ConicalSupportData* getBeamPipeData() override {return m_beamData;};
+  const dd4hep::rec::ConicalSupportData* getBeamPipeData() override {return m_beamPipeData;};
 
   const std::map<std::string,double>& getDetParameters(std::string name) override;
   const double getDetParameter(std::string set_name, std::string par_name) override;
@@ -55,7 +55,7 @@ class GeoSvc: public extends<Service, IGeoSvc> {
 
   gear::ZPlanarParametersImpl* m_vxdParameters;
   dd4hep::rec::ZPlanarData* m_vxdData;
-  dd4hep::rec::ConicalSupportData* m_beamData;
+  dd4hep::rec::ConicalSupportData* m_beamPipeData;
 
   //gear::GearParametersImpl* m_vxdInfra;
   std::map<std::string, std::map<std::string,double> > m_detParameters;
