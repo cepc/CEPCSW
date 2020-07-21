@@ -8,7 +8,7 @@
   <constant name="TUBE_firstCone_zEnd" value="TUBE_IPInnerBulge_end_z"/>
   <constant name="TUBE_firstCone_rInnerStart" value="TUBE_innerCylinder_rInner"/>
   <constant name="TUBE_firstCone_rInnerEnd" value="TUBE_IPInnerBulge_end_innerradius"/>
-  <constant name="TUBE_firstCone_thickness" value="3*mm"/>
+  <constant name="TUBE_firstCone_thickness" value="0.5*mm"/>
   <!--
      D. Jeans, update april 2017
      in this driver, we have to define the what I call the radial thickness
@@ -19,8 +19,8 @@
   <constant name="TUBE_firstCone_dz" value="TUBE_firstCone_zEnd-TUBE_firstCone_zStart"/>
   <constant name="TUBE_firstCone_dr" value="TUBE_firstCone_rInnerEnd-TUBE_firstCone_rInnerStart"/>
   <constant name="TUBE_firstCone_costh" value="TUBE_firstCone_dz/sqrt( TUBE_firstCone_dz**2. + TUBE_firstCone_dr**2. )"/>
-  <constant name="TUBE_firstCone_RadThickness" value="TUBE_firstCone_thickness/TUBE_firstCone_costh"/>
-
+  <!--constant name="TUBE_firstCone_RadThickness" value="TUBE_firstCone_thickness/TUBE_firstCone_costh"/-->
+  <constant name="TUBE_firstCone_RadThickness" value="TUBE_firstCone_thickness"/>
 
   <constant name="TUBE_secondCylinder_zStart"    value="TUBE_firstCone_zEnd"/>
   <constant name="TUBE_secondCylinder_zEnd"      value="TUBE_IPOuterTube_end_z"/>
