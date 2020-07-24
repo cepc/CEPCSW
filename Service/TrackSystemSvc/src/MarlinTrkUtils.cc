@@ -1,4 +1,3 @@
-
 #include "TrackSystemSvc/MarlinTrkUtils.h"
 
 #include <vector>
@@ -7,7 +6,8 @@
 #include "TrackSystemSvc/IMarlinTrack.h"
 #include "TrackSystemSvc/HelixTrack.h"
 
-#include "lcio.h"
+#include "DataHelper/Navagation.h"
+//#include "lcio.h"
 //#include <IMPL/TrackImpl.h>
 //#include <IMPL/TrackStateImpl.h>
 //#include <EVENT/TrackerHit.h>
@@ -101,21 +101,19 @@ namespace MarlinTrk {
     if ( hit_list.empty() ) return IMarlinTrack::bad_intputs ;
     
     if( track == 0 ){
-      throw EVENT::Exception( std::string("MarlinTrk::finaliseLCIOTrack: TrackImpl == NULL ")  ) ;
+      throw std::runtime_error( "MarlinTrk::finaliseLCIOTrack: TrackImpl == NULL " ) ;
     }
     
     int return_error = 0;
-    
-    
     ///////////////////////////////////////////////////////
     // produce prefit parameters
     ///////////////////////////////////////////////////////
     
     edm4hep::TrackState pre_fit ;
     
-    std::cout << "fucd:=====================" << std::endl;
+    //std::cout << "debug:=====================before createPrefit" << std::endl;
     return_error = createPrefit(hit_list, &pre_fit, bfield_z, fit_backwards);
-    std::cout << "fucd:=====================" << return_error << std::endl;
+    //std::cout << "debug:=====================after createPrefit return code=" << return_error << std::endl;
     pre_fit.covMatrix = initial_cov_for_prefit;
 
     ///////////////////////////////////////////////////////
@@ -127,12 +125,9 @@ namespace MarlinTrk {
       return_error = createFinalisedLCIOTrack( marlinTrk, hit_list, track, fit_backwards, &pre_fit, bfield_z, maxChi2Increment);
       
     } else {
-      std::cout << "MarlinTrk::createFinalisedLCIOTrack : Prefit failed error = " << return_error << std::endl;
+      //std::cout << "MarlinTrk::createFinalisedLCIOTrack : Prefit failed error = " << return_error << std::endl;
     }
-    
-    
     return return_error;
-    
   }
   
   int createFinalisedLCIOTrack( IMarlinTrack* marlinTrk, std::vector<edm4hep::TrackerHit*>& hit_list, edm4hep::Track* track, bool fit_backwards, edm4hep::TrackState* pre_fit, float bfield_z, double maxChi2Increment){
@@ -144,11 +139,11 @@ namespace MarlinTrk {
     if ( hit_list.empty() ) return IMarlinTrack::bad_intputs ;
     
     if( track == 0 ){
-      throw EVENT::Exception( std::string("MarlinTrk::finaliseLCIOTrack: TrackImpl == NULL ")  ) ;
+      throw std::runtime_error("MarlinTrk::finaliseLCIOTrack: TrackImpl == NULL ");
     }
     
     if( pre_fit == 0 ){
-      throw EVENT::Exception( std::string("MarlinTrk::finaliseLCIOTrack: TrackStateImpl == NULL ")  ) ;
+      throw std::runtime_error("MarlinTrk::finaliseLCIOTrack: TrackStateImpl == NULL ");
     }
     
     
@@ -156,10 +151,9 @@ namespace MarlinTrk {
     
     if( fit_status != IMarlinTrack::success ){ 
       
-      std::cout << "MarlinTrk::createFinalisedLCIOTrack fit failed: fit_status = " << fit_status << std::endl; 
+      //std::cout << "MarlinTrk::createFinalisedLCIOTrack fit failed: fit_status = " << fit_status << std::endl; 
       
       return fit_status;
-      
     } 
     
     int error = finaliseLCIOTrack(marlinTrk, track, hit_list);
@@ -179,11 +173,11 @@ namespace MarlinTrk {
     if ( hit_list.empty() ) return IMarlinTrack::bad_intputs;
     
     if( marlinTrk == 0 ){
-      throw EVENT::Exception( std::string("MarlinTrk::createFit: IMarlinTrack == NULL ")  ) ;
+      throw std::runtime_error("MarlinTrk::createFit: IMarlinTrack == NULL ");
     }
     
     if( pre_fit == 0 ){
-      throw EVENT::Exception( std::string("MarlinTrk::createFit: TrackStateImpl == NULL ")  ) ;
+      throw std::runtime_error("MarlinTrk::createFit: TrackStateImpl == NULL ");
     }
     
     int return_error = 0;
@@ -212,7 +206,7 @@ namespace MarlinTrk {
     std::vector<edm4hep::TrackerHit*>::iterator it = hit_list.begin();
     
     //  start by trying to add the hits to the track we want to finally use. 
-    std::cout << "MarlinTrk::createFit Start Fit: AddHits: number of hits to fit " << hit_list.size() << std::endl;
+    //std::cout << "MarlinTrk::createFit Start Fit: AddHits: number of hits to fit " << hit_list.size() << std::endl;
     
     std::vector<edm4hep::TrackerHit*> added_hits;
     unsigned int ndof_added = 0;
@@ -221,31 +215,23 @@ namespace MarlinTrk {
       
       edm4hep::TrackerHit* trkHit = *it;
       bool isSuccessful = false; 
-      std::cout << "debug TrackerHit pointer " << trkHit << std::endl;
-      if( UTIL::BitSet32( trkHit->getType() )[ UTIL::ILDTrkHitTypeBit::COMPOSITE_SPACEPOINT ]   ){ //it is a composite spacepoint
-        
+      //std::cout << "debug: TrackerHit pointer " << trkHit << std::endl;
+      if( UTIL::BitSet32( trkHit->getType() )[ UTIL::ILDTrkHitTypeBit::COMPOSITE_SPACEPOINT ]   ){ //it is a composite spacepoint        
         //Split it up and add both hits to the MarlinTrk
         //const EVENT::LCObjectVec rawObjects = trkHit->getRawHits();
-	std::cout << "space point is not still valid! pelease wait updating..." <<std::endl;
-	exit(1);
-	/*
+	//std::cout << "space point is not still valid! pelease wait updating..." <<std::endl;
+	//exit(1);
         int nRawHit = trkHit->rawHits_size();
-
         for( unsigned k=0; k< nRawHit; k++ ){
-          
-          edm4hep::TrackerHit* rawHit = dynamic_cast< edm4hep::TrackerHit* >(trkHit->getRawHits(k));
-          
-          if( marlinTrk->addHit( rawHit ) == IMarlinTrack::success ){
-            
-            isSuccessful = true; //if at least one hit from the spacepoint gets added
+          edm4hep::TrackerHit* rawHit = Navagation::Instance()->GetTrackerHit(trkHit->getRawHits(k));
+	  if( marlinTrk->addHit( rawHit ) == IMarlinTrack::success ){
+	    isSuccessful = true; //if at least one hit from the spacepoint gets added
             ++ndof_added;
 //            streamlog_out(DEBUG4) << "MarlinTrk::createFit ndof_added = " << ndof_added << std::endl;
           }
         }
-	*/
       }
       else { // normal non composite hit
-        
         if (marlinTrk->addHit( trkHit ) == IMarlinTrack::success ) {
           isSuccessful = true;
           ndof_added += 2;
@@ -257,7 +243,7 @@ namespace MarlinTrk {
         added_hits.push_back(trkHit);
       }        
       else{
-	std::cout << "Hit " << it - hit_list.begin() << " Dropped " << std::endl;
+	//std::cout << "MarlinTrkUtils::createFit Hit " << it - hit_list.begin() << " Dropped " << std::endl;
       }
       
     }
@@ -286,7 +272,7 @@ namespace MarlinTrk {
     // try fit and return error
     ///////////////////////////////////////////////////////
     int status = marlinTrk->fit(maxChi2Increment);
-    std::cout << "fucd===================" << status << std::endl;
+    //std::cout << "debug:===================createFit " << status << std::endl;
     
     return status;
     
@@ -440,47 +426,35 @@ namespace MarlinTrk {
       edm4hep::TrackerHit* trkHit = hit_list[ihit];
       
       if( UTIL::BitSet32( trkHit->getType() )[ UTIL::ILDTrkHitTypeBit::COMPOSITE_SPACEPOINT ]   ){ //it is a composite spacepoint
-	std::cout << "Error: space point is not still valid! pelease wait updating..." <<std::endl;
-        exit(1);
-	/*
-        // get strip hits 
+	//std::cout << "Error: space point is not still valid! pelease wait updating..." <<std::endl;
+        //exit(1);
+	// get strip hits 
         int nRawHit = trkHit->rawHits_size();
-
         for( unsigned k=0; k< nRawHit; k++ ){
-
-	  edm4hep::TrackerHit* rawHit = dynamic_cast< edm4hep::TrackerHit* >(trkHit->getRawHits(k));
-          
-          bool is_outlier = false;
-          
-          // here we loop over outliers as this will be faster than looping over the used hits
+	  edm4hep::TrackerHit* rawHit = Navagation::Instance()->GetTrackerHit(trkHit->getRawHits(k));
+	  bool is_outlier = false;
+	  // here we loop over outliers as this will be faster than looping over the used hits
           for ( unsigned ohit = 0; ohit < outliers.size(); ++ohit) {
-            
-            if ( rawHit == outliers[ohit].first ) { 
+	    if ( rawHit->id() == outliers[ohit].first->id() ) { 
               is_outlier = true;                                    
               break; // break out of loop over outliers
             }
           }
-          
           if (is_outlier == false) {
             used_hits.push_back(hit_list[ihit]);
-            track->addTrackerHit(*used_hits.back());
+            track->addToTrackerHits(*used_hits.back());
             break; // break out of loop over rawObjects
           }          
         }
-	*/
       } else {
-        
         bool is_outlier = false;
-        
         // here we loop over outliers as this will be faster than looping over the used hits
         for ( unsigned ohit = 0; ohit < outliers.size(); ++ohit) {
-          
           if ( trkHit == outliers[ohit].first ) { 
             is_outlier = true;                                    
             break; // break out of loop over outliers
           }
         }
-        
         if (is_outlier == false) {
           used_hits.push_back(hit_list[ihit]);
           track->addToTrackerHits(*used_hits.back());
@@ -693,36 +667,34 @@ namespace MarlinTrk {
     // check inputs 
     ///////////////////////////////////////////////////////
     if( track == 0 ){
-      throw EVENT::Exception( std::string("MarlinTrk::addHitsToTrack: TrackImpl == NULL ")  ) ;
+      throw std::runtime_error( std::string("MarlinTrk::addHitsToTrack: TrackImpl == NULL ")  ) ;
     }
-
     std::map<int, int> hitNumbers; 
     
-    hitNumbers[lcio::ILDDetID::VXD] = 0;
-    hitNumbers[lcio::ILDDetID::SIT] = 0;
-    hitNumbers[lcio::ILDDetID::FTD] = 0;
-    hitNumbers[lcio::ILDDetID::TPC] = 0;
-    hitNumbers[lcio::ILDDetID::SET] = 0;
-    hitNumbers[lcio::ILDDetID::ETD] = 0;
+    hitNumbers[UTIL::ILDDetID::VXD] = 0;
+    hitNumbers[UTIL::ILDDetID::SIT] = 0;
+    hitNumbers[UTIL::ILDDetID::FTD] = 0;
+    hitNumbers[UTIL::ILDDetID::TPC] = 0;
+    hitNumbers[UTIL::ILDDetID::SET] = 0;
+    hitNumbers[UTIL::ILDDetID::ETD] = 0;
     
     for(unsigned int j=0; j<hit_list.size(); ++j) {
-      
       cellID_encoder.setValue(hit_list.at(j)->getCellID()) ;
       int detID = cellID_encoder[UTIL::ILDCellID0::subdet];
       ++hitNumbers[detID];
-      //    streamlog_out( DEBUG1 ) << "Hit from Detector " << detID << std::endl;     
+      //std::cout << "debug: " << "Hit from Detector " << detID << std::endl;     
     }
     
     int offset = 2 ;
     if ( hits_in_fit == false ) { // all hit atributed by patrec
       offset = 1 ;
     }
-    track->addToSubDetectorHitNumbers(hitNumbers[lcio::ILDDetID::VXD]);
-    track->addToSubDetectorHitNumbers(hitNumbers[lcio::ILDDetID::FTD]);
-    track->addToSubDetectorHitNumbers(hitNumbers[lcio::ILDDetID::SIT]);
-    track->addToSubDetectorHitNumbers(hitNumbers[lcio::ILDDetID::TPC]);
-    track->addToSubDetectorHitNumbers(hitNumbers[lcio::ILDDetID::SET]);
-    track->addToSubDetectorHitNumbers(hitNumbers[lcio::ILDDetID::ETD]);
+    track->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::VXD]);
+    track->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::FTD]);
+    track->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::SIT]);
+    track->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::TPC]);
+    track->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::SET]);
+    track->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::ETD]);
     //track->subdetectorHitNumbers().resize(2 * lcio::ILDDetID::ETD);
     //track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::VXD - offset ] = hitNumbers[lcio::ILDDetID::VXD];
     //track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::FTD - offset ] = hitNumbers[lcio::ILDDetID::FTD];
@@ -730,9 +702,6 @@ namespace MarlinTrk {
     //track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::TPC - offset ] = hitNumbers[lcio::ILDDetID::TPC];
     //track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::SET - offset ] = hitNumbers[lcio::ILDDetID::SET];
     //track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::ETD - offset ] = hitNumbers[lcio::ILDDetID::ETD];
-
-    
-    
   }
   
   void addHitNumbersToTrack(edm4hep::Track* track, std::vector<std::pair<edm4hep::TrackerHit* , double> >& hit_list, bool hits_in_fit, UTIL::BitField64& cellID_encoder){
@@ -741,7 +710,7 @@ namespace MarlinTrk {
     // check inputs 
     ///////////////////////////////////////////////////////
     if( track == 0 ){
-      throw EVENT::Exception( std::string("MarlinTrk::addHitsToTrack: TrackImpl == NULL ")  ) ;
+      throw std::runtime_error( std::string("MarlinTrk::addHitsToTrack: TrackImpl == NULL ")  ) ;
     }
     
     std::map<int, int> hitNumbers; 
@@ -754,11 +723,10 @@ namespace MarlinTrk {
     hitNumbers[lcio::ILDDetID::ETD] = 0;
     
     for(unsigned int j=0; j<hit_list.size(); ++j) {
-      
       cellID_encoder.setValue(hit_list.at(j).first->getCellID()) ;
       int detID = cellID_encoder[UTIL::ILDCellID0::subdet];
       ++hitNumbers[detID];
-      //    streamlog_out( DEBUG1 ) << "Hit from Detector " << detID << std::endl;     
+      //std::cout << "debug: Hit from Detector " << detID << std::endl;     
     }
     
     int offset = 2 ;

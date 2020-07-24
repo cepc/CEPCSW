@@ -9,11 +9,10 @@ find_package(KalTest REQUIRED)
 find_package(KalDet REQUIRED)
 #find_package(streamlog REQUIRED)
 
-gaudi_depends_on_subdirs(Service/GearSvc Detector/DetInterface)
+gaudi_depends_on_subdirs(Service/GearSvc Detector/DetInterface Utilities/DataHelper)
 
 set(TrackSystemSvc_srcs src/*.cpp)
 set(TrackSystemSvcLib_srcs src/*.cc)
-
 
 gaudi_install_headers(TrackSystemSvc)
 
@@ -23,7 +22,7 @@ message( "${KalDet_LIBRARIES}" )
 gaudi_add_library(TrackSystemSvcLib ${TrackSystemSvcLib_srcs}
     PUBLIC_HEADERS TrackSystemSvc
     INCLUDE_DIRS GaudiKernel ROOT CLHEP gear ${LCIO_INCLUDE_DIRS} ${KalDet_INCLUDE_DIRS} ${KalTest_INCLUDE_DIRS} ${EDM4HEP_INCLUDE_DIRS}
-    LINK_LIBRARIES GaudiKernel ROOT CLHEP $ENV{GEAR}/lib/libgear.so $ENV{GEAR}/lib/libgearsurf.so ${LCIO_LIBRARIES} ${KalDet_LIBRARIES} ${KalTest_LIBRARIES} -Wl,--no-as-needed
+    LINK_LIBRARIES DataHelperLib GaudiKernel ROOT CLHEP $ENV{GEAR}/lib/libgear.so $ENV{GEAR}/lib/libgearsurf.so ${LCIO_LIBRARIES} ${KalDet_LIBRARIES} ${KalTest_LIBRARIES} -Wl,--no-as-needed
       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
       -Wl,--as-needed
 )

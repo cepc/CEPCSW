@@ -116,22 +116,21 @@ namespace MarlinTrk {
   } 
   
   int MarlinKalTestTrack::addHit( edm4hep::TrackerHit* trkhit, const ILDVMeasLayer* ml) {
-
-    std::cout << "MarlinKalTestTrack::addHit: trkhit = "  << trkhit->id() << " addr: " << trkhit << " ml = " << ml << std::endl ;
-    
+    //std::cout << "MarlinKalTestTrack::addHit: trkhit = "  << trkhit->id() << " addr: " << trkhit << " ml = " << ml << std::endl ;
     if( trkhit && ml ) {
       //if(ml){
       return this->addHit( trkhit, ml->ConvertLCIOTrkHit(trkhit), ml) ;
     }
     else {
+      std::cout << "MarlinKalTestTrack::addHit: trkhit = "  << trkhit->id() << " addr: " << trkhit << " ml = " << ml << std::endl ;
       //streamlog_out( ERROR ) << " MarlinKalTestTrack::addHit - bad inputs " <<  trkhit << " ml : " << ml << std::endl ;
-       return bad_intputs ;
+      return bad_intputs ;
     }
     return bad_intputs ;
   }
   
   int MarlinKalTestTrack::addHit( edm4hep::TrackerHit* trkhit, ILDVTrackHit* kalhit, const ILDVMeasLayer* ml) {
-    std::cout << "MarlinKalTestTrack::addHit: trkhit = "  << trkhit->id() << " ILDVTrackHit: " << kalhit << " ml = " << ml << std::endl ;
+    //std::cout << "MarlinKalTestTrack::addHit: trkhit = "  << trkhit->id() << " ILDVTrackHit: " << kalhit << " ml = " << ml << std::endl ;
     if( kalhit && ml ) {
       //if(ml){
       _kalhits->Add(kalhit ) ;  // Add hit and set surface found 
@@ -139,36 +138,26 @@ namespace MarlinTrk {
                                                     //    _kaltest_hits_to_lcio_hits[kalhit] = trkhit ; // add hit to map relating kaltest and lcio hits
     }
     else {
-      delete kalhit;
+      //std::cout << "MarlinKalTestTrack::addHit: trkhit = "  << trkhit->id() << " ILDVTrackHit: " << kalhit << " ml = " << ml << std::endl ;
+      if(kalhit) delete kalhit;
       return bad_intputs ;
     }
-    /*
-    streamlog_out(DEBUG1) << "MarlinKalTestTrack::addHit: hit added " 
-    << "number of hits for track = " << _kalhits->GetEntries() 
-    << std::endl ;
-    */
+    //std::cout << "debug: " << "MarlinKalTestTrack::addHit: hit added number of hits for track = " << _kalhits->GetEntries() << std::endl ;
     return success ;
-    
   }
   
   
   int MarlinKalTestTrack::initialise( bool fitDirection ) {; 
-    
-    
     //SJA:FIXME: check here if the track is already initialised, and for now don't allow it to be re-initialised
     //           if the track is going to be re-initialised then we would need to do it directly on the first site
     if ( _initialised ) {
-      
       throw MarlinTrk::Exception("Track fit already initialised");   
-      
     }
     
     if (_kalhits->GetEntries() < 3) {
-      
-      //streamlog_out( ERROR) << "<<<<<< MarlinKalTestTrack::initialise: Shortage of Hits! nhits = "  
-      //<< _kalhits->GetEntries() << " >>>>>>>" << std::endl;
+      std::cout << "Error: <<<<<< MarlinKalTestTrack::initialise: Shortage of Hits! nhits = "  
+		<< _kalhits->GetEntries() << " >>>>>>>" << std::endl;
       return error ;
-      
     }
     
     _fitDirection =  fitDirection ; 
@@ -206,7 +195,7 @@ namespace MarlinTrk {
       pDummyHit = (new ILDPlanarStripHit(*static_cast<ILDPlanarStripHit*>( startingHit )));
     }
     else {
-      //streamlog_out( ERROR) << "<<<<<<<<< MarlinKalTestTrack::initialise: dynamic_cast failed for hit type >>>>>>>" << std::endl;
+      std::cout << "Error: <<<<<<<<< MarlinKalTestTrack::initialise: dynamic_cast failed for hit type >>>>>>>" << std::endl;
       return error ;
     }
     
@@ -972,8 +961,10 @@ namespace MarlinTrk {
   
   
   int MarlinKalTestTrack::getHitsInFit( std::vector<std::pair<edm4hep::TrackerHit*, double> >& hits ) {
-    
+    //std::cout << "debug: _hit_chi2_values address= " << &_hit_chi2_values << " " << &(*(_hit_chi2_values.begin())) << " want to copy to hits address=" << &hits << std::endl; 
     std::copy( _hit_chi2_values.begin() , _hit_chi2_values.end() , std::back_inserter(  hits  )  ) ;
+    //hits.resize(_hit_chi2_values.size());
+    //std::copy( _hit_chi2_values.begin() , _hit_chi2_values.end() , hits.begin());
 
     // this needs more thought. What about when the hits are added using addAndFit?
 
@@ -994,8 +985,7 @@ namespace MarlinTrk {
   int MarlinKalTestTrack::getOutliers( std::vector<std::pair<edm4hep::TrackerHit*, double> >& hits ) {
 
     std::copy( _outlier_chi2_values.begin() , _outlier_chi2_values.end() , std::back_inserter(  hits  )  ) ;
-
-    
+   
     // this needs more thought. What about when the hits are added using addAndFit?
 //    // need to check the order so that we can return the list ordered in time
 //    // as they will be added to _hit_chi2_values in the order of fitting 
@@ -1006,12 +996,9 @@ namespace MarlinTrk {
 //    } else {
 //      std::copy( _outlier_chi2_values.begin() , _outlier_chi2_values.end() , std::back_inserter(  hits  )  ) ;
 //    }
-
-        
+       
     return success ;
-    
   }
-  
   
   int MarlinKalTestTrack::getNDF( int& ndf ){
     

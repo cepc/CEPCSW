@@ -111,10 +111,8 @@ namespace MarlinTrk{
         _det->Install( *supportdet ) ;
       }
       catch( gear::UnknownParameterException& e){
-
-        //streamlog_out( ERROR ) << "MarlinKalTest - Support Material missing in gear file: Cannot proceed as propagations and extrapolations for cannonical track states are impossible: exit(1) called" << std::endl ;
+	std::cout << "Error: " << "MarlinKalTest - Support Material missing in gear file: Cannot proceed as propagations and extrapolations for cannonical track states are impossible: exit(1) called" << std::endl ;
         exit(1);
-
       }
 
       try{
@@ -124,7 +122,7 @@ namespace MarlinTrk{
         _det->Install( *vxddet ) ;
       }
       catch( gear::UnknownParameterException& e){
-        //streamlog_out( MESSAGE ) << "  MarlinKalTest - VXD missing in gear file: VXD Material Not Built " << std::endl ;
+	std::cout << "Warning: " << "  MarlinKalTest - VXD missing in gear file: VXD Material Not Built " << std::endl ;
       }
       
       
@@ -148,7 +146,7 @@ namespace MarlinTrk{
           _det->Install( *sitdet ) ;
         }
         catch( gear::UnknownParameterException& e){
-          //streamlog_out( MESSAGE ) << "  MarlinKalTest - Simple Cylinder Based SIT missing in gear file: Simple Cylinder Based SIT Not Built " << std::endl ;
+	  std::cout << "Warning: " << "  MarlinKalTest - Simple Cylinder Based SIT missing in gear file: Simple Cylinder Based SIT Not Built " << std::endl ;
         }
       }
 
@@ -158,8 +156,8 @@ namespace MarlinTrk{
         this->storeActiveMeasurementModuleIDs(setdet);
         _det->Install( *setdet ) ;
       }
-      catch( gear::UnknownParameterException& e){   
-        //streamlog_out( MESSAGE ) << "  MarlinKalTest - SET missing in gear file: SET Not Built " << std::endl ;
+      catch( gear::UnknownParameterException& e){
+	std::cout << "Warning: " << "  MarlinKalTest - SET missing in gear file: SET Not Built " << std::endl ;
       }
 
 
@@ -172,7 +170,7 @@ namespace MarlinTrk{
         FTD_found = true ;
       }
       catch( gear::UnknownParameterException& e){
-        //streamlog_out( MESSAGE ) << "  MarlinKalTest - Petal Based FTD missing in gear file: Petal Based FTD Not Built " << std::endl ;
+	std::cout << "Warning: " << "  MarlinKalTest - Petal Based FTD missing in gear file: Petal Based FTD Not Built " << std::endl ;
       }
 
       if( ! FTD_found ){
@@ -183,7 +181,7 @@ namespace MarlinTrk{
           _det->Install( *ftddet ) ;
         }
         catch( gear::UnknownParameterException& e){
-          //streamlog_out( MESSAGE ) << "  MarlinKalTest - Simple Disc Based FTD missing in gear file: Simple Disc Based FTD Not Built " << std::endl ;
+	  std::cout << "Warning: " << "  MarlinKalTest - Simple Disc Based FTD missing in gear file: Simple Disc Based FTD Not Built " << std::endl ;
         }
       }
 
@@ -194,7 +192,7 @@ namespace MarlinTrk{
         _det->Install( *tpcdet ) ;
       }
       catch( gear::UnknownParameterException& e){   
-        //streamlog_out( MESSAGE ) << "  MarlinKalTest - TPC missing in gear file: TPC Not Built " << std::endl ;
+	std::cout << "Warning: " << "  MarlinKalTest - TPC missing in gear file: TPC Not Built " << std::endl ;
       }
     }
 

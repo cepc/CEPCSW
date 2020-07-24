@@ -10,7 +10,7 @@
 #include "edm4hep/SimTrackerHitCollection.h"
 #include "edm4hep/TrackerHitCollection.h"
 #include "edm4hep/TrackCollection.h"
-//#include "edm4hep/LCRelationCollection.h"
+#include "edm4hep/MCRecoTrackerAssociationCollection.h"
 
 //#include "lcio.h"
 #include <string>
@@ -195,7 +195,7 @@ class SiliconTrackingAlg : public GaudiAlgorithm {
   
   virtual StatusCode finalize() ;
   
-protected:
+ protected:
   
   int _nRun ;
   int _nEvt ;
@@ -214,7 +214,8 @@ protected:
   //std::string _MarlinTrkDiagnosticsName;
   typedef std::vector<int> IntVec;
   
-  Gaudi::Property<IntVec> _Combinations{this, "LayerCombinations", {8,6,5, 8,6,4, 8,6,3, 8,6,2, 8,5,3, 8,5,2, 8,4,3, 8,4,2, 6,5,3, 6,5,2, 6,4,3, 6,4,2, 6,3,1, 6,3,0, 6,2,1, 6,2,0,
+  Gaudi::Property<IntVec> _Combinations{this, "LayerCombinations",
+      {8,6,5, 8,6,4, 8,6,3, 8,6,2, 8,5,3, 8,5,2, 8,4,3, 8,4,2, 6,5,3, 6,5,2, 6,4,3, 6,4,2, 6,3,1, 6,3,0, 6,2,1, 6,2,0,
 	5,3,1, 5,3,0, 5,2,1, 5,2,0, 4,3,1, 4,3,0, 4,2,1, 4,2,0}};
   Gaudi::Property<IntVec> _CombinationsFTD{this, "LayerCombinationsFTD", {4,3,2, 4,3,1, 4,3,0, 4,2,1, 4,2,0, 4,1,0, 3,2,1, 3,2,0, 3,1,0, 2,1,0,
 	9,8,7, 9,8,6, 9,8,5, 9,7,6, 9,7,5, 9,6,5, 8,7,6, 8,7,5, 8,6,5, 7,6,5}};
@@ -287,12 +288,12 @@ protected:
   // Input collections
   DataHandle<edm4hep::EventHeaderCollection> _headerColHdl{"EventHeaderCol", Gaudi::DataHandle::Reader, this};
   DataHandle<edm4hep::MCParticleCollection> _inMCColHdl{"MCParticle", Gaudi::DataHandle::Reader, this};
-  //DataHandle<edm4hep::TrackerHitPlaneCollection> _inVTXColHdl{"VXDCollection", Gaudi::DataHandle::Reader, this};
-  //DataHandle<edm4hep::TrackerHitPlaneCollection> _inFTDPixelColHdl{"FTDPixelCollection", Gaudi::DataHandle::Reader, this};
   DataHandle<edm4hep::TrackerHitCollection> _inVTXColHdl{"VXDTrackerHits", Gaudi::DataHandle::Reader, this};
   DataHandle<edm4hep::TrackerHitCollection> _inFTDPixelColHdl{"FTDPixelTrackerHits", Gaudi::DataHandle::Reader, this};
   DataHandle<edm4hep::TrackerHitCollection> _inFTDSpacePointColHdl{"FTDSpacePoints", Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::TrackerHitCollection> _inSITColHdl{"SITTrackerHits", Gaudi::DataHandle::Reader, this};
+  DataHandle<edm4hep::TrackerHitCollection> _inSITColHdl{"SITSpacePoints", Gaudi::DataHandle::Reader, this};
+  DataHandle<edm4hep::TrackerHitCollection> _inSITRawColHdl{"SITTrackerHits", Gaudi::DataHandle::Reader, this};
+  DataHandle<edm4hep::TrackerHitCollection> _inFTDRawColHdl{"FTDStripTrackerHits", Gaudi::DataHandle::Reader, this};
   // Output collections
   DataHandle<edm4hep::TrackCollection> _outColHdl{"SiTracks", Gaudi::DataHandle::Writer, this};
   //DataHandle<edm4hep::LCRelationCollection> _outRelColHdl{"TrackerHitRelations", Gaudi::DataHandle::Reader, this};
@@ -419,8 +420,6 @@ protected:
   static const int _output_track_col_quality_GOOD;
   static const int _output_track_col_quality_FAIR;
   static const int _output_track_col_quality_POOR;
-
-  std::vector<edm4hep::TrackerHit> _allHits;
 } ;
 
 #endif

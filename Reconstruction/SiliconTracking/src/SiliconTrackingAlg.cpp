@@ -2,6 +2,7 @@
 #include "GearSvc/IGearSvc.h"
 #include "EventSeeder/IEventSeeder.h"
 #include "TrackSystemSvc/ITrackSystemSvc.h"
+#include "DataHelper/Navagation.h"
 #include "edm4hep/MCParticle.h"
 #include "edm4hep/TrackerHit.h"
 //#include "edm4hep/TrackerHitPlane.h"
@@ -83,7 +84,8 @@ SiliconTrackingAlg::SiliconTrackingAlg(const std::string& name, ISvcLocator* svc
   declareProperty("FTDPixelHitCollection", _inFTDPixelColHdl, "Handle of the Input FTD TrackerHits collection");
   declareProperty("FTDSpacePointCollection", _inFTDSpacePointColHdl, "Handle of the Input FTD SpacePoints collection");
   declareProperty("SITHitCollection", _inSITColHdl, "Handle of the Input SIT TrackerHits collection");
-    
+  declareProperty("SITRawHitCollection", _inSITRawColHdl, "Handle of the SIT SpacePoints raw hit collection collection");
+  declareProperty("FTDRawHitCollection", _inFTDRawColHdl, "Handle of the FTD SpacePoints raw hit collection collection");
   // Output Collections
   // ^^^^^^^^^^^^^^^^^^
   declareProperty("SiTrackCollection", _outColHdl, "Handle of the SiTrack output collection");
@@ -92,7 +94,6 @@ SiliconTrackingAlg::SiliconTrackingAlg(const std::string& name, ISvcLocator* svc
   // ^^^^^^^^^^^^^^^^^^^
   
   _output_track_col_quality = _output_track_col_quality_GOOD;
-  
 }
 
 
@@ -120,8 +121,8 @@ StatusCode  SiliconTrackingAlg::initialize() {
   _trksystem->setOption( IMarlinTrkSystem::CFG::useQMS,        _MSOn ) ;
   _trksystem->setOption( IMarlinTrkSystem::CFG::usedEdx,       _ElossOn) ;
   _trksystem->setOption( IMarlinTrkSystem::CFG::useSmoothing,  _SmoothOn) ;
-  _trksystem->init() ;  
-  std::cout << "fucd ==============" << _trksystem << std::endl;
+  _trksystem->init() ;
+  debug() << "TrackSystem builded at address=" << _trksystem << endmsg;
 #ifdef MARLINTRK_DIAGNOSTICS_ON
   
   void * dcv = _trksystem->getDiagnositicsPointer();
@@ -155,7 +156,7 @@ StatusCode  SiliconTrackingAlg::initialize() {
 }
 
 StatusCode SiliconTrackingAlg::execute(){ 
-  
+  Navagation::Instance()->Initialize();
   //_current_event = evt;
   //_allHits.reserve(1000);
 
@@ -177,7 +178,6 @@ StatusCode SiliconTrackingAlg::execute(){
   //debug() << "Processing Run[" << runNo << "]::Event[" << evtNo << "]" << endmsg;
 
   _trackImplVec.reserve(100);
-  _allHits.reserve(1000);
 
   int successVTX = InitialiseVTX();
   int successFTD = 0;
@@ -240,7 +240,6 @@ StatusCode SiliconTrackingAlg::execute(){
     //edm4hep::LCRelationCollection* relCol = nullptr;
     auto trkCol = _outColHdl.createAndPut();
     //auto relCol = _outRelColHdl.createAndPut();
-    //std::cout << "fucd------------------" << std::endl;
     /*
     LCCollectionVec * trkCol = new LCCollectionVec(LCIO::TRACK);
     // if we want to point back to the hits we need to set the flag
@@ -252,7 +251,7 @@ StatusCode SiliconTrackingAlg::execute(){
     */
     //FinalRefit(trkCol, relCol);
     FinalRefit(trkCol);
-    //std::cout << "fucd------------------" << std::endl;
+    debug() << "FinalRefit finish" << endmsg;
     // set the quality of the output collection
     switch (_output_track_col_quality) {
 
@@ -402,7 +401,6 @@ void SiliconTrackingAlg::CleanUp() {
     }
   }
   _trackImplVec.clear();
-  _allHits.clear();
 }
 
 int SiliconTrackingAlg::InitialiseFTD() {
@@ -451,7 +449,7 @@ int SiliconTrackingAlg::InitialiseFTD() {
       // V must be the global z axis 
       if( fabs(V.dot(Z)) > eps ) {
 	error() << "SiliconTrackingAlg: VXD Hit measurment vectors V is not in the global X-Y plane. \n\n  exit(1) called from file " << __FILE__ << " and line " << __LINE__ << endmsg;
-      exit(1);
+	exit(1);
       }
       
       if( fabs(U.dot(Z)) > eps ) {
@@ -499,7 +497,7 @@ int SiliconTrackingAlg::InitialiseFTD() {
       }
       
       if (layer >= _nlayersFTD) {
-	error() << "SiliconTrackingAlg => fatal error in FTD : layer is outside allowed range : " << layer << " number of layers = " << _nlayersFTD <<  endmsg;
+	fatal() << "SiliconTrackingAlg => fatal error in FTD : layer is outside allowed range : " << layer << " number of layers = " << _nlayersFTD <<  endmsg;
 	exit(1);
       }
       
@@ -528,7 +526,19 @@ int SiliconTrackingAlg::InitialiseFTD() {
     success = 0;
   }
 
+  const edm4hep::TrackerHitCollection* rawHitCol = nullptr;
   if(hitFTDSpacePointCol){
+    try{
+      rawHitCol = _inFTDRawColHdl.get();
+    }
+    catch ( GaudiException &e ) {
+      fatal() << "Collection " << _inFTDRawColHdl.fullKey() << " is unavailable in event " << _nEvt << endmsg;
+      success = 0;
+    }
+  }
+  
+  if(hitFTDSpacePointCol&&rawHitCol){
+    Navagation::Instance()->AddTrackerHitCollection(rawHitCol);
     //LCCollection * hitCollection = evt->getCollection(_FTDSpacePointCollection.c_str());
     
     //_colNamesTrackerHits[hitCollection] = _FTDSpacePointCollection;
@@ -625,12 +635,10 @@ int SiliconTrackingAlg::InitialiseFTD() {
 }
 
 int SiliconTrackingAlg::InitialiseVTX() {
-  //std::cout << "fucd================" << std::endl;
   _nTotalVTXHits = 0;
   _nTotalSITHits = 0;
   _sectors.clear();
   _sectors.resize(_nLayers*_nDivisionsInPhi*_nDivisionsInTheta);
-  //std::cout << "fucd================" << std::endl;
   int success = 1;
   // Reading out VTX Hits Collection
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
@@ -647,16 +655,13 @@ int SiliconTrackingAlg::InitialiseVTX() {
     
     //_colNamesTrackerHits[hitCollection] = _VTXHitCollection;
     //_colTrackerHits.push_back(hitCollection);
-    //std::cout << "fucd================1" << std::endl;
     int nelem = hitVTXCol->size();
-    //std::cout << "fucd================2" << std::endl;
     debug() << "Number of VTX hits = " << nelem << endmsg;
     _nTotalVTXHits = nelem;
     
     for (int ielem=0; ielem<nelem; ++ielem) {
     //for(auto hit : *hitVTXCol){ 
       edm4hep::TrackerHit hit = hitVTXCol->at(ielem);
-      //_allHits.push_back(hit);
       //gear::Vector3D U(1.0,hit->getU()[1],hit->getU()[0],gear::Vector3D::spherical);
       //gear::Vector3D V(1.0,hit->getV()[1],hit->getV()[0],gear::Vector3D::spherical);
       gear::Vector3D U(1.0,hit.getCovMatrix()[1],hit.getCovMatrix()[0],gear::Vector3D::spherical);
@@ -674,11 +679,8 @@ int SiliconTrackingAlg::InitialiseVTX() {
         error() << "SiliconTrackingAlg: VXD Hit measurment vectors U is not in the global X-Y plane. \n\n exit(1) called from file " << __FILE__ << " and line " << __LINE__ << endmsg;
         exit(1);
       }
-      //std::cout << "fucd: " << &hit << " " << &_allHits.back() << std::endl;
-      //TrackerHitExtended * hitExt = new TrackerHitExtended( &_allHits.back() );
       TrackerHitExtended * hitExt = new TrackerHitExtended(hit);
-      std::cout << "Saved TrackerHit pointer in TrackerHitExtended " << ielem << ": " << hitExt->getTrackerHit() << std::endl;
-      //std::cout << (&_allHits.back())->getPosition()[0] << " " << hit.getCovMatrix()[2] << " " << hit.getCovMatrix()[5] << std::endl;
+      debug() << "Saved TrackerHit pointer in TrackerHitExtended " << ielem << ": " << hitExt->getTrackerHit() << std::endl;
             
       // SJA:FIXME: just use planar res for now
       hitExt->setResolutionRPhi(hit.getCovMatrix()[2]);
@@ -731,12 +733,21 @@ int SiliconTrackingAlg::InitialiseVTX() {
       debug() << "Collection " << _inSITColHdl.fullKey() << " is unavailable in event " << _nEvt << endmsg;
       success = 0;
     }
+
+    const edm4hep::TrackerHitCollection* rawHitCol = nullptr;
     if(hitSITCol){
-      //LCCollection *hitCollection = evt->getCollection(_SITHitCollection.c_str());
-      
-      //_colNamesTrackerHits[hitCollection] = _SITHitCollection;
-      //_colTrackerHits.push_back(hitCollection);
-      
+      try{
+	rawHitCol = _inSITRawColHdl.get();
+      }
+      catch ( GaudiException &e ) {
+	warning() << "Collection " << _inSITRawColHdl.fullKey() << " is unavailable in event " << _nEvt << ", if SIT is Space Point, it needed " << endmsg;
+	//success = 0;
+      }
+    }
+    
+    if(hitSITCol){
+      if(rawHitCol) Navagation::Instance()->AddTrackerHitCollection(rawHitCol);
+      //debug() << "SITHitCollection pointer = " << hitSITCol << endmsg;
       int nelem = hitSITCol->size();
       
       debug() << "Number of SIT hits = " << nelem << endmsg;
@@ -774,13 +785,11 @@ int SiliconTrackingAlg::InitialiseVTX() {
           error() << "SiliconTrackingAlg => fatal error in SIT : layer is outside allowed range : " << layer << endmsg;
           exit(1);
         }
-        
+
         // first check that we have not been given 1D hits by mistake, as they won't work here
         if ( UTIL::BitSet32( trkhit.getType() )[ UTIL::ILDTrkHitTypeBit::ONE_DIMENSIONAL ] ) {
-          
-          error() << "SiliconTrackingAlg: SIT Hit cannot be of type UTIL::ILDTrkHitTypeBit::ONE_DIMENSIONAL COMPOSITE SPACEPOINTS must be use instead. \n\n  exit(1) called from file " << __FILE__ << " and line " << __LINE__ << endmsg;
-          exit(1);
-          
+	  fatal() << "SiliconTrackingAlg: SIT Hit cannot be of type UTIL::ILDTrkHitTypeBit::ONE_DIMENSIONAL COMPOSITE SPACEPOINTS must be use instead. \n\n  exit(1) called from file " << __FILE__ << " and line " << __LINE__ << endmsg;
+	  exit(1);
         } 
         // most likely case: COMPOSITE_SPACEPOINT hits formed from stereo strip hits
         else if ( UTIL::BitSet32( trkhit.getType() )[ UTIL::ILDTrkHitTypeBit::COMPOSITE_SPACEPOINT ] ) {
@@ -1042,11 +1051,9 @@ void SiliconTrackingAlg::ProcessOneSector(int iPhi, int iTheta) {
                       for (int iInner=0;iInner<nHitsInner;iInner++) { // loop over hits in the inner sector
                         TrackerHitExtended * innerHit = hitVecInner[iInner];
                         HelixClass helix;
-			//std::cout <<"fucd++++++++++++++++++++++1" << std::endl;
-                        // test fit to triplet
+			// test fit to triplet
                         TrackExtended * trackAR = TestTriplet(outerHit,middleHit,innerHit,helix);
-			//std::cout <<"fucd++++++++++++++++++++++2" << std::endl;
-                        if ( trackAR != NULL ) {
+			if ( trackAR != NULL ) {
                           int nHits = BuildTrack(outerHit,middleHit,innerHit,helix,nLR[2],
                                                  iPhiLowInner,iPhiUpInner,
                                                  iThetaLowInner,iThetaUpInner,trackAR);
@@ -1055,7 +1062,6 @@ void SiliconTrackingAlg::ProcessOneSector(int iPhi, int iTheta) {
                           
                           counter ++ ;
                         }
-			//std::cout <<"fucd++++++++++++++++++++++3" << std::endl;
                       } // endloop over hits in the inner sector
                     } // endloop over hits in the middle sector
                   } // endloop over hits in the outer sector
@@ -1078,13 +1084,11 @@ TrackExtended * SiliconTrackingAlg::TestTriplet(TrackerHitExtended * outerHit,
   /*
    Methods checks if the triplet of hits satisfies helix hypothesis
    */
-  //std::cout << "fucd================1" << std::endl;
   // get the tracks already associated with the triplet
   TrackExtendedVec& trackOuterVec  = outerHit->getTrackExtendedVec();
   TrackExtendedVec& trackMiddleVec = middleHit->getTrackExtendedVec();
   TrackExtendedVec& trackInnerVec  = innerHit->getTrackExtendedVec();
   
-  //std::cout << "fucd================2" << std::endl;
   // check if all the hits are already assigned to a track 
   if ( (!trackOuterVec.empty())  && (!trackMiddleVec.empty()) && (!trackInnerVec.empty())) {
     
@@ -1124,13 +1128,10 @@ TrackExtended * SiliconTrackingAlg::TestTriplet(TrackerHitExtended * outerHit,
       }// for outer    
     }// for middle
   }// if all vectors are not empty
-  //std::cout << "fucd================3" << std::endl;
-  
   //    float dZ = FastTripletCheck(innerHit, middleHit, outerHit);
   
   //    if (fabs(dZ) > _minDistCutAttach)
   //      return trackAR;    
-
   
   // increase triplet count
   ++_ntriplets;
@@ -1146,11 +1147,7 @@ TrackExtended * SiliconTrackingAlg::TestTriplet(TrackerHitExtended * outerHit,
   
   float par[5];
   float epar[15];
-  /*fucd
-  for(int i=0;i<_allHits.size();i++){
-    std::cout << &_allHits.at(i) << std::endl;
-  } 
-  */
+
   // first hit
   xh[0] = outerHit->getTrackerHit()->getPosition()[0];
   yh[0] = outerHit->getTrackerHit()->getPosition()[1];
@@ -1455,13 +1452,10 @@ int SiliconTrackingAlg::BuildTrack(TrackerHitExtended * outerHit,
   for (int layer = innerLayer-1; layer>=0; layer--) { // loop over remaining layers
     float distMin = 1.0e+20;
     TrackerHitExtended * assignedhit = NULL;
-    //std::cout << "fucd---------------------1" << std::endl;
     // loop over phi in the Inner region
     for (int ipInner=iPhiLow; ipInner<iPhiUp+1;ipInner++) { 
-      
       // loop over theta in the Inner region 
       for (int itInner=iThetaLow; itInner<iThetaUp+1;itInner++) { 
-        
         int iPhiInner = ipInner;
         
         // catch wrap-around
@@ -1506,12 +1500,9 @@ int SiliconTrackingAlg::BuildTrack(TrackerHitExtended * outerHit,
         } // endloop over hits in the Inner sector
       } // endloop over theta in the Inner region 
     } // endloop over phi in the Inner region
-    //std::cout << "fucd---------------------2" << std::endl;
     // check if closest hit fulfills the min distance cut
     if (distMin < _minDistCutAttach) {
-      
       // if yes try to include it in the fit 
-      
       TrackerHitExtendedVec& hvec = trackAR->getTrackerHitExtendedVec();
       int  nHits = int(hvec.size());
       double * xh = new double[nHits+1];
@@ -1552,7 +1543,7 @@ int SiliconTrackingAlg::BuildTrack(TrackerHitExtended * outerHit,
       float chi2RPhi;
       float chi2Z;
       
-//      std::cout << "######## number of hits to fit with _fastfitter = " << NPT << endmsg; 
+      //debug() << "######## number of hits to fit with _fastfitter = " << NPT << endmsg; 
       
       _fastfitter->fastHelixFit(NPT, xh, yh, rh, ph, wrh, zh, wzh,iopt, par, epar, chi2RPhi, chi2Z);
       par[3] = par[3]*par[0]/fabs(par[0]);
@@ -1602,14 +1593,10 @@ int SiliconTrackingAlg::BuildTrack(TrackerHitExtended * outerHit,
       
     }
   } // endloop over remaining layers
-  //std::cout << "fucd---------------------3" << std::endl;
   TrackerHitExtendedVec& hvec = trackAR->getTrackerHitExtendedVec();  
   int nTotalHits = int(hvec.size());
-  
-//  std::cout << "######## number of hits to return = " << nTotalHits << endmsg; 
-  
+  debug() << "######## number of hits to return = " << nTotalHits << endmsg; 
   return nTotalHits;
-  
 }
 
 
@@ -1822,7 +1809,7 @@ void SiliconTrackingAlg::CreateTrack(TrackExtended * trackAR ) {
         trackOld->setD0(d0);
         trackOld->setZ0(z0);
         
-        //      std::cout << "Split track found " << d0 << " " << z0 << endmsg;
+        //debug() << "Split track found " << d0 << " " << z0 << endmsg;
         
         // killeb:  In the original SiliconTrackingAlg this was in the NOT simple helix branch.
         // The rest of the code uses the simple helix branch, where ndf_D is never set.
@@ -2559,14 +2546,14 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
   float pxTot = 0.;
   float pyTot = 0.;
   float pzTot = 0.;
-  std::cout << "fucd============" << nTracks << std::endl;
+  debug() << "Total " << nTracks << " candidate tracks will be dealed" << endmsg;
   for (int iTrk=0;iTrk<nTracks;++iTrk) {
     
     TrackExtended * trackAR = _trackImplVec[iTrk];    
     TrackerHitExtendedVec& hitVec = trackAR->getTrackerHitExtendedVec();
     
     int nHits = int(hitVec.size());
-    std::cout << "fucd-------------" << iTrk << ": " << nHits << std::endl;
+    //debug() << "  Track " << iTrk << " has hits: " << nHits << endmsg;
     if( nHits >= _minimalHits) {
       //    int * lh = new int[nHits];
       std::vector<int> lh;
@@ -2586,7 +2573,6 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
       helix->Initialize_Canonical(phi0, d0, z0, omega, 
                                   tanlambda, _bField);
       
-      
       // get the point of closest approach to the reference point
       // here it is implicitly assumed that the reference point is the origin 
       float Pos[3];
@@ -2594,7 +2580,6 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
       Pos[1] = d0*cos(phi0);
       Pos[2] = z0;
       
-      std::cout << "fucd------------------1" << std::endl; 
       // at this point is is possible to have hits from the same layer ...
       // so a check is made to ensure that the hit with the smallest distance to the 
       // current helix hypothosis is used, the other hit has lh set to 0 
@@ -2689,6 +2674,7 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
         // check if the hit has been rejected as being on the same layer and further from the helix lh==0
         if (lh[i] == 1) {
 	  edm4hep::TrackerHit * trkHit = hitVec[i]->getTrackerHit();
+	  debug() << "TrackerHit " << i << " address = " << trkHit << endmsg;
           nFit++;
           if(trkHit) { 
             trkHits.push_back(trkHit);   
@@ -2707,12 +2693,10 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
         debug() << "SiliconTrackingAlg::FinalRefit: Cannot fit less than 3 hits. Number of hits =  " << trkHits.size() << endmsg;
         continue ; 
       }
-      std::cout << "fucd------------------2" << std::endl;
       //TrackImpl* Track = new TrackImpl ;
       auto track = trk_col->create();
       //fucd
       //edm4hep::Track track;// = new edm4hep::Track;
-      std::cout << "fucd------------------3" << std::endl;
       // setup initial dummy covariance matrix
       //std::vector<float> covMatrix;
       //covMatrix.resize(15);
@@ -2739,7 +2723,7 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
       }
       
       sort(r2_values.begin(),r2_values.end());
-      //std::cout << "fucd------------------3" << std::endl;
+      
       trkHits.clear();
       trkHits.reserve(r2_values.size());
 
@@ -2782,18 +2766,16 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
       }
       
       int status = 0;
-      std::cout << "fucd------------------3" << std::endl;
+      debug() << "call createFinalisedLCIOTrack now" << endmsg;
       try {
         status = MarlinTrk::createFinalisedLCIOTrack(marlinTrk, trkHits, &track, fit_backwards, covMatrix, _bField, _maxChi2PerHit);
       } catch (...) {
-        
-        //      delete Track;
+	//      delete Track;
         //      delete marlinTrk;
-        error() << "MarlinTrk::createFinalisedLCIOTrack " << endmsg;
-        throw ;
-        
+        error() << "MarlinTrk::createFinalisedLCIOTrack fail" << endmsg;
+        //throw ;
       }
-      std::cout << "fucd------------------4" << std::endl;
+      debug() << "createFinalisedLCIOTrack finish" << endmsg;
       /*
 #ifdef MARLINTRK_DIAGNOSTICS_ON
       if ( status != IMarlinTrack::success && _runMarlinTrkDiagnostics ) {        
@@ -2812,10 +2794,12 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
       marlinTrk->getHitsInFit(hits_in_fit);
       
       for ( unsigned ihit = 0; ihit < hits_in_fit.size(); ++ihit) {
-        all_hits.push_back(hits_in_fit[ihit].first);
+	debug() << "Hit address=" << hits_in_fit[ihit].first << endmsg;
+	edm4hep::TrackerHit* trk = hits_in_fit[ihit].first;
+        all_hits.push_back(trk);//hits_in_fit[ihit].first);
       }
       
-      UTIL::BitField64 cellID_encoder( lcio::ILDCellID0::encoder_string ) ; 
+      UTIL::BitField64 cellID_encoder( UTIL::ILDCellID0::encoder_string ) ; 
       
       MarlinTrk::addHitNumbersToTrack(&track, all_hits, true, cellID_encoder);
       
@@ -2844,18 +2828,15 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
       //if (nhits_in_ftd > 0) Track->setTypeBit( lcio::ILDDetID::FTD ) ;
       //if (nhits_in_sit > 0) Track->setTypeBit( lcio::ILDDetID::SIT ) ;
 
-      
-      
       if( status != IMarlinTrack::success ) {       
-        
         //delete track;
-        debug() << "SiliconTrackingAlg::FinalRefit: Track fit failed with error code " << status << " track dropped. Number of hits = "<< trkHits.size() << endmsg;       
+        debug() << "FinalRefit: Track fit failed with error code " << status << " track dropped. Number of hits = "<< trkHits.size() << endmsg;       
         continue ;
       }
       
       if( track.getNdf() < 0) {       
         //delete track;
-        debug() << "SiliconTrackingAlg::FinalRefit: Track fit returns " << track.getNdf() << " degress of freedom track dropped. Number of hits = "<< trkHits.size() << endmsg;       
+        debug() << "FinalRefit: Track fit returns " << track.getNdf() << " degress of freedom track dropped. Number of hits = "<< trkHits.size() << endmsg;       
 	//delete track;
         continue ;
       }
@@ -2908,17 +2889,13 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
     }
   }
   
-  debug() << "SiliconTrackingAlg -> run " << _nRun
-	  << " event " << _nEvt << endmsg;
+  debug() << " -> run " << _nRun << " event " << _nEvt << endmsg;
   debug() << "Number of Si tracks = " << nSiSegments << endmsg;
   debug() << "Total 4-momentum of Si Tracks : E = " << std::setprecision(7) << eTot
 	  << " Px = " << pxTot
 	  << " Py = " << pyTot
 	  << " Pz = " << pzTot << endmsg;
-  
-  
 }
-
 
 StatusCode SiliconTrackingAlg::setupGearGeom(){
   auto _gear = service<IGearSvc>("GearSvc");
