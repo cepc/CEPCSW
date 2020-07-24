@@ -48,7 +48,7 @@ PlanarDigiAlg::PlanarDigiAlg(const std::string& name, ISvcLocator* svcLoc)
   
   // Output collections
   declareProperty("TrackerHitCollection", _outColHdl, "Handle of the TrackerHit output collection");
-  declareProperty("SimTrkHitRelCollection", _outRelColHdl, "Handle of TrackerHit SimTrackHit relation collection");
+  declareProperty("TrackerHitAssociationCollection", _outRelColHdl, "Handle of TrackerHit SimTrackHit relation collection");
 }
 
 StatusCode PlanarDigiAlg::initialize()
