@@ -4,7 +4,7 @@ find_package(EDM4HEP REQUIRED)
 
 gaudi_depends_on_subdirs()
 
-set(DataHelperLib_srcs src/*.cc)
+set(DataHelperLib_srcs src/*.cc src/*.cpp)
 
 #gaudi_install_headers(DataHelper)
 
