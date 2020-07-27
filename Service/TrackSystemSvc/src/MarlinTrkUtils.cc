@@ -6,7 +6,7 @@
 #include "TrackSystemSvc/IMarlinTrack.h"
 #include "TrackSystemSvc/HelixTrack.h"
 
-#include "DataHelper/Navagation.h"
+#include "DataHelper/Navigation.h"
 //#include "lcio.h"
 //#include <IMPL/TrackImpl.h>
 //#include <IMPL/TrackStateImpl.h>
@@ -223,7 +223,7 @@ namespace MarlinTrk {
 	//exit(1);
         int nRawHit = trkHit->rawHits_size();
         for( unsigned k=0; k< nRawHit; k++ ){
-          edm4hep::TrackerHit* rawHit = Navagation::Instance()->GetTrackerHit(trkHit->getRawHits(k));
+          edm4hep::TrackerHit* rawHit = Navigation::Instance()->GetTrackerHit(trkHit->getRawHits(k));
 	  if( marlinTrk->addHit( rawHit ) == IMarlinTrack::success ){
 	    isSuccessful = true; //if at least one hit from the spacepoint gets added
             ++ndof_added;
@@ -431,7 +431,7 @@ namespace MarlinTrk {
 	// get strip hits 
         int nRawHit = trkHit->rawHits_size();
         for( unsigned k=0; k< nRawHit; k++ ){
-	  edm4hep::TrackerHit* rawHit = Navagation::Instance()->GetTrackerHit(trkHit->getRawHits(k));
+	  edm4hep::TrackerHit* rawHit = Navigation::Instance()->GetTrackerHit(trkHit->getRawHits(k));
 	  bool is_outlier = false;
 	  // here we loop over outliers as this will be faster than looping over the used hits
           for ( unsigned ohit = 0; ohit < outliers.size(); ++ohit) {

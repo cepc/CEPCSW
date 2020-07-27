@@ -1,5 +1,5 @@
-#ifndef Navagation_h
-#define Navagation_h
+#ifndef Navigation_h
+#define Navigation_h
 
 //#include "FWCore/DataHandle.h"
 //#include "podio/CollectionBase.h"
@@ -7,12 +7,12 @@
 #include "edm4hep/TrackerHitCollection.h"
 #include <map>
 
-class Navagation{
+class Navigation{
  public:
-  static Navagation* Instance();
+  static Navigation* Instance();
 
-  Navagation();
-  ~Navagation();
+  Navigation();
+  ~Navigation();
   
   void Initialize();
   //void AddDataHandle(DataHandle* hdl){if(hdl)m_hdlVec.push_back(hdl);};
@@ -23,9 +23,9 @@ class Navagation{
   std::vector<edm4hep::ConstSimTrackerHit> GetRelatedTrackerHit(const edm4hep::ObjectID& id);
   std::vector<edm4hep::ConstSimTrackerHit> GetRelatedTrackerHit(const edm4hep::TrackerHit& hit);
   
-  //static Navagation* m_fNavagation;
+  //static Navigation* m_fNavigation;
  private:
-  static Navagation* m_fNavagation;
+  static Navigation* m_fNavigation;
   //DataHandle<edm4hep::MCRecoTrackerAssociationCollection> _inHitAssColHdl{"FTDStripTrackerHitsAssociation", Gaudi::DataHandle::Reader, this};
   std::vector<const edm4hep::TrackerHitCollection*> m_hitColVec;
   std::vector<const edm4hep::MCRecoTrackerAssociationCollection*> m_assColVec;

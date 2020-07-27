@@ -2,7 +2,7 @@
 #include "GearSvc/IGearSvc.h"
 #include "EventSeeder/IEventSeeder.h"
 #include "TrackSystemSvc/ITrackSystemSvc.h"
-#include "DataHelper/Navagation.h"
+#include "DataHelper/Navigation.h"
 #include "edm4hep/MCParticle.h"
 #include "edm4hep/TrackerHit.h"
 //#include "edm4hep/TrackerHitPlane.h"
@@ -156,7 +156,7 @@ StatusCode  SiliconTrackingAlg::initialize() {
 }
 
 StatusCode SiliconTrackingAlg::execute(){ 
-  Navagation::Instance()->Initialize();
+  Navigation::Instance()->Initialize();
   //_current_event = evt;
   //_allHits.reserve(1000);
 
@@ -538,7 +538,7 @@ int SiliconTrackingAlg::InitialiseFTD() {
   }
   
   if(hitFTDSpacePointCol&&rawHitCol){
-    Navagation::Instance()->AddTrackerHitCollection(rawHitCol);
+    Navigation::Instance()->AddTrackerHitCollection(rawHitCol);
     //LCCollection * hitCollection = evt->getCollection(_FTDSpacePointCollection.c_str());
     
     //_colNamesTrackerHits[hitCollection] = _FTDSpacePointCollection;
@@ -746,7 +746,7 @@ int SiliconTrackingAlg::InitialiseVTX() {
     }
     
     if(hitSITCol){
-      if(rawHitCol) Navagation::Instance()->AddTrackerHitCollection(rawHitCol);
+      if(rawHitCol) Navigation::Instance()->AddTrackerHitCollection(rawHitCol);
       //debug() << "SITHitCollection pointer = " << hitSITCol << endmsg;
       int nelem = hitSITCol->size();
       
