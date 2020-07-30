@@ -9,7 +9,7 @@ Please refer to https://github.com/HEP-FCC/FCCSW
 
 ```
 $ source /cvmfs/cepcsw.ihep.ac.cn/prototype/releases/externals/97.0.2/setup.sh
-$ git clone git@cepcgit.ihep.ac.cn:cepc-prototype/CEPCSW.git
+$ git clone git@github.com:cepc/CEPCSW.git
 $ cd CEPCSW
 $ git checkout lcg97
 $ mkdir build && cd build
