@@ -147,23 +147,22 @@ StatusCode PlanarDigiAlg::execute()
     auto SimTHit = STHcol->at( 0 ) ;
     encoder.setValue(SimTHit.getCellID()) ;
     det_id  = encoder[lcio::ILDCellID0::subdet] ;
-  }
-
-  if     ( det_id == lcio::ILDDetID::VXD ){}
-  else if( det_id == lcio::ILDDetID::SIT ){}
-  else if( det_id == lcio::ILDDetID::SET ){}
-  else if( det_id == lcio::ILDDetID::FTD ){}
-  else {
-    fatal() << "unsupported detector ID = " << det_id
-            << ": file " << __FILE__ << " line " << __LINE__
-            << endmsg;
-    return StatusCode::FAILURE;
+  
+    if     ( det_id == lcio::ILDDetID::VXD ){}
+    else if( det_id == lcio::ILDDetID::SIT ){}
+    else if( det_id == lcio::ILDDetID::SET ){}
+    else if( det_id == lcio::ILDDetID::FTD ){}
+    else {
+      fatal() << "unsupported detector ID = " << det_id << " CellID = " << SimTHit.getCellID()
+              << ": file " << __FILE__ << " line " << __LINE__
+              << endmsg;
+      return StatusCode::FAILURE;
+    }
   }
 
   //smearing
   debug() << " processing collection " << _inColHdl.fullKey()
           << " with " <<  nSimHits  << " hits ... " << endmsg ;
-
 
   int i = 0;
   for( auto SimTHit : *STHcol ) {
