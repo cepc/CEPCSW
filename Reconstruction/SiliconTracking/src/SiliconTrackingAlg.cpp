@@ -143,7 +143,7 @@ StatusCode  SiliconTrackingAlg::initialize() {
   
   _dPhi = TWOPI/_nDivisionsInPhi;
   _dTheta = 2.0/_nDivisionsInTheta;
-  _dPhiFTD = TWOPI/_nPhiFTD;
+  _dPhiFTD = TWOPI/_nDivisionsInPhiFTD;
   // I leave this for the moment, but 0.3 is c/1e9.
   // For the cut it does not make too much of a difference
   double cutOnR = _cutOnPt/(0.3*_bField);
@@ -180,8 +180,8 @@ StatusCode SiliconTrackingAlg::execute(){
   _trackImplVec.reserve(100);
 
   int successVTX = InitialiseVTX();
-  int successFTD = 0;
-  //int successFTD = InitialiseFTD();
+  //int successFTD = 0;
+  int successFTD = InitialiseFTD();
   if (successVTX == 1) {
     
     debug() << "      phi          theta        layer      nh o :   m :   i  :: o*m*i " << endmsg; 
@@ -383,11 +383,11 @@ void SiliconTrackingAlg::CleanUp() {
   
   for (int iS=0;iS<2;++iS) {
     for (unsigned int layer=0;layer<_nlayersFTD;++layer) {
-      for (int ip=0;ip<_nPhiFTD;++ip) {
+      for (int ip=0;ip<_nDivisionsInPhiFTD;++ip) {
         unsigned int iCode = iS + 2*layer + 2*_nlayersFTD*ip;
         
         if( iCode >= _sectorsFTD.size()){
-          //error() << "iCode index out of range: iCode =   " << iCode << " _sectorsFTD.size() = " << _sectorsFTD.size() << " exit(1) called from file " << __FILE__ << " line " << __LINE__<< endmsg;
+          error() << "iCode index out of range: iCode =   " << iCode << " _sectorsFTD.size() = " << _sectorsFTD.size() << " exit(1) called from file " << __FILE__ << " line " << __LINE__<< endmsg;
           continue;
         }
         
@@ -409,7 +409,7 @@ int SiliconTrackingAlg::InitialiseFTD() {
   
   _nTotalFTDHits = 0;
   _sectorsFTD.clear();
-  _sectorsFTD.resize(2*_nlayersFTD*_nPhiFTD);
+  _sectorsFTD.resize(2*_nlayersFTD*_nDivisionsInPhiFTD);
   
   // Reading in FTD Pixel Hits Collection
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -435,10 +435,8 @@ int SiliconTrackingAlg::InitialiseFTD() {
     
     //for (int ielem=0; ielem<nelem; ++ielem) {
     for(auto hit : *hitFTDPixelCol){  
-    // edm4hep::TrackerHit* hit = hitFTDPixelCol->at(ielem);
-      
+      //dm4hep::TrackerHit* hit = hitFTDPixelCol->at(ielem);
       TrackerHitExtended * hitExt = new TrackerHitExtended( hit );
-      
       //gear::Vector3D U(1.0,hit->getU()[1],hit->getU()[0],gear::Vector3D::spherical);
       //gear::Vector3D V(1.0,hit->getV()[1],hit->getV()[0],gear::Vector3D::spherical);
       gear::Vector3D U(1.0,hit.getCovMatrix()[1],hit.getCovMatrix()[0],gear::Vector3D::spherical);
@@ -456,7 +454,6 @@ int SiliconTrackingAlg::InitialiseFTD() {
 	error() << "SiliconTrackingAlg: VXD Hit measurment vectors U is not in the global X-Y plane. \n\n exit(1) called from file " << __FILE__ << " and line " << __LINE__ << endmsg;
 	exit(1);
       }
-      
       // SJA:FIXME Here dU and dV are almost certainly dX and dY ... should test ...
       //double point_res_rphi = sqrt( hit->getdU()*hit->getdU() + hit->getdV()*hit->getdV() );
       double point_res_rphi = sqrt( hit.getCovMatrix()[2]*hit.getCovMatrix()[2] + hit.getCovMatrix()[5]*hit.getCovMatrix()[5] );
@@ -478,7 +475,6 @@ int SiliconTrackingAlg::InitialiseFTD() {
       
       double Phi = atan2(pos[1],pos[0]);
       if (Phi < 0.) Phi = Phi + TWOPI;
-      
       // get the layer number
       unsigned int layer = static_cast<unsigned int>(getLayerID(&hit));
       unsigned int petalIndex = static_cast<unsigned int>(getModuleID(&hit));
@@ -495,7 +491,6 @@ int SiliconTrackingAlg::InitialiseFTD() {
 	}
 	
       }
-      
       if (layer >= _nlayersFTD) {
 	fatal() << "SiliconTrackingAlg => fatal error in FTD : layer is outside allowed range : " << layer << " number of layers = " << _nlayersFTD <<  endmsg;
 	exit(1);
@@ -2109,7 +2104,7 @@ void SiliconTrackingAlg::AttachRemainingFTDHitsSlow() {
   
   for (int iS=0;iS<2;++iS) {
     for (unsigned int layer=0;layer<_nlayersFTD;++layer) {
-      for (int ip=0;ip<_nPhiFTD;++ip) {
+      for (int ip=0;ip<_nDivisionsInPhiFTD;++ip) {
         int iCode = iS + 2*layer + 2*_nlayersFTD*ip;      
         TrackerHitExtendedVec& hitVec = _sectorsFTD[iCode];
         int nH = int(hitVec.size());
@@ -2213,9 +2208,9 @@ void SiliconTrackingAlg::AttachRemainingFTDHitsFast() {
       for (int iP=iPhi-1;iP<=iPhi+1;++iP) {
         int iPP = iP;
         if (iP < 0) 
-          iPP = iP + _nPhiFTD;
-        if (iP >= _nPhiFTD)
-          iPP = iP - _nPhiFTD;  
+          iPP = iP + _nDivisionsInPhiFTD;
+        if (iP >= _nDivisionsInPhiFTD)
+          iPP = iP - _nDivisionsInPhiFTD;  
         int iCode = iSemiSphere + 2*layer + 2*_nlayersFTD*iPP;
         int nHits = int(_sectorsFTD[iCode].size());
         for (int iHit=0;iHit<nHits;++iHit) {
@@ -2283,7 +2278,7 @@ void SiliconTrackingAlg::TrackingInFTD() {
       //      int nI = int(hitVec.size());
       //      std::cout << nO << " " << nM << " " << nI << endmsg;
 
-      for (int ipOuter=0;ipOuter<_nPhiFTD;++ipOuter) { 
+      for (int ipOuter=0;ipOuter<_nDivisionsInPhiFTD;++ipOuter) { 
 
         int ipMiddleLow = ipOuter - 1;
         int ipMiddleUp  = ipOuter + 1;
@@ -2304,12 +2299,12 @@ void SiliconTrackingAlg::TrackingInFTD() {
           TrackerHitExtended * hitOuter = hitVecOuter[iOuter];
         
           for (int ipMiddle=ipMiddleLow;ipMiddle<=ipMiddleUp;++ipMiddle) {
-            //for(int ipMiddle=0;ipMiddle<_nPhiFTD;++ipMiddle) {
+            //for(int ipMiddle=0;ipMiddle<_nDivisionsInPhiFTD;++ipMiddle) {
             int ipM = ipMiddle;
             if (ipM < 0) 
-              ipM = ipMiddle + _nPhiFTD;
-            if (ipM >= _nPhiFTD)
-              ipM = ipMiddle - _nPhiFTD;
+              ipM = ipMiddle + _nDivisionsInPhiFTD;
+            if (ipM >= _nDivisionsInPhiFTD)
+              ipM = ipMiddle - _nDivisionsInPhiFTD;
             int iCodeMiddle = iS + 2*nLS[1] + 2*_nlayersFTD*ipM;
           
             TrackerHitExtendedVec& hitVecMiddle = _sectorsFTD[iCodeMiddle];
@@ -2322,12 +2317,12 @@ void SiliconTrackingAlg::TrackingInFTD() {
             for (int iMiddle=0;iMiddle<nMiddle;++iMiddle) {
               TrackerHitExtended * hitMiddle = hitVecMiddle[iMiddle];
               for (int ipInner=ipInnerLow;ipInner<=ipInnerUp;++ipInner) {
-                //for (int ipInner=0;ipInner<_nPhiFTD;++ipInner) {
+                //for (int ipInner=0;ipInner<_nDivisionsInPhiFTD;++ipInner) {
                 int ipI = ipInner;
                 if (ipI < 0)
-                  ipI = ipInner + _nPhiFTD;
-                if (ipI >= _nPhiFTD) 
-                  ipI = ipInner - _nPhiFTD;
+                  ipI = ipInner + _nDivisionsInPhiFTD;
+                if (ipI >= _nDivisionsInPhiFTD) 
+                  ipI = ipInner - _nDivisionsInPhiFTD;
                 int iCodeInner = iS + 2*nLS[2] + 2*_nlayersFTD*ipI;
                 TrackerHitExtendedVec& hitVecInner = _sectorsFTD[iCodeInner];
             
@@ -2394,12 +2389,12 @@ int SiliconTrackingAlg::BuildTrackFTD(TrackExtended * trackAR, int * nLR, int iS
       //      int iPhi = int(Phi/_dPhiFTD);
       float distMin = 1e+6;
       TrackerHitExtended * attachedHit = NULL;
-      for (int ip=0;ip<=_nPhiFTD;++ip) {
+      for (int ip=0;ip<=_nDivisionsInPhiFTD;++ip) {
         int iP = ip;
         if (iP < 0)
-          iP = ip + _nPhiFTD;
-        if (iP >= _nPhiFTD)
-          iP = ip - _nPhiFTD;   
+          iP = ip + _nDivisionsInPhiFTD;
+        if (iP >= _nDivisionsInPhiFTD)
+          iP = ip - _nDivisionsInPhiFTD;   
         int iCode = iS + 2*iL + 2*_nlayersFTD*iP;
         TrackerHitExtendedVec& hitVec = _sectorsFTD[iCode];
         int nH = int(hitVec.size());

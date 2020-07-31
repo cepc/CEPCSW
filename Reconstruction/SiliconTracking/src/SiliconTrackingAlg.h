@@ -414,7 +414,6 @@ class SiliconTrackingAlg : public GaudiAlgorithm {
   
   unsigned int _nlayersFTD;
   bool _petalBasedFTDWithOverlaps;
-  int _nPhiFTD; 
 
   int _output_track_col_quality;
   static const int _output_track_col_quality_GOOD;
