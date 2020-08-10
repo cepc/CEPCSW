@@ -64,6 +64,23 @@ private:
     DataHandle<edm4hep::SimTrackerHitCollection> m_SETCol{"SETCollection", 
             Gaudi::DataHandle::Writer, this};
 
+    // Ecal
+    DataHandle<edm4hep::SimCalorimeterHitCollection> m_EcalBarrelCol{"EcalBarrelCollection", 
+            Gaudi::DataHandle::Writer, this};
+    DataHandle<edm4hep::CaloHitContributionCollection> m_EcalBarrelContributionCol{
+            "EcalBarrelContributionCollection", 
+            Gaudi::DataHandle::Writer, this};
+    DataHandle<edm4hep::SimCalorimeterHitCollection> m_EcalEndcapsCol{"EcalEndcapsCollection", 
+            Gaudi::DataHandle::Writer, this};
+    DataHandle<edm4hep::CaloHitContributionCollection> m_EcalEndcapsContributionCol{
+            "EcalEndcapsContributionCollection", 
+            Gaudi::DataHandle::Writer, this};
+    DataHandle<edm4hep::SimCalorimeterHitCollection> m_EcalEndcapRingCol{"EcalEndcapRingCollection", 
+            Gaudi::DataHandle::Writer, this};
+    DataHandle<edm4hep::CaloHitContributionCollection> m_EcalEndcapRingContributionCol{
+            "EcalEndcapRingContributionCollection", 
+            Gaudi::DataHandle::Writer, this};
+
 private:
     // in order to associate the hit contribution with the primary track,
     // we have a bookkeeping of every track.

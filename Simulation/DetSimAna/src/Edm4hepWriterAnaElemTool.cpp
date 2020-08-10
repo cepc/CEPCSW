@@ -49,6 +49,13 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
     auto tpccols = m_TPCCol.createAndPut();
     auto setcols = m_SETCol.createAndPut();
 
+    auto ecalbarrelcol            = m_EcalBarrelCol.createAndPut();
+    auto ecalbarrelcontribcols    = m_EcalBarrelContributionCol.createAndPut();
+    auto ecalendcapscol           = m_EcalEndcapsCol.createAndPut();
+    auto ecalendcapscontribcols   = m_EcalEndcapsContributionCol.createAndPut();
+    auto ecalendcapringcol        = m_EcalEndcapRingCol.createAndPut();
+    auto ecalendcapringcontribcol = m_EcalEndcapRingContributionCol.createAndPut();
+
     // readout defined in DD4hep
     auto lcdd = &(dd4hep::Detector::getInstance());
     auto allReadouts = lcdd->readouts();
@@ -82,6 +89,7 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
 
         edm4hep::SimTrackerHitCollection* tracker_col_ptr = nullptr;
         edm4hep::SimCalorimeterHitCollection* calo_col_ptr = nullptr;
+        edm4hep::CaloHitContributionCollection* calo_contrib_col_ptr = nullptr;
 
         // the mapping between hit collection and the data handler
         if (collect->GetName() == "VXDCollection") {
@@ -98,10 +106,20 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
             tracker_col_ptr = setcols;
         } else if (collect->GetName() == "CaloHitsCollection") {
             calo_col_ptr = calorimetercols;
+            calo_contrib_col_ptr = calocontribcols;
+        } else if (collect->GetName() == "EcalBarrelCollection") {
+            calo_col_ptr = ecalbarrelcol;
+            calo_contrib_col_ptr = ecalbarrelcontribcols;
+        } else if (collect->GetName() == "EcalEndcapsCollection") {
+            calo_col_ptr = ecalendcapscol;
+            calo_contrib_col_ptr = ecalendcapscontribcols;
+        } else if (collect->GetName() == "EcalEndcapRingCollection") {
+            calo_col_ptr = ecalendcapringcol;
+            calo_contrib_col_ptr = ecalendcapringcontribcol;
         } else {
             warning() << "Unknown collection name: " << collect->GetName()
-                      << ". The SimTrackerCol will be used. " << endmsg;
-            tracker_col_ptr = trackercols;
+                      << ". Please register in Edm4hepWriterAnaElemTool. " << endmsg;
+            continue;
         }
 
 
@@ -191,7 +209,7 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
                         const Contribution& c = *j;
                         // The legacy Hit object does not contains positions of contributions.
                         // float contrib_pos[] = {float(c.x/mm), float(c.y/mm), float(c.z/mm)};
-                        auto edm_calo_contrib = calocontribcols->create();
+                        auto edm_calo_contrib = calo_contrib_col_ptr->create();
                         edm_calo_contrib.setPDG(c.pdgID);
                         edm_calo_contrib.setEnergy(c.deposit/CLHEP::GeV);
                         edm_calo_contrib.setTime(c.time/CLHEP::ns);
