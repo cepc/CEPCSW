@@ -10,6 +10,7 @@ gaudi_depends_on_subdirs(
     Service/EventSeeder
     Service/TrackSystemSvc
     Utilities/DataHelper
+    Utilities/KiTrack
 )
 
 set(SiliconTracking_srcs src/*.cpp)
@@ -17,5 +18,5 @@ set(SiliconTracking_srcs src/*.cpp)
 # Modules
 gaudi_add_module(SiliconTracking ${SiliconTracking_srcs}
     INCLUDE_DIRS GaudiKernel FWCore gear ${GSLx_INCLUDE_DIRS} ${LCIOx_INCLUDE_DIRS}
-    LINK_LIBRARIES TrackSystemSvcLib DataHelperLib GaudiKernel FWCore $ENV{GEAR}/lib/libgearsurf.so ${GSL_LIBRARIES} ${LCIO_LIBRARIES} 
+    LINK_LIBRARIES TrackSystemSvcLib DataHelperLib KiTrackLib GaudiKernel FWCore $ENV{GEAR}/lib/libgearsurf.so ${GSL_LIBRARIES} ${LCIO_LIBRARIES} 
 )
