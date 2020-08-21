@@ -28,6 +28,8 @@ public:
     dd4hep::DetElement getDD4HepGeo() override;
     dd4hep::Detector* lcdd() override;
 
+    Decoder* getDecoder(const std::string& readout_name) override;
+
 private:
 
     // DD4hep XML compact file path
@@ -38,4 +40,4 @@ private:
 };
 
 
-#endif GeoSvc_h
+#endif // GeoSvc_h

@@ -30,20 +30,8 @@ StatusCode DumpIDAlg::initialize()
     }
 
     // get the DD4hep readout
-    auto readouts = m_dd4hep_geo->readouts();
     const std::string name_readout = "EcalBarrelCollection";
-    if (readouts.find(name_readout) != readouts.end()) {
-        dd4hep::Readout readout = m_dd4hep_geo->readout(name_readout);
-
-        auto m_idspec = readout.idSpec();
-
-        info() << "The idspec is " << m_idspec.fieldDescription() << " for " << name_readout << endmsg;
-
-        dd4hep::DDSegmentation::BitFieldCoder* decoder = m_idspec.decoder();
-        
-        m_decoder = decoder;
-    }
-
+    m_decoder = m_geosvc->getDecoder(name_readout);
     if (!m_decoder) {
         error() << "Failed to get the decoder. " << endmsg;
         return StatusCode::FAILURE;
