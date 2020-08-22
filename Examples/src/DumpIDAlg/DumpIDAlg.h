@@ -3,6 +3,7 @@
 
 #include "FWCore/DataHandle.h"
 #include "GaudiAlg/GaudiAlgorithm.h"
+#include "GaudiKernel/NTuple.h"
 
 #include "DetInterface/IGeoSvc.h"
 
@@ -33,6 +34,19 @@ private:
     DataHandle<edm4hep::SimCalorimeterHitCollection> m_EcalBarrelCol{"EcalBarrelCollection", 
             Gaudi::DataHandle::Reader, this};
 
+private:
+    // strore all the id for later analysis
+    NTuple::Tuple* m_tuple_id = nullptr;
+
+    NTuple::Item<int> m_id_system;
+    NTuple::Item<int> m_id_module;
+    NTuple::Item<int> m_id_stave;
+    NTuple::Item<int> m_id_tower;
+    NTuple::Item<int> m_id_layer;
+    NTuple::Item<int> m_id_wafer;
+    NTuple::Item<int> m_id_cellX;
+    NTuple::Item<int> m_id_cellY;
+    
 };
 
 
