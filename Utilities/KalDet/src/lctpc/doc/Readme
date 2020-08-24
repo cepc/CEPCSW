@@ -1,0 +1,4 @@
+There are two different doxy-files for html and latex. For the latex version
+the sourcecode brower, namespace and file lists are truned of in order not to
+overload the document with information that is not very useful when
+printed. In the html version you want these features. 

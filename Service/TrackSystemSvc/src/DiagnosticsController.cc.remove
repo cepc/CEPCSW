@@ -1,0 +1,883 @@
+
+#include "MarlinTrkDiagnostics.h"
+
+#ifdef MARLINTRK_DIAGNOSTICS_ON
+
+#include "DiagnosticsController.h"
+
+#define MarlinTrkNtuple_cxx
+#include "MarlinTrkNtuple.h"
+
+#include "MarlinKalTestTrack.h"
+
+#include "streamlog/streamlog.h"
+
+#include "kaldet/ILDVTrackHit.h"
+#include "kaltest/TKalTrackSite.h"
+#include "kaltest/TKalTrack.h"
+
+#include "TFile.h"
+#include "TTree.h"
+
+//#include "MarlinTrk/MarlinTrkNtuple.h"
+
+#include "HelixTrack.h"
+
+#include "EVENT/MCParticle.h"
+#include <UTIL/BitField64.h>
+#include <UTIL/ILDConf.h>
+
+
+namespace MarlinTrk{
+  
+  DiagnosticsController::DiagnosticsController()   {
+    
+    _initialised = false;
+    _recording_on = false; // recording is set to off by default so that processors do not have to perform any action if they are not interested in diagnostics, i.e. no need to call init
+    _current_track = 0;
+    _currentMCP = 0;
+    _mcpInfoStored=false;
+    _skip_track = false;    
+    _ntracks_skipped = 0;
+    _ntracks_written = 0;
+    _track_record = 0;
+    _tree = 0;
+    _root_file = 0;
+    
+  } // constructor
+  
+  DiagnosticsController::~DiagnosticsController(){
+    if(_track_record) { delete _track_record; _track_record = 0; }     
+  }
+  
+  void DiagnosticsController::init(std::string root_file_name, std::string root_tree_name, bool recording_on){
+    
+    streamlog_out(DEBUG4) << " DiagnosticsController::init called " << "\n"
+    << "\t root file name = " << root_file_name << "\n"
+    << "\t root tree name = " << root_tree_name << "\n"
+    << "\t recording on = " << recording_on << "\n"
+    << std::endl;
+
+    _recording_on = recording_on;
+    
+    if ( _recording_on == false ) {      
+      _initialised = true;
+      return;
+    }
+    
+    _root_file_name = root_file_name+".root";
+    _root_tree_name = root_tree_name;
+    
+    _root_file = new TFile(_root_file_name.c_str(),"RECREATE");
+    
+    _tree = new TTree( _root_tree_name.c_str(), _root_tree_name.c_str());
+          
+    _track_record = new MarlinTrkNtuple();
+
+    _track_record->CreateBranches(_tree);
+            
+    _initialised = true;
+    
+  }
+  
+   
+  void DiagnosticsController::skip_current_track(){ 
+
+    streamlog_out(DEBUG) << " DiagnosticsController::skip_current_track called " << std::endl;
+
+    if ( _recording_on == false ) {      
+      return;
+    }
+    
+    _skip_track = true ;
+    this->clear_track_record();
+  }
+  
+  void DiagnosticsController::clear_track_record(){
+    
+    streamlog_out(DEBUG) << " DiagnosticsController::clear_track_record called " << std::endl;
+    
+    if ( _recording_on == false ) {      
+      return;
+    }
+    
+    _track_record->error_code = 0 ;
+    
+    _track_record->nsites = 0 ;
+    
+    _track_record->nsites_vxd = 0 ;
+    _track_record->nsites_sit = 0 ;
+    _track_record->nsites_ftd = 0 ;
+    _track_record->nsites_tpc = 0 ;
+    _track_record->nsites_set = 0 ;
+    
+    _track_record->x_mcp = 0 ;
+    _track_record->y_mcp = 0 ;
+    _track_record->z_mcp = 0 ;
+    
+    _track_record->px_mcp = 0 ;
+    _track_record->py_mcp = 0 ;
+    _track_record->pz_mcp = 0 ;
+    _track_record->p_mcp = 0 ;
+    _track_record->theta_mcp = 0 ;
+    _track_record->phi_mcp = 0 ;
+    _track_record->pdg_mcp = 0 ;
+    
+    _track_record->d0_mcp = 0 ;
+    _track_record->phi0_mcp = 0 ;
+    _track_record->omega_mcp = 0 ;
+    _track_record->z0_mcp = 0 ;
+    _track_record->tanL_mcp = 0 ;
+    
+    _track_record->ndf = 0 ;
+    _track_record->chi2 = 0 ;
+    _track_record->prob = 0 ;
+    
+    _track_record->d0_seed = 0 ;
+    _track_record->phi0_seed = 0 ;
+    _track_record->omega_seed = 0 ;
+    _track_record->z0_seed = 0 ;
+    _track_record->tanL_seed = 0 ; 
+    
+    _track_record->seed_ref_point_x = 0 ;
+    _track_record->seed_ref_point_y = 0 ;
+    _track_record->seed_ref_point_z = 0 ;
+    
+    _track_record->cov_seed_d0d0 = 0 ;      
+    _track_record->cov_seed_phi0d0 = 0 ;      
+    _track_record->cov_seed_phi0phi0 = 0 ;      
+    _track_record->cov_seed_kappad0 = 0 ;      
+    _track_record->cov_seed_kappaphi0 = 0 ;      
+    _track_record->cov_seed_kappakappa = 0 ;      
+    _track_record->cov_seed_z0d0 = 0 ;      
+    _track_record->cov_seed_z0phi0 = 0 ;      
+    _track_record->cov_seed_z0kappa = 0 ;      
+    _track_record->cov_seed_z0z0 = 0 ;      
+    _track_record->cov_seed_tanLd0 = 0 ;      
+    _track_record->cov_seed_tanLphi0 = 0 ;      
+    _track_record->cov_seed_tanLkappa = 0 ;      
+    _track_record->cov_seed_tanLz0 = 0 ;      
+    _track_record->cov_seed_tanLtanL = 0 ;  
+
+    
+    _track_record->d0_ip = 0 ;
+    _track_record->phi0_ip = 0 ;
+    _track_record->omega_ip = 0 ;
+    _track_record->z0_ip = 0 ;
+    _track_record->tanL_ip = 0 ; 
+    
+    _track_record->cov_ip_d0d0 = 0 ;      
+    _track_record->cov_ip_phi0d0 = 0 ;      
+    _track_record->cov_ip_phi0phi0 = 0 ;      
+    _track_record->cov_ip_omegad0 = 0 ;      
+    _track_record->cov_ip_omegaphi0 = 0 ;      
+    _track_record->cov_ip_omegaomega = 0 ;      
+    _track_record->cov_ip_z0d0 = 0 ;      
+    _track_record->cov_ip_z0phi0 = 0 ;      
+    _track_record->cov_ip_z0omega = 0 ;      
+    _track_record->cov_ip_z0z0 = 0 ;      
+    _track_record->cov_ip_tanLd0 = 0 ;      
+    _track_record->cov_ip_tanLphi0 = 0 ;      
+    _track_record->cov_ip_tanLomega = 0 ;      
+    _track_record->cov_ip_tanLz0 = 0 ;      
+    _track_record->cov_ip_tanLtanL = 0 ;  
+    
+    for ( int i = 0 ; i<MAX_SITES; ++i) {
+      
+      _track_record->CellID0[i] = 0 ;
+      _track_record->rejected[i] = 0 ;
+      
+      _track_record->site_x[i] = 0 ;
+      _track_record->site_y[i] = 0 ;
+      _track_record->site_z[i] = 0 ;
+      
+      _track_record->ref_point_x[i] = 0 ;
+      _track_record->ref_point_y[i] = 0 ;
+      _track_record->ref_point_z[i] = 0 ;
+      
+      _track_record->d0_mc[i] = 0 ;
+      _track_record->phi0_mc[i] = 0 ;
+      _track_record->omega_mc[i] = 0 ;
+      _track_record->z0_mc[i] = 0 ;
+      _track_record->tanL_mc[i] = 0 ;
+      
+      _track_record->d0_predicted[i] = 0 ;
+      _track_record->phi0_predicted[i] = 0 ;
+      _track_record->omega_predicted[i] = 0 ;
+      _track_record->z0_predicted[i] = 0 ;
+      _track_record->tanL_predicted[i] = 0 ; 
+      
+      _track_record->d0_filtered[i] = 0 ;
+      _track_record->phi0_filtered[i] = 0 ;
+      _track_record->omega_filtered[i] = 0 ;
+      _track_record->z0_filtered[i] = 0 ;
+      _track_record->tanL_filtered[i] = 0 ; 
+      
+      _track_record->d0_smoothed[i] = 0 ;
+      _track_record->phi0_smoothed[i] = 0 ;
+      _track_record->omega_smoothed[i] = 0 ;
+      _track_record->z0_smoothed[i] = 0 ;
+      _track_record->tanL_smoothed[i] = 0 ; 
+      
+      
+      _track_record->chi2_inc_filtered[i] = 0 ;
+      _track_record->chi2_inc_smoothed[i] = 0 ;
+      _track_record->dim[i] = 0 ;
+      
+      _track_record->cov_predicted_d0d0[i] = 0 ;      
+      _track_record->cov_predicted_phi0d0[i] = 0 ;      
+      _track_record->cov_predicted_phi0phi0[i] = 0 ;      
+      _track_record->cov_predicted_omegad0[i] = 0 ;      
+      _track_record->cov_predicted_omegaphi0[i] = 0 ;      
+      _track_record->cov_predicted_omegaomega[i] = 0 ;      
+      _track_record->cov_predicted_z0d0[i] = 0 ;      
+      _track_record->cov_predicted_z0phi0[i] = 0 ;      
+      _track_record->cov_predicted_z0omega[i] = 0 ;      
+      _track_record->cov_predicted_z0z0[i] = 0 ;      
+      _track_record->cov_predicted_tanLd0[i] = 0 ;      
+      _track_record->cov_predicted_tanLphi0[i] = 0 ;      
+      _track_record->cov_predicted_tanLomega[i] = 0 ;      
+      _track_record->cov_predicted_tanLz0[i] = 0 ;      
+      _track_record->cov_predicted_tanLtanL[i] = 0 ;      
+      
+      _track_record->cov_filtered_d0d0[i] = 0 ;      
+      _track_record->cov_filtered_phi0d0[i] = 0 ;      
+      _track_record->cov_filtered_phi0phi0[i] = 0 ;      
+      _track_record->cov_filtered_omegad0[i] = 0 ;      
+      _track_record->cov_filtered_omegaphi0[i] = 0 ;      
+      _track_record->cov_filtered_omegaomega[i] = 0 ;      
+      _track_record->cov_filtered_z0d0[i] = 0 ;      
+      _track_record->cov_filtered_z0phi0[i] = 0 ;      
+      _track_record->cov_filtered_z0omega[i] = 0 ;      
+      _track_record->cov_filtered_z0z0[i] = 0 ;      
+      _track_record->cov_filtered_tanLd0[i] = 0 ;      
+      _track_record->cov_filtered_tanLphi0[i] = 0 ;      
+      _track_record->cov_filtered_tanLomega[i] = 0 ;      
+      _track_record->cov_filtered_tanLz0[i] = 0 ;      
+      _track_record->cov_filtered_tanLtanL[i] = 0 ;      
+      
+      _track_record->cov_smoothed_d0d0[i] = 0 ;      
+      _track_record->cov_smoothed_phi0d0[i] = 0 ;      
+      _track_record->cov_smoothed_phi0phi0[i] = 0 ;      
+      _track_record->cov_smoothed_omegad0[i] = 0 ;      
+      _track_record->cov_smoothed_omegaphi0[i] = 0 ;      
+      _track_record->cov_smoothed_omegaomega[i] = 0 ;      
+      _track_record->cov_smoothed_z0d0[i] = 0 ;      
+      _track_record->cov_smoothed_z0phi0[i] = 0 ;      
+      _track_record->cov_smoothed_z0omega[i] = 0 ;      
+      _track_record->cov_smoothed_z0z0[i] = 0 ;      
+      _track_record->cov_smoothed_tanLd0[i] = 0 ;      
+      _track_record->cov_smoothed_tanLphi0[i] = 0 ;      
+      _track_record->cov_smoothed_tanLomega[i] = 0 ;      
+      _track_record->cov_smoothed_tanLz0[i] = 0 ;      
+      _track_record->cov_smoothed_tanLtanL[i] = 0 ;      
+      
+      
+      
+    }
+    
+  }
+  
+  void DiagnosticsController::new_track(MarlinKalTestTrack* trk){
+    
+    if ( _recording_on == false ) {
+      return;
+    }
+    
+    if ( _initialised == false ){
+      streamlog_out(ERROR) << "DiagnosticsController::new_track: Diagnostics not initialised call init(std::string root_file_name, std::string root_tree_name, bool recording_off) first : exit(1) called from file " 
+      << __FILE__
+      << " line "
+      << __LINE__
+      << std::endl;
+      
+      exit(1);
+    }
+    
+    streamlog_out(DEBUG3) << " DiagnosticsController::new_track called " << std::endl;
+    
+    this->clear_track_record();
+    
+    _current_track = trk;
+        
+    _skip_track = false;    
+    _currentMCP = 0;
+    _mcpInfoStored=false;
+    
+  }
+  
+  
+  
+  void DiagnosticsController::set_intial_track_parameters(double d0, double phi0, double omega, double z0, double tanL, double pivot_x, double pivot_y, double pivot_z, TKalMatrix& cov){
+    
+    if ( _recording_on == false ) {
+      return;
+    }
+    
+    if ( _initialised == false ){
+      streamlog_out(ERROR) << "DiagnosticsController::set_intial_track_parameters: Diagnostics not initialised call init(std::string root_file_name, std::string root_tree_name, bool recording_off) first : exit(1) called from file " 
+      << __FILE__
+      << " line "
+      << __LINE__
+      << std::endl;
+      
+      exit(1);
+    }
+    
+    streamlog_out(DEBUG3) << " DiagnosticsController::set_intial_track_parameters called " << std::endl;
+    
+    _track_record->d0_seed= d0;
+    _track_record->phi0_seed= phi0;
+    _track_record->omega_seed= omega;
+    _track_record->z0_seed= z0;
+    _track_record->tanL_seed= tanL;
+    
+    _track_record->seed_ref_point_x = pivot_x ;
+    _track_record->seed_ref_point_y = pivot_y ;
+    _track_record->seed_ref_point_z = pivot_z ;
+    
+    
+    _track_record->cov_seed_d0d0 = cov( 0 , 0 ) ;      
+    _track_record->cov_seed_phi0d0 = cov( 1 , 0 ) ;      
+    _track_record->cov_seed_phi0phi0 = cov( 1 , 1 ) ;      
+    _track_record->cov_seed_kappad0 = cov( 2 , 0 ) ;      
+    _track_record->cov_seed_kappaphi0 = cov( 2 , 1 ) ;      
+    _track_record->cov_seed_kappakappa = cov( 2 , 2 ) ;      
+    _track_record->cov_seed_z0d0 = cov( 3 , 0 ) ;      
+    _track_record->cov_seed_z0phi0 = cov( 3 , 1 ) ;      
+    _track_record->cov_seed_z0kappa = cov( 3 , 2 ) ;      
+    _track_record->cov_seed_z0z0 = cov( 3 , 3 ) ;      
+    _track_record->cov_seed_tanLd0 = cov( 4 , 0 ) ;      
+    _track_record->cov_seed_tanLphi0 = cov( 4 , 1 ) ;      
+    _track_record->cov_seed_tanLkappa = cov( 4 , 2 ) ;      
+    _track_record->cov_seed_tanLz0 = cov( 4 , 3 ) ;      
+    _track_record->cov_seed_tanLtanL = cov( 4 , 4 ) ;  
+
+    //    cov.Print();
+    
+    
+    streamlog_out(DEBUG3) << " $#$#$# Initial Track Parameters: " 
+    << "d0 = " << d0 << " " <<  "[+/-" << sqrt( _track_record->cov_seed_d0d0 ) << "] "  
+    << "phi0 = " << phi0 << " "  <<  "[+/-" << sqrt( _track_record->cov_seed_phi0phi0 ) << "] "
+    << "omega = " << omega << " "  <<  "[+/-" << sqrt( _track_record->cov_seed_kappakappa ) << "] "
+    << "z0 = " << z0 << " "  <<  "[+/-" << sqrt( _track_record->cov_seed_z0z0 ) << "] "
+    << "tanL = " << tanL << " "  <<  "[+/-" << sqrt( _track_record->cov_seed_tanLtanL ) << "] "
+    << "ref = " << pivot_x << " " << pivot_y <<  " " << pivot_z << " "  
+    << std::endl;
+    
+  }
+  
+  
+  void DiagnosticsController::record_rejected_site(ILDVTrackHit* hit, TKalTrackSite* site){
+
+    if ( _recording_on == false ) {
+      return;
+    }
+    
+    if ( _initialised == false ){
+      streamlog_out(ERROR) << "DiagnosticsController::record_rejected_site: Diagnostics not initialised call init(std::string root_file_name, std::string root_tree_name, bool recording_off) first : exit(1) called from file " 
+      << __FILE__
+      << " line "
+      << __LINE__
+      << std::endl;
+      
+      exit(1);
+    }
+
+      
+    if(_skip_track) return;
+    
+    _track_record->rejected[_track_record->nsites] = 1;
+    _track_record->CellID0[_track_record->nsites] = hit->getLCIOTrackerHit()->getCellID0();
+    
+    
+    EVENT::MCParticle* mcp = hit->getLCIOTrackerHit()->ext<MarlinTrk::MCTruth4HitExt>()->simhit->getMCParticle();
+    
+    ++_track_record->nsites;
+    streamlog_out(DEBUG2) << "record_rejected_site _track_record->nsites = " << _track_record->nsites << " MCParticle of simhit = " << mcp << " pdg " << mcp->getPDG() <<  " energy = "  << mcp->getEnergy() << " id = " << mcp->id() << std::endl;
+
+  }
+  
+  
+  void DiagnosticsController::record_site(ILDVTrackHit* hit, TKalTrackSite* site){
+        
+    if ( _recording_on == false ) {
+      return;
+    }
+    
+    if ( _initialised == false ){
+      streamlog_out(ERROR) << "DiagnosticsController::record_site: Diagnostics not initialised call init(std::string root_file_name, std::string root_tree_name, bool recording_off) first : exit(1) called from file " 
+      << __FILE__
+      << " line "
+      << __LINE__
+      << std::endl;
+      
+      exit(1);
+    }
+    
+    streamlog_out(DEBUG2) << "DiagnosticsController::record_site called " << std::endl;
+    
+    if(_skip_track) return;
+    
+    EVENT::TrackerHit* trkhit = hit->getLCIOTrackerHit();
+    
+    MarlinTrk::MCTruth4HitExtStruct* ext = trkhit->ext<MarlinTrk::MCTruth4HitExt>();
+    
+    if ( ! ext ) {
+      
+      streamlog_out(ERROR) << "MCTruth4HitExt not attached to TrackerHit use processor SetTrackerHitExtensions to set them: exit(1) called from file " 
+      << __FILE__
+      << " line "
+      << __LINE__
+      << std::endl;
+      
+      exit(1);
+      
+    }
+    
+    EVENT::SimTrackerHit* simhit = trkhit->ext<MarlinTrk::MCTruth4HitExt>()->simhit;
+    
+    if ( ! simhit ) {
+      
+      streamlog_out(ERROR) << "SimTrackerHit not attached to TrackerHit using MCTruth4HitExt use processor SetTrackerHitExtensions to set them: exit(1) called from file " 
+      << __FILE__
+      << " line "
+      << __LINE__
+      << std::endl;
+      
+      exit(1);
+      
+    }
+    
+    EVENT::MCParticle* mcp = simhit->getMCParticle() ; 
+    
+    
+    if( _track_record->nsites >= 0 ){
+      
+      if ( _mcpInfoStored == false ) {
+
+        streamlog_out(DEBUG2) << "DiagnosticsController::record_site store MCParticle parameters for " << mcp << " pdg " << mcp->getPDG() <<  " energy = "  << mcp->getEnergy() << " id = " << mcp->id() << std::endl;
+        
+        _currentMCP = mcp;
+
+        _track_record->x_mcp = mcp->getVertex()[0];
+        _track_record->y_mcp = mcp->getVertex()[1];
+        _track_record->z_mcp = mcp->getVertex()[2];
+        
+        _track_record->px_mcp = mcp->getMomentum()[0];
+        _track_record->py_mcp = mcp->getMomentum()[1];
+        _track_record->pz_mcp = mcp->getMomentum()[2];
+        
+        double pt = sqrt(_track_record->px_mcp*_track_record->px_mcp + 
+                         _track_record->py_mcp*_track_record->py_mcp ) ;
+        
+        _track_record->p_mcp = sqrt( pt*pt + _track_record->pz_mcp*_track_record->pz_mcp );
+        
+        
+        _track_record->theta_mcp = atan2( pt, _track_record->pz_mcp );
+        _track_record->phi_mcp   = atan2( _track_record->py_mcp, _track_record->px_mcp );
+        
+        _track_record->pdg_mcp = mcp->getPDG();
+        
+        //    HelixTrack helixMC( sim_pos, sim_mom, mcp->getCharge(), ml.GetBz() ) ;
+        HelixTrack helixMC( mcp->getVertex(), mcp->getMomentum(), mcp->getCharge(), site->GetBfield() ) ;
+        
+        helixMC.moveRefPoint(0.0, 0.0, 0.0);
+        
+        _track_record->d0_mcp= helixMC.getD0();
+        _track_record->phi0_mcp = helixMC.getPhi0();
+        _track_record->omega_mcp = helixMC.getOmega();
+        _track_record->z0_mcp = helixMC.getZ0();
+        _track_record->tanL_mcp = helixMC.getTanLambda();
+        
+        _mcpInfoStored = true;
+        
+      }
+      else if( _currentMCP != mcp ) {
+        _skip_track = true ; // do not store tracks formed from more than one MCParticle
+        streamlog_out(WARNING) << "DiagnosticsController::record_site: Track skipped. Not storing tracks formed from more than one MCParticle " << std::endl;
+        return ;
+      }
+      
+      double sim_pos[3];
+      sim_pos[0] = simhit->getPosition()[0];
+      sim_pos[1] = simhit->getPosition()[1];
+      sim_pos[2] = simhit->getPosition()[2];
+      
+      double sim_mom[3];
+      sim_mom[0] = simhit->getMomentum()[0];
+      sim_mom[1] = simhit->getMomentum()[1];
+      sim_mom[2] = simhit->getMomentum()[2];
+      
+      if ( fabs(sim_mom[0]) < 1.e-09 && fabs(sim_mom[1]) < 1.e-09 && fabs(sim_mom[2]) < 1.e-09 ) {
+        // then the momentum is sub eV and therefore the momentum was certainly not set
+        streamlog_out(ERROR) << "Momentum not set in SimTrackerHit exit(1) called from file " 
+        << __FILE__
+        << " line "
+        << __LINE__
+        << std::endl;
+        
+        exit(1);
+        
+      }
+      
+                  
+      _track_record->CellID0[_track_record->nsites] = trkhit->getCellID0() ;
+      
+      UTIL::BitField64 encoder(lcio::ILDCellID0::encoder_string);
+      encoder.setValue( trkhit->getCellID0() );
+      
+      if (encoder[lcio::ILDCellID0::subdet] == lcio::ILDDetID::VXD) {
+        ++_track_record->nsites_vxd;
+      }
+      else if (encoder[lcio::ILDCellID0::subdet] == lcio::ILDDetID::SIT) {
+        ++_track_record->nsites_sit;
+      }
+      else if (encoder[lcio::ILDCellID0::subdet] == lcio::ILDDetID::FTD) {
+        ++_track_record->nsites_ftd;
+      }
+      else if (encoder[lcio::ILDCellID0::subdet] == lcio::ILDDetID::TPC) {
+        ++_track_record->nsites_tpc;
+      }
+      else if (encoder[lcio::ILDCellID0::subdet] == lcio::ILDDetID::SET) {
+        ++_track_record->nsites_set;
+      }
+      
+      _track_record->chi2_inc_filtered[_track_record->nsites] = site->GetDeltaChi2();
+      _track_record->dim[_track_record->nsites] = site->GetDimension();
+      
+      // create helix from MCTruth at sim hit
+      //    HelixTrack helixMC( sim_pos, sim_mom, mcp->getCharge(), ml.GetBz() ) ;
+      HelixTrack helixMC( sim_pos, sim_mom, mcp->getCharge(), site->GetBfield() ) ;
+
+      // here perhaps we should move the helix to the hit to calculate the deltas or though this could still be done in the analysis code, as both sim and rec hit positions are stored ?
+      //      helixMC.moveRefPoint(0.0, 0.0, 0.0);
+            
+      streamlog_out(DEBUG2) << " $#$#$# SimHit Track Parameters: " 
+      << "x = " << sim_pos[0] << " "  
+      << "y = " << sim_pos[1] << " "  
+      << "z = " << sim_pos[2] << " "  
+      << "px = " << sim_mom[0] << " "  
+      << "py = " << sim_mom[1] << " "  
+      << "pz = " << sim_mom[2] << " "  
+      << "p = " << sqrt(sim_mom[0]*sim_mom[0] + sim_mom[1]*sim_mom[1] + sim_mom[2]*sim_mom[2]) << " "  
+      << "d0 = " << helixMC.getD0() << " "  
+      << "phi0 = " << helixMC.getPhi0() << " "  
+      << "omega = " << helixMC.getOmega() << " "  
+      << "z0 = " << helixMC.getZ0() << " "  
+      << "tanL = " << helixMC.getTanLambda() << " "  
+      << " mcp ID = " << simhit->getMCParticle()->id()
+      << std::endl;
+            
+      _track_record->d0_mc[_track_record->nsites] = helixMC.getD0();
+      _track_record->phi0_mc[_track_record->nsites] = helixMC.getPhi0();
+      _track_record->omega_mc[_track_record->nsites] = helixMC.getOmega();
+      _track_record->z0_mc[_track_record->nsites] = helixMC.getZ0();
+      _track_record->tanL_mc[_track_record->nsites] = helixMC.getTanLambda();
+            
+      double rec_x = trkhit->getPosition()[0];
+      double rec_y = trkhit->getPosition()[1];
+      double rec_z = trkhit->getPosition()[2];
+      
+      _track_record->site_x[_track_record->nsites] = rec_x;
+      _track_record->site_y[_track_record->nsites] = rec_y;
+      _track_record->site_z[_track_record->nsites] = rec_z;
+      
+      
+//      // move track state to the sim hit for comparison 
+      const TVector3 tpoint( sim_pos[0], sim_pos[1], sim_pos[2] ) ;
+
+      // move track state to the IP to make all comparisons straight forward 
+      //      const TVector3 tpoint( 0.0, 0.0, 0.0 ) ;
+
+      
+      IMPL::TrackStateImpl ts;
+      int ndf;
+      double chi2;
+      double dPhi ;
+      
+      
+      TKalTrackState& trkState_predicted = (TKalTrackState&) site->GetState(TVKalSite::kPredicted); // this segfaults if no hits are present
+      
+      THelicalTrack helix_predicted = trkState_predicted.GetHelix() ;
+      TMatrixD c0_predicted(trkState_predicted.GetCovMat());  
+      
+      Int_t sdim = trkState_predicted.GetDimension();  // dimensions of the track state, it will be 5 or 6
+      
+      // now move to the point
+      TKalMatrix  DF(sdim,sdim);  
+      DF.UnitMatrix();                           
+      helix_predicted.MoveTo(  tpoint , dPhi , &DF , &c0_predicted) ;  // move helix to desired point, and get propagator matrix
+      
+      streamlog_out(DEBUG2) << "DiagnosticsController::record_site get PREDICTED trackstate " << std::endl;
+      
+      _current_track->ToLCIOTrackState( helix_predicted, c0_predicted, ts, chi2, ndf );
+      
+      _track_record->d0_predicted[_track_record->nsites] = ts.getD0() ;
+      _track_record->phi0_predicted[_track_record->nsites] = ts.getPhi() ;
+      _track_record->omega_predicted[_track_record->nsites] = ts.getOmega() ;
+      _track_record->z0_predicted[_track_record->nsites] = ts.getZ0() ;
+      _track_record->tanL_predicted[_track_record->nsites] = ts.getTanLambda() ;
+      
+      
+      _track_record->cov_predicted_d0d0[_track_record->nsites] = ts.getCovMatrix()[0];      
+      _track_record->cov_predicted_phi0d0[_track_record->nsites] = ts.getCovMatrix()[1];      
+      _track_record->cov_predicted_phi0phi0[_track_record->nsites] = ts.getCovMatrix()[2];      
+      _track_record->cov_predicted_omegad0[_track_record->nsites] = ts.getCovMatrix()[3];      
+      _track_record->cov_predicted_omegaphi0[_track_record->nsites] = ts.getCovMatrix()[4];      
+      _track_record->cov_predicted_omegaomega[_track_record->nsites] = ts.getCovMatrix()[5];      
+      _track_record->cov_predicted_z0d0[_track_record->nsites] = ts.getCovMatrix()[6];      
+      _track_record->cov_predicted_z0phi0[_track_record->nsites] = ts.getCovMatrix()[7];      
+      _track_record->cov_predicted_z0omega[_track_record->nsites] = ts.getCovMatrix()[8];      
+      _track_record->cov_predicted_z0z0[_track_record->nsites] = ts.getCovMatrix()[9];      
+      _track_record->cov_predicted_tanLd0[_track_record->nsites] = ts.getCovMatrix()[10];      
+      _track_record->cov_predicted_tanLphi0[_track_record->nsites] = ts.getCovMatrix()[11];      
+      _track_record->cov_predicted_tanLomega[_track_record->nsites] = ts.getCovMatrix()[12];      
+      _track_record->cov_predicted_tanLz0[_track_record->nsites] = ts.getCovMatrix()[13];      
+      _track_record->cov_predicted_tanLtanL[_track_record->nsites] = ts.getCovMatrix()[14];  
+      
+
+      streamlog_out(DEBUG2) << "DiagnosticsController::record_site get FILTERED trackstate " << std::endl;
+      
+      TKalTrackState& trkState_filtered = (TKalTrackState&) site->GetState(TVKalSite::kFiltered); // this segfaults if no hits are present
+      
+      THelicalTrack helix_filtered = trkState_filtered.GetHelix() ;
+      TMatrixD c0_filtered(trkState_filtered.GetCovMat());  
+      
+      DF.UnitMatrix();                           
+      helix_filtered.MoveTo(  tpoint , dPhi , &DF , &c0_filtered) ;  // move helix to desired point, and get propagator matrix
+      
+      IMPL::TrackStateImpl ts_f;
+      
+      _current_track->ToLCIOTrackState( helix_filtered, c0_filtered, ts_f, chi2, ndf );
+      
+      _track_record->d0_filtered[_track_record->nsites] = ts_f.getD0() ;
+      _track_record->phi0_filtered[_track_record->nsites] = ts_f.getPhi() ;
+      _track_record->omega_filtered[_track_record->nsites] = ts_f.getOmega() ;
+      _track_record->z0_filtered[_track_record->nsites] = ts_f.getZ0() ;
+      _track_record->tanL_filtered[_track_record->nsites] = ts_f.getTanLambda() ;
+      
+      
+      _track_record->cov_filtered_d0d0[_track_record->nsites] = ts_f.getCovMatrix()[0];      
+      _track_record->cov_filtered_phi0d0[_track_record->nsites] = ts_f.getCovMatrix()[1];      
+      _track_record->cov_filtered_phi0phi0[_track_record->nsites] = ts_f.getCovMatrix()[2];      
+      _track_record->cov_filtered_omegad0[_track_record->nsites] = ts_f.getCovMatrix()[3];      
+      _track_record->cov_filtered_omegaphi0[_track_record->nsites] = ts_f.getCovMatrix()[4];      
+      _track_record->cov_filtered_omegaomega[_track_record->nsites] = ts_f.getCovMatrix()[5];      
+      _track_record->cov_filtered_z0d0[_track_record->nsites] = ts_f.getCovMatrix()[6];      
+      _track_record->cov_filtered_z0phi0[_track_record->nsites] = ts_f.getCovMatrix()[7];      
+      _track_record->cov_filtered_z0omega[_track_record->nsites] = ts_f.getCovMatrix()[8];      
+      _track_record->cov_filtered_z0z0[_track_record->nsites] = ts_f.getCovMatrix()[9];      
+      _track_record->cov_filtered_tanLd0[_track_record->nsites] = ts_f.getCovMatrix()[10];      
+      _track_record->cov_filtered_tanLphi0[_track_record->nsites] = ts_f.getCovMatrix()[11];      
+      _track_record->cov_filtered_tanLomega[_track_record->nsites] = ts_f.getCovMatrix()[12];      
+      _track_record->cov_filtered_tanLz0[_track_record->nsites] = ts_f.getCovMatrix()[13];      
+      _track_record->cov_filtered_tanLtanL[_track_record->nsites] = ts_f.getCovMatrix()[14];   
+      
+      
+
+      _track_record->ref_point_x[_track_record->nsites] = tpoint.X();
+      _track_record->ref_point_y[_track_record->nsites] = tpoint.Y();
+      _track_record->ref_point_z[_track_record->nsites] = tpoint.Z();
+      
+      
+    }
+    
+    ++_track_record->nsites;
+    
+    if (_track_record->nsites > MAX_SITES) {
+      _skip_track = true ;
+      this->clear_track_record();
+      streamlog_out(DEBUG4) << " DiagnosticsController::end_track: Number of site too large. Track Skipped.    nsites = " << _track_record->nsites << " : maximum number of site allowed = " << MAX_SITES << std::endl;        
+      return;
+    }
+
+    
+    streamlog_out(DEBUG2) << "_track_record->nsites = " << _track_record->nsites << std::endl;
+  }
+  
+  void DiagnosticsController::end_track(){
+    
+    
+    
+    if ( _recording_on == false ) {
+      return;
+    }
+    
+    if ( _initialised == false ){
+      streamlog_out(ERROR) << "DiagnosticsController::end_track: Diagnostics not initialised call init(std::string root_file_name, std::string root_tree_name, bool recording_off) first : exit(1) called from file " 
+      << __FILE__
+      << " line "
+      << __LINE__
+      << std::endl;
+      
+      exit(1);
+    }
+    
+    streamlog_out(DEBUG3) << " DiagnosticsController::end_track called " << std::endl;
+    
+    if ( _skip_track ) { // just clear the track buffers and return.
+      ++_ntracks_skipped;
+      this->clear_track_record();
+      return;
+    } else {
+      
+      _track_record->chi2 = _current_track->_kaltrack->GetChi2();
+      _track_record->ndf = _current_track->_kaltrack->GetNDF();
+      _track_record->prob = TMath::Prob(_track_record->chi2, _track_record->ndf);
+      
+      TIter it(_current_track->_kaltrack,kIterForward);
+      
+      Int_t nsites =  _current_track->_kaltrack->GetEntries();
+      
+      if (nsites > MAX_SITES) {
+        _skip_track = true ;
+        ++_ntracks_skipped;
+        this->clear_track_record();
+        streamlog_out(DEBUG4) << " DiagnosticsController::end_track: Number of site too large. Track Skipped.    nsites = " << nsites << " : maximum number of site allowed = " << MAX_SITES << std::endl;        
+        return;
+      }
+      
+      
+      if( _current_track->_smoothed ){
+        
+        for (Int_t isite=1; isite<nsites; isite++) {
+          
+          UTIL::BitField64 encoder(lcio::ILDCellID0::encoder_string);
+          encoder.setValue( _track_record->CellID0[isite] );
+          
+          
+          TVKalSite* site = static_cast<TVKalSite *>( _current_track->_kaltrack->At(isite));
+          
+          if ( _track_record->rejected[isite] == 0 && encoder[lcio::ILDCellID0::subdet] != 0 ) {
+            
+            
+            _track_record->chi2_inc_smoothed[isite] = site->GetDeltaChi2();
+            
+            TKalTrackState& trkState_smoothed = (TKalTrackState&) site->GetState(TVKalSite::kSmoothed); // this segfaults if no hits are present
+            
+            THelicalTrack helix_smoothed = trkState_smoothed.GetHelix() ;
+            TMatrixD c0_smoothed(trkState_smoothed.GetCovMat());  
+            
+            Int_t sdim = trkState_smoothed.GetDimension();  // dimensions of the track state, it will be 5 or 6
+            
+            // move track state to the sim hit for comparison 
+            const TVector3 tpoint( _track_record->ref_point_x[isite], _track_record->ref_point_y[isite], _track_record->ref_point_z[isite] ) ;
+            
+            // now move to the point
+            TKalMatrix  DF(sdim,sdim);  
+            DF.UnitMatrix();                           
+            
+            double dPhi=0;
+            
+            helix_smoothed.MoveTo(  tpoint , dPhi , &DF , &c0_smoothed) ;  // move helix to desired point, and get propagator matrix
+            
+            IMPL::TrackStateImpl ts;
+            int ndf;
+            double chi2;
+            
+            _current_track->ToLCIOTrackState( helix_smoothed, c0_smoothed, ts, chi2, ndf );
+            
+            
+            _track_record->d0_smoothed[isite] = ts.getD0() ;
+            _track_record->phi0_smoothed[isite] = ts.getPhi() ;
+            _track_record->omega_smoothed[isite] = ts.getOmega() ;
+            _track_record->z0_smoothed[isite] = ts.getZ0() ;
+            _track_record->tanL_smoothed[isite] = ts.getTanLambda() ;
+            
+            
+            _track_record->cov_smoothed_d0d0[isite] = ts.getCovMatrix()[0];      
+            _track_record->cov_smoothed_phi0d0[isite] = ts.getCovMatrix()[1];      
+            _track_record->cov_smoothed_phi0phi0[isite] = ts.getCovMatrix()[2];      
+            _track_record->cov_smoothed_omegad0[isite] = ts.getCovMatrix()[3];      
+            _track_record->cov_smoothed_omegaphi0[isite] = ts.getCovMatrix()[4];      
+            _track_record->cov_smoothed_omegaomega[isite] = ts.getCovMatrix()[5];      
+            _track_record->cov_smoothed_z0d0[isite] = ts.getCovMatrix()[6];      
+            _track_record->cov_smoothed_z0phi0[isite] = ts.getCovMatrix()[7];      
+            _track_record->cov_smoothed_z0omega[isite] = ts.getCovMatrix()[8];      
+            _track_record->cov_smoothed_z0z0[isite] = ts.getCovMatrix()[9];      
+            _track_record->cov_smoothed_tanLd0[isite] = ts.getCovMatrix()[10];      
+            _track_record->cov_smoothed_tanLphi0[isite] = ts.getCovMatrix()[11];      
+            _track_record->cov_smoothed_tanLomega[isite] = ts.getCovMatrix()[12];      
+            _track_record->cov_smoothed_tanLz0[isite] = ts.getCovMatrix()[13];      
+            _track_record->cov_smoothed_tanLtanL[isite] = ts.getCovMatrix()[14];  
+            
+          }
+          
+        }
+      }
+      
+      IMPL::TrackStateImpl ts_at_ip;
+      int ndf;
+      double chi2;
+      
+      gear::Vector3D point(0.0,0.0,0.0);
+      _current_track->propagate( point, ts_at_ip, chi2, ndf );
+      
+      _track_record->d0_ip = ts_at_ip.getD0() ;
+      _track_record->phi0_ip = ts_at_ip.getPhi() ;
+      _track_record->omega_ip = ts_at_ip.getOmega() ;
+      _track_record->z0_ip = ts_at_ip.getZ0() ;
+      _track_record->tanL_ip = ts_at_ip.getTanLambda() ;
+      
+      
+      _track_record->cov_ip_d0d0 = ts_at_ip.getCovMatrix()[0];      
+      _track_record->cov_ip_phi0d0 = ts_at_ip.getCovMatrix()[1];      
+      _track_record->cov_ip_phi0phi0 = ts_at_ip.getCovMatrix()[2];      
+      _track_record->cov_ip_omegad0 = ts_at_ip.getCovMatrix()[3];      
+      _track_record->cov_ip_omegaphi0 = ts_at_ip.getCovMatrix()[4];      
+      _track_record->cov_ip_omegaomega = ts_at_ip.getCovMatrix()[5];      
+      _track_record->cov_ip_z0d0 = ts_at_ip.getCovMatrix()[6];      
+      _track_record->cov_ip_z0phi0 = ts_at_ip.getCovMatrix()[7];      
+      _track_record->cov_ip_z0omega = ts_at_ip.getCovMatrix()[8];      
+      _track_record->cov_ip_z0z0 = ts_at_ip.getCovMatrix()[9];      
+      _track_record->cov_ip_tanLd0 = ts_at_ip.getCovMatrix()[10];      
+      _track_record->cov_ip_tanLphi0 = ts_at_ip.getCovMatrix()[11];      
+      _track_record->cov_ip_tanLomega = ts_at_ip.getCovMatrix()[12];      
+      _track_record->cov_ip_tanLz0 = ts_at_ip.getCovMatrix()[13];      
+      _track_record->cov_ip_tanLtanL = ts_at_ip.getCovMatrix()[14];  
+      
+      _tree->Fill();
+      
+      ++_ntracks_written;
+      
+    }
+    
+  }
+  
+  void DiagnosticsController::end(){
+    
+    if ( _recording_on == false ) {
+      return;
+    }
+    
+    if ( _initialised == false ){
+      streamlog_out(ERROR) << "DiagnosticsController::end: Diagnostics not initialised call init(std::string root_file_name, std::string root_tree_name, bool recording_off) first : exit(1) called from file " 
+      << __FILE__
+      << " line "
+      << __LINE__
+      << std::endl;
+      
+      exit(1);
+    }
+    
+    streamlog_out(DEBUG4) << " DiagnosticsController::end() called \n" 
+    << "\t number of tracks written = " << _ntracks_written
+    << "\t number of tracks skipped = " << _ntracks_skipped
+    << std::endl;
+    
+    
+    
+    //    _tree->Print();
+    _root_file->Write();
+    _root_file->Close();
+    delete _root_file; _root_file = 0;
+    
+  }
+
+  
+}
+
+
+
+#endif
