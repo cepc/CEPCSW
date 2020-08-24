@@ -112,14 +112,14 @@
   <constant name="BCal_rOuter" value="140*mm"/>
 
   <!-- the beam tube -->
-  <constant name="TUBE_IPInnerTube_end_z"         value="200*mm"/>
+  <constant name="TUBE_IPInnerTube_end_z"         value="500*mm"/>
   <constant name="TUBE_central_inner_radius" value="14*mm"/>
   <constant name="TUBE_central_thickness" value="0.5*mm"/>
 
-  <constant name="TUBE_IPInnerBulge_end_z"        value="500*mm"/>
-  <constant name="TUBE_IPInnerBulge_end_innerradius" value="19.5*mm"/>
+  <constant name="TUBE_IPInnerBulge_end_z"        value="700*mm"/>
+  <constant name="TUBE_IPInnerBulge_end_innerradius" value="17.5*mm"/>
 
-  <constant name="TUBE_IPOuterTube_start_z"       value="500*mm"/>
+  <constant name="TUBE_IPOuterTube_start_z"       value="700*mm"/>
   <constant name="TUBE_IPOuterTube_end_z"         value="700*mm"/>
 
   <constant name="TUBE_Lcal_clearance" value="20*mm"/>

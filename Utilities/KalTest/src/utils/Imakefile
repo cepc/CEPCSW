@@ -1,0 +1,53 @@
+#include "../../conf/makejsf.tmpl"
+
+INSTALLDIR    = ../..
+PACKAGENAME   = S4Utils
+SOREV         = 2005.01
+
+SRCS          = TAttDrawable.$(SrcSuf) \
+                TAttElement.$(SrcSuf) \
+                TAttLockable.$(SrcSuf)
+
+OBJS	      =	$(subst .$(SrcSuf),.$(ObjSuf),$(SRCS)) \
+		$(PACKAGENAME)Dict.$(ObjSuf)
+
+HDRS	      = $(subst .$(SrcSuf),.h,$(SRCS))
+
+DICTNAME      = $(PACKAGENAME)Dict
+
+LIBNAME       = $(PACKAGENAME)
+
+SONAME        = lib$(LIBNAME).$(DllSuf).$(SOREV)
+
+LIBINSTALLDIR = $(INSTALLDIR)/lib
+INCINSTALLDIR = $(INSTALLDIR)/include
+INCPATH	      = -I. -I$(INCINSTALLDIR) 
+CXXFLAGS     += $(INCPATH)
+SHLIBLDFLAGS  = $(DYLIBFLAGS)
+
+
+all:: $(SONAME)
+
+SharedLibraryTarget($(LIBNAME),$(SOREV),$(OBJS),.,.)
+
+InstallSharedLibrary($(LIBNAME),$(SOREV),$(LIBINSTALLDIR))
+
+InstallMultipleFlags($(HDRS),$(INCINSTALLDIR),-m 644)
+
+clean:: 
+	@rm -f $(OBJS) core *.$(DllSuf) $(DICTNAME).$(SrcSuf) $(DICTNAME).h $(SONAME) *.$(DylibSuf)
+
+depend:: $(SRCS) $(HDRS)
+	for i in $(SRCS); do \
+	rmkdepend -a -- $(DEPENDFILES) -- $$i; done
+
+
+distclean:: clean
+	@rm -f $(OBJS) core *.$(DllSuf) $(DICTNAME).$(SrcSuf) $(DICTNAME).h *~
+	@rm -f $(SONAME) *.root Makefile
+	@(cd $(INSTALLDIR); rm -f *.root *.tdr *.out *~ core)
+
+$(DICTNAME).$(SrcSuf): $(HDRS) LinkDef.h
+	@echo "Generating dictionary ..."
+	rootcint -f $(DICTNAME).$(SrcSuf) \
+	         -c $(HDRS) LinkDef.h

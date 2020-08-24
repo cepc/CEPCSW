@@ -1,0 +1,190 @@
+#include "Tools/VXDHelixFitter.h"
+
+#include <sstream>
+#include <algorithm>
+#include <cmath>
+
+#include "edm4hep/TrackerHit.h"
+#include "UTIL/ILDConf.h"
+#include "UTIL/LCTrackerConf.h"
+//#include "marlin/VerbosityLevels.h"
+#include "TrackSystemSvc/HelixFit.h"
+
+#include "Tools/KiTrackMarlinTools.h"
+
+
+VXDHelixFitter::VXDHelixFitter( std::vector< TrackerHit* > trackerHits ){
+   
+   _trackerHits = trackerHits;
+   
+   fit();
+   
+}
+
+VXDHelixFitter::VXDHelixFitter( Track* track ){
+   
+   _trackerHits = track->getTrackerHits();
+   
+   fit();
+
+}
+
+void VXDHelixFitter::fit(){
+   
+  std::vector< TrackerHit* > trackerHits2D ;
+
+  for (unsigned ihit=0; ihit <_trackerHits.size(); ++ihit) {
+    
+    // check if this a space point or 2D hit 
+    if(UTIL::BitSet32( _trackerHits[ihit]->getType() )[ UTIL::ILDTrkHitTypeBit::ONE_DIMENSIONAL ] == false ){
+      // then add to the list 
+      trackerHits2D.push_back(_trackerHits[ihit]);
+      
+    }
+  }
+
+   std::sort( trackerHits2D.begin(), trackerHits2D.end(), KiTrackMarlin::compare_TrackerHit_R );
+   
+   int nHits = trackerHits2D.size();
+
+   int iopt = 2;
+   float chi2RPhi;
+   float chi2Z;
+
+   // DEBUG
+   //streamlog_out(DEBUG4) << " no of hits fitted " << nHits << std::endl ; 
+   
+   if( nHits < 3 ){
+      
+      std::stringstream s;
+      s << "VXDHelixFitter::fit(): Cannot fit less with less than 3 hits. Number of hits =  " << nHits << "\n";
+      
+      throw VXDHelixFitterException( s.str() );
+      
+   }
+   
+   double* xh  = new double[nHits];
+   double* yh  = new double[nHits];
+   float*  zh  = new float[nHits];
+   double* wrh = new double[nHits];
+   float*  wzh = new float[nHits];
+   float*  rh  = new float[nHits];
+   float*  ph  = new float[nHits];
+   
+   float par[5];
+   float epar[15];
+   
+   for( int i=0; i<nHits; i++ ){
+     
+     TrackerHit* hit = trackerHits2D[i];
+     
+     xh[i] = hit->getPosition()[0];
+     yh[i] = hit->getPosition()[1];
+     zh[i] = float(hit->getPosition()[2]);
+     
+     //wrh[i] = double(1.0/(hit->getResolutionRPhi()*hit->getResolutionRPhi()));
+     //wzh[i] = 1.0/(hit->getResolutionZ()*hit->getResolutionZ());
+     //wrh[i] = double(1.0/(sqrt((hit->getCovMatrix()[0]*hit->getCovMatrix()[0]) + (hit->getCovMatrix()[2]*hit->getCovMatrix()[2]))));
+     //wzh[i] = 1.0/(hit->getCovMatrix()[5]);
+     
+     rh[i] = float(sqrt(xh[i]*xh[i]+yh[i]*yh[i]));
+     ph[i] = atan2(yh[i],xh[i]);
+     if (ph[i] < 0.) 
+       ph[i] = 2.*M_PI + ph[i]; 
+     
+     // Just to debug the resolutions
+     //streamlog_out(DEBUG4) << " hit's radius " << rh[i] << " R-phi uncertainty " << wrh[i] << " Z uncertainty " << wzh[i] << " Cov[0] " << hit->getCovMatrix()[0] << " Cov[2] " << hit->getCovMatrix()[2] << " Cov[5] " << hit->getCovMatrix()[5] << std::endl ;
+     
+     // check for composite spacepoints
+     if( BitSet32( hit->getType() )[ UTIL::ILDTrkHitTypeBit::COMPOSITE_SPACEPOINT ] ){
+       
+       //streamlog_out(DEBUG4) << " COMPOSITE SPACEPOINT radius: " <<  rh[i] << std::endl ;
+       
+       float sigX = hit->getCovMatrix()[0];
+       float sigY = hit->getCovMatrix()[2];
+       wrh[i] = 1/sqrt( sigX*sigX + sigY*sigY );
+       wzh[i] = 1.0/(hit->getCovMatrix()[5]);
+       
+       //streamlog_out(DEBUG4) << " SPACEPOINT:: hit's radius " << rh[i] << " R-phi uncertainty " << wrh[i] << " Z uncertainty " << wzh[i] << " res RPhi " << sqrt( sigX*sigX + sigY*sigY ) << " res Z " << (hit->getCovMatrix()[5]) << std::endl ;         
+       
+     }
+     else if  (  BitSet32( hit->getType() )[ UTIL::ILDTrkHitTypeBit::ONE_DIMENSIONAL ] ) {
+       
+       // YV: FIXME: very crude hack, hard coded the SIT strip digital resolution in V 
+       //streamlog_out(DEBUG4) << " 1D hit radius: " <<  rh[i] << std::endl ;
+       
+       //TrackerHitPlane* hitPlane = dynamic_cast<TrackerHitPlane*>( hit );
+       //wrh[i] = double(1.0/( hitPlane->getdU()*hitPlane->getdU()  ));
+       wrh[i] = double(1.0/( hit->getCovMatrix(2)*hit->getCovMatrix(2) ));
+       double resZ = 92.0  / std::sqrt( 12. ) ;
+       //double resZ = 0.003 ;
+       wzh[i] = 1.0/( resZ * resZ ); 
+
+       //streamlog_out(DEBUG4) << " 1Dimensional TRACKERHITPLANE:: hit's radius " << rh[i] << " R-phi uncertainty " << wrh[i] << " Z uncertainty " << wzh[i] << " dU " << hitPlane->getdU() << " dV " << resZ  << " 1/du^2 "<< (1/(hitPlane->getdU()*hitPlane->getdU())) <<  " 1/dv^2 "<< wzh[i] << std::endl ;
+
+     }
+     
+     else {
+      
+       //streamlog_out(DEBUG4) << " 2D hit radius: " <<  rh[i]  << std::endl ; 
+       //TrackerHitPlane* hitPlane = dynamic_cast<TrackerHitPlane*>( hit );
+       //wrh[i] = double(1.0/( hitPlane->getdU()*hitPlane->getdU()  ));
+       //wzh[i] = wrh[i]; // pixel VXD 
+       wrh[i] = double(1.0/( hit->getCovMatrix(2)*hit->getCovMatrix(2) ));
+       wzh[i] = double(1.0/( hit->getCovMatrix(5)*hit->getCovMatrix(5) ));
+
+       //streamlog_out(DEBUG4) << "2D pixel TRACKERHITPLANE:: hit's radius " << rh[i] << " R-phi uncertainty " << wrh[i] << " Z uncertainty " << wzh[i] << " dU " << hitPlane->getdU() << " dV " << hitPlane->getdV()  << " 1/du^2 "<< (1/(hitPlane->getdU()*hitPlane->getdU())) <<  " 1/dv^2 "<< (1/(hitPlane->getdV()*hitPlane->getdV())) << std::endl ;
+            
+     }     
+   }
+   
+   
+   
+   
+   MarlinTrk::HelixFit helixFitter;
+   
+   helixFitter.fastHelixFit(nHits, xh, yh, rh, ph, wrh, zh, wzh,iopt, par, epar, chi2RPhi, chi2Z);
+   par[3] = par[3]*par[0]/fabs(par[0]);
+   
+   _omega = par[0];
+   _tanLambda = par[1];
+   _phi0 = par[2];
+   _d0 = par[3];
+   _z0 = par[4];
+   
+   float chi2 = chi2RPhi+chi2Z;
+   int Ndf = 2*nHits-5;
+   
+   
+   
+   
+   delete[] xh;
+   delete[] yh;
+   delete[] zh;
+   delete[] wrh;
+   delete[] wzh;
+   delete[] rh;
+   delete[] ph;
+   xh  = NULL; 
+   yh  = NULL; 
+   zh  = NULL; 
+   wrh = NULL; 
+   wzh = NULL; 
+   rh = NULL; 
+   ph = NULL; 
+   
+ 
+   //streamlog_out(DEBUG4) << "chi2 rphi = " << chi2RPhi << ", chi2 Z = " << chi2Z << ", Ndf = " << Ndf << "\n";
+   
+   _chi2 = chi2;
+   _Ndf = Ndf;
+   
+   return;
+   
+   
+   
+}
+
+
+
+

@@ -1,0 +1,62 @@
+#include "../../conf/makejsf.tmpl"
+
+INSTALLDIR    = ../..
+PACKAGENAME   = KalDetToyTpc
+SOREV         = 2009.01
+SRCS          = EXTPCKalDetector.$(SrcSuf) \
+                EXTPCMeasLayer.$(SrcSuf) \
+                EXTPCHit.$(SrcSuf)
+
+OBJS          =	$(subst .$(SrcSuf),.$(ObjSuf),$(SRCS)) \
+                $(PACKAGENAME)Dict.$(ObjSuf)
+
+HDRS          = $(subst .$(SrcSuf),.h,$(SRCS))
+
+DICTNAME      = $(PACKAGENAME)Dict
+
+LIBNAME       = $(PACKAGENAME)
+
+SONAME        = lib$(LIBNAME).$(DllSuf).$(SOREV)
+
+LIBINSTALLDIR = $(INSTALLDIR)/lib
+INCINSTALLDIR = $(INSTALLDIR)/include
+INCPATH       = -I. -I$(KALTESTROOT)/include -I$(INCINSTALLDIR)
+INCPATH      += -I$(MARLIN)/include -I$(GEAR)/include
+CXXFLAGS     += $(INCPATH) -O -g
+CXXFLAGS     += -DUSE_GEAR
+SHLIBLDFLAGS  = $(DYLIBFLAGS)
+
+all:: $(SONAME)
+
+SharedLibraryTarget($(LIBNAME),$(SOREV),$(OBJS),.,.)
+
+#if defined(DarwinArchitecture)
+$(SONAME): $(OBJS)
+	$(LD) $(SOFLAGS) -o $(SONAME) $(OBJS) $(LDFLAGS)
+
+install:: $(SONAME)
+	$(MKDIRHIER) $(DESTDIR)$(LIBINSTALLDIR)
+	$(INSTALL) $(INSTALLFLAGS) $(SONAME) $(LIBINSTALLDIR)
+	$(RM) $(LIBINSTALLDIR)/lib$(LIBNAME).$(DllSuf)
+	$(LN) $(SONAME) $(LIBINSTALLDIR)/lib$(LIBNAME).$(DllSuf)
+#endif
+
+InstallSharedLibrary($(LIBNAME),$(SOREV),$(LIBINSTALLDIR))
+
+InstallMultipleFlags($(HDRS),$(INCINSTALLDIR),-m 644 -C)
+
+clean::
+	@rm -f $(OBJS) core *.$(DllSuf) $(DICTNAME).$(SrcSuf) $(DICTNAME).h
+
+depend:: $(SRCS) $(HDRS)
+	for i in $(SRCS); do \
+	rmkdepend -a -- $(DEPENDFILES) -- $$i; done
+
+distclean:: clean
+	@rm -f $(OBJS) core *.$(DllSuf) $(DICTNAME).$(SrcSuf) $(DICTNAME).h *~
+	@rm -f *.root Makefile
+
+$(DICTNAME).$(SrcSuf): $(HDRS) LinkDef.h
+	@echo "Generating dictionary ..."
+	rootcint -f $(DICTNAME).$(SrcSuf) \
+		-c $(INCPATH) $(HDRS) LinkDef.h

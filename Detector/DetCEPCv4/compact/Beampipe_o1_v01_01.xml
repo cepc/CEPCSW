@@ -25,21 +25,21 @@
            start="TUBE_firstCone_zStart"                               end="TUBE_firstCone_zEnd"
            rMin1="TUBE_firstCone_rInnerStart"                          rMin2="TUBE_firstCone_rInnerEnd"
            rMax1="TUBE_firstCone_rInnerStart+TUBE_firstCone_RadThickness" rMax2="TUBE_firstCone_rInnerEnd+TUBE_firstCone_RadThickness"
-           material="G4_Cu" name="IPInnerBulge" />
+           material="G4_Be" name="IPInnerBulge" />
 
   <!-- second cylinder -->
-  <section type ="Center"  
+  <!--section type ="Center"  
            start="TUBE_secondCylinder_zStart"                               end="TUBE_secondCylinder_zEnd" 
            rMin1="TUBE_secondCylinder_rInner"                               rMin2="TUBE_secondCylinder_rInner"
            rMax1="TUBE_secondCylinder_rInner+TUBE_secondCylinder_thickness" rMax2="TUBE_secondCylinder_rInner+TUBE_secondCylinder_thickness"
-           material="G4_Cu" name="IPOuterTube" />
+           material="G4_Cu" name="IPOuterTube" /-->
 
   <!-- second cone, split into parts -->
-  <section type ="Center" 
+  <!--section type ="Center" 
            start="TUBE_secondCone_part1_zStart"                                end="TUBE_secondCone_part4_zEnd"
            rMin1="TUBE_secondCone_part1_rInnerStart"                             rMin2="TUBE_secondCone_part4_rInnerEnd"
            rMax1="TUBE_secondCone_part1_rInnerStart+TUBE_secondCone_part1_RadThickness"  rMax2="TUBE_secondCone_part4_rInnerEnd+TUBE_secondCone_part4_RadThickness"
-           material="BeampipeBeCableMix" name="IPOuterTube" />
+           material="BeampipeBeCableMix" name="IPOuterTube" /-->
 
   <!--section type ="Center" 
            start="TUBE_secondCone_part2_zStart"                                end="TUBE_secondCone_part2_zEnd"
