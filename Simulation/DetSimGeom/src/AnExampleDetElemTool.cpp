@@ -28,7 +28,7 @@
 #include "DD4hep/Plugins.h"
 #include "DDG4/Geant4Converter.h"
 #include "DDG4/Geant4Mapping.h"
-
+#include "DDG4/Geant4Field.h"
 
 DECLARE_COMPONENT(AnExampleDetElemTool)
 
@@ -162,11 +162,16 @@ AnExampleDetElemTool::ConstructSDandField() {
     G4FieldManager* fieldManager
         = G4TransportationManager::GetTransportationManager()->GetFieldManager();
 
-    G4ThreeVector value(0,0,3.*tesla);
-    G4UniformMagField* aMagField = new G4UniformMagField(value);
+    // // Below is a uniform B-field
+    // G4ThreeVector value(0,0,3.*tesla);
+    // G4UniformMagField* mag_field = new G4UniformMagField(value);
 
-    fieldManager->SetDetectorField(aMagField);
-    fieldManager->CreateChordFinder(aMagField);
+    // DDG4 based B-field
+    dd4hep::OverlayedField fld  = lcdd->field();
+    G4MagneticField* mag_field  = new dd4hep::sim::Geant4Field(fld);
+
+    fieldManager->SetDetectorField(mag_field);
+    fieldManager->CreateChordFinder(mag_field);
 
 
 }

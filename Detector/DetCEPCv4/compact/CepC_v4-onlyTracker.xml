@@ -74,4 +74,13 @@
   <!--include ref="Field_Solenoid_Map_s_4.0T.xml"/>
   <include ref="Field_AntiDID_Map_s.xml"/>
   <include ref="Field_FwdMagnets_Ideal_1000GeV.xml"/-->
+
+
+  <fields>
+
+    <field name="MagnetFields_Constant" type="ConstantField" field="magnetic">
+      <strength x="0" y="0" z="3.0*tesla"/>
+    </field>
+
+  </fields>
 </lccdd>
