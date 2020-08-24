@@ -1,11 +1,10 @@
 # CEPCSW
 
-CEPC offline software prototype based on Gaudi.
-
-The core part of this project (CEPCSW/FWCore) is taken from FCCSW/FWCore.
-Please refer to https://github.com/HEP-FCC/FCCSW
+CEPC offline software prototype based on [Key4hep](https://github.com/key4hep).
 
 ## Quick start
+
+Before run following commands, please make sure you setup the CVMFS:
 
 ```
 $ source /cvmfs/cepcsw.ihep.ac.cn/prototype/releases/externals/97.0.2/setup.sh
@@ -31,10 +30,6 @@ $ ./run gaudirun.py '$EXAMPLESROOT/options/helloalg.py'
 * Reconstruction: Reconstruction
 
 * Service: Common Service
-
-* FWCore: Core Software Based on Gaudi
-
-* cepcenv: tools to help developers build packages
 
 ## Full Chain
 
