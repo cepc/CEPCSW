@@ -19,11 +19,16 @@
 #include "G4PhysicalVolumeStore.hh"
 #include "G4OpticalSurface.hh"
 
+// Field
+#include "G4UniformMagField.hh"
+#include "G4FieldManager.hh"
+#include "G4TransportationManager.hh"
+
 #include "DD4hep/Detector.h"
 #include "DD4hep/Plugins.h"
 #include "DDG4/Geant4Converter.h"
 #include "DDG4/Geant4Mapping.h"
-
+#include "DDG4/Geant4Field.h"
 
 DECLARE_COMPONENT(AnExampleDetElemTool)
 
@@ -142,6 +147,31 @@ AnExampleDetElemTool::ConstructSDandField() {
             g4v->SetSensitiveDetector(g4sd);
         }
     }
+
+    // =======================================================================
+    // Construct Field
+    // =======================================================================
+    // TODO: integrate the field between DD4hep and Geant4
+    // Note:
+    //   DD4hep provides the parameters of fields
+    //   Geant4 will setup the field based on the DD4hep fields
+    
+    // Related Examples:
+    // - G4: G4GlobalMagFieldMessenger.cc
+
+    G4FieldManager* fieldManager
+        = G4TransportationManager::GetTransportationManager()->GetFieldManager();
+
+    // // Below is a uniform B-field
+    // G4ThreeVector value(0,0,3.*tesla);
+    // G4UniformMagField* mag_field = new G4UniformMagField(value);
+
+    // DDG4 based B-field
+    dd4hep::OverlayedField fld  = lcdd->field();
+    G4MagneticField* mag_field  = new dd4hep::sim::Geant4Field(fld);
+
+    fieldManager->SetDetectorField(mag_field);
+    fieldManager->CreateChordFinder(mag_field);
 
 
 }
