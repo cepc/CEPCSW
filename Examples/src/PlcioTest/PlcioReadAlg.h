@@ -11,7 +11,6 @@ namespace plcio {
 
 class PlcioReadAlg : public GaudiAlgorithm
 {
-        friend class AlgFactory<PlcioReadAlg>;
 
     public :
 

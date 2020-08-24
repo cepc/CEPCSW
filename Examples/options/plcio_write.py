@@ -2,8 +2,8 @@
 
 from Gaudi.Configuration import *
 
-from Configurables import CEPCDataSvc
-dsvc = CEPCDataSvc("EventDataSvc")
+from Configurables import K4DataSvc
+dsvc = K4DataSvc("EventDataSvc")
 
 from Configurables import PlcioWriteAlg
 alg = PlcioWriteAlg("PlcioWriteAlg")

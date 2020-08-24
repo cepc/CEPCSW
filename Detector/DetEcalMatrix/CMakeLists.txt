@@ -24,8 +24,13 @@ set(DetEcalMatrix_src
 
 gaudi_add_module(DetEcalMatrix
                   ${DetEcalMatrix_src}
-		  INCLUDE_DIRS DD4hep ROOT Geant4 src/include
-		  LINK_LIBRARIES GaudiKernel DD4hep ${DD4hep_COMPONENT_LIBRARIES} ROOT Geant4)
+		  INCLUDE_DIRS
+                  # DD4hep ROOT Geant4 src/include
+		  LINK_LIBRARIES 
+                  # GaudiKernel 
+                  DD4hep ${DD4hep_COMPONENT_LIBRARIES} 
+                  # ROOT Geant4
+)
 
 set(LIBRARY_OUTPUT_PATH ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 message(STATUS "LIBRARY_OUTPUT_PATH -> ${LIBRARY_OUTPUT_PATH}")

@@ -13,14 +13,18 @@
 #include "GaudiKernel/IService.h"
 
 namespace dd4hep {
-class Detector;
-class DetElement;
+    class Detector;
+    class DetElement;
+    namespace DDSegmentation {
+        class BitFieldCoder;
+    }
 }
 
 // class G4VUserDetectorConstruction;
 
 class GAUDI_API IGeoSvc : virtual public IService {
-
+public:
+  typedef dd4hep::DDSegmentation::BitFieldCoder Decoder;
 public:
   /// InterfaceID
   DeclareInterfaceID(IGeoSvc, 1, 0);
@@ -29,6 +33,9 @@ public:
   virtual dd4hep::Detector* lcdd() = 0;
   // receive Geant4 Geometry
   // virtual G4VUserDetectorConstruction* getGeant4Geo() = 0;
+
+  // short cut to retrieve the Decoder according to the Readout name
+  virtual Decoder* getDecoder(const std::string& readout_name) = 0;
 
   virtual ~IGeoSvc() {}
 };

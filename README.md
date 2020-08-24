@@ -8,11 +8,12 @@ Please refer to https://github.com/HEP-FCC/FCCSW
 ## Quick start
 
 ```
-$ source /cvmfs/cepcsw.ihep.ac.cn/prototype/setup.sh
-$ git clone git@cepcgit.ihep.ac.cn:cepc-prototype/CEPCSW.git
+$ source /cvmfs/cepcsw.ihep.ac.cn/prototype/releases/externals/97.0.2/setup.sh
+$ git clone git@github.com:cepc/CEPCSW.git
 $ cd CEPCSW
+$ git checkout lcg97
 $ mkdir build && cd build
-$ cmake ..
+$ cmake .. -DHOST_BINARY_TAG=${BINARY_TAG}
 $ make
 $ ./run gaudirun.py '$EXAMPLESROOT/options/helloalg.py'
 ```

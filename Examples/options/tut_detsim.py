@@ -24,8 +24,8 @@ rndmengine.Seeds = [42]
 ##############################################################################
 # Event Data Svc
 ##############################################################################
-from Configurables import CEPCDataSvc
-dsvc = CEPCDataSvc("EventDataSvc")
+from Configurables import K4DataSvc
+dsvc = K4DataSvc("EventDataSvc")
 
 
 ##############################################################################
@@ -58,18 +58,19 @@ from Configurables import SLCIORdr
 from Configurables import HepMCRdr
 from Configurables import GenPrinter
 
-# gun = GtGunTool("GtGunTool")
-# gun.Particles = ["pi+"]
-# gun.Energies = [100.] # GeV
+gun = GtGunTool("GtGunTool")
+gun.Particles = ["pi+"]
+gun.EnergyMins = [100.] # GeV
+gun.EnergyMaxs = [100.] # GeV
 
-# gun.ThetaMins = [] # rad; 45deg
-# gun.ThetaMaxs = [] # rad; 45deg
+gun.ThetaMins = [0] # rad; 45deg
+gun.ThetaMaxs = [180.] # rad; 45deg
 
-# gun.PhiMins = [] # rad; 0deg
-# gun.PhiMaxs = [] # rad; 360deg
+gun.PhiMins = [0] # rad; 0deg
+gun.PhiMaxs = [360.] # rad; 360deg
 
-stdheprdr = StdHepRdr("StdHepRdr")
-stdheprdr.Input = "/cefs/data/stdhep/CEPC250/2fermions/E250.Pbhabha.e0.p0.whizard195/bhabha.e0.p0.00001.stdhep"
+# stdheprdr = StdHepRdr("StdHepRdr")
+# stdheprdr.Input = "/cefs/data/stdhep/CEPC250/2fermions/E250.Pbhabha.e0.p0.whizard195/bhabha.e0.p0.00001.stdhep"
 
 # lciordr = SLCIORdr("SLCIORdr")
 # lciordr.Input = "/cefs/data/stdhep/lcio250/signal/Higgs/E250.Pbbh.whizard195/E250.Pbbh_X.e0.p0.whizard195/Pbbh_X.e0.p0.00001.slcio"
@@ -80,8 +81,8 @@ stdheprdr.Input = "/cefs/data/stdhep/CEPC250/2fermions/E250.Pbhabha.e0.p0.whizar
 genprinter = GenPrinter("GenPrinter")
 
 genalg = GenAlgo("GenAlgo")
-# genalg.GenTools = ["GtGunTool"]
-genalg.GenTools = ["StdHepRdr"]
+genalg.GenTools = ["GtGunTool"]
+# genalg.GenTools = ["StdHepRdr"]
 # genalg.GenTools = ["StdHepRdr", "GenPrinter"]
 # genalg.GenTools = ["SLCIORdr", "GenPrinter"]
 # genalg.GenTools = ["HepMCRdr", "GenPrinter"]
@@ -107,7 +108,8 @@ detsimalg.RunCmds = [
 ]
 detsimalg.AnaElems = [
     # example_anatool.name()
-    "ExampleAnaElemTool"
+    # "ExampleAnaElemTool"
+    "Edm4hepWriterAnaElemTool"
 ]
 detsimalg.RootDetElem = "WorldDetElemTool"
 

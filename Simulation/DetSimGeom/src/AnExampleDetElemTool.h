@@ -3,11 +3,14 @@
 
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/Property.h"
-#include "DetSimInterface/IDetElemTool.h"
+#include <GaudiKernel/ToolHandle.h>
+
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
 
 #include "DetInterface/IGeoSvc.h"
+#include "DetSimInterface/IDetElemTool.h"
+#include "DetSimInterface/ISensDetTool.h"
 
 
 class AnExampleDetElemTool: public extends<AlgTool, IDetElemTool> {
@@ -29,7 +32,7 @@ private:
     Gaudi::Property<std::string> m_dd4hep_xmls{this, "detxml"};
 
     SmartIF<IGeoSvc> m_geosvc;
-
+    ToolHandle<ISensDetTool> m_calo_sdtool;
 };
 
 #endif

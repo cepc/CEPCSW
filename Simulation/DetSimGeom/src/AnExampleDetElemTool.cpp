@@ -92,7 +92,26 @@ AnExampleDetElemTool::ConstructSDandField() {
                << endmsg;
         // continue;
         // Sensitive detectors are deleted in ~G4SDManager
-        G4VSensitiveDetector* g4sd = dd4hep::PluginService::Create<G4VSensitiveDetector*>(typ, nam, lcdd);
+        G4VSensitiveDetector* g4sd = nullptr;
+
+        // try to use SD tool to find the SD
+        if (!g4sd) {
+            if (typ=="calorimeter") {
+                m_calo_sdtool = ToolHandle<ISensDetTool>("CalorimeterSensDetTool");
+                if (m_calo_sdtool) {
+                    info() << "Find the CalorimeterSensDetTool." << endmsg;
+                    g4sd = m_calo_sdtool->createSD(nam);
+                    info() << "create g4SD: " << g4sd << endmsg;
+                }
+            } else if (typ=="tracker") {
+
+            }
+        }
+        
+        if (!g4sd) {
+            g4sd = dd4hep::PluginService::Create<G4VSensitiveDetector*>(typ, nam, lcdd);
+        }
+
         if (g4sd == nullptr) {
             std::string tmp = typ;
             tmp[0] = ::toupper(tmp[0]);

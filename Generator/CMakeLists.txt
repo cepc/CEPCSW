@@ -21,8 +21,11 @@ include(${Geant4_USE_FILE})
 find_package(ROOT COMPONENTS RIO Tree TreePlayer MathCore Net Graf3d Graf Gpad EG REQUIRED)
 find_package(LCIO)
 find_package(podio)
-find_package(plcio)
+find_package(EDM4HEP)
 find_package(HepMC)
+find_package(CLHEP)
+find_package(K4FWCore REQUIRED)
+
 if(ROOT_FOUND)
     message("found ROOT: ${ROOT_INCLUDE_DIRS} ${ROOT_LIBRARIES}")
 endif(ROOT_FOUND)
@@ -32,35 +35,26 @@ endif(LCIO_FOUND)
 if(podio_FOUND)
     message("found podio: ${podio_INCLUDE_DIRS} ${podio_LIBRARIES}")
 endif(podio_FOUND)
-if(plcio_FOUND)
-    message("found plcio: ${plcio_INCLUDE_DIRS} ${plcio_LIBRARY_DIR}")
-endif(plcio_FOUND)
 if(HepMC_FOUND)
     message("found HepMC: ${HepMC_INCLUDE_DIRS} ${HepMC_LIBRARY_DIR}")
 endif(HepMC_FOUND)
+if(CLHEP_FOUND)
+    message("found CLHEP: ${CLHEP_INCLUDE_DIRS} ${CLHEP_LIBRARY_DIR}")
+endif(CLHEP_FOUND)
 ############## for producing plcio library #############
 INCLUDE_DIRECTORIES(${GenAlgo_incs})
 
 gaudi_add_module(GenAlgo ${GenAlgo_srcs} 
   INCLUDE_DIRS 
-    GaudiKernel
-    FWCore
-    Geant4
-    ${LCIO_INCLUDE_DIRS}
-    ${podio_INCLUDE_DIRS}
-    ${plcio_INCLUDE_DIRS}
-    ${ROOT_INCLUDE_DIRS}
-    HepMC
+    K4FWCore
   LINK_LIBRARIES 
-    GaudiKernel 
-    ${LCIO_LIBRARIES}
-    ${podio_LIBRARIES}
     ROOT
-    ${plcio_LIBRARY_DIR}/libplcio.so
-    ${plcio_LIBRARY_DIR}/libplcioDict.so
-    FWCore 
+    K4FWCore 
+    GaudiAlgLib GaudiKernel
     HepMC
-    Geant4
+    CLHEP
+    LCIO
+    EDM4HEP::edm4hep EDM4HEP::edm4hepDict
   )
 #gaudi_add_test(Reader FRAMEWORK options/read.py)
 
