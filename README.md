@@ -11,7 +11,7 @@ Please refer to https://github.com/HEP-FCC/FCCSW
 $ source /cvmfs/cepcsw.ihep.ac.cn/prototype/releases/externals/97.0.2/setup.sh
 $ git clone git@github.com:cepc/CEPCSW.git
 $ cd CEPCSW
-$ git checkout lcg97
+$ git checkout master # branch name
 $ mkdir build && cd build
 $ cmake .. -DHOST_BINARY_TAG=${BINARY_TAG}
 $ make
