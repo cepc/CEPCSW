@@ -7,6 +7,9 @@
 #   $ docker build -t cepc/cepcsw .
 # Or with CVMFS installed also
 #   $ docker build -t cepc/cepcsw-cvmfs . --build-args CVMFSMOD=INSIDE
+#
+# To publish it to DockerHub:
+#   $ docker push cepc/cepcsw
 
 FROM centos:7
 
