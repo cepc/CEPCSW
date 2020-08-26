@@ -18,11 +18,14 @@ before_install:
   - sudo apt-get install cvmfs cvmfs-config-default
   - rm -f cvmfs-release-latest_all.deb
   - sudo mkdir -p /etc/cvmfs
+  - sudo mkdir -p /etc/cvmfs/keys/ihep.ac.cn
+  - sudo curl -o /etc/cvmfs/keys/ihep.ac.cn/ihep.ac.cn.pub http://cvmfs-stratum-one.ihep.ac.cn/cvmfs/software/client_configure/ihep.ac.cn/ihep.ac.cn.pub
+  - sudo curl -o /etc/cvmfs/domain.d/ihep.ac.cn.conf http://cvmfs-stratum-one.ihep.ac.cn/cvmfs/software/client_configure/ihep.ac.cn.conf
   - echo "CVMFS_QUOTA_LIMIT='32140'"                                | sudo tee     /etc/cvmfs/default.local > /dev/null
   - echo "CVMFS_HTTP_PROXY=DIRECT"                                  | sudo tee -a  /etc/cvmfs/default.local > /dev/null
   - echo "CVMFS_CACHE_BASE='/var/lib/cvmfs'"                        | sudo tee -a  /etc/cvmfs/default.local > /dev/null
   - echo "CVMFS_FORCE_SIGNING='yes'"                                | sudo tee -a  /etc/cvmfs/default.local > /dev/null
-  - echo "CVMFS_REPOSITORIES='sft.cern.ch,sw-nightlies.hsf.org'"    | sudo tee -a  /etc/cvmfs/default.local > /dev/null
+  - echo "CVMFS_REPOSITORIES='sft.cern.ch,sw-nightlies.hsf.org,cepcsw.ihep.ac.cn,container.ihep.ac.cn'"    | sudo tee -a  /etc/cvmfs/default.local > /dev/null
   - echo "CVMFS_SEND_INFO_HEADER=no"                                | sudo tee -a  /etc/cvmfs/default.local > /dev/null
   - cat /etc/cvmfs/default.local
   - # change wrt dd4hep setup: don't manually mount cvmfs folders
