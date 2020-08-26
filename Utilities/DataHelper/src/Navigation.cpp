@@ -53,8 +53,9 @@ edm4hep::TrackerHit* Navigation::GetTrackerHit(const edm4hep::ObjectID& obj_id, 
       }
     }
   }
-  
-  throw std::runtime_error("Not found TrackerHit");
+  char message[200];
+  sprintf(message, "Navigation::GetTrackerHit Not found TrackerHit id=%d", id); 
+  throw std::runtime_error(message);
 }
 
 std::vector<edm4hep::ConstSimTrackerHit> Navigation::GetRelatedTrackerHit(const edm4hep::ObjectID& id){
