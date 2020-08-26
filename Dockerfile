@@ -46,7 +46,7 @@ RUN if [ "$CVMFSMOD" = "INSIDE" ]; then \
 # START Container:
 # # docker run  --privileged  --rm -i -t cepc/cepcsw-cvmfs /bin/bash
 # Due to the fuse issue, following commands need to be run inside container when --privileged is specified
-# $ mount -t sft.cern.ch /cvmfs/sft.cern.ch
+# $ mount -t cvmfs sft.cern.ch /cvmfs/sft.cern.ch
 # $ mount -t cvmfs container.ihep.ac.cn /cvmfs/container.ihep.ac.cn
 # $ mount -t cvmfs cepcsw.ihep.ac.cn /cvmfs/cepcsw.ihep.ac.cn
 
