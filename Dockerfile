@@ -6,7 +6,7 @@
 # To build the docker image:
 #   $ docker build -t cepc/cepcsw .
 # Or with CVMFS installed also
-#   $ docker build -t cepc/cepcsw-cvmfs . --build-args CVMFSMOD=INSIDE
+#   $ docker build -t cepc/cepcsw-cvmfs . --build-arg CVMFSMOD=INSIDE
 #
 # To publish it to DockerHub:
 #   $ docker push cepc/cepcsw
@@ -44,7 +44,7 @@ RUN if [ "$CVMFSMOD" = "INSIDE" ]; then \
   fi
 
 # START Container:
-# # docker run  --privileged  --rm -i -t IMAGE /bin/bash
+# # docker run  --privileged  --rm -i -t cepc/cepcsw-cvmfs /bin/bash
 # Due to the fuse issue, following commands need to be run inside container when --privileged is specified
 # $ mount -t sft.cern.ch /cvmfs/sft.cern.ch
 # $ mount -t cvmfs container.ihep.ac.cn /cvmfs/container.ihep.ac.cn
