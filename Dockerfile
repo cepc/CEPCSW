@@ -27,10 +27,10 @@ RUN sudo yum update -y && \
 
 # If the CVMFS is installed in the host, just mount the corresonding /CVMFS directories
 # $ docker run --privileged --rm -i -t \
-           -v /cvmfs/sft.cern.ch:/cvmfs/sft.cern.ch \
-           -v /cvmfs/cepcsw.ihep.ac.cn:/cvmfs/cepcsw.ihep.ac.cn \
-           -v /cvmfs/container.ihep.ac.cn:/cvmfs/container.ihep.ac.cn \
-           cepc/cepcsw /bin/bash
+#           -v /cvmfs/sft.cern.ch:/cvmfs/sft.cern.ch \
+#           -v /cvmfs/cepcsw.ihep.ac.cn:/cvmfs/cepcsw.ihep.ac.cn \
+#           -v /cvmfs/container.ihep.ac.cn:/cvmfs/container.ihep.ac.cn \
+#           cepc/cepcsw /bin/bash
 # Inside the Docker container, we could start the Singularity provided by IHEP
 # $ export SINGULARITY_BINDPATH=/cvmfs
 # $ singularity shell /cvmfs/container.ihep.ac.cn/singularity/image/SL69/sl69worknode20200729.sif
