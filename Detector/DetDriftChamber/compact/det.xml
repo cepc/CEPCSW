@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lccdd>
+ 
+  <info name="DriftChamber"
+	title="Test with Drift Chamber"
+	author="Tao Lin"
+	url="http://github.com/cepc/CEPCSW"
+	status="development"
+	version="v0">
+    <comment>Test with Drift Chamber</comment>        
+  </info>
+
+  <includes>
+    <gdmlFile  ref="elements.xml"/>
+    <gdmlFile  ref="materials.xml"/>
+  </includes>
+
+  <define>
+    <constant name="world_size" value="30*m"/>
+    <constant name="world_x" value="world_size"/>
+    <constant name="world_y" value="world_size"/>
+    <constant name="world_z" value="world_size"/>
+  </define>
+
+  <display>
+    <vis name="Invisible" showDaughters="false" visible="false"/>
+    <vis name="InvisibleWithChildren" showDaughters="true" visible="false"/>
+    <vis name="VisibleRed"  r="1.0" g="0.0" b="0.0" showDaughters="true" visible="true"/>
+    <vis name="VisibleBlue" r="0.0" g="0.0" b="1.0" showDaughters="false" visible="true"/>
+    <vis name="VisibleGreen" alpha="1.0" r="0.0" g="1.0" b="0.0" drawingStyle="solid" lineStyle="solid" showDaughters="true" visible="true"/>
+  </display>
+
+  <detectors>
+    <detector id="1" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="VisibleBlue" sensitive="true">
+      <!-- Use cm as unit if you want to use Pandora for reconstruction -->
+    </detector>
+  </detectors>
+  
+  <readouts>
+    <readout name="DriftChamberHitsCollection">
+      <!-- <segmentation type="NoSegmentation"/> -->
+
+      <segmentation type="CartesianGridXYZ"
+                    grid_size_x="1*cm"
+                    grid_size_y="1*cm"
+                    grid_size_z="1*cm"/>
+      <id>system:8,x:32:-10,y:-10,z:-12</id>
+    </readout>
+  </readouts>
+
+</lccdd>
