@@ -44,8 +44,16 @@
                     grid_size_x="1*cm"
                     grid_size_y="1*cm"
                     grid_size_z="1*cm"/>
-      <id>system:8,x:32:-10,y:-10,z:-12</id>
+      <id>system:8,x:-16,y:-16,z:-16</id>
     </readout>
   </readouts>
+
+  <fields>
+
+    <field name="MagnetFields_Constant" type="ConstantField" field="magnetic">
+      <strength x="0" y="0" z="3.0*tesla"/>
+    </field>
+
+  </fields>
 
 </lccdd>
