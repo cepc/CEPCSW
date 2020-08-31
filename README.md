@@ -4,7 +4,7 @@ CEPC offline software prototype based on [Key4hep](https://github.com/key4hep).
 
 ## Quick start
 
-Start the container in lxslc7:
+Start the container in lxslc7 (OS: CentOS7):
 ```
 $ /cvmfs/container.ihep.ac.cn/bin/hep_container shell SL6
 ```
