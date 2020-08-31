@@ -56,6 +56,8 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
     auto ecalendcapringcol        = m_EcalEndcapRingCol.createAndPut();
     auto ecalendcapringcontribcol = m_EcalEndcapRingContributionCol.createAndPut();
 
+    auto driftchamberhitscol = m_DriftChamberHitsCol.createAndPut();
+
     // readout defined in DD4hep
     auto lcdd = &(dd4hep::Detector::getInstance());
     auto allReadouts = lcdd->readouts();
@@ -116,6 +118,8 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
         } else if (collect->GetName() == "EcalEndcapRingCollection") {
             calo_col_ptr = ecalendcapringcol;
             calo_contrib_col_ptr = ecalendcapringcontribcol;
+        } else if (collect->GetName() == "DriftChamberHitsCollection") {
+            tracker_col_ptr = driftchamberhitscol;
         } else {
             warning() << "Unknown collection name: " << collect->GetName()
                       << ". Please register in Edm4hepWriterAnaElemTool. " << endmsg;

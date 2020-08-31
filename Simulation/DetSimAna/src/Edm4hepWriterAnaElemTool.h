@@ -81,6 +81,13 @@ private:
             "EcalEndcapRingContributionCollection", 
             Gaudi::DataHandle::Writer, this};
 
+    // Drift Chamber
+    // - DriftChamberHitsCollection
+    DataHandle<edm4hep::SimTrackerHitCollection> m_DriftChamberHitsCol{
+            "DriftChamberHitsCollection", 
+            Gaudi::DataHandle::Writer, this};
+
+
 private:
     // in order to associate the hit contribution with the primary track,
     // we have a bookkeeping of every track.
