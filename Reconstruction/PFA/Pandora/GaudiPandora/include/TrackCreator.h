@@ -123,6 +123,7 @@ public:
      */
     pandora::StatusCode CreateTrackAssociations(const CollectionMaps& collectionMaps);
 
+    const edm4hep::Track* GetTrackAddress(const CollectionMaps& collectionMaps, const edm4hep::ConstTrack& pTrack );
     /**
      *  @brief  Create tracks, insert user code here
      * 
@@ -154,6 +155,7 @@ private:
      *  @param  pLCEvent the lcio event
      */
     //pandora::StatusCode ExtractProngsAndSplits(const EVENT::LCEvent *const pLCEvent);
+    pandora::StatusCode ExtractProngsAndSplits(const CollectionMaps& collectionMaps);
 
     /**
      *  @brief  Extract v0 information from specified lcio collections
@@ -161,6 +163,7 @@ private:
      *  @param  pLCEvent the lcio event
      */
    //pandora::StatusCode ExtractV0s(const EVENT::LCEvent *const pLCEvent);
+    pandora::StatusCode ExtractV0s(const CollectionMaps& collectionMaps);
 
     /**
      *  @brief  Whether the track vertex conflicts with previously provided relationship information

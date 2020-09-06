@@ -69,7 +69,7 @@
         <ClusterListName>PhotonClusters</ClusterListName>
         <ReplaceCurrentClusterList>false</ReplaceCurrentClusterList>
         <ShouldMakePdfHistograms>false</ShouldMakePdfHistograms>
-        <HistogramFile>/junofs/users/wxfang/MyGit/MarlinPandora/scripts/PandoraLikelihoodData9EBin.xml</HistogramFile>
+        <HistogramFile>/junofs/users/wxfang/MyGit/tmp/fork_update_pandora/CEPCSW/Reconstruction/PFA/Pandora/PandoraLikelihoodData9EBin.xml</HistogramFile>
     </algorithm>
 
     <!-- Clustering parent algorithm runs a daughter clustering algorithm -->
