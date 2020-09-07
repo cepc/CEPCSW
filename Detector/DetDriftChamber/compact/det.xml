@@ -20,6 +20,22 @@
     <constant name="world_x" value="world_size"/>
     <constant name="world_y" value="world_size"/>
     <constant name="world_z" value="world_size"/>
+
+    <!-- SDT -->
+    <constant name="SDT_radius_min" value="235*mm"/>
+    <constant name="SDT_radius_max" value="1716*mm"/>
+    <constant name="SDT_half_length" value="2225*mm"/>
+    <constant name="SDT_length" value="SDT_half_length*2"/>
+
+    <constant name="SDT_inner_chamber_radius_min" value="SDT_radius_min"/>
+    <constant name="SDT_inner_chamber_radius_max" value="909*mm"/>
+    <constant name="SDT_inner_chamber_length" value="SDT_length"/>
+
+    <constant name="SDT_outer_chamber_radius_min" value="1085*mm"/>
+    <constant name="SDT_outer_chamber_radius_max" value="SDT_radius_max"/>
+    <constant name="SDT_outer_chamber_length" value="SDT_length"/>
+    
+
   </define>
 
   <display>
