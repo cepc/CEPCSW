@@ -60,7 +60,7 @@
                     grid_size_x="1*cm"
                     grid_size_y="1*cm"
                     grid_size_z="1*cm"/>
-      <id>system:8,x:-16,y:-16,z:-16</id>
+      <id>system:8,chamber:1,x:-16,y:-16,z:-16</id>
     </readout>
   </readouts>
 

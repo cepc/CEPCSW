@@ -56,12 +56,6 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     dd4hep::Tube det_solid(chamber_radius_min, chamber_radius_max, chamber_length*0.5);
     dd4hep::Volume det_vol(det_name+"_vol", det_solid, det_mat);
 
-    if ( x_det.isSensitive() )   {
-        dd4hep::SensitiveDetector sd = sens;
-        det_vol.setSensitiveDetector(sens);
-        sd.setType("tracker");
-    }
-
     // - inner
     dd4hep::Tube det_inner_chamber_solid(inner_chamber_radius_min, inner_chamber_radius_max, inner_chamber_length*0.5);
     dd4hep::Volume det_inner_chamber_vol(det_name+"_inner_chamber_vol", det_inner_chamber_solid, det_mat);
@@ -70,6 +64,14 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
                                                 dd4hep::Position(0,0,0));
     dd4hep::PlacedVolume det_inner_chamber_phy = det_vol.placeVolume(det_inner_chamber_vol,
                                                                      transform_inner_chamber);
+    det_inner_chamber_phy.addPhysVolID("chamber", 0);
+    if ( x_det.isSensitive() )   {
+        dd4hep::SensitiveDetector sd = sens;
+        det_inner_chamber_vol.setSensitiveDetector(sens);
+        sd.setType("tracker");
+    }
+
+
 
     // - outer
     dd4hep::Tube det_outer_chamber_solid(outer_chamber_radius_min, outer_chamber_radius_max, outer_chamber_length*0.5);
@@ -80,6 +82,12 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     dd4hep::PlacedVolume det_outer_chamber_phy = det_vol.placeVolume(det_outer_chamber_vol,
                                                                      transform_outer_chamber);
 
+    det_inner_chamber_phy.addPhysVolID("chamber", 1);
+    if ( x_det.isSensitive() )   {
+        dd4hep::SensitiveDetector sd = sens;
+        det_outer_chamber_vol.setSensitiveDetector(sens);
+        sd.setType("tracker");
+    }
 
 
     // - place in world
