@@ -10,12 +10,9 @@ read = LCIOInput("read")
 read.inputs = [
 #"/cefs/data/FullSim/CEPC240/CEPC_v4/higgs/smart_final_states/E240.Pffh_invi.e0.p0.whizard195//ffh_inv.e0.p0.00001_1000_sim.slcio"
 #"/junofs/users/wxfang/CEPC/CEPCOFF/doReco/reco_output/nnh_aa.e0.p0.00010_000000_rec.slcio"
-#"/cefs/higgs/wxfang/cepc/Pandora/CaloDigi/gamma/Digi_sim_0.slcio"
-
-
-
+"/junofs/users/wxfang/MyGit/tmp/fork_update_pandora/CEPCSW/Digi_sim_0.slcio"
 ]
-read.collections = {
+read.collections = [
         "MCParticle:MCParticle",
         #"SimCalorimeterHit:EcalBarrelSiliconCollection",
         "CalorimeterHit:ECALBarrel",
@@ -46,7 +43,7 @@ read.collections = {
         "ReconstructedParticle:KinkRecoParticles",
         "ReconstructedParticle:ProngRecoParticles",
         "ReconstructedParticle:V0RecoParticles"
-}
+]
 ##############################################################################
 from Configurables import GearSvc
 gearSvc  = GearSvc("GearSvc")
@@ -128,7 +125,7 @@ ApplicationMgr(
         #TopAlg = [read, pandoralg, write],
         TopAlg = [read, pandoralg],
         EvtSel = 'NONE',
-        EvtMax = 10,
+        EvtMax = 1,
         ExtSvc = [dsvc, gearSvc],
         OutputLevel=INFO
 )
