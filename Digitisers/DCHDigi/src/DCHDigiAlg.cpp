@@ -86,9 +86,9 @@ StatusCode DCHDigiAlg::execute()
         tot_edep   += iter->second.at(i).getEDep();//GeV
         tot_length += iter->second.at(i).getPathLength();//mm
         tot_time += iter->second.at(i).getTime();
-        tot_x    += iter->second.at(i).getPosition()[0];
-        tot_y    += iter->second.at(i).getPosition()[1];
-        tot_z    += iter->second.at(i).getPosition()[2];
+        tot_x    += iter->second.at(i).getEDep()*iter->second.at(i).getPosition()[0];
+        tot_y    += iter->second.at(i).getEDep()*iter->second.at(i).getPosition()[1];
+        tot_z    += iter->second.at(i).getEDep()*iter->second.at(i).getPosition()[2];
  
         auto asso = AssoVec->create();
         asso.setRec(trkHit);
@@ -97,9 +97,9 @@ StatusCode DCHDigiAlg::execute()
     }
     
     trkHit.setTime(tot_time/simhit_size);
-    trkHit.setEDep(tot_edep/simhit_size);
-    trkHit.setEdx (tot_edep*1000/(tot_length/10) ); // MeV/cm
-    trkHit.setPosition (edm4hep::Vector3d(tot_x/simhit_size, tot_y/simhit_size, tot_z/simhit_size));
+    trkHit.setEDep(tot_edep);
+    trkHit.setEdx (tot_edep*1000/(tot_length/10) ); // MeV/cm, need check!
+    trkHit.setPosition (edm4hep::Vector3d(tot_x/tot_edep, tot_y/tot_edep, tot_z/tot_edep));//center mass
   }
   std::cout<<"output digi DCHhit size="<< Vec->size() <<std::endl;
   _nEvt ++ ;
