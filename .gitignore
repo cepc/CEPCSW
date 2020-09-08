@@ -1,2 +1,5 @@
+InstallArea
+setenv.sh
+build
 ./Generator/output/
 ./Generator/options/
