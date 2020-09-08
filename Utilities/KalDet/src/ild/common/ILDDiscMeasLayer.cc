@@ -207,19 +207,19 @@ Bool_t ILDDiscMeasLayer::IsOnSurface(const TVector3 &xx) const
 }
 
 
-ILDVTrackHit* ILDDiscMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit* trkhit) const {
+ILDVTrackHit* ILDDiscMeasLayer::ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const {
   
   //edm4hep::TrackerHitPlane* plane_hit = dynamic_cast<EVENT::TrackerHitPlane*>( trkhit ) ;
   //edm4hep::TrackerHitPlane* plane_hit = trkhit;
-  if((trkhit->getType()&8)!=8) return NULL;
+  if(trkhit.getType()!=8) return NULL;
   
-  //edm4hep::TrackerHit* plane_hit = trkhit;
+  //edm4hep::ConstTrackerHit plane_hit = trkhit;
   //if( plane_hit == NULL )  return NULL; // SJA:FIXME: should be replaced with an exception  
   
-  //gear::Vector3D U(1.0,plane_hit->getU()[1],plane_hit->getU()[0],gear::Vector3D::spherical);
-  //gear::Vector3D V(1.0,plane_hit->getV()[1],plane_hit->getV()[0],gear::Vector3D::spherical);
-  gear::Vector3D U(1.0,trkhit->getCovMatrix(1),trkhit->getCovMatrix(0),gear::Vector3D::spherical);
-  gear::Vector3D V(1.0,trkhit->getCovMatrix(5),trkhit->getCovMatrix(4),gear::Vector3D::spherical);
+  //gear::Vector3D U(1.0,plane_hit.getU()[1],plane_hit.getU()[0],gear::Vector3D::spherical);
+  //gear::Vector3D V(1.0,plane_hit.getV()[1],plane_hit.getV()[0],gear::Vector3D::spherical);
+  gear::Vector3D U(1.0,trkhit.getCovMatrix(1),trkhit.getCovMatrix(0),gear::Vector3D::spherical);
+  gear::Vector3D V(1.0,trkhit.getCovMatrix(5),trkhit.getCovMatrix(4),gear::Vector3D::spherical);
   gear::Vector3D X(1.0,0.0,0.0);
   gear::Vector3D Y(0.0,1.0,0.0);
   
@@ -236,7 +236,7 @@ ILDVTrackHit* ILDDiscMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit* trkhit) c
     exit(1);
   }
   
-  const edm4hep::Vector3d& pos=trkhit->getPosition();
+  const edm4hep::Vector3d& pos=trkhit.getPosition();
   const TVector3 hit(pos.x, pos.y, pos.z);
   
   // convert to layer coordinates       
@@ -248,10 +248,10 @@ ILDVTrackHit* ILDDiscMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit* trkhit) c
   x[0] = h(0, 0);
   x[1] = h(1, 0);
   
-  //dx[0] = plane_hit->getdU() ;
-  //dx[1] = plane_hit->getdV() ;
-  dx[0] = trkhit->getCovMatrix(2);
-  dx[1] = trkhit->getCovMatrix(5);
+  //dx[0] = plane_hit.getdU() ;
+  //dx[1] = plane_hit.getdV() ;
+  dx[0] = trkhit.getCovMatrix(2);
+  dx[1] = trkhit.getCovMatrix(5);
 
   bool hit_on_surface = IsOnSurface(hit);
   

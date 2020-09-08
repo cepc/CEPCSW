@@ -1,7 +1,7 @@
 #include "DataHelper/TrackExtended.h"
 #include "DataHelper/TrackerHitExtended.h"
 
-TrackerHitExtended::TrackerHitExtended(const edm4hep::TrackerHit& trackerhit):
+TrackerHitExtended::TrackerHitExtended(const edm4hep::ConstTrackerHit trackerhit):
   _trackerHit(trackerhit){
   _trackAR = NULL;
   _trackVecAR.clear();
@@ -41,7 +41,7 @@ void TrackerHitExtended::setGenericDistance(float genericDistance) {
     _genericDistance = genericDistance; 
 }
 
-//void TrackerHitExtended::setTrackerHit(edm4hep::TrackerHit * hit) {
+//void TrackerHitExtended::setTrackerHit(edm4hep::ConstTrackerHit hit) {
 //    _trackerHit = hit;
 //}
 
@@ -67,8 +67,8 @@ void TrackerHitExtended::setDet(int idet) {
     _idet = idet;
 }
 
-edm4hep::TrackerHit * TrackerHitExtended::getTrackerHit() {
-    return &_trackerHit;
+edm4hep::ConstTrackerHit TrackerHitExtended::getTrackerHit() {
+    return _trackerHit;
 }
 
 TrackExtended * TrackerHitExtended::getTrackExtended() {

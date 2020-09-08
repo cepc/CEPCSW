@@ -34,8 +34,8 @@ class TNode;
  *
  * \deprecated EXVKalDetector
  */
-class EXVKalDetector : public TVKalDetector, public TAttDrawable {
-  //class EXVKalDetector : public TVKalDetector {
+// class EXVKalDetector : public TVKalDetector, public TAttDrawable {
+class EXVKalDetector : public TVKalDetector {
 public:
   EXVKalDetector(Double_t bField, Int_t m = 100);
   virtual ~EXVKalDetector();

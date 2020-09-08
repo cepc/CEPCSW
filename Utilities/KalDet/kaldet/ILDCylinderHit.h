@@ -17,7 +17,7 @@ public:
   
   /** Constructor Taking R and Rphi coordinates and associated measurement layer, with bfield */
   ILDCylinderHit(const TVMeasLayer &ms, Double_t *x, Double_t *dx, 
-                 Double_t bfield, edm4hep::TrackerHit* trkhit ) 
+                 Double_t bfield, edm4hep::ConstTrackerHit trkhit ) 
   : ILDVTrackHit(ms, x, dx, bfield, 2, trkhit)
   { /* no op */ } 
     
