@@ -419,9 +419,9 @@ namespace MarlinTrk{
     
     if(_skip_track) return;
     
-    EVENT::TrackerHit* trkhit = hit->getLCIOTrackerHit();
+    EVENT::ConstTrackerHit trkhit = hit->getLCIOTrackerHit();
     
-    MarlinTrk::MCTruth4HitExtStruct* ext = trkhit->ext<MarlinTrk::MCTruth4HitExt>();
+    MarlinTrk::MCTruth4HitExtStruct* ext = trkhit.ext<MarlinTrk::MCTruth4HitExt>();
     
     if ( ! ext ) {
       
@@ -435,7 +435,7 @@ namespace MarlinTrk{
       
     }
     
-    EVENT::SimTrackerHit* simhit = trkhit->ext<MarlinTrk::MCTruth4HitExt>()->simhit;
+    EVENT::SimConstTrackerHit simhit = trkhit.ext<MarlinTrk::MCTruth4HitExt>()->simhit;
     
     if ( ! simhit ) {
       
@@ -522,10 +522,10 @@ namespace MarlinTrk{
       }
       
                   
-      _track_record->CellID0[_track_record->nsites] = trkhit->getCellID0() ;
+      _track_record->CellID0[_track_record->nsites] = trkhit.getCellID0() ;
       
       UTIL::BitField64 encoder(lcio::ILDCellID0::encoder_string);
-      encoder.setValue( trkhit->getCellID0() );
+      encoder.setValue( trkhit.getCellID0() );
       
       if (encoder[lcio::ILDCellID0::subdet] == lcio::ILDDetID::VXD) {
         ++_track_record->nsites_vxd;
@@ -575,9 +575,9 @@ namespace MarlinTrk{
       _track_record->z0_mc[_track_record->nsites] = helixMC.getZ0();
       _track_record->tanL_mc[_track_record->nsites] = helixMC.getTanLambda();
             
-      double rec_x = trkhit->getPosition()[0];
-      double rec_y = trkhit->getPosition()[1];
-      double rec_z = trkhit->getPosition()[2];
+      double rec_x = trkhit.getPosition()[0];
+      double rec_y = trkhit.getPosition()[1];
+      double rec_z = trkhit.getPosition()[2];
       
       _track_record->site_x[_track_record->nsites] = rec_x;
       _track_record->site_y[_track_record->nsites] = rec_y;

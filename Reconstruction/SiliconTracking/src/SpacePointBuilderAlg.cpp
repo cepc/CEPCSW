@@ -188,7 +188,7 @@ StatusCode SpacePointBuilderAlg::execute(){
             // add tolerence 
             strip_length_mm = strip_length_mm * (1.0 + _striplength_tolerance);
 	    try{
-	      edm4hep::TrackerHit spacePoint = createSpacePoint( &hitFront, &hitBack, strip_length_mm);
+	      edm4hep::TrackerHit spacePoint = createSpacePoint( hitFront, hitBack, strip_length_mm);
 
 	      //UTIL::CellIDEncoder<TrackerHitImpl> cellid_encoder( UTIL::ILDCellID0::encoder_string , spCol );
               //cellid_encoder.setValue( cellID0 ); //give the new hit, the CellID0 of the front hit
@@ -257,32 +257,32 @@ StatusCode SpacePointBuilderAlg::finalize(){
   return GaudiAlgorithm::finalize();
 }
 
-edm4hep::TrackerHit SpacePointBuilderAlg::createSpacePoint( edm4hep::TrackerHit* a , edm4hep::TrackerHit* b, double stripLength ){
+edm4hep::TrackerHit SpacePointBuilderAlg::createSpacePoint( edm4hep::ConstTrackerHit a , edm4hep::ConstTrackerHit b, double stripLength ){
   
-  const edm4hep::Vector3d& pa = a->getPosition();
+  const edm4hep::Vector3d& pa = a.getPosition();
   double xa = pa[0];
   double ya = pa[1];
   double za = pa[2];
   CLHEP::Hep3Vector PA( xa,ya,za );
   //double du_a = a->getdU();  
-  float du_a = a->getCovMatrix(2);
+  float du_a = a.getCovMatrix(2);
   
-  gear::MeasurementSurface const* msA = _GEAR->getMeasurementSurfaceStore().GetMeasurementSurface( a->getCellID() );
+  gear::MeasurementSurface const* msA = _GEAR->getMeasurementSurfaceStore().GetMeasurementSurface( a.getCellID() );
   gear::CartesianCoordinateSystem* ccsA = dynamic_cast< gear::CartesianCoordinateSystem* >( msA->getCoordinateSystem() );
  
   CLHEP::Hep3Vector WA = ccsA->getLocalZAxis(); // the vector W of the local coordinate system the measurement surface has
   CLHEP::Hep3Vector VA = ccsA->getLocalYAxis(); // the vector V of the local coordinate system the measurement surface has
   CLHEP::Hep3Vector UA = ccsA->getLocalXAxis(); // the vector U of the local coordinate system the measurement surface has
   
-  const edm4hep::Vector3d& pb = b->getPosition();
+  const edm4hep::Vector3d& pb = b.getPosition();
   double xb = pb[0];
   double yb = pb[1];
   double zb = pb[2];
   CLHEP::Hep3Vector PB( xb,yb,zb );
   //double du_b = b->getdU();  
-  float du_b = b->getCovMatrix(2);
+  float du_b = b.getCovMatrix(2);
 
-  gear::MeasurementSurface const* msB = _GEAR->getMeasurementSurfaceStore().GetMeasurementSurface( b->getCellID() );
+  gear::MeasurementSurface const* msB = _GEAR->getMeasurementSurfaceStore().GetMeasurementSurface( b.getCellID() );
   gear::CartesianCoordinateSystem* ccsB = dynamic_cast< gear::CartesianCoordinateSystem* >( msB->getCoordinateSystem() );
   CLHEP::Hep3Vector WB = ccsB->getLocalZAxis(); // the vector W of the local coordinate system the measurement surface has
   CLHEP::Hep3Vector VB = ccsB->getLocalYAxis(); // the vector V of the local coordinate system the measurement surface has
@@ -461,7 +461,7 @@ TrackerHitImpl* SpacePointBuilderAlg::createSpacePointOld( TrackerHitPlane* a , 
   streamlog_out( DEBUG2 ) << "\t OLD OLD OLD OLD\n";
   
   
-  const double* p1 = a->getPosition();
+  const double* p1 = a.getPosition();
   double x1 = p1[0];
   double y1 = p1[1];
   double z1 = p1[2];
@@ -469,7 +469,7 @@ TrackerHitImpl* SpacePointBuilderAlg::createSpacePointOld( TrackerHitPlane* a , 
   float ex1 = cos( v1[1] ) * sin( v1[0] ); 
   float ey1 = sin( v1[1] ) * sin( v1[0] );
   
-  const double* p2 = b->getPosition();
+  const double* p2 = b.getPosition();
   double x2 = p2[0];
   double y2 = p2[1];
   double z2 = p2[2];
@@ -496,7 +496,7 @@ TrackerHitImpl* SpacePointBuilderAlg::createSpacePointOld( TrackerHitPlane* a , 
   
   // Check if the new hit is within the boundary
   CLHEP::Hep3Vector globalPoint(x,y,z);
-  //  gear::MeasurementSurface* ms = gear::MeasurementSurfaceStore::Instance().GetMeasurementSurface( a->getCellID() );
+  //  gear::MeasurementSurface* ms = gear::MeasurementSurfaceStore::Instance().GetMeasurementSurface( a.getCellID() );
   CLHEP::Hep3Vector localPoint = ms->getCoordinateSystem()->getLocalPoint(globalPoint);
   localPoint.setZ( 0. ); // we set w to 0 so it is in the plane ( we are only interested if u and v are in or out of range, to exclude w from the check it is set to 0)
   if( !ms->isLocalInBoundary( localPoint ) ){
