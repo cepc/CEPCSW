@@ -1,12 +1,12 @@
 #!/bin/bash
 ##############################################################################
 # Setup script for CEPCSW:
-# - setup the external libraries
+# - build the cepcsw
 #
 # Usage:
-# $ source setup.sh
+# $ bash setup.sh
 # or:
-# $ source setup.sh 97.0.2
+# $ 
 #
 # Author: Tao Lin <lintao@ihep.ac.cn>
 ##############################################################################
