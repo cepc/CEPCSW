@@ -5,8 +5,6 @@
 #
 # Usage:
 # $ source setup.sh
-# or:
-# $ source setup.sh 97.0.2
 #
 # Author: Tao Lin <lintao@ihep.ac.cn>
 ##############################################################################
@@ -48,7 +46,7 @@ function setup-external() {
 # Parse the command line options
 ##############################################################################
 
-CEPCSW_LCG_VERSION=${1}; shift
+# CEPCSW_LCG_VERSION=${1}; shift
 
 if [ -z "$CEPCSW_LCG_VERSION" ]; then
     CEPCSW_LCG_VERSION=97.0.2

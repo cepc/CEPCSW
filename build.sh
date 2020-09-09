@@ -78,6 +78,7 @@ function run-make() {
 
 # The current default platform
 lcg_platform=x86_64-slc6-gcc8-opt
+lcg_version=97.0.2
 
 check-cepcsw-envvar || exit -1
 
