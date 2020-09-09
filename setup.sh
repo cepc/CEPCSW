@@ -53,5 +53,6 @@ CEPCSW_LCG_VERSION=${1}; shift
 if [ -z "$CEPCSW_LCG_VERSION" ]; then
     CEPCSW_LCG_VERSION=97.0.2
 fi
+export CEPCSW_LCG_VERSION
 
 setup-external
