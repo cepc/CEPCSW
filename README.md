@@ -12,14 +12,12 @@ $ /cvmfs/container.ihep.ac.cn/bin/hep_container shell SL6
 Before run following commands, please make sure you setup the CVMFS:
 
 ```
-$ source /cvmfs/cepcsw.ihep.ac.cn/prototype/releases/externals/97.0.2/setup.sh
 $ git clone git@github.com:cepc/CEPCSW.git
 $ cd CEPCSW
 $ git checkout master # branch name
-$ mkdir build && cd build
-$ cmake .. -DHOST_BINARY_TAG=${BINARY_TAG}
-$ make
-$ ./run gaudirun.py '$EXAMPLESROOT/options/helloalg.py'
+$ source setup.sh
+$ ./build.sh
+$ ./run.sh Examples/options/helloalg.py
 ```
 
 ## Packages
