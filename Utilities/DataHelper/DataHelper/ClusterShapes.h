@@ -8,7 +8,7 @@
 #include <string>
 #include <sstream>
 #include <cstdlib>
-#include "HelixClass.h"
+#include "DataHelper/HelixClass.h"
 #include <math.h>
 
 

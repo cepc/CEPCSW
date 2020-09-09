@@ -22,7 +22,7 @@
 #include "edm4hep/CalorimeterHitCollection.h"
 #include "edm4hep/CalorimeterHit.h"
 
-#include "ClusterShapes.h"
+#include "DataHelper/ClusterShapes.h"
 #include "Api/PandoraApi.h"
 
 class CollectionMaps;
