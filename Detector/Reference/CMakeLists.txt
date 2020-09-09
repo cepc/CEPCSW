@@ -1,0 +1,38 @@
+###############################################################################
+# Package: Reference
+# Ref to Package: hold CepC reference detector
+# Based on package: DD4hep ROOT
+################################################################################
+gaudi_subdir(Reference v0r0)
+
+gaudi_depends_on_subdirs(GaudiKernel)
+
+
+find_package(DD4hep COMPONENTS DDCore DDRec DDG4 DDParsers REQUIRED)
+# find_package(DD4hep)
+find_package(Geant4)
+include(${Geant4_USE_FILE})
+
+set(CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}  ${DD4hep_ROOT}/cmake )
+include( DD4hep )
+
+find_package(ROOT COMPONENTS MathCore GenVector Geom REQUIRED)
+
+install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/compact DESTINATION Detector/Reference)
+
+set(Reference_src
+    src/other/CepCBeamPipe_v01_geo.cpp
+    src/other/CepCCoilSupport_v01_geo.cpp
+)
+
+gaudi_add_module(Reference ${Reference_src}
+		 INCLUDE_DIRS 
+		   DD4hep
+		   src/include
+		 LINK_LIBRARIES
+                   DD4hep
+                   ${DD4hep_COMPONENT_LIBRARIES}
+		)
+set(LIBRARY_OUTPUT_PATH ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+message(STATUS "LIBRARY_OUTPUT_PATH -> ${LIBRARY_OUTPUT_PATH}")
+dd4hep_generate_rootmap(Reference)
