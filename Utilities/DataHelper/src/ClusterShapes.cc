@@ -1,6 +1,6 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#include "ClusterShapes.h"
+#include "DataHelper/ClusterShapes.h"
 
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
