@@ -4,7 +4,7 @@
 # - build the cepcsw
 #
 # Usage:
-# $ bash setup.sh
+# $ bash build.sh
 # or:
 # $ 
 #
