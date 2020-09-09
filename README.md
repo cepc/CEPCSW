@@ -1,4 +1,4 @@
-# CEPCSW
+# [CEPCSW](https://cepc.github.io/CEPCSW/)
 
 CEPC offline software prototype based on [Key4hep](https://github.com/key4hep).
 
