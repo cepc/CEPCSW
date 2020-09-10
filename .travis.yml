@@ -61,7 +61,7 @@ install:
 # command to run tests
 script:
   - docker run --privileged -ti --name CI_CONTAINER -v $PKGDIR:/workspace -e COMPILER_TYPE=$COMPILER -e LCG_RELEASE=${LCG_RELEASE} -e STANDARD=${STANDARD} -e COMPILER_VERSION=${COMPILER_VERSION} ${CVMFS_REPOS} -d cepc/cepcsw bash 
-  - docker exec -ti CI_CONTAINER  /bin/bash -c "cd /workspace; source setup.sh; ./build.sh | tee build.log 2> /dev/null ; tail -n100 build.log"
+  - docker exec -ti CI_CONTAINER  /bin/bash -c "cd /workspace; bash .build.ci.sh"
   # If run singularity inside docker:
   # - docker exec -ti CI_CONTAINER /usr/bin/singularity exec -B /cvmfs -B /workspace /cvmfs/container.ihep.ac.cn/singularity/image//SL69/sl69worknode20200729.sif /bin/bash -c 'cd /workspace; source setup.sh; ./build.sh'
 
