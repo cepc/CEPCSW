@@ -71,3 +71,5 @@ RUN yum install -y mesa-libGLU-devel
 RUN yum install -y libXmu-devel
 RUN yum install -y motif-devel
 
+# For runtime
+RUN yum install -y compat-db47
