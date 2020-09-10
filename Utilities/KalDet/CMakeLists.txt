@@ -31,7 +31,14 @@ FOREACH( lib_input_dir ${lib_input_dirs} )
     LIST( APPEND ROOT_DICT_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/${lib_input_dir} )
 ENDFOREACH()
 
-LIST( APPEND ROOT_DICT_INCLUDE_DIRS /workfs/bes/fucd/Key4hep/CEPCSW/Utilities/KalTest )
+# LIST( APPEND ROOT_DICT_INCLUDE_DIRS /workfs/bes/fucd/Key4hep/CEPCSW/Utilities/KalTest )
+# get the include directory of KalTest
+get_target_property(to_incl KalTestLib SOURCE_DIR)
+if (to_incl)
+   LIST( APPEND ROOT_DICT_INCLUDE_DIRS ${to_incl})
+else()
+  message(FATAL_ERROR "Failed to get the source dir for package KalTestLib")
+endif()
 
 #MESSAGE( STATUS "ROOT_DICT_INCLUDE_DIRS: ${ROOT_DICT_INCLUDE_DIRS}" )
 

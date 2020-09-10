@@ -39,24 +39,6 @@ PandoraPFAlg::PandoraPFAlg(const std::string& name, ISvcLocator* svcLoc)
 {
  m_CollectionMaps = new CollectionMaps();
   
- declareProperty("ReadMCParticle"                      , m_mcParCol_r,                        "Handle of the MCParticle    input collection" );
- declareProperty("ReadECALBarrel"                      , m_ECALBarrel_r,                      "Handle of the ECALBarrel    input collection" );
- declareProperty("ReadECALEndcap"                      , m_ECALEndcap_r,                      "Handle of the ECALEndcap    input collection" );
- declareProperty("ReadECALOther"                       , m_ECALOther_r,                       "Handle of the ECALOther     input collection" );
- declareProperty("ReadHCALBarrel"                      , m_HCALBarrel_r,                      "Handle of the HCALBarrel    input collection" );
- declareProperty("ReadHCALEndcap"                      , m_HCALEndcap_r,                      "Handle of the HCALEndcap    input collection" );
- declareProperty("ReadHCALOther"                       , m_HCALOther_r,                       "Handle of the HCALOther     input collection" );
- declareProperty("ReadMUON"                            , m_MUON_r,                            "Handle of the MUON          input collection" );
- declareProperty("ReadLCAL"                            , m_LCAL_r,                            "Handle of the LCAL          input collection" );
- declareProperty("ReadLHCAL"                           , m_LHCAL_r,                           "Handle of the LHCAL         input collection" );
- declareProperty("ReadBCAL"                            , m_BCAL_r,                            "Handle of the BCAL          input collection" );
- declareProperty("ReadKinkVertices"                    , m_KinkVertices_r,                    "Handle of the KinkVertices  input collection" );
- declareProperty("ReadProngVertices"                   , m_ProngVertices_r,                   "Handle of the ProngVertices input collection" );
- declareProperty("ReadSplitVertices"                   , m_SplitVertices_r,                   "Handle of the SplitVertices input collection" );
- declareProperty("ReadV0Vertices"                      , m_V0Vertices_r,                      "Handle of the V0Vertices    input collection" );
- declareProperty("ReadTracks"                          , m_MarlinTrkTracks_r,                 "Handle of the Tracks        input collection" );
- declareProperty("MCRecoCaloAssociation"               , m_MCRecoCaloAssociation_r,           "Handle of the MCRecoCaloAssociation input collection" );
- declareProperty("MCRecoTrackerAssociation"            , m_MCRecoTrackerAssociation_r,        "Handle of the MCRecoTrackerAssociation input collection" );
  declareProperty("WriteClusterCollection"              , m_ClusterCollection_w,               "Handle of the ClusterCollection               output collection" );
  declareProperty("WriteReconstructedParticleCollection", m_ReconstructedParticleCollection_w, "Handle of the ReconstructedParticleCollection output collection" );
  declareProperty("WriteVertexCollection"               , m_VertexCollection_w,                "Handle of the VertexCollection                output collection" );
@@ -122,6 +104,43 @@ StatusCode PandoraPFAlg::initialize()
   m_tree->Branch("m_mc_pz"    , &m_mc_pz    );
   m_tree->Branch("m_mc_charge", &m_mc_charge);
   m_tree->Branch("m_hasConversion", &m_hasConversion);
+
+  for ( const auto& col : m_readCols ) {
+      auto seperater = col.find(':');
+      std::string colType = col.substr(0, seperater);
+      std::string colName = col.substr(seperater+1);
+      m_collections[colName] = colType;
+
+      if ( colType == "MCParticle" ) {
+          m_dataHandles[colName] =
+              new DataHandle<edm4hep::MCParticleCollection>(colName, Gaudi::DataHandle::Reader, this);
+      }
+      else if ( colType == "Track" ) {
+          m_dataHandles[colName] =
+              new DataHandle<edm4hep::TrackCollection>(colName, Gaudi::DataHandle::Reader, this);
+      }
+      else if ( colType == "CalorimeterHit" ) {
+          m_dataHandles[colName] =
+              new DataHandle<edm4hep::CalorimeterHitCollection>(colName, Gaudi::DataHandle::Reader, this);
+      }
+      else if ( colType == "Vertex" ) {
+          m_dataHandles[colName] =
+              new DataHandle<edm4hep::VertexCollection>(colName, Gaudi::DataHandle::Reader, this);
+      }
+      else if ( colType == "MCRecoTrackerAssociation" ) {
+          m_dataHandles[colName] =
+              new DataHandle<edm4hep::MCRecoTrackerAssociationCollection>(colName, Gaudi::DataHandle::Reader, this);
+      }
+      else if ( colType == "MCRecoCaloAssociation" ) {
+          m_dataHandles[colName] =
+              new DataHandle<edm4hep::MCRecoCaloAssociationCollection>(colName, Gaudi::DataHandle::Reader, this);
+      }
+      else {
+            error() << "invalid collection type: " << colType << endmsg;
+            return StatusCode::FAILURE;
+      }
+  }
+
 
   // XML file
   m_settings.m_pandoraSettingsXmlFile =  m_PandoraSettingsXmlFile ; 
@@ -418,157 +437,100 @@ collectionMap_CaloRel.clear();
 collectionMap_TrkRel.clear();
 }
 
+
 StatusCode PandoraPFAlg::updateMap()
 {
-        const edm4hep::MCParticleCollection*     MCParticle = nullptr;
-        const edm4hep::CalorimeterHitCollection* ECALBarrel = nullptr;        
-        const edm4hep::CalorimeterHitCollection* ECALEndcap = nullptr; 
-        const edm4hep::CalorimeterHitCollection* ECALOther  = nullptr; 
-        const edm4hep::CalorimeterHitCollection* HCALBarrel = nullptr; 
-        const edm4hep::CalorimeterHitCollection* HCALEndcap = nullptr; 
-        const edm4hep::CalorimeterHitCollection* HCALOther  = nullptr; 
-        const edm4hep::CalorimeterHitCollection* MUON       = nullptr; 
-        const edm4hep::CalorimeterHitCollection* LCAL       = nullptr; 
-        const edm4hep::CalorimeterHitCollection* LHCAL      = nullptr; 
-        const edm4hep::CalorimeterHitCollection* BCAL       = nullptr; 
-        const edm4hep::VertexCollection* KinkVertices       = nullptr; 
-        const edm4hep::VertexCollection* ProngVertices      = nullptr; 
-        const edm4hep::VertexCollection* SplitVertices      = nullptr; 
-        const edm4hep::VertexCollection* V0Vertices         = nullptr; 
-        const edm4hep::TrackCollection*  MarlinTrkTracks    = nullptr; 
-        const edm4hep::MCRecoCaloAssociationCollection*  mcRecoCaloAssociation    = nullptr; 
-        const edm4hep::MCRecoTrackerAssociationCollection*  mcRecoTrackerAssociation    = nullptr; 
-        StatusCode sc = StatusCode::SUCCESS;
-        sc =  getCol(m_mcParCol_r  , MCParticle );
-        sc =  getCol(m_ECALBarrel_r, ECALBarrel );
-        sc =  getCol(m_ECALEndcap_r, ECALEndcap );
-        sc =  getCol(m_ECALOther_r , ECALOther  );
-        sc =  getCol(m_HCALBarrel_r, HCALBarrel );
-        sc =  getCol(m_HCALEndcap_r, HCALEndcap );
-        sc =  getCol(m_HCALOther_r , HCALOther  );
-        sc =  getCol(m_MUON_r      , MUON       );
-        sc =  getCol(m_LCAL_r      , LCAL       );
-        sc =  getCol(m_LHCAL_r     , LHCAL      );
-        sc =  getCol(m_BCAL_r      , BCAL       );        
-        sc =  getCol(m_KinkVertices_r  , KinkVertices );        
-        sc =  getCol(m_ProngVertices_r , ProngVertices);        
-        sc =  getCol(m_SplitVertices_r , SplitVertices);        
-        sc =  getCol(m_V0Vertices_r    , V0Vertices   );        
-        sc =  getCol(m_MarlinTrkTracks_r , MarlinTrkTracks   );        
-        sc =  getCol(m_MCRecoCaloAssociation_r , mcRecoCaloAssociation   );        
-        sc =  getCol(m_MCRecoTrackerAssociation_r , mcRecoTrackerAssociation);        
-
-        if (NULL != MCParticle   )  
-        {
-            std::vector<edm4hep::MCParticle> v_mc;
-            m_CollectionMaps->collectionMap_MC ["MCParticle"] = v_mc;
-            for(unsigned int i=0 ; i< MCParticle->size(); i++) m_CollectionMaps->collectionMap_MC ["MCParticle"].push_back(MCParticle->at(i));
+    for(auto &v : m_dataHandles){
+        try{
+            if(m_collections[v.first]=="MCParticle"){
+                auto handle = dynamic_cast<DataHandle<edm4hep::MCParticleCollection>*> (v.second);
+                auto po = handle->get();
+                if(po != NULL){
+                    std::vector<edm4hep::MCParticle> v_mc;
+                    m_CollectionMaps->collectionMap_MC [v.first] = v_mc;
+                    for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_MC [v.first].push_back(po->at(i));
+                    std::cout<<"saved col name="<<v.first<<std::endl;
+                }
+                else{
+                std::cout<<"don't find col name="<<v.first<<std::endl;
+                }
+            }
+            else if(m_collections[v.first]=="CalorimeterHit"){
+                auto handle = dynamic_cast<DataHandle<edm4hep::CalorimeterHitCollection>*> (v.second);
+                auto po = handle->get();
+                if(po != NULL){
+                    std::vector<edm4hep::CalorimeterHit> v_cal;
+                    m_CollectionMaps->collectionMap_CaloHit[v.first] = v_cal ;
+                    for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_CaloHit [v.first].push_back(po->at(i));
+                    std::cout<<"saved col name="<<v.first<<std::endl;
+                }
+                else{
+                std::cout<<"don't find col name="<<v.first<<std::endl;
+                }
+            }
+            else if(m_collections[v.first]=="Track"){
+                auto handle = dynamic_cast<DataHandle<edm4hep::TrackCollection>*> (v.second);
+                auto po = handle->get();
+                if(po != NULL){
+                    std::vector<edm4hep::Track> v_cal;
+                    m_CollectionMaps->collectionMap_Track[v.first] = v_cal ;
+                    for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_Track [v.first].push_back(po->at(i));
+                    std::cout<<"saved col name="<<v.first<<std::endl;
+                }
+                else{
+                std::cout<<"don't find col name="<<v.first<<std::endl;
+                }
+            }
+            else if(m_collections[v.first]=="Vertex"){
+                auto handle = dynamic_cast<DataHandle<edm4hep::VertexCollection>*> (v.second);
+                auto po = handle->get();
+                if(po != NULL){
+                    std::vector<edm4hep::Vertex> v_cal;
+                    m_CollectionMaps->collectionMap_Vertex[v.first] = v_cal ;
+                    for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_Vertex [v.first].push_back(po->at(i));
+                    std::cout<<"saved col name="<<v.first<<std::endl;
+                }
+                else{
+                std::cout<<"don't find col name="<<v.first<<std::endl;
+                }
+            }
+            else if(m_collections[v.first]=="MCRecoCaloAssociation"){
+                auto handle = dynamic_cast<DataHandle<edm4hep::MCRecoCaloAssociationCollection>*> (v.second);
+                auto po = handle->get();
+                if(po != NULL){
+                    std::vector<edm4hep::MCRecoCaloAssociation> v_cal;
+                    m_CollectionMaps->collectionMap_CaloRel[v.first] = v_cal ;
+                    for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_CaloRel [v.first].push_back(po->at(i));
+                    std::cout<<"saved col name="<<v.first<<std::endl;
+                }
+                else{
+                std::cout<<"don't find col name="<<v.first<<std::endl;
+                }
+            }
+            else if(m_collections[v.first]=="MCRecoTrackerAssociation"){
+                auto handle = dynamic_cast<DataHandle<edm4hep::MCRecoTrackerAssociationCollection>*> (v.second);
+                auto po = handle->get();
+                if(po != NULL){
+                    std::vector<edm4hep::MCRecoTrackerAssociation> v_cal;
+                    m_CollectionMaps->collectionMap_TrkRel[v.first] = v_cal ;
+                    for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_TrkRel [v.first].push_back(po->at(i));
+                    std::cout<<"saved col name="<<v.first<<std::endl;
+                }
+                else{
+                std::cout<<"don't find col name="<<v.first<<std::endl;
+                }
+            }
+            else{
+            std::cout<<"wrong type name for col :"<<v.first<<std::endl;
+            }
+        }//try
+        catch(...){
+            std::cout<<"don't find "<<v.first<<"in event"<<std::endl;
+            std::cout<<"don't find  col name="<<v.first<<",with type="<<m_collections[v.first]<<" in this event"<<std::endl;
         }
-        if (NULL != ECALBarrel   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->collectionMap_CaloHit["ECALBarrel"] = v_cal ;
-            for(unsigned int i=0 ; i< ECALBarrel->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["ECALBarrel"].push_back(ECALBarrel->at(i));
-        }
-        if (NULL != ECALEndcap   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->collectionMap_CaloHit["ECALEndcap"] = v_cal ;
-            for(unsigned int i=0 ; i< ECALEndcap->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["ECALEndcap"].push_back(ECALEndcap->at(i));
-        }
-        if (NULL != ECALOther   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->collectionMap_CaloHit["ECALOther"] = v_cal ;
-            for(unsigned int i=0 ; i< ECALOther->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["ECALOther"].push_back(ECALOther->at(i));
-        }
-        if (NULL != HCALBarrel   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->collectionMap_CaloHit["HCALBarrel"] = v_cal ;
-            for(unsigned int i=0 ; i< HCALBarrel->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["HCALBarrel"].push_back(HCALBarrel->at(i));
-        }
-        if (NULL != HCALEndcap   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->collectionMap_CaloHit["HCALEndcap"] = v_cal ;
-            for(unsigned int i=0 ; i< HCALEndcap->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["HCALEndcap"].push_back(HCALEndcap->at(i));
-        }
-        if (NULL != HCALOther   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->collectionMap_CaloHit["HCALOther"] = v_cal ;
-            for(unsigned int i=0 ; i< HCALOther->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["HCALOther"].push_back(HCALOther->at(i));
-        }
-        if (NULL != MUON   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->collectionMap_CaloHit["MUON"] = v_cal ;
-            for(unsigned int i=0 ; i< MUON->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["MUON"].push_back(MUON->at(i));
-        }
-        if (NULL != LCAL   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->collectionMap_CaloHit["LCAL"] = v_cal ;
-            for(unsigned int i=0 ; i< LCAL->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["LCAL"].push_back(LCAL->at(i));
-        }
-        if (NULL != LHCAL   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->collectionMap_CaloHit["LHCAL"] = v_cal ;
-            for(unsigned int i=0 ; i< LHCAL->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["LHCAL"].push_back(LHCAL->at(i));
-        }
-        if (NULL != BCAL   )
-        {
-            std::vector<edm4hep::CalorimeterHit> v_cal;
-            m_CollectionMaps->collectionMap_CaloHit["BCAL"] = v_cal ;
-            for(unsigned int i=0 ; i< BCAL->size(); i++) m_CollectionMaps->collectionMap_CaloHit ["BCAL"].push_back(BCAL->at(i));
-        }
-        if (NULL != KinkVertices   )
-        {
-            std::vector<edm4hep::Vertex> v_cal;
-            m_CollectionMaps->collectionMap_Vertex["KinkVertices"] = v_cal ;
-            for(unsigned int i=0 ; i< KinkVertices->size(); i++) m_CollectionMaps->collectionMap_Vertex ["KinkVertices"].push_back(KinkVertices->at(i));
-        }
-        if (NULL != ProngVertices   )
-        {
-            std::vector<edm4hep::Vertex> v_cal;
-            m_CollectionMaps->collectionMap_Vertex["ProngVertices"] = v_cal ;
-            for(unsigned int i=0 ; i< ProngVertices->size(); i++) m_CollectionMaps->collectionMap_Vertex ["ProngVertices"].push_back(ProngVertices->at(i));
-        }
-        if (NULL != SplitVertices   )
-        {
-            std::vector<edm4hep::Vertex> v_cal;
-            m_CollectionMaps->collectionMap_Vertex["SplitVertices"] = v_cal ;
-            for(unsigned int i=0 ; i< SplitVertices->size(); i++) m_CollectionMaps->collectionMap_Vertex ["SplitVertices"].push_back(SplitVertices->at(i));
-        }
-        if (NULL != V0Vertices   )
-        {
-            std::vector<edm4hep::Vertex> v_cal;
-            m_CollectionMaps->collectionMap_Vertex["V0Vertices"] = v_cal ;
-            for(unsigned int i=0 ; i< V0Vertices->size(); i++) m_CollectionMaps->collectionMap_Vertex ["V0Vertices"].push_back(V0Vertices->at(i));
-        }
-        if (NULL != MarlinTrkTracks   )
-        {
-            std::vector<edm4hep::Track> v_cal;
-            m_CollectionMaps->collectionMap_Track["MarlinTrkTracks"] = v_cal ;
-            for(unsigned int i=0 ; i< MarlinTrkTracks->size(); i++) m_CollectionMaps->collectionMap_Track ["MarlinTrkTracks"].push_back(MarlinTrkTracks->at(i));
-        }
-        if (NULL != mcRecoCaloAssociation )
-        {
-            std::vector<edm4hep::MCRecoCaloAssociation> v_cal;
-            m_CollectionMaps->collectionMap_CaloRel["RecoCaloAssociation"] = v_cal ;
-            for(unsigned int i=0 ; i< mcRecoCaloAssociation->size(); i++) m_CollectionMaps->collectionMap_CaloRel ["RecoCaloAssociation"].push_back(mcRecoCaloAssociation->at(i));
-        }
-        if (NULL != mcRecoTrackerAssociation )
-        {
-            std::vector<edm4hep::MCRecoTrackerAssociation> v_cal;
-            m_CollectionMaps->collectionMap_TrkRel["RecoTrackerAssociation"] = v_cal ;
-            for(unsigned int i=0 ; i< mcRecoTrackerAssociation->size(); i++) m_CollectionMaps->collectionMap_TrkRel ["RecoTrackerAssociation"].push_back(mcRecoTrackerAssociation->at(i));
-        }
+    }
     return StatusCode::SUCCESS;
 }
-
 
 
 

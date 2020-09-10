@@ -10,57 +10,73 @@ read = LCIOInput("read")
 read.inputs = [
 #"/cefs/data/FullSim/CEPC240/CEPC_v4/higgs/smart_final_states/E240.Pffh_invi.e0.p0.whizard195//ffh_inv.e0.p0.00001_1000_sim.slcio"
 #"/junofs/users/wxfang/CEPC/CEPCOFF/doReco/reco_output/nnh_aa.e0.p0.00010_000000_rec.slcio"
-"/cefs/higgs/wxfang/cepc/Pandora/CaloDigi/gamma/Digi_sim_0.slcio"
+"/junofs/users/wxfang/MyGit/tmp/fork_update_pandora/CEPCSW/Digi_sim_0.slcio"
 ]
-read.collections = {
-        #"COILCollection" : "SimTrackerHit",
-        #"EcalBarrelSiliconCollection" : "SimCalorimeterHit",
-        "MCParticle" : "MCParticle",
-        "ECALBarrel" : "CalorimeterHit",
-        "ECALEndcap" : "CalorimeterHit",
-        "ECALOther"  : "CalorimeterHit",
-        "HCALBarrel" : "CalorimeterHit",
-        "HCALEndcap" : "CalorimeterHit",
-        "HCALOther"  : "CalorimeterHit",
-        "MUON"       : "CalorimeterHit",
-        "LCAL"       : "CalorimeterHit",
-        "LHCAL"      : "CalorimeterHit",
-        "BCAL"       : "CalorimeterHit",
-        #"MarlinTrkTracks" : "Track"
-        #"TPCCollection" : "SimTrackerHit",
-        #"VXDCollection" : "SimTrackerHit"
-}
+read.collections = [
+        "MCParticle:MCParticle",
+        #"SimCalorimeterHit:EcalBarrelSiliconCollection",
+        "CalorimeterHit:ECALBarrel",
+        "CalorimeterHit:ECALEndcap",
+        "CalorimeterHit:ECALOther" ,
+        ######### HCAL will effect the reco efficiency close to gap region ######
+        "CalorimeterHit:HCALBarrel",
+        "CalorimeterHit:HCALEndcap",
+        "CalorimeterHit:HCALOther",
+        #"TrackerHit:VXDTrackerHits",
+        #"TrackerHit:SITTrackerHits",
+        "TrackerHit:SITSpacePoints",
+        "TrackerHit:TPCTrackerHits",
+        #"TrackerHit:SETTrackerHits",
+        "TrackerHit:SETSpacePoints",
+        #"TrackerHit:FTDStripTrackerHits",
+        "TrackerHit:FTDSpacePoints",
+        #"TrackerHit:FTDPixelTrackerHits",
+        "Track:ClupatraTrackSegments", 
+        "Track:ClupatraTracks", 
+        "Track:ForwardTracks", 
+        "Track:SiTracks", 
+        "Track:SubsetTracks",
+        "Track:MarlinTrkTracks", 
+        "Vertex:KinkVertices",
+        "Vertex:ProngVertices",
+        "Vertex:V0Vertices",
+        "ReconstructedParticle:KinkRecoParticles",
+        "ReconstructedParticle:ProngRecoParticles",
+        "ReconstructedParticle:V0RecoParticles"
+]
 ##############################################################################
 from Configurables import GearSvc
 gearSvc  = GearSvc("GearSvc")
-gearSvc.GearXMLFile = "/junofs/users/wxfang/CEPC/CEPCOFF/doSim/fullDet/GearOutput.xml"
+gearSvc.GearXMLFile = "../Detector/DetCEPCv4/compact/FullDetGear.xml"
 ##############################################################################
 from Configurables import PandoraPFAlg
 
 pandoralg = PandoraPFAlg("PandoraPFAlg")
-## KEEP same with lcioinput name for the ReadXXX ###########
-pandoralg.ReadMCParticle                       = "MCParticle"                   
-pandoralg.ReadECALBarrel                       = "ECALBarrel"                   
-pandoralg.ReadECALEndcap                       = "ECALEndcap"                   
-pandoralg.ReadECALOther                        = "ECALOther"                    
-pandoralg.ReadHCALBarrel                       = "HCALBarrel"                   
-pandoralg.ReadHCALEndcap                       = "HCALEndcap"                   
-pandoralg.ReadHCALOther                        = "HCALOther"                    
-pandoralg.ReadMUON                             = "MUON"                         
-pandoralg.ReadLCAL                             = "LCAL"                         
-pandoralg.ReadLHCAL                            = "LHCAL"                        
-pandoralg.ReadBCAL                             = "BCAL"                         
-pandoralg.ReadKinkVertices                     = "KinkVertices"                 
-pandoralg.ReadProngVertices                    = "ProngVertices"                
-pandoralg.ReadSplitVertices                    = "SplitVertices"                
-pandoralg.ReadV0Vertices                       = "V0Vertices"                   
-pandoralg.ReadTracks                           = "MarlinTrkTracks"                       
+pandoralg.collections = [
+        "MCParticle:MCParticle",
+        "CalorimeterHit:ECALBarrel",
+        "CalorimeterHit:ECALEndcap",
+        "CalorimeterHit:ECALOther" ,
+        "CalorimeterHit:HCALBarrel",
+        "CalorimeterHit:HCALEndcap",
+        "CalorimeterHit:HCALOther" ,
+        "CalorimeterHit:MUON", 
+        "CalorimeterHit:LCAL", 
+        "CalorimeterHit:LHCAL", 
+        "CalorimeterHit:BCAL", 
+        "Vertex:KinkVertices", 
+        "Vertex:ProngVertices", 
+        "Vertex:SplitVertices", 
+        "Vertex:V0Vertices", 
+        "Track:MarlinTrkTracks", 
+        "MCRecoCaloAssociation:RecoCaloAssociation_ECALBarrel" 
+        ]
 pandoralg.WriteClusterCollection               = "PandoraClusters"              
 pandoralg.WriteReconstructedParticleCollection = "PandoraPFOs" 
 pandoralg.WriteVertexCollection                = "PandoraPFANewStartVertices"               
-pandoralg.AnaOutput = "/cefs/higgs/wxfang/cepc/Pandora/Ana/gamma/Ana_gamma_test.root"
+pandoralg.AnaOutput = "Pandora_Ana.root"
 
-pandoralg.PandoraSettingsDefault_xml = "/junofs/users/wxfang/MyGit/MarlinPandora/scripts/PandoraSettingsDefault_wx.xml"
+pandoralg.PandoraSettingsDefault_xml = "../Reconstruction/PFA/Pandora/PandoraSettingsDefault.xml"
 #### Do not chage the collection name, only add or delete ###############
 pandoralg.TrackCollections      =  ["MarlinTrkTracks"]
 pandoralg.ECalCaloHitCollections=  ["ECALBarrel", "ECALEndcap", "ECALOther"]
@@ -109,7 +125,7 @@ ApplicationMgr(
         #TopAlg = [read, pandoralg, write],
         TopAlg = [read, pandoralg],
         EvtSel = 'NONE',
-        EvtMax = 10,
+        EvtMax = 1,
         ExtSvc = [dsvc, gearSvc],
         OutputLevel=INFO
 )
