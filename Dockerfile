@@ -61,3 +61,15 @@ RUN if [ "$CVMFSMOD" = "INSIDE" ]; then \
 # $ mount -t cvmfs container.ihep.ac.cn /cvmfs/container.ihep.ac.cn
 # $ mount -t cvmfs cepcsw.ihep.ac.cn /cvmfs/cepcsw.ihep.ac.cn
 
+##############################################################################
+# Install necessary packages
+##############################################################################
+
+RUN yum install -y git
+RUN yum install -y libglvnd-devel
+RUN yum install -y mesa-libGLU-devel
+RUN yum install -y libXmu-devel
+RUN yum install -y motif-devel
+
+# For runtime
+RUN yum install -y compat-db47
