@@ -1,8 +1,8 @@
 #include "EXEventGen.h"
 //#include "EXVKalDetector.h"
 //#include <EXVMeasLayer.h>
-#include "kaldet/EXTPCKalDetector.h"
-#include <kaldet/EXTPCMeasLayer.h>
+#include "EXTPCKalDetector.h"
+#include <EXTPCMeasLayer.h>
 #include <kaltest/TPlane.h>
 #include <TRandom.h>
 #include <TMath.h>

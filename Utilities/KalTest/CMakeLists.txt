@@ -9,41 +9,50 @@ find_package(ROOT REQUIRED COMPONENTS MathCore)
 
 gaudi_depends_on_subdirs()
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
+set( DICT_CINT_DEFINITIONS "HANDLE_DICT_EXCEPTIONS=IGNORED_FOR_CINT" )
+set( DICT_INPUT_DIRS geomlib kallib kaltracklib utils )
+set( DICT_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/rootdict )
 
-SET( ROOT_DICT_CINT_DEFINITIONS "-DHANDLE_DICT_EXCEPTIONS=IGNORED_FOR_CINT" )
+foreach( DICT ${DICT_INPUT_DIRS} )
+  list( APPEND DICT_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src/${DICT} )
+  aux_source_directory( src/${DICT} LIB_SOURCES )
+endforeach()
 
-INCLUDE( MyFindROOT )
-INCLUDE( MacroRootDict )
+foreach( DICT ${DICT_INPUT_DIRS} )
+  file( GLOB DICT_HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/${DICT}/*.h" )
+  file( GLOB LINKDEFS "${CMAKE_CURRENT_SOURCE_DIR}/src/${DICT}/LinkDef.h" )
 
-SET( lib_input_dirs src/geomlib src/kallib src/kaltracklib src/utils )
+  if( LINKDEFS )
+    list( REMOVE_ITEM DICT_HEADER_FILES "${LINKDEFS}" )
+  endif()
+    
+  add_custom_command(OUTPUT ${DICT_OUTPUT_DIR}/${DICT}.cxx ${DICT_OUTPUT_DIR}/${DICT}_rdict.pcm
+                     COMMAND mkdir -p ${DICT_OUTPUT_DIR}
+                     COMMAND ${ROOT_rootcling_CMD}
+                     ARGS -f ${DICT_OUTPUT_DIR}/${DICT}.cxx -s ${DICT_OUTPUT_DIR}/${DICT} -inlineInputHeader
+                     "$<$<BOOL:$<JOIN:${DICT_CINT_DEFINITIONS},>>:-D$<JOIN:${DICT_CINT_DEFINITIONS},;-D>>"
+                     "$<$<BOOL:$<JOIN:${DICT_INCLUDE_DIRS},>>:-I$<JOIN:${DICT_INCLUDE_DIRS},;-I>>"
+                     "$<JOIN:${DICT_HEADER_FILES},;>" "$<JOIN:${LINKDEFS},;>"
+                     DEPENDS ${DICT_HEADER_FILES} ${LINKDEFS}
+                     COMMAND_EXPAND_LISTS
+                     )
+  add_custom_target( ${DICT} DEPENDS ${DICT_OUTPUT_DIR}/${DICT}.cxx ${DICT_OUTPUT_DIR}/${DICT}_rdict.pcm )
 
-FOREACH( lib_input_dir ${lib_input_dirs} )
-    LIST( APPEND ROOT_DICT_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/${lib_input_dir} )
-ENDFOREACH()
+  set_source_files_properties(${DICT_OUTPUT_DIR}/${DICT}.cxx ${DICT_OUTPUT_DIR}/${DICT}_rdict.pcm
+                              PROPERTIES
+                              GENERATED TRUE
+                              COMPILE_FLAGS "-Wno-unused-function -Wno-overlength-strings"
+			      )
 
-#MESSAGE( STATUS "ROOT_DICT_INCLUDE_DIRS: ${ROOT_DICT_INCLUDE_DIRS}" )
+  install(FILES ${DICT_OUTPUT_DIR}/${DICT}_rdict.pcm DESTINATION lib)
 
-FOREACH( lib_input_dir ${lib_input_dirs} )
+  list( APPEND LIB_SOURCES ${DICT_OUTPUT_DIR}/${DICT}.cxx )
+endforeach()
 
-    AUX_SOURCE_DIRECTORY( ${lib_input_dir} lib_sources )
-
-    PREPARE_ROOT_DICT_HEADERS( ${lib_input_dir} )
-
-    INSTALL(DIRECTORY ${lib_input_dir}/ DESTINATION "include/kaltest"
-        FILES_MATCHING PATTERN "*.h" PATTERN "LinkDef.h" EXCLUDE
-    )
-
-    GEN_ROOT_DICT_SOURCES( ${lib_input_dir}Dict.cxx )
-
-    LIST( APPEND lib_sources ${ROOT_DICT_OUTPUT_SOURCES} )
-
-ENDFOREACH()
-
-include_directories( ${ROOT_DICT_INCLUDE_DIRS} )
+include_directories( ${DICT_INCLUDE_DIRS} )
 include_directories( ${ROOT_INCLUDE_DIRS} )
 
-set(KalTestLib_srcs ${lib_sources})
+set(KalTestLib_srcs ${LIB_SOURCES})
 
 gaudi_add_library(KalTestLib ${KalTestLib_srcs}
 			     PUBLIC_HEADERS kaltest
