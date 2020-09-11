@@ -27,6 +27,7 @@ foreach( DICT ${DICT_INPUT_DIRS} )
   endif()
     
   add_custom_command(OUTPUT ${DICT_OUTPUT_DIR}/${DICT}.cxx ${DICT_OUTPUT_DIR}/${DICT}_rdict.pcm
+                     COMMAND mkdir -p ${DICT_OUTPUT_DIR}
                      COMMAND ${ROOT_rootcling_CMD}
                      ARGS -f ${DICT_OUTPUT_DIR}/${DICT}.cxx -s ${DICT_OUTPUT_DIR}/${DICT} -inlineInputHeader
                      "$<$<BOOL:$<JOIN:${DICT_CINT_DEFINITIONS},>>:-D$<JOIN:${DICT_CINT_DEFINITIONS},;-D>>"
