@@ -78,6 +78,11 @@ class SpacePointBuilderAlg : public GaudiAlgorithm {
   // Output collection
   DataHandle<edm4hep::TrackerHitCollection> _outSPColHdl{"FTDSpacePoints", Gaudi::DataHandle::Writer, this};
   DataHandle<edm4hep::MCRecoTrackerAssociationCollection> _outSPAssColHdl{"FTDSpacePointsAssociation", Gaudi::DataHandle::Writer, this};
+
+  Gaudi::Property<float> _nominal_vertex_x{this, "NominalVertexX", 0.0};
+  Gaudi::Property<float> _nominal_vertex_y{this, "NominalVertexY", 0.0};
+  Gaudi::Property<float> _nominal_vertex_z{this, "NominalVertexZ", 0.0};
+  Gaudi::Property<float> _striplength_tolerance{this, "StriplengthTolerance", 0.1};
   /** Calculates the 2 dimensional crossing point of two lines.
    * Each line is specified by a point (x,y) and a direction vector (ex,ey).
    * 
@@ -169,14 +174,7 @@ class SpacePointBuilderAlg : public GaudiAlgorithm {
   unsigned _nStripsTooParallel;
   unsigned _nPlanesNotParallel;
 
-  float _nominal_vertex_x;
-  float _nominal_vertex_y;
-  float _nominal_vertex_z;
-
   CLHEP::Hep3Vector _nominal_vertex;
-
-  float _striplength_tolerance;
-  
 } ;
 
 #endif
