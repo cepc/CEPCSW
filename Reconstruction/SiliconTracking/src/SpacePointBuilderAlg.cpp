@@ -69,6 +69,9 @@ StatusCode SpacePointBuilderAlg::initialize() {
 
 StatusCode SpacePointBuilderAlg::execute(){
   StatusCode sc;
+  auto spCol = _outSPColHdl.createAndPut();
+  auto relCol = _outSPAssColHdl.createAndPut();
+
   const edm4hep::TrackerHitCollection* hitCol = nullptr;
   try {
     hitCol = _inHitColHdl.get();
@@ -95,8 +98,8 @@ StatusCode SpacePointBuilderAlg::execute(){
     _nStripsTooParallel = 0;
     _nPlanesNotParallel = 0;
     
-    edm4hep::TrackerHitCollection* spCol = new edm4hep::TrackerHitCollection();    // output spacepoint collection
-    edm4hep::MCRecoTrackerAssociationCollection* relCol = new edm4hep::MCRecoTrackerAssociationCollection();    // output relation collection
+    //edm4hep::TrackerHitCollection* spCol = new edm4hep::TrackerHitCollection();    // output spacepoint collection
+    //edm4hep::MCRecoTrackerAssociationCollection* relCol = new edm4hep::MCRecoTrackerAssociationCollection();    // output relation collection
     
     // to store the weights
     //LCFlagImpl lcFlag(0) ;
@@ -235,10 +238,10 @@ StatusCode SpacePointBuilderAlg::execute(){
       }
     }
     
-    if(spCol->size()!=0) _outSPColHdl.put(spCol);
-    else                 delete spCol;
-    if(relCol->size()!=0) _outSPAssColHdl.put(relCol);
-    else                  delete relCol;
+    //if(spCol->size()!=0) _outSPColHdl.put(spCol);
+    //else                 delete spCol;
+    //if(relCol->size()!=0) _outSPAssColHdl.put(relCol);
+    //else                  delete relCol;
     
     debug() << "\nCreated " << createdSpacePoints << " space points ( raw strip hits: " << rawStripHits << ")\n"
 	    << "  There were " << rawStripHits << " strip hits available, giving " 

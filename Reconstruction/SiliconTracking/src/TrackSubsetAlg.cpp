@@ -97,7 +97,8 @@ StatusCode TrackSubsetAlg::finalize(){
 
 StatusCode TrackSubsetAlg::execute(){ 
   std::vector<edm4hep::Track> tracks;
-  
+
+  auto trkCol = _outColHdl.createAndPut();
   /**********************************************************************************************/
   /*       Read in the collections                                                              */
   /**********************************************************************************************/
@@ -197,7 +198,7 @@ StatusCode TrackSubsetAlg::execute(){
   /**********************************************************************************************/
   debug() << "Fitting and saving of the tracks" << endmsg;
 
-  auto trkCol = _outColHdl.createAndPut();
+  //auto trkCol = _outColHdl.createAndPut();
 
   for( unsigned i=0; i < accepted.size(); i++ ){
     edm4hep::Track trackImpl;
@@ -326,6 +327,8 @@ StatusCode TrackSubsetAlg::execute(){
   }
 
   debug() << "Saving " << trkCol->size() << " tracks" << endmsg;
+  
+  Navigation::Instance()->Initialize();
 
   _nEvt ++ ;
   return StatusCode::SUCCESS;

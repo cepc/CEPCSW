@@ -760,7 +760,7 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
 	  
 	  //**fg: choose sensor 1 for sensitive electronics side band
 	  if(active_side_band_electronics_option==1)
-	    pv_el_band_pos.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(elec_loop)  ).addPhysVolID("sensor", 1 ).addPhysVolID("side", 1 )   ;
+	    pv_el_band_pos.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(elec_loop)  ).addPhysVolID("sensor", 1 ).addPhysVolID("side", 0 ).addPhysVolID("barrelside", 1 );
 
 	  PlacedVolume pv_el_band_neg = layer_assembly.placeVolume( ElectronicsBandLogical,
 				     Transform3D( rot, Position((layer_radius+(side_band_electronics_thickness/2.)+layer_gap)*sin(phirot2)+side_band_electronic_offset_phi*cos(phirot2),
@@ -768,7 +768,7 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
 								-Z))  );
 
 	  if(active_side_band_electronics_option==1)
-	    pv_el_band_neg.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(elec_loop)  ).addPhysVolID("sensor", 1 ).addPhysVolID("side", -1 )   ;
+	    pv_el_band_neg.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(elec_loop)  ).addPhysVolID("sensor", 1 ).addPhysVolID("side", 0 ).addPhysVolID("barrelside", -1 );
 	  
 	}
 
@@ -791,14 +791,14 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
 								Z))  );
 
 	  if(active_side_band_electronics_option==1)
-	    pv_el_band_pos.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(elec_loop)  ).addPhysVolID("sensor", 1 ).addPhysVolID("side", 1 )   ;
+	    pv_el_band_pos.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(elec_loop)  ).addPhysVolID("sensor", 1 ).addPhysVolID("side", 0 ).addPhysVolID("barrelside", 1 )   ;
 
 	  PlacedVolume pv_el_band_neg = layer_assembly.placeVolume( ElectronicsBandLogical,
 				     Transform3D( rot, Position((layer_radius-(side_band_electronics_thickness/2.))*sin(phirot2)+side_band_electronic_offset_phi*cos(phirot2),
 								-(layer_radius-(side_band_electronics_thickness/2.))*cos(phirot2)+side_band_electronic_offset_phi*sin(phirot2),
 								-Z))  );
 	  if(active_side_band_electronics_option==1)
-	    pv_el_band_neg.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(elec_loop)  ).addPhysVolID("sensor", 1 ).addPhysVolID("side", -1 )   ;
+	    pv_el_band_neg.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(elec_loop)  ).addPhysVolID("sensor", 1 ).addPhysVolID("side", 0 ).addPhysVolID("barrelside", -1 );
 	}
       }      
     }
@@ -1114,7 +1114,7 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
 										     -(layer_radius+(active_silicon_thickness/2.)+layer_gap)*cos(phirot2)+active_offset_phi*sin(phirot2),
 										     Z)) ) ;
 	
-	pv_layer_pos.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(active_loop)  ).addPhysVolID("sensor", 0 ).addPhysVolID("side", 1 )   ;
+	pv_layer_pos.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(active_loop)  ).addPhysVolID("sensor", 0 ).addPhysVolID("side", 0 ).addPhysVolID("barrelside", 1 )   ;
 
 	DetElement   ladderDEposZ( vxd ,  ladderNameP , x_det.id() );
 	ladderDEposZ.setPlacement( pv_layer_pos ) ;
@@ -1125,7 +1125,7 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
 										     -(layer_radius+(active_silicon_thickness/2.)+layer_gap)*cos(phirot2)+active_offset_phi*sin(phirot2),
 										     -Z)) );
 	
-	pv_layer_neg.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(active_loop)  ).addPhysVolID("sensor", 0 ).addPhysVolID("side", -1 )   ;
+	pv_layer_neg.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(active_loop)  ).addPhysVolID("sensor", 0 ).addPhysVolID("side", 0 ).addPhysVolID("barrelside", -1 )   ;
 
 	DetElement   ladderDEnegZ( vxd ,   ladderNameN , x_det.id() );
 	ladderDEnegZ.setPlacement( pv_layer_neg ) ;
@@ -1138,7 +1138,7 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
 										     -(layer_radius-(active_silicon_thickness/2.))*cos(phirot2)+active_offset_phi*sin(phirot2),
 										     Z)) ) ;
 	
-	pv_layer_pos.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(active_loop)  ).addPhysVolID("sensor", 0 ).addPhysVolID("side", 1 )   ;
+	pv_layer_pos.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(active_loop)  ).addPhysVolID("sensor", 0 ).addPhysVolID("side", 0 ).addPhysVolID("barrelside", 1 )   ;
 	
 	DetElement   ladderDEposZ( vxd ,  ladderNameP , x_det.id() );
 	ladderDEposZ.setPlacement( pv_layer_pos ) ;
@@ -1152,7 +1152,7 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
 	ladderDEnegZ.setPlacement( pv_layer_neg ) ;
 	volSurfaceList( ladderDEnegZ )->push_back( surf ) ;
 	
-	pv_layer_neg.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(active_loop)  ).addPhysVolID("sensor", 0 ).addPhysVolID("side", -1 )   ;
+	pv_layer_neg.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(active_loop)  ).addPhysVolID("sensor", 0 ).addPhysVolID("side", 0 ).addPhysVolID("barrelside", -1 )    ;
 	
       }		  
 

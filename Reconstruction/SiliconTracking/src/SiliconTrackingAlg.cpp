@@ -159,6 +159,7 @@ StatusCode SiliconTrackingAlg::execute(){
   Navigation::Instance()->Initialize();
   //_current_event = evt;
   //_allHits.reserve(1000);
+  auto trkCol = _outColHdl.createAndPut();
 
   _output_track_col_quality = _output_track_col_quality_GOOD;
   
@@ -238,7 +239,7 @@ StatusCode SiliconTrackingAlg::execute(){
 
     //edm4hep::TrackCollection* trkCol = nullptr; 
     //edm4hep::LCRelationCollection* relCol = nullptr;
-    auto trkCol = _outColHdl.createAndPut();
+    //auto trkCol = _outColHdl.createAndPut();
     //auto relCol = _outRelColHdl.createAndPut();
     /*
     LCCollectionVec * trkCol = new LCCollectionVec(LCIO::TRACK);

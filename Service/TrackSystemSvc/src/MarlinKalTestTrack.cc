@@ -110,8 +110,14 @@ namespace MarlinTrk {
   
   
   int MarlinKalTestTrack::addHit( edm4hep::TrackerHit* trkhit) {
-    
-    return this->addHit( trkhit, _ktest->findMeasLayer( trkhit )) ;
+    const ILDVMeasLayer* ml = 0;
+    try{
+      ml = _ktest->findMeasLayer( trkhit );
+    }
+    catch(MarlinTrk::Exception& e){
+      std::cout << e.what() << std::endl;
+    }
+    return this->addHit( trkhit, ml) ;
     
   } 
   
@@ -122,8 +128,7 @@ namespace MarlinTrk {
       return this->addHit( trkhit, ml->ConvertLCIOTrkHit(trkhit), ml) ;
     }
     else {
-      std::cout << "MarlinKalTestTrack::addHit: trkhit = "  << trkhit->id() << " addr: " << trkhit << " ml = " << ml << std::endl ;
-      //streamlog_out( ERROR ) << " MarlinKalTestTrack::addHit - bad inputs " <<  trkhit << " ml : " << ml << std::endl ;
+      //std::cout << "MarlinKalTestTrack::addHit: trkhit = "  << trkhit->id() << " addr: " << trkhit << " ml = " << ml << std::endl ;
       return bad_intputs ;
     }
     return bad_intputs ;
@@ -609,21 +614,21 @@ namespace MarlinTrk {
       // get the measurement layer of the current hit
       const ILDVMeasLayer* ml =  dynamic_cast<const ILDVMeasLayer*>( &(kalhit->GetMeasLayer() ) ) ;
       TVector3 pos = ml->HitToXv(*kalhit);
+      /*
       std::cout << "debug: Kaltrack::addAndFit : site discarded! at index : " << ml->GetIndex()
-      << " for type " << ml->GetName() 
-      << " chi2increment = " << chi2increment
-      << " maxChi2Increment = " << maxChi2Increment
-      << " x = " << pos.x()
-      << " y = " << pos.y()
-      << " z = " << pos.z()
-      << " with CellIDs: " << std::endl;
-      
+	<< " for type " << ml->GetName() 
+	<< " chi2increment = " << chi2increment
+	<< " maxChi2Increment = " << maxChi2Increment
+	<< " x = " << pos.x()
+	<< " y = " << pos.y()
+	<< " z = " << pos.z()
+	<< " with CellIDs: " << std::endl;
       for (unsigned int i = 0; i < (dynamic_cast<const ILDVMeasLayer*>( &(kalhit->GetMeasLayer() ) )->getNCellIDs());++i) {
 	std::cout << "debug: CellID = " 
         << dynamic_cast<const ILDVMeasLayer*>( &(kalhit->GetMeasLayer() ) )->getCellIDs()[i] 
         << std::endl ;
       }
-      
+      */
 
 #ifdef MARLINTRK_DIAGNOSTICS_ON
       _ktest->_diagnostics.record_rejected_site(kalhit, temp_site); 
