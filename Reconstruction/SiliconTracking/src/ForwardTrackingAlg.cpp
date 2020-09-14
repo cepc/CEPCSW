@@ -180,7 +180,8 @@ StatusCode ForwardTrackingAlg::initialize(){
 
 StatusCode ForwardTrackingAlg::execute(){
   debug() << " processing event number " << _nEvt << endmsg;
-   
+
+  auto trkCol = _outColHdl.createAndPut();
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //                                                                                                              //
   //                                 ForwardTracking                                                              //
@@ -626,7 +627,7 @@ StatusCode ForwardTrackingAlg::execute(){
     /**********************************************************************************************/
     debug() << "\t\t---Save Tracks---" << endmsg ;
       
-    auto trkCol = _outColHdl.createAndPut();
+    //auto trkCol = _outColHdl.createAndPut();
     
     for (unsigned int i=0; i < tracks.size(); i++){
       FTDTrack* myTrack = dynamic_cast< FTDTrack* >( tracks[i] );
@@ -906,7 +907,14 @@ void ForwardTrackingAlg::finaliseTrack( edm4hep::Track* trackImpl ){
   Fitter fitter( trackImpl , _trkSystem );
    
   //trackImpl->trackStates().clear();
-  debug() << "Track has " << trackImpl->trackStates_size() << " TrackState now, should be cleared but not supported by EDM4hep" << endmsg;
+  int nState = trackImpl->trackStates_size();
+  if(nState>0){
+    debug() << "Track has " << nState << " TrackState now, should be cleared but not supported by EDM4hep" << endmsg;
+    for(int i=0;i<nState;i++){
+      debug() << trackImpl->getTrackStates(i).location << " ";
+    }
+    debug() << endmsg;
+  }
   
   edm4hep::TrackState trkStateIP( *fitter.getTrackState( 1/*lcio::TrackState::AtIP*/ ) ) ;
   trkStateIP.location = 1;
