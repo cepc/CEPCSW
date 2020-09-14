@@ -62,7 +62,7 @@
 			    external_metal_thickness="0.009*mm"  />
   <!-- SQL command: "SELECT * FROM cryostat;"  -->
   <cryostat id="1" alu_skin_inner_radious="100*mm" alu_skin_tickness="0.5*mm" foam_inner_radious="90*mm" foam_tickness="10*mm" foam_half_z="166.6*mm" 
-	    endplate_inner_radious="VXD_inner_radius_1" 
+	    endplate_inner_radious="VXD_inner_radius_1+5.6*mm" 
 	    cryostat_option="1" cryostat_apperture="30*mm" cryostat_apperture_radius="1.5*mm"  />
   <!-- SQL command: "select * from support_shell;"  -->
   <support_shell id="0" inner_radious="65*mm" half_z="145*mm" thickess="0.49392*mm" endplate_inner_radious="30*mm" endplate_inner_radius_L1="15.7*mm" endplate_outer_radius_L1="20*mm" 
@@ -93,7 +93,7 @@
   <readouts>
     <readout name="VXDCollection">
       <!-- fixme: for now DD4hep cannot handle signed values - side should actually be "-2" -->
-      <id>system:5,side:-2,layer:9,module:8,sensor:8</id>
+      <id>system:5,side:-2,layer:9,module:8,sensor:8,barrelside:-2</id>
     </readout>
   </readouts>
 
