@@ -36,13 +36,6 @@ $ ./run.sh Examples/options/helloalg.py
 
 * Service: Common Service
 
-## Full Chain
-
-Detector simulation: 
-```
-$ ./run gaudirun.py '$EXAMPLESROOT/options/tut_detsim.py'
-```
-
 ## Conventions for collections
 Keep the collection names compatible between the prototype and the existing CEPC software.
 
