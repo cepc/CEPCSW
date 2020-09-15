@@ -6,11 +6,6 @@
 //  Ecal cosists of long crystal bar 1cm*1cm*~40cm 
 //  8 parts cover 2pi phi range. Inner radius, height, z-length can change from xml.
 //  In each part, crystal bar crosses in odd-even layer. 
-//  			=====                 /----------------
-//			 //     \\              /
-//       ||   o   ||            /__________________________
-//			 \\     //            /_|_|_|_|_|_|_|_|_|_|_|_|____
-//				=====             /_|____________|__________|_____ (x-y plane)
 //
 //  v0r0: nothing but BGO crystal
 //
