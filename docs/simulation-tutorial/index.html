@@ -72,6 +72,51 @@ Indico: https://indico.ihep.ac.cn/event/12341/other-view?view=standard
   * Learn basics on Geant4 simulation
   * Simulate with different detector options
 
+---
+
+## Run simulation in CEPCSW
+
+* The simulation is run by following command:
+
+```bash
+./run.sh Examples/options/tut_detsim.py
+```
+
+* Here, `run.sh` is a common wrapper, which will invoke the Gaudi framework.
+* The job option `Examples/options/tut_detsim.py` is to run the simulation.
+
+---
+
+### What's inside the job option?
+* Random Number Service
+  * Use `Seeds` option to control the random number sequences.
+* Event Data Service
+* Geometry Service
+  * Different detector options could be loaded here via `compact` option.
+* Physics Generator or Particle Gun
+* Detector simulation framework
+
+---
+
+## Customize the primary particles
+
+---
+
+## Analyze the simulation output
+
+---
+
+## CEPCSW Simulation Framework
+
+---
+
+## Geant4 Simulation Toolkit
+
+---
+
+## Simulate a simple detector 
+
+
 
                 </div>
             </div>
