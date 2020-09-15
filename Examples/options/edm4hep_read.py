@@ -5,16 +5,18 @@ from Gaudi.Configuration import *
 from Configurables import K4DataSvc
 dsvc = K4DataSvc("EventDataSvc", input="test.root")
 
-from Configurables import Edm4hepReadAlg
-alg = Edm4hepReadAlg("Edm4hepReadAlg")
-alg.HeaderCol.Path = "EventHeader"
-alg.InputCol.Path = "MCParticle"
-
 from Configurables import PodioInput
 podioinput = PodioInput("PodioReader", collections=[
     "EventHeader",
-    "MCParticle"
+    "MCParticle",
+    "SimCalorimeterHit"
     ])
+
+from Configurables import Edm4hepReadAlg
+alg = Edm4hepReadAlg("Edm4hepReadAlg")
+#alg.HeaderCol.Path = "EventHeader"
+#alg.MCParticleCol.Path = "MCParticle"
+alg.SimCalorimeterHitCol.Path = "SimCalorimeterHit"
 
 # ApplicationMgr
 from Configurables import ApplicationMgr

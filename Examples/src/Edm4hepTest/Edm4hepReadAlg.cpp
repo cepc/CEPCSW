@@ -10,7 +10,8 @@ Edm4hepReadAlg::Edm4hepReadAlg(const std::string& name, ISvcLocator* svcLoc)
     : GaudiAlgorithm(name, svcLoc)
 {
     declareProperty("HeaderCol", m_headerCol);
-    declareProperty("InputCol", m_mcParCol, "MCParticle collection (input)");
+    declareProperty("MCParticleCol", m_mcParCol, "MCParticle collection (input)");
+    declareProperty("SimCalorimeterHitCol", m_calorimeterCol, "MCParticle collection (input)");
 }
 
 StatusCode Edm4hepReadAlg::initialize()

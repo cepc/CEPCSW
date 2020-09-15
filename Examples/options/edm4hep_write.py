@@ -7,8 +7,8 @@ dsvc = K4DataSvc("EventDataSvc")
 
 from Configurables import Edm4hepWriteAlg
 alg = Edm4hepWriteAlg("Edm4hepWriteAlg")
-alg.HeaderCol.Path = "EventHeader"
-alg.OutputCol.Path = "MCParticle"
+alg.HeaderOut.Path = "EventHeader"
+alg.MCParticleOut.Path = "MCParticle"
 
 from Configurables import PodioOutput
 out = PodioOutput("out")
