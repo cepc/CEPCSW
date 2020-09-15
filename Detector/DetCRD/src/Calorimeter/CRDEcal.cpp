@@ -2,7 +2,17 @@
 //  Detector description for CEPC Reference Detector ECal Barrel.
 //--------------------------------------------------------------------
 //
-//  Author     : Fangyi Guo   email: guofangyi@ihep.ac.cn
+//  Author: Fangyi Guo    email: guofangyi@ihep.ac.cn
+//  Ecal cosists of long crystal bar 1cm*1cm*~40cm 
+//  8 parts cover 2pi phi range. Inner radius, height, z-length can change from xml.
+//  In each part, crystal bar crosses in odd-even layer. 
+//  			=====                 /----------------
+//			 //     \\              /
+//       ||   o   ||            /__________________________
+//			 \\     //            /_|_|_|_|_|_|_|_|_|_|_|_|____
+//				=====             /_|____________|__________|_____ (x-y plane)
+//
+//  v0r0: nothing but BGO crystal
 //
 //====================================================================
 #include "DD4hep/DetFactoryHelper.h"
@@ -61,18 +71,14 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 	 dd4hep::Material	air(theDetector.material("Air"));
 	 dd4hep::Volume	envelopeVol(det_name, envelope, air);
 	 dd4hep::PlacedVolume	envelopePlv = motherVol.placeVolume(envelopeVol, Position(0,0,0));
-	 envelopeVol.setVisAttributes(theDetector, x_det.visStr() );
+	 //envelopeVol.setVisAttributes(theDetector, x_det.visStr() );
 	 ECAL.setPlacement(envelopePlv);
-
-//    dd4hep::Material det_pipe(theDetector.material("Steel235"));
-//    dd4hep::Volume pipe_vol("pipe", dd4hep::Tube(10*mm, 20*mm, 2300*mm), det_pipe);
-//    dd4hep::PlacedVolume pipePhv = motherVol.placeVolume(pipe_vol, Position(0.,0.,0.));
 
     //Define specific material and volumen for detElement
     dd4hep::Material mat_BGO(theDetector.material("G4_BGO"));
 	 dd4hep::Trapezoid trap(dim_x1, dim_x2, dim_y, dim_y, dim_z);
     dd4hep::Volume det_vol("trap_vol", trap, mat_BGO);
-//	 det_vol.setVisAttributes(theDetector, x_det.visStr());
+	 //det_vol.setVisAttributes(theDetector, x_det.visStr());
 	 dd4hep::DetElement stavedet(ECAL, "trap",detid);
 
 	 //Loop to place crystalls in one part
@@ -115,10 +121,6 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
       }
     }
 
-    //create a unique volume (PlacedVolume) for the detector
-//    dd4hep::Transform3D trans0(dd4hep::RotationX(-90*degree),  dd4hep::Position(-dx, r0, 0.));
-//    dd4hep::PlacedVolume plv0 = motherVol.placeVolume(det_vol, trans0);
-//	 stavedet.setPlacement(plv0);
 	 for(int i=0;i<8;i++){
 		 double rotAngle = 45*i*degree;
 		 double posx = -r0*sin(rotAngle) - dx*cos(rotAngle);
