@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="mobile-web-app-capable" content="yes">
+        
+        
+        <meta name="description" content="  # Tutorial on CEPCSW simulation  Author: Tao Lin Date: 17 Sept. 2020 Indico: https://indico.ihep.a">
+        
+        <title>Tutorial on CEPCSW simulation - CodiMD</title>
+        <link rel="icon" type="image/png" href="https://jupyter.ihep.ac.cn/favicon.png">
+        <link rel="apple-touch-icon" href="https://jupyter.ihep.ac.cn/apple-touch-icon.png">
+
+        
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fork-awesome/1.1.7/css/fork-awesome.min.css" integrity="sha256-gsmEoJAws/Kd3CjuOQzLie5Q3yshhvmo7YNtBG7aaEY=" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css" integrity="sha256-3iu9jgsy9TpTwXKb7bNQzqWekRX7pPK+2OLj3R922fo=" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/css/reveal.min.css" integrity="sha256-h2NhWerL2k7KAzo6YqYMo1T5B6+QT2Bb/CprRV2aW20=" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@hackmd/emojify.js@2.1.0/dist/css/basic/emojify.min.css" integrity="sha256-UOrvMOsSDSrW6szVLe8ZDZezBxh5IoIfgTwdNDgTjiU=" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.6.0/leaflet.css" integrity="sha256-SHMGCYmST46SoyGgo4YR/9AlK1vf3ff84Aq9yK4hdqM=" crossorigin="anonymous" />
+        <link href="https://jupyter.ihep.ac.cn/build/font.css" rel="stylesheet"><link href="https://jupyter.ihep.ac.cn/build/slide-styles.css" rel="stylesheet"><link href="https://jupyter.ihep.ac.cn/build/slide.css" rel="stylesheet">
+        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js" integrity="sha256-3Jy/GbSLrg0o9y5Z5n1uw0qxZECH7C6OQpVBgNFYa0g=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js" integrity="sha256-g6iAfvZp+nDQ2TdTR/VVKJf3bGro4ub5fvWSWVRi2NE=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.9/es5-shim.min.js" integrity="sha256-8E4Is26QH0bD52WoQpcB+R/tcWQtpzlCojrybUd7Mxo=" crossorigin="anonymous"></script>
+<![endif]-->
+
+        
+
+        <!-- For reveal.js theme -->
+        
+        <link rel="stylesheet" href="https://jupyter.ihep.ac.cn/build/reveal.js/css/theme/black.css" id="theme">
+        
+        <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="https://jupyter.ihep.ac.cn/build/reveal.js/lib/css/zenburn.css">
+        <!-- For overwrite reveal.js -->
+        <link rel="stylesheet" href="https://jupyter.ihep.ac.cn/css/slide.css">
+
+        <!-- Printing and PDF exports -->
+        <script nonce="70b14f1d-a496-4359-aa9f-0907551b6dee">
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = 'https://jupyter.ihep.ac.cn/build/reveal.js/' + (window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css');
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="reveal">
+                <div class="slides">
+
+# Tutorial on CEPCSW simulation
+
+Author: Tao Lin
+Date: 17 Sept. 2020
+Indico: https://indico.ihep.ac.cn/event/12341/other-view?view=standard
+
+---
+
+## What will you learn in this Tutorial?
+
+* As Users
+  * Run a simple simulation job in CEPCSW
+  * Understand and Customize the simulation job
+  * Analyze the simulation output
+* As Developers
+  * Understand the simulation framework
+  * Learn basics on Geant4 simulation
+  * Simulate with different detector options
+
+
+                </div>
+            </div>
+
+            <div id="meta">{&#34;type&#34;:&#34;slide&#34;,&#34;slideOptions&#34;:{&#34;transition&#34;:&#34;slide&#34;,&#34;controls&#34;:true,&#34;showSlideNumber&#34;:&#34;all&#34;,&#34;navigationMode&#34;:&#34;linear&#34;,&#34;center&#34;:false}}</div>
+
+            <div class="footer">
+                <div class="unselectable hidden-print gray-font">
+                    <small>
+                        <span>
+                            
+                                <span class="ui-lastchangeuser">&thinsp;<i class="ui-user-icon small" style="background-image: url(https://www.gravatar.com/avatar/a696972a0dc29e70843f619695acb1e9?s=80&d=identicon);" data-toggle="tooltip" data-placement="right" title="lintao@ihep.ac.cn"></i></span>
+                            
+                            &nbsp;<span class="text-uppercase ui-status-lastchange"></span>
+                            <span class="ui-lastchange text-uppercase" data-createtime="Mon Sep 14 2020 21:17:56 GMT+0800 (China Standard Time)" data-updatetime="Tue Sep 15 2020 23:02:45 GMT+0800 (China Standard Time)"></span>
+                        </span>
+                        <span class="pull-right">35 views <a href="#" class="ui-edit" title="Edit this note"><i class="fa fa-fw fa-pencil"></i></a><a class="ui-print" href="" title="Open print view"><i class="fa fa-fw fa-print"></i></a></span>
+                        <br>
+                        
+                    </small>
+                </div>
+                
+            </div>
+        </div>
+
+        <script src="https://jupyter.ihep.ac.cn/js/mathjax-config-extra.js"></script>
+        
+        <script src="https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/js/reveal.min.js" integrity="sha256-1fq1NvUmkMIWOBgIEzGFr0UUNuwWmOa29YqMkXnYlH4=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/1.5.2/velocity.min.js" integrity="sha256-1HqoI76JGKA17K0C0s9K8L/iy8PAC43KVLt1hRD/Ojc=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.min.js" integrity="sha256-jnOjDTXIPqall8M0MyTSt98JetJuZ7Yu+1Jm7hLTF7U=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.13.1/js-yaml.min.js" integrity="sha256-ry6nlLQ1JmRl5RUPQ4eSuaSp/rGNPvl144WHHs7BiNE=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js" integrity="sha256-yYfngbEKv4RENfGDvNUqJTqGFcKf31NJEe9OTnnMH3Y=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-immzXfCGLhnx3Zfi9F/dUcqxEM8K3o3oTFy9Bh6HCwg=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/config/Safe.js" integrity="sha256-0ygBUDksNDXZS4vm5HMNH1a33KUu6QT1cdNTN+ZLF+4=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js" integrity="sha256-AdQN98MVZs44Eq2yTwtoKufhnU+uZ7v2kXnD5vqzZVo=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/8.4.8/mermaid.min.js" integrity="sha256-lyWCDMnMeZiXRi7Zl54sZGKYmgQs4izcT7+tKc+KUBk=" crossorigin="anonymous" defer></script>
+        <script src="https://cdn.jsdelivr.net/npm/@hackmd/emojify.js@2.1.0/dist/js/emojify-browser.min.js" integrity="sha256-swgfXtqk2bC98KzPoE8tXRz5tmrzpjJWhhXlhYo/wRA=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.1.2/handlebars.min.js" integrity="sha256-ngJY93C4H39YbmrWhnLzSyiepRuQDVKDNCWO2iyMzFw=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js" integrity="sha256-1zu+3BnLYV9LdiY85uXMzii3bdrkelyp37e0ZyTAQh0=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gist-embed/2.6.0/gist-embed.min.js" integrity="sha256-KyF2D6xPIJUW5sUDSs93vWyZm+1RzIpKCexxElmxl8g=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js" integrity="sha256-8RHyK+AFzq9iXwbFo2unqidwPbwHU5FFWe3RwkcVtuU=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js" integrity="sha256-Ogqs510LFnekr9o7OLdpelaaAmNss9egQRTyzCqV2NQ=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/abcjs/3.1.1/abcjs_basic-min.js" integrity="sha256-Sq1r2XXWXQoShQKsS0Wrf5r7fRkErd9Fat9vHYeU68s=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vega/5.9.1/vega.min.js" integrity="sha256-xVmd2OiOTh73s2iPfGy1DNyu/lCKvaDto452MU1O+xs=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vega-lite/4.4.0/vega-lite.min.js" integrity="sha256-ollz/GSuG0/f7aV4v8LGDYxPs4G2DwEk9+hALicqp9I=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vega-embed/6.2.2/vega-embed.min.js" integrity="sha256-AW13lGYqQzWT9PymwqUEJqQHaz9ntM5m5jQVkvtzja4=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.6.0/leaflet.js" integrity="sha256-fNoRrwkP2GuYPbNSJmMJOCyfRB2DhPQe0rGTgzRsyso=" crossorigin="anonymous" defer></script>
+        <script src="https://jupyter.ihep.ac.cn/config"></script><script src="https://jupyter.ihep.ac.cn/build/slide.857c50b01c7ad0375da9.js" defer="defer"></script>
+        
+    </body>
+</html>
