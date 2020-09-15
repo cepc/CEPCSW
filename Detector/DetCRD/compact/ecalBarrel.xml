@@ -38,7 +38,7 @@
                     grid_size_x="1*cm"
                     grid_size_y="1*cm"
                     grid_size_z="1*cm"/-->
-      <id>block:8,layer:12,piece:12,bar:12</id>
+      <id>system:8,layer:12,block:12,bar:12</id>
     </readout>
   </readouts>
 

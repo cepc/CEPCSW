@@ -88,7 +88,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     		bar_odd.setSensitiveDetector(sens);
 			for(int iz=1; iz<=Nbarz_odd;iz++){
 				dd4hep::PlacedVolume plv = det_vol.placeVolume(bar_odd, Position((2*iphi-1)*barz_odd/2-lx, (2*iz-1)*barx/2-dim_y, (2*ilayer-1)*bary/2-dim_z));
-				plv.addPhysVolID("layer", ilayer).addPhysVolID("piece", iphi).addPhysVolID("bar", iz);
+				plv.addPhysVolID("layer", ilayer).addPhysVolID("block", iphi).addPhysVolID("bar", iz);
 				std::string barname = "CrystalBar_"+std::to_string(ilayer)+"_"+std::to_string(iphi)+"_"+std::to_string(iz);
 				dd4hep::DetElement sd(stavedet, barname, detid);
 				sd.setPlacement(plv);
@@ -107,7 +107,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
          //Loop in Z direction
          for(int iz=1; iz<=Nbarz_even;iz++){
             dd4hep::PlacedVolume plv = det_vol.placeVolume(bar_even, Position(lx-(2*iphi-1)*bary/2, (2*iz-1)*barz_even/2-dim_y, (2*ilayer-1)*bary/2-dim_z));
-				plv.addPhysVolID("layer", ilayer).addPhysVolID("piece", iphi).addPhysVolID("bar", iz);
+				plv.addPhysVolID("layer", ilayer).addPhysVolID("block", iphi).addPhysVolID("bar", iz);
             std::string barname = "CrystalBar_"+std::to_string(ilayer)+"_"+std::to_string(iphi)+"_"+std::to_string(iz);
             dd4hep::DetElement sd(stavedet, barname, detid);
             sd.setPlacement(plv);
@@ -125,7 +125,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 		 double posy = r0*cos(rotAngle) - dx*sin(rotAngle);
 	    dd4hep::Transform3D transform(dd4hep::RotationZ(rotAngle)*dd4hep::RotationX(-90*degree),  dd4hep::Position(posx, posy, 0.));
    	 dd4hep::PlacedVolume plv = envelopeVol.placeVolume(det_vol, transform);
-		 plv.addPhysVolID("block", i);
+		 plv.addPhysVolID("system", i);
 		 DetElement sd(ECAL, _toString(i,"trap%3d"), detid);
 	 	 sd.setPlacement(plv);
 	 }
