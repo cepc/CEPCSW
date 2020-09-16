@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
     <head>
@@ -7,7 +8,7 @@
         <meta name="mobile-web-app-capable" content="yes">
         
         
-        <meta name="description" content="  # Tutorial on CEPCSW simulation  Author: Tao Lin Date: 17 Sept. 2020 Indico: https://indico.ihep.a">
+        <meta name="description" content="  # Tutorial on CEPCSW simulation  Tao Lin IHEP 17 Sept. 2020 [CEPCSW Tutorial, 2020, IHEP](https://">
         
         <title>Tutorial on CEPCSW simulation - CodiMD</title>
         <link rel="icon" type="image/png" href="https://jupyter.ihep.ac.cn/favicon.png">
@@ -40,7 +41,7 @@
         <link rel="stylesheet" href="https://jupyter.ihep.ac.cn/css/slide.css">
 
         <!-- Printing and PDF exports -->
-        <script nonce="70b14f1d-a496-4359-aa9f-0907551b6dee">
+        <script nonce="840f3704-7c5d-407c-bee3-d2af62757acb">
             var link = document.createElement( 'link' );
             link.rel = 'stylesheet';
             link.type = 'text/css';
@@ -55,13 +56,14 @@
 
 # Tutorial on CEPCSW simulation
 
-Author: Tao Lin
-Date: 17 Sept. 2020
-Indico: https://indico.ihep.ac.cn/event/12341/other-view?view=standard
+Tao Lin
+IHEP
+17 Sept. 2020
+[CEPCSW Tutorial, 2020, IHEP](https://indico.ihep.ac.cn/event/12341/other-view?view=standard)
 
 ---
 
-## What will you learn in this Tutorial?
+## What will learn in this Tutorial?
 
 * As Users
   * Run a simple simulation job in CEPCSW
@@ -71,16 +73,41 @@ Indico: https://indico.ihep.ac.cn/event/12341/other-view?view=standard
   * Understand the simulation framework
   * Learn basics on Geant4 simulation
   * Simulate with different detector options
+* Note: the emoji :writing_hand: means exercises
 
 ---
 
-## Run simulation in CEPCSW
+### CEPCSW Simulation Framework
+
+![](https://jupyter.ihep.ac.cn/uploads/upload_4d21e10bb49b9ec33c22f00c720dbfad.png)
+
+* The simulation chain is driven by Gaudi.
+* Detector description is from DD4hep.
+* Event Data Model is in EDM4hep format.
+* Detector response is done by Geant4.
+
+----
+
+#### Code is on GitHub
+* Detector description: [See Detector](https://github.com/cepc/CEPCSW/tree/master/Detector)
+* Event generator interface: [See Generator](https://github.com/cepc/CEPCSW/tree/master/Generator)
+* Detector simulation: [See Simulation](https://github.com/cepc/CEPCSW/tree/master/Simulation)
+  * [DetSimInterface: Gaudi Tool interface](https://github.com/cepc/CEPCSW/tree/master/Simulation/DetSimInterface)
+  * [DetSimCore: integrate Gaudi and Geant4](https://github.com/cepc/CEPCSW/tree/master/Simulation/DetSimCore)
+  * [DetSimGeom: integrate with DD4hep](https://github.com/cepc/CEPCSW/tree/master/Simulation/DetSimGeom)
+  * [DetSimAna: collect data from Geant4](https://github.com/cepc/CEPCSW/tree/master/Simulation/DetSimAna)
+  * [DetSimSD: detector response](https://github.com/cepc/CEPCSW/tree/master/Simulation/DetSimSD)
+* Job options: [See Examples/options](https://github.com/cepc/CEPCSW/tree/master/Examples/options)
+
+---
+
+### Run simulation in CEPCSW
 
 * The simulation is run by following command:
 ```bash
 $ ./run.sh Examples/options/tut_detsim.py
 ```
-* The job option: `Examples/options/tut_detsim.py`. <!-- .element: style="color:yellow; " -->
+* The job option: `Examples/options/tut_detsim.py`. &lt;!-- .element: style=&#34;color:yellow; &#34; --&gt;
 * :writing_hand: copy the job option into your current directory. Edit your job option in the later exercises. 
 ```bash
 $ cp Examples/options/tut_detsim.py my_detsim.py
@@ -88,7 +115,7 @@ $ cp Examples/options/tut_detsim.py my_detsim.py
 
 ---
 
-### What's inside the job option?
+### What&#39;s inside the job option?
 * Random Number Service
   * Use `Seeds` option to control the random number sequences.
 * Event Data Service and PODIO writer
@@ -103,13 +130,27 @@ $ cp Examples/options/tut_detsim.py my_detsim.py
 #### Save detector response into ROOT file
 ```python
 from Configurables import PodioOutput
-out = PodioOutput("outputalg")
-out.filename = "test-detsim10-seed42.root"
-out.outputCommands = ["keep *"]
+out = PodioOutput(&#34;outputalg&#34;)
+out.filename = &#34;test-detsim10-seed42.root&#34;
+out.outputCommands = [&#34;keep *&#34;]
 ```
 * The EDM4hep format is used in the detector response.
 * All the collections created in simulation will be saved.
 * :writing_hand: modify the output file name.
+
+---
+
+#### Control how many events to be simulated
+```python
+from Configurables import ApplicationMgr
+ApplicationMgr( TopAlg = [genalg, detsimalg, out],
+                EvtSel = &#39;NONE&#39;,
+                EvtMax = 10,
+                ExtSvc = [rndmengine, dsvc, geosvc],
+)
+```
+* :writing_hand: modify the `EvtMax` property and check the entries in the output.
+
 
 ---
 
@@ -132,19 +173,19 @@ rndmengine.Seeds = [42]
 
 #### Geometry / Detector Description
 ```python
-geometry_option = "CepC_v4-onlyVXD.xml"
+geometry_option = &#34;CepC_v4-onlyVXD.xml&#34;
 
-geometry_path = os.path.join(os.getenv("DETCEPCV4ROOT"), 
-                             "compact", geometry_option)
+geometry_path = os.path.join(os.getenv(&#34;DETCEPCV4ROOT&#34;), 
+                             &#34;compact&#34;, geometry_option)
 
 from Configurables import GeoSvc
-geosvc = GeoSvc("GeoSvc")
+geosvc = GeoSvc(&#34;GeoSvc&#34;)
 geosvc.compact = geometry_path
 ```
 * The compact file is in XML format, which describes the detector. 
 * :writing_hand: change the geometry path and run simulation again.
 ```
-geometry_path = "Detector/DetEcalMatrix/compact/det.xml"
+geometry_path = &#34;Detector/DetEcalMatrix/compact/det.xml&#34;
 ```
 
 ---
@@ -152,8 +193,8 @@ geometry_path = "Detector/DetEcalMatrix/compact/det.xml"
 #### Customize primary particles
 ##### Particle Gun
 ```python
-gun = GtGunTool("GtGunTool")
-gun.Particles =  ["pi+", "pi-"]
+gun = GtGunTool(&#34;GtGunTool&#34;)
+gun.Particles =  [&#34;pi+&#34;, &#34;pi-&#34;]
 gun.EnergyMins = [100.,  100]  # GeV
 gun.EnergyMaxs = [100.,  100]  # GeV
 
@@ -169,13 +210,13 @@ gun.PhiMaxs =    [360.,  360.] # deg
 
 ----
 
-##### event generators
+##### Event Generators
 ```python
-stdheprdr = StdHepRdr("StdHepRdr")
-stdheprdr.Input = "/cefs/data/stdhep/CEPC250/2fermions/E250.Pbhabha.e0.p0.whizard195/bhabha.e0.p0.00001.stdhep"
+stdheprdr = StdHepRdr(&#34;StdHepRdr&#34;)
+stdheprdr.Input = &#34;/cefs/data/stdhep/CEPC250/2fermions/E250.Pbhabha.e0.p0.whizard195/bhabha.e0.p0.00001.stdhep&#34;
 
-genalg = GenAlgo("GenAlgo")
-genalg.GenTools = ["StdHepRdr"]
+genalg = GenAlgo(&#34;GenAlgo&#34;)
+genalg.GenTools = [&#34;StdHepRdr&#34;]
 
 ```
 * There are several readers to read the output of event generators in different formats
@@ -189,11 +230,11 @@ genalg.GenTools = ["StdHepRdr"]
 ##### :writing_hand: Turn on the verbose during tracking 
 ```python
 detsimalg.RunCmds = [
-    "/tracking/verbose 1",
+    &#34;/tracking/verbose 1&#34;,
 ]
 # Or
 detsimalg.RunMacs = [
-    "run.mac",
+    &#34;run.mac&#34;,
 ]
 ```
 ```bash
@@ -203,7 +244,7 @@ detsimalg.RunMacs = [
 
 * Each step will be print out. Remeber to redirect the output to a file.
 ```bash
-$ ./run.sh tut_detsim.py >& mylog
+$ ./run.sh my_detsim.py &gt;&amp; mylog
 ```
 
 ----
@@ -230,7 +271,7 @@ Step#    X(mm)    Y(mm)    Z(mm) KinE(MeV)  dE(MeV) StepLeng TrackLeng  NextVolu
     4 1.06e+03 1.84e+04  -0.0416  2.91e+04  0.00234     13.1       428      pWorld eIoni
 
 ```
-<!-- .element: style="color:yellow; font-size:small" -->
+&lt;!-- .element: style=&#34;color:yellow; font-size:small&#34; --&gt;
 
 * From this output, you can see the current track and its stepping information.
 * Particle name, current track ID, parent track ID
@@ -242,7 +283,7 @@ Step#    X(mm)    Y(mm)    Z(mm) KinE(MeV)  dE(MeV) StepLeng TrackLeng  NextVolu
 
 * Enable following command in your job option:
 ```python
-detsimalg.VisMacs = ["Examples/options/vis.mac"]
+detsimalg.VisMacs = [&#34;Examples/options/vis.mac&#34;]
 ```
 * :warning: If your X Server supports the G4 OpenGL, the detector will be shown.
   * Try [Xming X Server](https://sourceforge.net/projects/xming/) in Windows.
@@ -261,27 +302,64 @@ detsimalg.VisMacs = ["Examples/options/vis.mac"]
 ![G4Vis](https://jupyter.ihep.ac.cn/uploads/upload_819bd0ffe56fcc8708004cead7c6a3c4.png =600x500)
 
 :writing_hand: Play with Geant4 Visualization  
-<!-- .element: style="color:yellow" -->
+&lt;!-- .element: style=&#34;color:yellow&#34; --&gt;
 
 ---
 
-## Analyze the simulation output
+### Analyze the simulation output
+* :writing_hand: Modify the geometry option and run the simulation
+```python
+geometry_option = &#34;CepC_v4-onlyECAL.xml&#34;
+```
+* :writing_hand: Plot the `EcalBarrelCollection` in ROOT
+```
+root [] events-&gt;Draw(&#34;EcalBarrelCollection.position.y:EcalBarrelCollection.position.x&#34;)
+root [] events-&gt;Draw(&#34;EcalBarrelCollection.position.y:EcalBarrelCollection.position.x&#34;, &#34;Entry$==0&#34;)
+```
+&lt;!-- .element: style=&#34;color:yellow; font-size:small&#34; --&gt;
+
+----
+
+#### See the branches in the `events` tree
+```
+root [] events-&gt;Print()
+*............................................................................*
+*Br  146 :EcalBarrelCollection.cellID :                                      *
+*         | ULong64_t cellID[EcalBarrelCollection_]                          *
+*Entries :       10 : Total  Size=    1398779 bytes  File Size  =     420214 *
+*Baskets :        4 : Basket Size=      32000 bytes  Compression=   3.33     *
+*............................................................................*
+*Br  147 :EcalBarrelCollection.energy : Float_t energy[EcalBarrelCollection_]*
+*Entries :       10 : Total  Size=     699855 bytes  File Size  =     163107 *
+*Baskets :        3 : Basket Size=      32000 bytes  Compression=   4.29     *
+*............................................................................*
+*Br  148 :EcalBarrelCollection.position.x : Float_t x[EcalBarrelCollection_] *
+*Entries :       10 : Total  Size=     699865 bytes  File Size  =     466951 *
+*Baskets :        3 : Basket Size=      32000 bytes  Compression=   1.50     *
+*............................................................................*
+*Br  149 :EcalBarrelCollection.position.y : Float_t y[EcalBarrelCollection_] *
+*Entries :       10 : Total  Size=     699865 bytes  File Size  =     469393 *
+*Baskets :        3 : Basket Size=      32000 bytes  Compression=   1.49     *
+*............................................................................*
+*Br  150 :EcalBarrelCollection.position.z : Float_t z[EcalBarrelCollection_] *
+*Entries :       10 : Total  Size=     699865 bytes  File Size  =     560229 *
+*Baskets :        3 : Basket Size=      32000 bytes  Compression=   1.25     *
+*............................................................................*
+```
+&lt;!-- .element: style=&#34;color:yellow; font-size:small&#34; --&gt;
 
 
 ---
 
-## CEPCSW Simulation Framework
 
----
+# Thank you for your attention
 
-## Geant4 Simulation Toolkit
+* [Create issue](https://github.com/cepc/CEPCSW/issues): Report a bug
 
----
+* [Pull Request](https://github.com/cepc/CEPCSW/pulls): Fix a bug or Implement a feature
 
-## Simulate a simple detector 
-
-
-                </div>
+Your contributions are welcome!
+</div>
             </div>
 
             <div id="meta">{&#34;type&#34;:&#34;slide&#34;,&#34;slideOptions&#34;:{&#34;transition&#34;:&#34;slide&#34;,&#34;controls&#34;:true,&#34;showSlideNumber&#34;:&#34;all&#34;,&#34;navigationMode&#34;:&#34;linear&#34;,&#34;center&#34;:false}}</div>
@@ -294,9 +372,9 @@ detsimalg.VisMacs = ["Examples/options/vis.mac"]
                                 <span class="ui-lastchangeuser">&thinsp;<i class="ui-user-icon small" style="background-image: url(https://www.gravatar.com/avatar/a696972a0dc29e70843f619695acb1e9?s=80&d=identicon);" data-toggle="tooltip" data-placement="right" title="lintao@ihep.ac.cn"></i></span>
                             
                             &nbsp;<span class="text-uppercase ui-status-lastchange"></span>
-                            <span class="ui-lastchange text-uppercase" data-createtime="Mon Sep 14 2020 21:17:56 GMT+0800 (China Standard Time)" data-updatetime="Tue Sep 15 2020 23:02:45 GMT+0800 (China Standard Time)"></span>
+                            <span class="ui-lastchange text-uppercase" data-createtime="Mon Sep 14 2020 21:17:56 GMT+0800 (China Standard Time)" data-updatetime="Wed Sep 16 2020 23:50:34 GMT+0800 (China Standard Time)"></span>
                         </span>
-                        <span class="pull-right">35 views <a href="#" class="ui-edit" title="Edit this note"><i class="fa fa-fw fa-pencil"></i></a><a class="ui-print" href="" title="Open print view"><i class="fa fa-fw fa-print"></i></a></span>
+                        <span class="pull-right">230 views <a href="#" class="ui-edit" title="Edit this note"><i class="fa fa-fw fa-pencil"></i></a><a class="ui-print" href="" title="Open print view"><i class="fa fa-fw fa-print"></i></a></span>
                         <br>
                         
                     </small>
@@ -332,3 +410,6 @@ detsimalg.VisMacs = ["Examples/options/vis.mac"]
         
     </body>
 </html>
+
+
+
