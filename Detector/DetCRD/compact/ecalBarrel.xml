@@ -12,7 +12,7 @@
     <constant name="world_y" value="world_size"/>
     <constant name="world_z" value="world_size"/>
     <constant name="ecalbarrel_inner_radius" value="1800*mm"/>
-    <constant name="ecalbarrel_thickness"    value="300*mm"/>    <!--Must be n*10*mm! -->
+    <constant name="ecalbarrel_thickness"    value="280*mm"/>    <!--Must be n*10*mm! -->
     <constant name="ecalbarrel_zlength"      value="4600*mm"/>   <!--Must be n*10*mm! -->
   </define>
 
@@ -38,7 +38,7 @@
                     grid_size_x="1*cm"
                     grid_size_y="1*cm"
                     grid_size_z="1*cm"/-->
-      <id>system:8,layer:12,block:12,bar:12</id>
+      <id>system:4,layer:6,block:8,bar:10</id>
     </readout>
   </readouts>
 
