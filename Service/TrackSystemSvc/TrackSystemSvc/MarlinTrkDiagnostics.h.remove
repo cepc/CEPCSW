@@ -17,12 +17,12 @@ namespace MarlinTrk{
   // LCIO Extension creating a pointer to the simhit for trackerhits 
   struct MCTruth4HitExtStruct{
     MCTruth4HitExtStruct() : simhit(0) {}
-    EVENT::SimTrackerHit* simhit;
+    EVENT::SimConstTrackerHit simhit;
   } ; 
   struct MCTruth4HitExt : lcio::LCOwnedExtension<MCTruth4HitExt, MCTruth4HitExtStruct> {} ;
   
   // fills a vector of MCParticle pointers with the MCParticles assosiated with the provided tracker hit using MCTruth4HitExtStruct
-  void getMCParticlesForTrackerHit(EVENT::TrackerHit* trkhit, std::vector<EVENT::MCParticle*>& mcps) ;
+  void getMCParticlesForTrackerHit(EVENT::ConstTrackerHit trkhit, std::vector<EVENT::MCParticle*>& mcps) ;
   
 }
 

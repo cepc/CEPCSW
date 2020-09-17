@@ -10,7 +10,7 @@
 namespace MarlinTrk{
 
 
-  void getMCParticlesForTrackerHit(EVENT::TrackerHit* trkhit, std::vector<EVENT::MCParticle*>& mcps){
+  void getMCParticlesForTrackerHit(EVENT::ConstTrackerHit trkhit, std::vector<EVENT::MCParticle*>& mcps){
 
     if ( !trkhit ) {
       return;
@@ -20,13 +20,13 @@ namespace MarlinTrk{
     mcps.clear();
     
     // first check if this is a composite space point
-    if(UTIL::BitSet32( trkhit->getType() )[ UTIL::ILDTrkHitTypeBit::COMPOSITE_SPACEPOINT ]){
+    if(UTIL::BitSet32( trkhit.getType() )[ UTIL::ILDTrkHitTypeBit::COMPOSITE_SPACEPOINT ]){
       
-      const EVENT::LCObjectVec rawObjects = trkhit->getRawHits();
+      const EVENT::LCObjectVec rawObjects = trkhit.getRawHits();
 
       for (unsigned iraw = 0; iraw < rawObjects.size(); ++iraw) {
 
-        EVENT::TrackerHit* rawHit = dynamic_cast< EVENT::TrackerHit* >( rawObjects[iraw] );
+        EVENT::ConstTrackerHit rawHit = dynamic_cast< EVENT::ConstTrackerHit >( rawObjects[iraw] );
 
         if( rawHit && rawHit->ext<MarlinTrk::MCTruth4HitExt>()){
           
@@ -51,8 +51,8 @@ namespace MarlinTrk{
     } else {
      
       
-      if( trkhit->ext<MarlinTrk::MCTruth4HitExt>()){
-        mcps.push_back(trkhit->ext<MarlinTrk::MCTruth4HitExt>()->simhit->getMCParticle());
+      if( trkhit.ext<MarlinTrk::MCTruth4HitExt>()){
+        mcps.push_back(trkhit.ext<MarlinTrk::MCTruth4HitExt>()->simhit->getMCParticle());
       }
 
       
