@@ -162,11 +162,11 @@ void ILDParallelPlanarStripMeasLayer::CalcDhDa(const TVTrackHit &vht,
   
 }
 
-ILDVTrackHit* ILDParallelPlanarStripMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit* trkhit) const {
+ILDVTrackHit* ILDParallelPlanarStripMeasLayer::ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const {
   
   //EVENT::TrackerHitPlane* plane_hit = dynamic_cast<EVENT::TrackerHitPlane*>( trkhit ) ;
-  //if( plane_hit == NULL )  {
-  if((trkhit->getType()&8)!=8) {
+  if((trkhit.getType()&8)!=8) {
+    //if( plane_hit == NULL )  { 
     std::cout << "ILDParallelPlanarStripMeasLayer::ConvertLCIOTrkHit dynamic_cast to ILDPlanarStripHit failed " << std::endl; 
     throw std::logic_error("Invalid invoke ILDParallelPlanarStripMeasLayer by TrackerHit trkhit");
   }
@@ -174,8 +174,8 @@ ILDVTrackHit* ILDParallelPlanarStripMeasLayer::ConvertLCIOTrkHit(edm4hep::Tracke
   
   // remember here the "position" of the hit in fact defines the origin of the plane it defines so u and v are per definition 0. 
   // this is still the case for a 1-dimentional measurement, and is then used to calculate the u coordinate according to the origin of the actual measurement plane.
-  //const TVector3 hit( plane_hit->getPosition()[0], plane_hit->getPosition()[1], plane_hit->getPosition()[2]) ;
-  const edm4hep::Vector3d& pos=trkhit->getPosition(); 
+  //const TVector3 hit( plane_hit.getPosition()[0], plane_hit.getPosition()[1], plane_hit.getPosition()[2]) ;
+  const edm4hep::Vector3d& pos=trkhit.getPosition(); 
   const TVector3 hit(pos.x, pos.y, pos.z);
   
   // convert to layer coordinates       
@@ -188,15 +188,15 @@ ILDVTrackHit* ILDParallelPlanarStripMeasLayer::ConvertLCIOTrkHit(edm4hep::Tracke
   x[0] = h(0, 0);
   if(ILDPlanarStripHit_DIM == 2) x[1] = h(1, 0);
 
-  //dx[0] = plane_hit->getdU() ;
-  //if(ILDPlanarStripHit_DIM == 2) dx[1] = plane_hit->getdV() ;
-  dx[0] = trkhit->getCovMatrix(2);
-  if(ILDPlanarStripHit_DIM == 2) dx[1] = trkhit->getCovMatrix(5);
+  //dx[0] = plane_hit.getdU() ;
+  //if(ILDPlanarStripHit_DIM == 2) dx[1] = plane_hit.getdV() ;
+  dx[0] = trkhit.getCovMatrix(2);
+  if(ILDPlanarStripHit_DIM == 2) dx[1] = trkhit.getCovMatrix(5);
 
   bool hit_on_surface = IsOnSurface(hit);
   /*
   std::cout << "ILDParallelPlanarStripMeasLayer::ConvertLCIOTrkHit ILDPlanarStripHit created" 
-	    << " for CellID " << trkhit->getCellID()
+	    << " for CellID " << trkhit.getCellID()
 	    << " Layer R = " << this->GetXc().Perp() 
 	    << " Layer phi = " << this->GetXc().Phi() 
 	    << " Layer z0 = " << this->GetXc().Z() 

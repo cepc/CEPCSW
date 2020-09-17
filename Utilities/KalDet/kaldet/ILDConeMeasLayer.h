@@ -60,7 +60,7 @@ public:
    Bool_t IsOnSurface(const TVector3 &xx) const;
 
    /** Convert LCIO Tracker Hit to an ILDCylinderHit  */
-   virtual ILDVTrackHit* ConvertLCIOTrkHit(edm4hep::TrackerHit* trkhit) const {
+   virtual ILDVTrackHit* ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const {
       
       /* streamlog_out( ERROR ) << "Don't use this, it's not implemented!"; */
       return NULL;

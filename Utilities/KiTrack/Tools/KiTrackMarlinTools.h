@@ -79,7 +79,7 @@ FTDHitSimple* createVirtualIPHit( int side , const SectorSystemFTD* sectorSystem
 VXDHitSimple* createVirtualIPHit( const SectorSystemVXD* sectorSystemVXD );
 
 
-std::string getPositionInfo( edm4hep::ConstTrackerHit* hit );
+std::string getPositionInfo( edm4hep::ConstTrackerHit hit );
 
 std::string getPositionInfo( IHit* hit );   
 

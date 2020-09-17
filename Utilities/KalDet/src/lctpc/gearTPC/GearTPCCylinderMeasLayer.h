@@ -3,7 +3,7 @@
 #include <TVector3.h>
 #include <kaltest/TKalMatrix.h>
 #include <kaltest/TCylinder.h>
-#include <EXTPCMeasLayer.h>
+#include <kaldet/EXTPCMeasLayer.h>
 //#include <KalTrackDim.h>
 
 #include <TMath.h>

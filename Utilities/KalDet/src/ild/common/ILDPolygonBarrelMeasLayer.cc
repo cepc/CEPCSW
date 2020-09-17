@@ -136,9 +136,9 @@ Bool_t ILDPolygonBarrelMeasLayer::IsOnSurface(const TVector3 &xx) const
 }
 
 
-ILDVTrackHit* ILDPolygonBarrelMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit* trkhit) const {
+ILDVTrackHit* ILDPolygonBarrelMeasLayer::ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const {
   
-  std::cout << "ILDPolygonBarrelMeasLayer::ConvertLCIOTrkHit Not implemented: exit(1) called from " << __FILE__ << "   line " << __LINE__ << std::endl; 
+  // streamlog_out(ERROR) << "ILDPolygonBarrelMeasLayer::ConvertLCIOTrkHit Not implemented: exit(1) called from " << __FILE__ << "   line " << __LINE__ << std::endl; 
   exit(1);
     
 }

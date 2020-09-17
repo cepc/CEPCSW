@@ -19,13 +19,13 @@ Navigation::~Navigation(){
 void Navigation::Initialize(){
   m_hitColVec.clear();
   m_assColVec.clear();
-  for(std::map<int, edm4hep::TrackerHit*>::iterator it=m_trkHits.begin();it!=m_trkHits.end();it++){
-    delete it->second;
+  for(std::map<int, edm4hep::ConstTrackerHit>::iterator it=m_trkHits.begin();it!=m_trkHits.end();it++){
+    // delete it->second;
   }
   m_trkHits.clear();
 }
 
-edm4hep::TrackerHit* Navigation::GetTrackerHit(const edm4hep::ObjectID& obj_id, bool delete_by_caller){
+edm4hep::ConstTrackerHit Navigation::GetTrackerHit(const edm4hep::ObjectID& obj_id, bool delete_by_caller){
   int id = obj_id.collectionID * 10000000 + obj_id.index;
   if(!delete_by_caller){
     if(m_trkHits.find(id)!=m_trkHits.end()) return m_trkHits[id];
@@ -47,7 +47,7 @@ edm4hep::TrackerHit* Navigation::GetTrackerHit(const edm4hep::ObjectID& obj_id, 
       edm4hep::ObjectID this_id = hit.getObjectID();
       if(this_id.collectionID!=obj_id.collectionID)break;
       else if(this_id.index==obj_id.index){
-	edm4hep::TrackerHit* hit_copy = new edm4hep::TrackerHit(hit);
+	edm4hep::ConstTrackerHit hit_copy = edm4hep::ConstTrackerHit(hit);
 	if(!delete_by_caller) m_trkHits[id] = hit_copy;
 	return hit_copy;//&(m_trkHits[id]);
       }

@@ -27,13 +27,13 @@ TKalMatrix ILDSegmentedDiscStripMeasLayer::XvToMv(const TVector3 &xv) const
 {
   
   // Calculate measurement vector (hit coordinates) from global coordinates:
-  /*
-  std::cout << "\t ILDSegmentedDiscStripMeasLayer::XvToMv: "
-	    << " x = " << xv.X() 
-	    << " y = " << xv.Y() 
-	    << " z = " << xv.Z() 
-	    << std::endl;
-  */
+  
+  // streamlog_out(DEBUG0) << "\t ILDSegmentedDiscStripMeasLayer::XvToMv: "
+  // << " x = " << xv.X() 
+  // << " y = " << xv.Y() 
+  // << " z = " << xv.Z() 
+  // << std::endl;
+  
   // let's start with the sensor whose axis of symmetry is 
   // aligned with the y-axis and whose sensitive face is facing towards the IP.
   // For a zero strip angle then:
@@ -87,34 +87,36 @@ TKalMatrix ILDSegmentedDiscStripMeasLayer::XvToMv(const TVector3 &xv) const
     mv(1,0)  = v ;
   }
 
-  /*
-  std::cout << "\t ILDSegmentedDiscStripMeasLayer::XvToMv: phi_sensor = " << phi_sensor << " phi = " << phi << " stripAngle = " << _stripAngle << " sign_z = " << sign_z<< std::endl;
   
-  std::cout << "\t ILDSegmentedDiscStripMeasLayer::XvToMv: " 
-	    << " mv(0,0) = " << mv(0,0) ;
-  if (ILDPlanarStripHit_DIM == 2) {
-    std::cout << " mv(1,0) = " << mv(1,0);
-  }
-  std::cout << std::endl;
-  */
+  // streamlog_out(DEBUG0) << "\t ILDSegmentedDiscStripMeasLayer::XvToMv: phi_sensor = " << phi_sensor << " phi = " << phi << " stripAngle = " << _stripAngle << " sign_z = " << sign_z<< std::endl;
+  
+  // streamlog_out(DEBUG0) << "\t ILDSegmentedDiscStripMeasLayer::XvToMv: " 
+  // << " mv(0,0) = " << mv(0,0) ;
+  // if (ILDPlanarStripHit_DIM == 2) {
+  //   streamlog_out(DEBUG0) << " mv(1,0) = " << mv(1,0);
+  // }
+  // streamlog_out(DEBUG0) << std::endl;
+  
   return mv;
   
 }
 
-TVector3 ILDSegmentedDiscStripMeasLayer::HitToXv(const TVTrackHit &vht) const {
-  /*
-  std::cout << "\t ILDSegmentedDiscStripMeasLayer::HitToXv: "
-	    << " vht(0,0) = " << vht(0,0);
-  if (ILDPlanarStripHit_DIM == 2) {
-    std::cout << " vht(1,0) = " << vht(1,0);
-  }
-  std::cout << std::endl;
-  */
+TVector3 ILDSegmentedDiscStripMeasLayer::HitToXv(const TVTrackHit &vht) const
+{
+  
+  // streamlog_out(DEBUG0) << "\t ILDSegmentedDiscStripMeasLayer::HitToXv: "
+  // << " vht(0,0) = " << vht(0,0);
+  // if (ILDPlanarStripHit_DIM == 2) {
+  //   streamlog_out(DEBUG0) << " vht(1,0) = " << vht(1,0);
+  // }
+  // streamlog_out(DEBUG0) << std::endl;
+
+  
   const ILDPlanarStripHit &mv = dynamic_cast<const ILDPlanarStripHit &>(vht);
   
   UTIL::BitField64 encoder( lcio::ILDCellID0::encoder_string ) ;
-  edm4hep::TrackerHit* hit = mv.getLCIOTrackerHit();
-  encoder.setValue(hit->getCellID());
+  edm4hep::ConstTrackerHit hit = mv.getLCIOTrackerHit();
+  encoder.setValue(hit.getCellID());
   int segmentIndex = encoder[lcio::ILDCellID0::module] / 2 ;
   
 
@@ -124,7 +126,7 @@ TVector3 ILDSegmentedDiscStripMeasLayer::HitToXv(const TVTrackHit &vht) const {
   double sensor_y0 = XC.Y();
   double sensor_z0 = XC.Z();
 
-  ////std::cout << "\t ILDSegmentedDiscStripMeasLayer::HitToXv: segmentIndex = " << segmentIndex << " x0 = " << sensor_x0 << " y0 = " << sensor_y0 << " z0 = " << sensor_z0 << " segment Phi = " << XC.Phi() << std::endl; 
+//  streamlog_out(DEBUG0) << "\t ILDSegmentedDiscStripMeasLayer::HitToXv: segmentIndex = " << segmentIndex << " x0 = " << sensor_x0 << " y0 = " << sensor_y0 << " z0 = " << sensor_z0 << " segment Phi = " << XC.Phi() << std::endl; 
   
   // here we are assuming that there is no offset of the centre of the sensor in the x-y plane. 
   // SJA:FIXME: We need to get the segment we are in to get phi
@@ -159,13 +161,14 @@ TVector3 ILDSegmentedDiscStripMeasLayer::HitToXv(const TVTrackHit &vht) const {
   double y = delta_y + sensor_y0; 
   
   double z = sensor_z0 ;
-  /*
-  std::cout << "\t ILDSegmentedDiscStripMeasLayer::HitToXv: "
-	    << " x = " << x 
-	    << " y = " << y 
-	    << " z = " << z 
-	    << std::endl;
-  */
+  
+  // streamlog_out(DEBUG0) << "\t ILDSegmentedDiscStripMeasLayer::HitToXv: "
+  // << " x = " << x 
+  // << " y = " << y 
+  // << " z = " << z 
+  // << std::endl;
+
+  
   return TVector3(x,y,z);
 }
 
@@ -210,14 +213,14 @@ void ILDSegmentedDiscStripMeasLayer::CalcDhDa(const TVTrackHit &vht,
   
   double dvdx =  -cos_theta * sin_phi;
   double dvdy =   cos_theta * cos_phi;
-  /*
-  std::cout << "\t ILDSegmentedDiscStripMeasLayer::CalcDhDa: "
-	    << " dudx = " << dudx 
-	    << " dudy = " << dudy
-	    << " dvdx = " << dvdx 
-	    << " dvdy = " << dvdy 
-	    << std::endl;
-  */
+
+  // streamlog_out(DEBUG0) << "\t ILDSegmentedDiscStripMeasLayer::CalcDhDa: "
+  // << " dudx = " << dudx 
+  // << " dudy = " << dudy
+  // << " dvdx = " << dvdx 
+  // << " dvdy = " << dvdy 
+  // << std::endl;
+   
   for (Int_t i=0; i<hdim; i++) {
     
     H(0,i) = dudx * dxphiada(0,i) + dudy * dxphiada(1,i) ;
@@ -239,21 +242,18 @@ void ILDSegmentedDiscStripMeasLayer::CalcDhDa(const TVTrackHit &vht,
 
 
 
-ILDVTrackHit* ILDSegmentedDiscStripMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit* trkhit) const {
+ILDVTrackHit* ILDSegmentedDiscStripMeasLayer::ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const {
   
   //EVENT::TrackerHitPlane* plane_hit = dynamic_cast<EVENT::TrackerHitPlane*>( trkhit ) ;
+  if(trkhit.getType()!=8){
   //if( plane_hit == NULL )  { 
     // streamlog_out(ERROR) << "ILDSegmentedDiscStripMeasLayer::ConvertLCIOTrkHit dynamic_cast to TrackerHitPlane failed " << std::endl; 
-    //return NULL; // SJA:FIXME: should be replaced with an exception  
-  //}
-  if((trkhit->getType()&8)!=8) {
-    std::cout << "ILDSegmentedDiscStripMeasLayer::ConvertLCIOTrkHit dynamic_cast to ILDPlanarStripHit failed " << std::endl;
-    throw std::logic_error("Invalid invoke ILDSegmentedDiscStripMeasLayer by TrackerHit trkhit");
+    return NULL; // SJA:FIXME: should be replaced with an exception  
   }
   
   // remember here the "position" of the hit in fact defines the origin of the plane it defines so u and v are per definition 0. 
   // this is still the case for a 1-dimentional measurement, and is then used to calculate the u coordinate according to the origin of the actual measurement plane.
-  const edm4hep::Vector3d& pos=trkhit->getPosition();
+  const edm4hep::Vector3d& pos=trkhit.getPosition();
   const TVector3 hit(pos[0], pos[1], pos[2]) ;
   
   // convert to layer coordinates       
@@ -267,26 +267,26 @@ ILDVTrackHit* ILDSegmentedDiscStripMeasLayer::ConvertLCIOTrkHit(edm4hep::Tracker
   x[0] = h(0, 0);
   if(ILDPlanarStripHit_DIM == 2) x[1] = h(1, 0);
   
-  dx[0] = trkhit->getCovMatrix(2);
-  if(ILDPlanarStripHit_DIM == 2) dx[1] = trkhit->getCovMatrix(5);
+  dx[0] = trkhit.getCovMatrix(2);
+  if(ILDPlanarStripHit_DIM == 2) dx[1] = trkhit.getCovMatrix(5);
     
   bool hit_on_surface = IsOnSurface(hit);
-  /*
-  std::cout << "ILDSegmentedDiscStripMeasLayer::ConvertLCIOTrkHit ILDPlanarStripHit created" 
-	    << " for CellID " << trkhit->getCellID()
-	    << " Disc Z = " << this->GetXc().Z() 
-	    << " u = "  <<  x[0]
-	    << " du = " << dx[0];
   
-  if(ILDPlanarStripHit_DIM == 2)  std::cout << " v = "  <<  x[1] << " dv = " << dx[1];
+  // streamlog_out(DEBUG1) << "ILDSegmentedDiscStripMeasLayer::ConvertLCIOTrkHit ILDPlanarStripHit created" 
+  // << " for CellID " << trkhit.getCellID()
+  // << " Disc Z = " << this->GetXc().Z() 
+  // << " u = "  <<  x[0]
+  // << " du = " << dx[0];
   
-  std::cout << " x = " << hit.x()
-	    << " y = " << hit.y()
-	    << " z = " << hit.z()
-	    << " r = " << hit.Perp()
-	    << " onSurface = " << hit_on_surface
-	    << std::endl ;
-  */
+  // if(ILDPlanarStripHit_DIM == 2)  streamlog_out(DEBUG1) << " v = "  <<  x[1] << " dv = " << dx[1];
+  
+  // streamlog_out(DEBUG1) << " x = " << hit.x()
+  //       		<< " y = " << hit.y()
+  //       		<< " z = " << hit.z()
+  //       		<< " r = " << hit.Perp()
+  //       		<< " onSurface = " << hit_on_surface
+  //       		<< std::endl ;
+  
   ILDPlanarStripHit hh( *this , x, dx, this->GetBz(),trkhit);
   
   this->HitToXv(hh);

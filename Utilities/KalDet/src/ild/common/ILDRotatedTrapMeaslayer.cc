@@ -155,12 +155,12 @@ Bool_t ILDRotatedTrapMeaslayer::IsOnSurface(const TVector3 &xx) const
 }
 
 
-ILDVTrackHit* ILDRotatedTrapMeaslayer::ConvertLCIOTrkHit(edm4hep::TrackerHit* trkhit) const {
+ILDVTrackHit* ILDRotatedTrapMeaslayer::ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const {
   
   //EVENT::TrackerHitPlane* plane_hit = dynamic_cast<EVENT::TrackerHitPlane*>( trkhit ) ;
-  if(trkhit->getType()!=8) return NULL;
+  if(trkhit.getType()!=8) return NULL;
   //if( plane_hit == NULL )  return NULL; // SJA:FIXME: should be replaced with an exception  
-  const edm4hep::Vector3d& pos=trkhit->getPosition();
+  const edm4hep::Vector3d& pos=trkhit.getPosition();
   const TVector3 hit(pos.x, pos.y, pos.z);
   
   // convert to layer coordinates       
@@ -172,8 +172,8 @@ ILDVTrackHit* ILDRotatedTrapMeaslayer::ConvertLCIOTrkHit(edm4hep::TrackerHit* tr
   x[0] = h(0, 0);
   x[1] = h(1, 0);
   
-  dx[0] = trkhit->getCovMatrix(2);
-  dx[1] = trkhit->getCovMatrix(5);
+  dx[0] = trkhit.getCovMatrix(2);
+  dx[1] = trkhit.getCovMatrix(5);
   
   bool hit_on_surface = IsOnSurface(hit);
   

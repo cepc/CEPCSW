@@ -24,7 +24,7 @@ FTDHelixFitter::FTDHelixFitter( edm4hep::Track* track ){
   //int nHits = track->trackerHits_size();
   std::copy(track->trackerHits_begin(), track->trackerHits_end(), std::back_inserter(_trackerHits));
   //for(int i=0;i<nHits;i++){
-  //  edm4hep::ConstTrackerHit* hit = &track->getTrackerHits(i);
+  //  edm4hep::ConstTrackerHit hit = &track->getTrackerHits(i);
   //  _trackerHits.push_back(hit);
   //}
   fit();
