@@ -16,6 +16,8 @@ set(DetSimSD_srcs
 
     src/DDG4SensitiveDetector.cpp
     src/CaloSensitiveDetector.cpp
+
+    src/DriftChamberSensDetTool.cpp
 )
 
 gaudi_add_module(DetSimSD ${DetSimSD_srcs}
