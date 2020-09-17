@@ -132,7 +132,7 @@ protected:
 
  
 
-  Gaudi::Property< std::string >              m_PandoraSettingsXmlFile { this, "PandoraSettingsDefault_xml", "/junofs/users/wxfang/MyGit/MarlinPandora/scripts/PandoraSettingsDefault_wx.xml" };
+  Gaudi::Property< std::string >              m_PandoraSettingsXmlFile { this, "PandoraSettingsDefault_xml", "PandoraSettingsDefault_wx.xml" };
   Gaudi::Property<int>                        m_NEventsToSkip                   { this, "NEventsToSkip", 0 };
 
   Gaudi::Property< std::vector<std::string> > m_TrackCollections{ this, "TrackCollections", {"MarlinTrkTracks"} };
