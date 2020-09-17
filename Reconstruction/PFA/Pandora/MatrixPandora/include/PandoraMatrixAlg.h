@@ -49,7 +49,6 @@
  */
 namespace pandora {class Pandora;}
 
-class IEventSeeder;
 
 class CollectionMaps
 {
@@ -59,10 +58,6 @@ public:
      */
     CollectionMaps();
     void clear();
-    std::map<std::string, const edm4hep::MCParticleCollection*> CollectionMap_MC;
-    std::map<std::string, const edm4hep::CalorimeterHitCollection*> CollectionMap_CaloHit;
-    std::map<std::string, const edm4hep::VertexCollection*> CollectionMap_Vertex;
-    std::map<std::string, const edm4hep::TrackCollection*> CollectionMap_Track;
 
     std::map<std::string, std::vector<edm4hep::MCParticle> >     collectionMap_MC;
     std::map<std::string, std::vector<edm4hep::CalorimeterHit> > collectionMap_CaloHit;
@@ -76,7 +71,6 @@ public:
 
 class PandoraMatrixAlg : public GaudiAlgorithm
 {
-  //friend class AlgFactory<PandoraMatrixAlg>;//gives error in 97 version
  
 public:
  
@@ -95,7 +89,6 @@ public:
    */
   virtual StatusCode finalize() ;
  
-  //void FinaliseSteeringParameters();
   void FinaliseSteeringParameters(ISvcLocator* svcloc);
   pandora::StatusCode RegisterUserComponents() const;
   void Reset();
@@ -129,17 +122,14 @@ public:
      */
     const pandora::Pandora *GetPandora() const;
     StatusCode updateMap();
-    StatusCode updateMap(CollectionMaps & tmp_map);
     StatusCode Ana();
     StatusCode CreateMCRecoParticleAssociation();
-    //StatusCode Create_MC(); 
 protected:
  
   typedef std::vector<float> FloatVec;
 
   int _nEvt ;
 
-  IEventSeeder * _SEEDER;
  
 
   Gaudi::Property< std::string >              m_PandoraSettingsXmlFile { this, "PandoraSettingsDefault_xml", "/junofs/users/wxfang/MyGit/MarlinPandora/scripts/PandoraSettingsDefault_wx.xml" };
@@ -296,26 +286,12 @@ protected:
 
   Gaudi::Property< std::string >              m_AnaOutput{ this, "AnaOutput", "/junofs/users/wxfang/MyGit/CEPCSW/Reconstruction/PFA/Pandora/GaudiPandora/Ana.root" };
   //######################
+  std::map< std::string, std::string > m_collections;
+  Gaudi::Property<std::vector<std::string>> m_readCols{this, "collections", {}, "Places of collections to read"};
+ //the map of collection name to its corresponding DataHandle
+  std::map<std::string, DataObjectHandleBase*> m_dataHandles;
   
   DataHandle<edm4hep::MCParticleCollection>     m_mcParCol_r  {"MCParticle", Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::CalorimeterHitCollection> m_ECALBarrel_r{"ECALBarrel", Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::CalorimeterHitCollection> m_ECALEndcap_r{"ECALEndcap", Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::CalorimeterHitCollection> m_ECALOther_r {"ECALOther", Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::CalorimeterHitCollection> m_HCALBarrel_r{"HCALBarrel", Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::CalorimeterHitCollection> m_HCALEndcap_r{"HCALEndcap", Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::CalorimeterHitCollection> m_HCALOther_r {"HCALOther", Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::CalorimeterHitCollection> m_MUON_r      {"MUON", Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::CalorimeterHitCollection> m_LCAL_r      {"LCAL", Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::CalorimeterHitCollection> m_LHCAL_r     {"LHCAL", Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::CalorimeterHitCollection> m_BCAL_r      {"BCAL", Gaudi::DataHandle::Reader, this};
-
-  DataHandle<edm4hep::VertexCollection> m_KinkVertices_r    {"KinkVertices",Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::VertexCollection> m_ProngVertices_r   {"ProngVertices",Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::VertexCollection> m_SplitVertices_r   {"SplitVertices",Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::VertexCollection> m_V0Vertices_r      {"V0Vertices",Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::TrackCollection>  m_MarlinTrkTracks_r {"MarlinTrkTracks",Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::MCRecoCaloAssociationCollection>  m_MCRecoCaloAssociation_r {"MCRecoCaloAssociation",Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::MCRecoTrackerAssociationCollection>  m_MCRecoTrackerAssociation_r {"MCRecoTrackerAssociation",Gaudi::DataHandle::Reader, this};
 
   DataHandle<edm4hep::ClusterCollection>                m_ClusterCollection_w {"PandoraClusters",Gaudi::DataHandle::Writer, this};
   DataHandle<edm4hep::ReconstructedParticleCollection>  m_ReconstructedParticleCollection_w {"PandoraPFOs"    ,Gaudi::DataHandle::Writer, this};

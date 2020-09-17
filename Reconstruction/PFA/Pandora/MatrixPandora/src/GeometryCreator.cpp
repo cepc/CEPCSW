@@ -1,5 +1,4 @@
 /**
- *  @file   MarlinPandora/src/GeometryCreator.cc
  * 
  *  @brief  Implementation of the geometry creator class.
  * 
