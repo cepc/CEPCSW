@@ -121,6 +121,24 @@ detsimalg.RootDetElem = "WorldDetElemTool"
 from Configurables import AnExampleDetElemTool
 example_dettool = AnExampleDetElemTool("AnExampleDetElemTool")
 
+from Configurables import CalorimeterSensDetTool
+from Configurables import DriftChamberSensDetTool
+
+calo_sensdettool = CalorimeterSensDetTool("CalorimeterSensDetTool")
+driftchamber_sensdettool = DriftChamberSensDetTool("DriftChamberSensDetTool")
+
+# dedxoption = "DummyDedxSimTool"
+dedxoption = "BetheBlochEquationDedxSimTool"
+
+driftchamber_sensdettool.DedxSimTool = dedxoption
+
+from Configurables import DummyDedxSimTool
+from Configurables import BetheBlochEquationDedxSimTool
+
+if dedxoption == "DummyDedxSimTool":
+    dedx_simtool = DummyDedxSimTool("DummyDedxSimTool")
+elif dedxoption == "BetheBlochEquationDedxSimTool":
+    dedx_simtool = BetheBlochEquationDedxSimTool("BetheBlochEquationDedxSimTool")
 
 ##############################################################################
 # POD I/O

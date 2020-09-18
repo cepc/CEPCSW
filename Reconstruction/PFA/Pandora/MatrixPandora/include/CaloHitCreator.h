@@ -1,5 +1,4 @@
 /**
- *  @file   MarlinPandora/include/CaloHitCreator.h
  * 
  *  @brief  Header file for the calo hit creator class.
  * 
@@ -116,9 +115,7 @@ public:
     /**
      *  @brief  Create calo hits
      * 
-     *  @param  pLCEvent the lcio event
      */    
-    //pandora::StatusCode CreateCaloHits(const LCEvent *const pLCEvent);
     pandora::StatusCode CreateCaloHits(const CollectionMaps& collectionMaps);
 
     /**
@@ -137,44 +134,36 @@ private:
     /**
      *  @brief  Create ecal calo hits
      * 
-     *  @param  pLCEvent the lcio event
      */
-    //pandora::StatusCode CreateECalCaloHits(const EVENT::LCEvent *const pLCEvent);
     pandora::StatusCode CreateECalCaloHits(const CollectionMaps& collectionMaps);
 
     /**
      *  @brief  Create hcal calo hits
      * 
-     *  @param  pLCEvent the lcio event
      */
     pandora::StatusCode CreateHCalCaloHits(const CollectionMaps& collectionMaps);
 
     /**
      *  @brief  Create muon calo hits
      * 
-     *  @param  pLCEvent the lcio event
      */
     pandora::StatusCode CreateMuonCaloHits(const CollectionMaps& collectionMaps);
 
     /**
      *  @brief  Create lcal calo hits
      * 
-     *  @param  pLCEvent the lcio event
      */    
     pandora::StatusCode CreateLCalCaloHits(const CollectionMaps& collectionMaps);
 
     /**
      *  @brief  Create lhcal calo hits
      * 
-     *  @param  pLCEvent the lcio event
      */
     pandora::StatusCode CreateLHCalCaloHits(const CollectionMaps& collectionMaps);
 
     /**
      *  @brief  Get common calo hit properties: position, parent address, input energy and time
      * 
-     *  @param  pCaloHit the lcio calorimeter hit
-     *  @param  caloHitParameters the calo hit parameters to populate
      */
     void GetCommonCaloHitProperties(const edm4hep::CalorimeterHit *const pCaloHit, PandoraApi::CaloHit::Parameters &caloHitParameters) const;
 

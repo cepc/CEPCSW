@@ -173,7 +173,7 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
                 }
 
                 dd4hep::sim::Geant4TrackerHit* trk_hit = dynamic_cast<dd4hep::sim::Geant4TrackerHit*>(h);
-                if (trk_hit) {
+                if (trk_hit && tracker_col_ptr) {
                     ++n_trk_hit;
                     // auto edm_trk_hit = trackercols->create();
                     auto edm_trk_hit = tracker_col_ptr->create();
@@ -192,10 +192,11 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
                                     trk_hit->momentum.y()/CLHEP::GeV,
                                     trk_hit->momentum.z()/CLHEP::GeV};
                     edm_trk_hit.setMomentum(edm4hep::Vector3f(mom));
+
                 }
 
                 dd4hep::sim::Geant4CalorimeterHit* cal_hit = dynamic_cast<dd4hep::sim::Geant4CalorimeterHit*>(h);
-                if (cal_hit) {
+                if (cal_hit && calo_col_ptr) {
                     ++n_cal_hit;
                     auto edm_calo_hit = calo_col_ptr->create();
                     edm_calo_hit.setCellID(cal_hit->cellID);

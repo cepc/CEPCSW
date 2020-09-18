@@ -1,5 +1,4 @@
 /**
- *  @file   MarlinPandora/src/MCParticleCreator.cc
  * 
  *  @brief  Implementation of the mc particle creator class.
  * 
