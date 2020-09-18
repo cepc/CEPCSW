@@ -115,7 +115,7 @@ AnExampleDetElemTool::ConstructSDandField() {
                     m_driftchamber_sdtool = ToolHandle<ISensDetTool>("DriftChamberSensDetTool");
                     if (m_driftchamber_sdtool) {
                         info() << "Find the DriftChamberSensDetTool" << endmsg;
-                        g4sd = m_calo_sdtool->createSD(nam);
+                        g4sd = m_driftchamber_sdtool->createSD(nam);
                     } else {
                         warning() << "DriftChamberSensDetTool is not found. " << endmsg;
                     }
