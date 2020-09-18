@@ -126,10 +126,19 @@ from Configurables import DriftChamberSensDetTool
 
 calo_sensdettool = CalorimeterSensDetTool("CalorimeterSensDetTool")
 driftchamber_sensdettool = DriftChamberSensDetTool("DriftChamberSensDetTool")
-driftchamber_sensdettool.DedxSimTool = "DummyDedxSimTool"
+
+# dedxoption = "DummyDedxSimTool"
+dedxoption = "BetheBlochEquationDedxSimTool"
+
+driftchamber_sensdettool.DedxSimTool = dedxoption
 
 from Configurables import DummyDedxSimTool
-dedx_simtool = DummyDedxSimTool("DummyDedxSimTool")
+from Configurables import BetheBlochEquationDedxSimTool
+
+if dedxoption == "DummyDedxSimTool":
+    dedx_simtool = DummyDedxSimTool("DummyDedxSimTool")
+elif dedxoption == "BetheBlochEquationDedxSimTool":
+    dedx_simtool = BetheBlochEquationDedxSimTool("BetheBlochEquationDedxSimTool")
 
 ##############################################################################
 # POD I/O

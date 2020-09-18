@@ -11,6 +11,7 @@ find_package(DD4hep COMPONENTS DDG4 REQUIRED)
 
 set(DetSimDedx_srcs
     src/DummyDedxSimTool.cpp
+    src/BetheBlochEquationDedxSimTool.cpp
 )
 
 gaudi_add_module(DetSimDedx ${DetSimDedx_srcs}

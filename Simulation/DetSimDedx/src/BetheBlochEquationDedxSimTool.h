@@ -1,21 +1,17 @@
-#ifndef Dedx_SVC_H
-#define Dedx_SVC_H
+#ifndef BetheBlochEquationDedxSimTool_h
+#define BetheBlochEquationDedxSimTool_h
 
-#include "DedxSvc/IDedxSvc.h"
-#include <GaudiKernel/Service.h>
-#include "G4Step.hh"
+#include "DetSimInterface/IDedxSimTool.h"
+#include <GaudiKernel/AlgTool.h>
 #include <random>
 
-class DedxSvc : public extends<Service, IDedxSvc>
-{
+class BetheBlochEquationDedxSimTool: public extends<AlgTool, IDedxSimTool> {
     public:
-        DedxSvc(const std::string& name, ISvcLocator* svc);
-        ~DedxSvc();
-
+        using extends::extends;
 
         StatusCode initialize() override;
         StatusCode finalize() override;
-        float pred(const G4Step* aStep) override;
+        double dedx(const G4Step* aStep) override;
 
     private:
 
@@ -27,6 +23,7 @@ class DedxSvc : public extends<Service, IDedxSvc>
         float m_me;// Here me is the electron rest mass
         float m_K; // K was set as a constant.
         float m_I; // Mean excitation energy
+
         std::default_random_engine m_generator;
         std::normal_distribution<double>* m_distribution;
 };

@@ -1,18 +1,11 @@
-#include "DedxSvc.h"
+#include "BetheBlochEquationDedxSimTool.h"
+#include "G4Step.hh"
 
-//https://folk.uib.no/ruv004/
-DECLARE_COMPONENT(DedxSvc)
+// https://folk.uib.no/ruv004/
+DECLARE_COMPONENT(BetheBlochEquationDedxSimTool)
 
-DedxSvc::DedxSvc(const std::string& name, ISvcLocator* svc)
-    : base_class(name, svc)
-{
-}
 
-DedxSvc::~DedxSvc()
-{
-}
-
-float DedxSvc::pred(const G4Step* aStep)
+double BetheBlochEquationDedxSimTool::dedx(const G4Step* aStep)
 {
     G4Track* gTrack = aStep->GetTrack() ;
     G4int z = gTrack->GetDefinition()->GetPDGCharge();
@@ -30,7 +23,7 @@ float DedxSvc::pred(const G4Step* aStep)
     return dedx*m_material_density; // MeV / cm 
 }
 
-StatusCode DedxSvc::initialize()
+StatusCode BetheBlochEquationDedxSimTool::initialize()
 {
     m_distribution = new std::normal_distribution<double>(0, m_resolution);
     m_me = 0.511*pow(10,6);//0.511 MeV to eV
@@ -39,7 +32,7 @@ StatusCode DedxSvc::initialize()
     return StatusCode::SUCCESS;
 }
 
-StatusCode DedxSvc::finalize()
+StatusCode BetheBlochEquationDedxSimTool::finalize()
 {
     return StatusCode::SUCCESS;
 }
