@@ -110,6 +110,17 @@ AnExampleDetElemTool::ConstructSDandField() {
                 }
             } else if (typ=="tracker") {
 
+                // if drift chamber
+                if (nam == "DriftChamber") {
+                    m_driftchamber_sdtool = ToolHandle<ISensDetTool>("DriftChamberSensDetTool");
+                    if (m_driftchamber_sdtool) {
+                        info() << "Find the DriftChamberSensDetTool" << endmsg;
+                        g4sd = m_calo_sdtool->createSD(nam);
+                    } else {
+                        warning() << "DriftChamberSensDetTool is not found. " << endmsg;
+                    }
+                }
+
             }
         }
         
@@ -185,6 +196,9 @@ AnExampleDetElemTool::initialize() {
         error() << "Failed to find GeoSvc." << endmsg;
         return StatusCode::FAILURE;
     }
+
+    m_calo_sdtool = ToolHandle<ISensDetTool>("CalorimeterSensDetTool");
+    m_driftchamber_sdtool = ToolHandle<ISensDetTool>("DriftChamberSensDetTool");
 
     return sc;
 }

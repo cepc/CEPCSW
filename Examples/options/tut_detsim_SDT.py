@@ -121,6 +121,11 @@ detsimalg.RootDetElem = "WorldDetElemTool"
 from Configurables import AnExampleDetElemTool
 example_dettool = AnExampleDetElemTool("AnExampleDetElemTool")
 
+from Configurables import CalorimeterSensDetTool
+from Configurables import DriftChamberSensDetTool
+
+calo_sensdettool = CalorimeterSensDetTool("CalorimeterSensDetTool")
+driftchamber_sensdettool = DriftChamberSensDetTool("DriftChamberSensDetTool")
 
 ##############################################################################
 # POD I/O

@@ -4,6 +4,8 @@
 
 #include "DD4hep/Detector.h"
 
+#include "DriftChamberSensitiveDetector.h"
+
 DECLARE_COMPONENT(DriftChamberSensDetTool);
 
 StatusCode DriftChamberSensDetTool::initialize() {
@@ -28,7 +30,7 @@ G4VSensitiveDetector*
 DriftChamberSensDetTool::createSD(const std::string& name) {
     dd4hep::Detector* dd4hep_geo = m_geosvc->lcdd();
 
-    G4VSensitiveDetector* sd = nullptr;
+    G4VSensitiveDetector* sd = new DriftChamberSensitiveDetector(name, *dd4hep_geo);
 
     return sd;
 }
