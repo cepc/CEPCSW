@@ -29,6 +29,12 @@ StatusCode BetheBlochEquationDedxSimTool::initialize()
     m_me = 0.511*pow(10,6);//0.511 MeV to eV
     m_K = 0.307075;//const
     m_I = m_material_Z*10;  // Approximate
+
+    info() << "Initialize BetheBlochEquationDedxSimTool with following parameters" << endmsg;
+    info() << "-> m_me: " << m_me << endmsg;
+    info() << "-> m_K: " << m_K << endmsg;
+    info() << "-> m_I: " << m_I << endmsg;
+
     return StatusCode::SUCCESS;
 }
 
