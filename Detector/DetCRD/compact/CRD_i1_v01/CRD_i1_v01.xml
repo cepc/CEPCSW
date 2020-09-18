@@ -1,0 +1,41 @@
+<lccdd xmlns:compact="http://www.lcsim.org/schemas/compact/1.0"
+       xmlns:xs="http://www.w3.org/2001/XMLSchema"
+       xs:noNamespaceSchemaLocation="http://www.lcsim.org/schemas/compact/1.0/compact.xsd">
+  <info name="CRD_i1_v01"
+        title="CepC reference detctor with coil inside Hcal"
+        author="C.D.Fu, "
+        url="http://cepc.ihep.ac.cn"
+        status="developing"
+        version="v01">
+    <comment>CepC reference detector simulation models used for detector study </comment>
+  </info>
+  
+  <includes>
+    <gdmlFile  ref="${DD4hepINSTALL}/DDDetectors/compact/elements.xml"/>
+    <gdmlFile  ref="../CRD_common_v01/materials.xml"/>
+  </includes>
+  
+  <define>
+    <constant name="world_size" value="25*m"/>
+    <constant name="world_x" value="world_size"/>
+    <constant name="world_y" value="world_size"/>
+    <constant name="world_z" value="world_size"/>
+
+    <include ref="${DD4hepINSTALL}/DDDetectors/compact/detector_types.xml"/>
+  </define>
+
+  <include ref="./CRD_Dimensions_v01_01.xml"/>
+
+  <include ref="../CRD_common_v01/beampipe_v01_01.xml"/>
+  <!--include ref="../CRD_common_v01/vertex_v01_01.xml"/-->
+  <!--include ref="../CRD_common_v01/ftd_v01_01.xml"/-->
+  <!--include ref="../CRD_common_v01/sit_v01_01.xml"/-->
+  <!--include ref="../CRD_common_v01/dc_v01_01.xml"/-->
+  <!--include ref="../CRD_common_v01/set_v01_01.xml"/-->
+  <!--include ref="../CRD_common_v01/ecal_v01_01.xml"/-->
+  <!--include ref="../CRD_common_v01/coil_v01_01.xml"/-->
+  <!--include ref="../CRD_common_v01/hcal_v01_01.xml"/-->
+  <!--include ref="../CRD_common_v01/yoke_v01_01.xml"/-->
+  <!--include ref="../CRD_common_v01/lcal_v01_01.xml"/-->
+
+</lccdd>
