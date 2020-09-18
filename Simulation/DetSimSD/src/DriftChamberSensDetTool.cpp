@@ -17,6 +17,12 @@ StatusCode DriftChamberSensDetTool::initialize() {
         return StatusCode::FAILURE;
     }
 
+    m_dedx_simtool = ToolHandle<IDedxSimTool>(m_dedx_sim_option.value());
+    if (!m_dedx_simtool) {
+        error() << "Failed to find dedx simtoo." << endmsg;
+        return StatusCode::FAILURE;
+    }
+
     return sc;
 }
 
@@ -30,7 +36,13 @@ G4VSensitiveDetector*
 DriftChamberSensDetTool::createSD(const std::string& name) {
     dd4hep::Detector* dd4hep_geo = m_geosvc->lcdd();
 
-    G4VSensitiveDetector* sd = new DriftChamberSensitiveDetector(name, *dd4hep_geo);
+    G4VSensitiveDetector* sd = nullptr;
+
+    if (name == "DriftChamber") {
+        DriftChamberSensitiveDetector* dcsd = new DriftChamberSensitiveDetector(name, *dd4hep_geo);
+        dcsd->setDedxSimTool(m_dedx_simtool);
+    }
+
 
     return sd;
 }

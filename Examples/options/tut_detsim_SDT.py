@@ -126,6 +126,10 @@ from Configurables import DriftChamberSensDetTool
 
 calo_sensdettool = CalorimeterSensDetTool("CalorimeterSensDetTool")
 driftchamber_sensdettool = DriftChamberSensDetTool("DriftChamberSensDetTool")
+driftchamber_sensdettool.DedxSimTool = "DummyDedxSimTool"
+
+from Configurables import DummyDedxSimTool
+dedx_simtool = DummyDedxSimTool("DummyDedxSimTool")
 
 ##############################################################################
 # POD I/O

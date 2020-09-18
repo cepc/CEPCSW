@@ -8,6 +8,8 @@
  */
 
 #include "DetSimSD/DDG4SensitiveDetector.h"
+#include "DetSimInterface/IDedxSimTool.h"
+#include "GaudiKernel/ToolHandle.h"
 
 class DriftChamberSensitiveDetector: public DDG4SensitiveDetector {
 public:
@@ -16,6 +18,8 @@ public:
 
 public:
     DriftChamberSensitiveDetector(const std::string& name, dd4hep::Detector& description);
+
+    bool setDedxSimTool(ToolHandle<IDedxSimTool>);
     
 public:
     // Geant4 interface
@@ -27,6 +31,9 @@ public:
 protected:
 
     HitCollection* m_hc;
+
+    // this is passed from SensDetTool
+    ToolHandle<IDedxSimTool> m_dedx_simtool;
 
 };
 

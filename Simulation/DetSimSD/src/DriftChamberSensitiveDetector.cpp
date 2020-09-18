@@ -12,6 +12,12 @@ DriftChamberSensitiveDetector::DriftChamberSensitiveDetector(const std::string& 
     collectionName.insert(coll_name);
 }
 
+bool DriftChamberSensitiveDetector::setDedxSimTool(ToolHandle<IDedxSimTool> simtool) {
+    m_dedx_simtool = simtool;
+
+    return true;
+}
+
 void
 DriftChamberSensitiveDetector::Initialize(G4HCofThisEvent* HCE) {
 
