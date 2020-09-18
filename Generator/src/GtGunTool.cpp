@@ -92,7 +92,8 @@ GtGunTool::mutate(MyHepMC::GenEvent& event) {
         // mcp.setEndpoint();
 
         // assume energy is momentum
-        double p = energy;
+	// For the moment, treat this "energy" as "momentum" ( 2020/09/02 )
+        double p = energy; // original ! 
         
         // direction
         // by default, randomize the direction
@@ -104,8 +105,11 @@ GtGunTool::mutate(MyHepMC::GenEvent& event) {
 
         if (i < m_thetamins.value().size() 
             && i < m_thetamaxs.value().size()) {
-            double thetamin = m_thetamins.value()[i];
-            double thetamax = m_thetamaxs.value()[i];
+	  //double thetamin = m_thetamins.value()[i]; // original
+	  //double thetamax = m_thetamaxs.value()[i]; // original
+	    
+	  double thetamin = m_thetamins.value()[i] * CLHEP::degree;
+	  double thetamax = m_thetamaxs.value()[i] * CLHEP::degree;
 
             if (thetamin == thetamax) { // fixed theta
                 costheta = cos(thetamin);
@@ -125,6 +129,7 @@ GtGunTool::mutate(MyHepMC::GenEvent& event) {
             }
         }
 
+	info() << "cos(theta) = " << costheta << ", phi = " << phi << endmsg;
         debug() << "Direction: "
                 << " cos(theta): " << costheta
                 << " phi: " << phi

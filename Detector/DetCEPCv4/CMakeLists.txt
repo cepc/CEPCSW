@@ -25,6 +25,7 @@ set(DetCEPCv4_src
     src/tracker/SIT_Simple_Pixel_geo.cpp 
     src/tracker/TPC10_geo.cpp
     src/tracker/SET_Simple_Planar_geo.cpp
+    src/tracker/test_aMDC.cpp
     src/other/BoxSupport_o1_v01_geo.cpp
     src/other/TubeSupport_o1_v01_geo.cpp
 )

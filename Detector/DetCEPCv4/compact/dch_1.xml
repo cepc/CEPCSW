@@ -1,0 +1,29 @@
+
+<lccdd>
+
+  <detectors>
+    <!-- id=7, should be registered in basic_defs.xml-->
+    <detector  id="7" name="aDCH" type="DCH" readout="DCHCollection" insideTrackingVolume="true" >
+
+      <!-- Borrow an envelope of TPC,  to hold MDC inside -->
+      <envelope vis="ILD_TPCVis">
+        <shape type="Tube" rmin="180*mm" rmax="997*mm" dz="2350*mm"  material = "Air" />
+      </envelope>
+      
+      <!-- set the detector type flag which is defined in "detector_types.xml" -->
+      <type_flags type="DetType_TRACKER +  DetType_GASEOUS + DetType_WIRE" />
+
+      <!-- set a temporal parameters referred from  the LDT configurations -->
+      <layer nLayer="67"  nCell="200"  CellSize="10*mm"  HalfLength="2350*mm"  r0="235*mm"  />
+      
+    </detector>
+    
+  </detectors>
+  
+  <readouts>
+    <readout name="DCHCollection">
+      <id>system:5,layer:11,module:16</id>
+    </readout>
+  </readouts>
+    
+</lccdd>
