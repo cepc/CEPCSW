@@ -3,7 +3,6 @@
 import os
 print(os.environ["DD4HEP_LIBRARY_PATH"])
 import sys
-# sys.exit(0)
 
 from Gaudi.Configuration import *
 
@@ -17,15 +16,9 @@ rndmengine = HepRndm__Engine_CLHEP__HepJamesRandom_() # The default engine in Ge
 rndmengine.SetSingleton = True
 rndmengine.Seeds = [42]
 
-# rndmgensvc = RndmGenSvc("RndmGenSvc")
-# rndmgensvc.Engine = rndmengine.name()
-
-
 ##############################################################################
 # Event Data Svc
 ##############################################################################
-#from Configurables import CEPCDataSvc
-#dsvc = CEPCDataSvc("EventDataSvc")
 from Configurables import K4DataSvc
 dsvc = K4DataSvc("EventDataSvc")
 
@@ -34,8 +27,7 @@ dsvc = K4DataSvc("EventDataSvc")
 # Geometry Svc
 ##############################################################################
 
-# geometry_option = "CepC_v4-onlyTracker.xml"
-geometry_option = "CepC_v4-onlyVXD.xml"
+geometry_option = "CepC_v4-onlyECAL.xml"
 
 if not os.getenv("DETCEPCV4ROOT"):
     print("Can't find the geometry. Please setup envvar DETCEPCV4ROOT." )
@@ -70,10 +62,8 @@ gun.PhiMins   = [0,  1 ] # degree
 gun.PhiMaxs   = [0,  1 ] # degree
 
 
-stdheprdr = StdHepRdr("StdHepRdr")
-#stdheprdr.Input = "/cefs/data/stdhep/CEPC250/2fermions/E250.Pbhabha.e0.p0.whizard195/bhabha.e0.p0.00001.stdhep"
-#stdheprdr.Input = "/cefs/data/stdhep/CEPC250/2fermions/E250.Pbhabha.e0.p0.whizard195/bhabha.e0.p0.00001.stdhep"
-stdheprdr.Input = "/cefs/data/stdhep/CEPC250/higgs/E250.Pbbh.whizard195/E250.Pbbh_X.e0.p0.whizard195/Pbbh_X.e0.p0.00001.stdhep"
+#stdheprdr = StdHepRdr("StdHepRdr")
+#stdheprdr.Input = "/cefs/data/stdhep/CEPC250/higgs/E250.Pbbh.whizard195/E250.Pbbh_X.e0.p0.whizard195/Pbbh_X.e0.p0.00001.stdhep"
 
 # lciordr = SLCIORdr("SLCIORdr")
 # lciordr.Input = "/cefs/data/stdhep/lcio250/signal/Higgs/E250.Pbbh.whizard195/E250.Pbbh_X.e0.p0.whizard195/Pbbh_X.e0.p0.00001.slcio"
@@ -97,9 +87,6 @@ from Configurables import DetSimSvc
 
 detsimsvc = DetSimSvc("DetSimSvc")
 
-# from Configurables import ExampleAnaElemTool
-# example_anatool = ExampleAnaElemTool("ExampleAnaElemTool")
-
 from Configurables import DetSimAlg
 
 detsimalg = DetSimAlg("DetSimAlg")
@@ -110,8 +97,6 @@ detsimalg.RunCmds = [
 #    "/tracking/verbose 1",
 ]
 detsimalg.AnaElems = [
-    # example_anatool.name()
-    # "ExampleAnaElemTool"
     "Edm4hepWriterAnaElemTool"
 ]
 detsimalg.RootDetElem = "WorldDetElemTool"

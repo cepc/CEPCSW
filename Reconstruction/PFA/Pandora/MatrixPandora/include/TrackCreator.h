@@ -1,5 +1,4 @@
 /**
- *  @file   MarlinPandora/include/TrackCreator.h
  * 
  *  @brief  Header file for the track creator class.
  * 
@@ -27,9 +26,7 @@ namespace gear { class GearMgr; }
 class CollectionMaps;
 
 typedef std::vector<const edm4hep::Track *> TrackVector;
-//typedef std::set<const edm4hep::Track *> TrackList;
 typedef std::set<unsigned int> TrackList;
-//typedef std::map<edm4hep::Track *, int> TrackToPidMap;
 typedef std::map<edm4hep::ConstTrack, int> TrackToPidMap;
 /*
 inline LCCollectionVec *newTrkCol(const std::string &name, LCEvent *evt , bool isSubset)
@@ -127,17 +124,14 @@ public:
     /**
      *  @brief  Create associations between tracks, V0s, kinks, etc
      * 
-     *  @param  pLCEvent the lcio event
      */
-    //pandora::StatusCode CreateTrackAssociations(const EVENT::LCEvent *const pLCEvent);
     pandora::StatusCode CreateTrackAssociations(const CollectionMaps& collectionMaps);
 
+    const edm4hep::Track* GetTrackAddress(const CollectionMaps& collectionMaps, const edm4hep::ConstTrack& pTrack );
     /**
      *  @brief  Create tracks, insert user code here
      * 
-     *  @param  pLCEvent the lcio event
      */
-    //pandora::StatusCode CreateTracks(EVENT::LCEvent *pLCEvent);
     pandora::StatusCode CreateTracks(const CollectionMaps& collectionMaps);
 
     /**
@@ -156,140 +150,102 @@ private:
     /**
      *  @brief  Extract kink information from specified lcio collections
      * 
-     *  @param  pLCEvent the lcio event
      */
-    //pandora::StatusCode ExtractKinks(const EVENT::LCEvent *const pLCEvent);
     pandora::StatusCode ExtractKinks(const CollectionMaps& collectionMaps);
 
     /**
      *  @brief  Extract prong and split information from specified lcio collections
      * 
-     *  @param  pLCEvent the lcio event
      */
-    //pandora::StatusCode ExtractProngsAndSplits(const EVENT::LCEvent *const pLCEvent);
+    pandora::StatusCode ExtractProngsAndSplits(const CollectionMaps& collectionMaps);
 
     /**
      *  @brief  Extract v0 information from specified lcio collections
      * 
-     *  @param  pLCEvent the lcio event
      */
-   //pandora::StatusCode ExtractV0s(const EVENT::LCEvent *const pLCEvent);
+    pandora::StatusCode ExtractV0s(const CollectionMaps& collectionMaps);
 
     /**
      *  @brief  Whether the track vertex conflicts with previously provided relationship information
      * 
-     *  @param  trackVec the vector of tracks associated with the vertex
      */
-    //bool IsConflictingRelationship(const EVENT::TrackVec &trackVec) const;
-    //bool IsConflictingRelationship(edm4hep::ConstTrack &trackVec) const;
     bool IsConflictingRelationship(const edm4hep::ConstReconstructedParticle &Particle) const;
 
     /**
      *  @brief  Whether a track is a v0 track
      * 
-     *  @param  pTrack the lcio track
      * 
      *  @return boolean
      */
-    //bool IsV0(const EVENT::Track *const pTrack) const;
     bool IsV0(unsigned int pTrack_id) const;
 
     /**
      *  @brief  Whether a track is a parent track
      * 
-     *  @param  pTrack the lcio track
      * 
      *  @return boolean
      */
-    //bool IsParent(const EVENT::Track *const pTrack) const;
     bool IsParent(unsigned int pTrack_id) const;
 
     /**
      *  @brief  Whether a track is a daughter track
      * 
-     *  @param  pTrack the lcio track
      * 
      *  @return boolean
      */
-    //bool IsDaughter(const EVENT::Track *const pTrack) const;
     bool IsDaughter(unsigned int pTrack_id) const;
 
     /**
      *  @brief  Copy track states stored in lcio tracks to pandora track parameters
      * 
-     *  @param  pTrack the lcio track
-     *  @param  trackParameters the track parameters
      */
-    //void GetTrackStates(const EVENT::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
     void GetTrackStates(const edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
 
     /**
      *  @brief  Copy track state from lcio track state instance to pandora input track state
      * 
-     *  @param  pTrackState the lcio track state instance
-     *  @param  inputTrackState the pandora input track state
      */
-    //void CopyTrackState(const TrackState *const pTrackState, pandora::InputTrackState &inputTrackState) const;
     void CopyTrackState(const edm4hep::TrackState & pTrackState, pandora::InputTrackState &inputTrackState) const;
 
     /**
      *  @brief  Obtain track time when it reaches ECAL
      * 
-     *  @param  pTrack the lcio track
      */
-    //float CalculateTrackTimeAtCalorimeter(const EVENT::Track *const pTrack) const;
     float CalculateTrackTimeAtCalorimeter(const edm4hep::Track *const pTrack) const;
 
     /**
      *  @brief  Decide whether track reaches the ecal surface
      * 
-     *  @param  pTrack the lcio track
-     *  @param  trackParameters the track parameters
      */
-    //void TrackReachesECAL(const EVENT::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
     void TrackReachesECAL(const edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
-    //void TrackReachesECAL(const edm4hep::Track& pTrack, PandoraApi::Track::Parameters &trackParameters) const;
 
     /**
      *  @brief  Determine whether a track can be used to form a pfo under the following conditions:
      *          1) if the track proves to be associated with a cluster, OR
      *          2) if the track proves to have no cluster associations
      * 
-     *  @param  pTrack the lcio track
-     *  @param  trackParameters the track parameters
      */
-    //void DefineTrackPfoUsage(const EVENT::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
     void DefineTrackPfoUsage(const edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
 
     /**
      *  @brief  Whether track passes the quality cuts required in order to be used to form a pfo
      * 
-     *  @param  pTrack the lcio track
-     *  @param  trackParameters the track parameters
      * 
      *  @return boolean
      */
-    //bool PassesQualityCuts(const EVENT::Track *const pTrack, const PandoraApi::Track::Parameters &trackParameters) const;
     bool PassesQualityCuts(const edm4hep::Track *const pTrack, const PandoraApi::Track::Parameters &trackParameters) const;
 
     /**
      *  @brief  Get number of hits in TPC of a track
      * 
-     *  @param  pTrack the lcio track
-     * 
-     *  @return number of hits in TPC of a track
      */
-    //int GetNTpcHits(const EVENT::Track *const pTrack) const;
     int GetNTpcHits(const edm4hep::Track *const pTrack) const;
 
     /**
      *  @brief  Get number of hits in FTD of a track
      * 
-     *  @param  pTrack the lcio track
      * 
-     *  @return number of hits in FTDof a track
      */
-    //int GetNFtdHits(const EVENT::Track *const pTrack) const;
     int GetNFtdHits(const edm4hep::Track *const pTrack) const;
 
     const Settings          m_settings;                     ///< The track creator settings
@@ -345,28 +301,22 @@ inline void TrackCreator::Reset()
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-//inline bool TrackCreator::IsV0(const Track *const pTrack) const
 inline bool TrackCreator::IsV0(unsigned int pTrack_id) const // should check here, if id is correct one to do this
 {
-    //return (m_v0TrackList.end() != m_v0TrackList.find(pTrack));
     return (m_v0TrackList.end() != m_v0TrackList.find(pTrack_id));
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-//inline bool TrackCreator::IsParent(const Track *const pTrack) const
 inline bool TrackCreator::IsParent(unsigned int pTrack_id) const
 {
-    //return (m_parentTrackList.end() != m_parentTrackList.find(pTrack));
     return (m_parentTrackList.end() != m_parentTrackList.find(pTrack_id));
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-//inline bool TrackCreator::IsDaughter(const Track *const pTrack) const
 inline bool TrackCreator::IsDaughter(unsigned int pTrack_id) const
 {
-    //return (m_daughterTrackList.end() != m_daughterTrackList.find(pTrack));
     return (m_daughterTrackList.end() != m_daughterTrackList.find(pTrack_id));
 }
 

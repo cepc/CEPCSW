@@ -1,5 +1,4 @@
 /**
- *  @file   MarlinPandora/src/TrackCreator.cc
  * 
  *  @brief  Implementation of the track creator class.
  * 
@@ -141,67 +140,44 @@ TrackCreator::~TrackCreator()
 
 pandora::StatusCode TrackCreator::CreateTrackAssociations(const CollectionMaps& collectionMaps)
 {
-//    Don't use it now, because the Vertex.getAssociatedParticle() doesn't work for LCIO to plcio transfer
-//    PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->ExtractKinks(collectionMaps));
-//    PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->ExtractProngsAndSplits(const CollectionMaps& collectionMaps));
-//    PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->ExtractV0s(const CollectionMaps& collectionMaps));
+    PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->ExtractKinks(collectionMaps));
+    PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->ExtractProngsAndSplits(collectionMaps));
+    PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->ExtractV0s(collectionMaps));
 
     return pandora::STATUS_CODE_SUCCESS;
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------
-/*
 pandora::StatusCode TrackCreator::ExtractKinks(const CollectionMaps& collectionMaps)
 {
     std::cout<<"start TrackCreator::ExtractKinks:"<<std::endl;
     for (StringVector::const_iterator iter = m_settings.m_kinkVertexCollections.begin(), iterEnd = m_settings.m_kinkVertexCollections.end();
         iter != iterEnd; ++iter)
     {
-        if(collectionMaps.CollectionMap_Vertex.find(*iter) == collectionMaps.CollectionMap_Vertex.end()) { std::cout<<"not find "<<(*iter)<<std::endl; continue;}
+        if(collectionMaps.collectionMap_Vertex.find(*iter) == collectionMaps.collectionMap_Vertex.end()) { std::cout<<"not find "<<(*iter)<<std::endl; continue;}
         try
         {
-            const edm4hep::VertexCollection *pKinkCollection = (collectionMaps.CollectionMap_Vertex.find(*iter))->second;
+            const std::vector<edm4hep::Vertex>& pKinkCollection = (collectionMaps.collectionMap_Vertex.find(*iter))->second;
 
-            for (int i = 0, iMax = pKinkCollection->size(); i < iMax; ++i)
+            for (int i = 0, iMax = pKinkCollection.size(); i < iMax; ++i)
             {
                 try
                 {
-                    const edm4hep::Vertex  pVertex0 = pKinkCollection->at(i);
+                    const edm4hep::Vertex  pVertex0 = pKinkCollection.at(i);
                     const edm4hep::Vertex* pVertex  = &(pVertex0);
 
                     if (NULL == pVertex) throw ("Collection type mismatch");
 
-                    std::cout<<"pVertex0 getChi2="<<pVertex0.getChi2()<<std::endl;
-                    std::cout<<"pVertex getChi2="<<pVertex->getChi2()<<std::endl;
-                    std::cout<<"Hi 0 "<<std::endl;
-                    const plcio::ConstReconstructedParticle pReconstructedParticle0 = pVertex0.getAssociatedParticle();
-                    std::cout<<"Hi 1"<<std::endl;
-                    //EVENT::ReconstructedParticle *pReconstructedParticle = pVertex->getAssociatedParticle();
-                    const plcio::ConstReconstructedParticle pReconstructedParticle = pVertex->getAssociatedParticle();
-                    std::cout<<"Hi 2:"<<&pReconstructedParticle<<std::endl;
-                    //const EVENT::TrackVec &trackVec(pReconstructedParticle->getTracks());
-                    //plcio::ConstTrack trackVec = pReconstructedParticle.getTracks();
-
-                    std::cout<<"pReconstructedParticle0 en="<<pReconstructedParticle0.getEnergy()<<std::endl;
-                    std::cout<<"pReconstructedParticle en="<<pReconstructedParticle.getEnergy()<<std::endl;
-                    //if (this->IsConflictingRelationship(trackVec))continue;
+                    const edm4hep::ConstReconstructedParticle pReconstructedParticle = pVertex->getAssociatedParticle();
                     if (this->IsConflictingRelationship(pReconstructedParticle))continue;
 
-                    //const int vertexPdgCode(pReconstructedParticle->getType());
                     const int vertexPdgCode(pReconstructedParticle.getType());
 
                     // Extract the kink vertex information
-                    //for (unsigned int iTrack = 0, nTracks = trackVec.size(); iTrack < nTracks; ++iTrack)
-                    //for (unsigned int iTrack = 0, nTracks = trackVec.tracks_size(); iTrack < nTracks; ++iTrack)
                     for (unsigned int iTrack = 0, nTracks = pReconstructedParticle.tracks_size(); iTrack < nTracks; ++iTrack)
                     {
-                        //EVENT::Track *pTrack = trackVec[iTrack];
-                        //plcio::ConstTrack pTrack = trackVec.getTracks(iTrack);
-                        plcio::ConstTrack pTrack = pReconstructedParticle.getTracks(iTrack);
-                        //(0 == iTrack) ? m_parentTrackList.insert(pTrack) : m_daughterTrackList.insert(pTrack);
+                        edm4hep::ConstTrack pTrack = pReconstructedParticle.getTracks(iTrack);
                         (0 == iTrack) ? m_parentTrackList.insert(pTrack.id()) : m_daughterTrackList.insert(pTrack.id());
-                       //std::cout << "KinkTrack " << iTrack << ", nHits " << pTrack.getTrackerHits().size() << std::endl;
-                       std::cout << "KinkTrack " << iTrack << ", nHits " << pTrack.trackerHits_size() << std::endl;
 
                         int trackPdgCode = pandora::UNKNOWN_PARTICLE_TYPE;
 
@@ -230,7 +206,6 @@ pandora::StatusCode TrackCreator::ExtractKinks(const CollectionMaps& collectionM
                                 trackPdgCode = pandora::PI_PLUS;
                                 break;
                             default :
-                                //(pTrack->getOmega() > 0) ? trackPdgCode = pandora::PI_PLUS : trackPdgCode = pandora::PI_MINUS;
                                 (pTrack.getTrackStates(0).omega > 0) ? trackPdgCode = pandora::PI_PLUS : trackPdgCode = pandora::PI_MINUS;
                                 break;
                             }
@@ -246,9 +221,7 @@ pandora::StatusCode TrackCreator::ExtractKinks(const CollectionMaps& collectionM
                         {
                             for (unsigned int jTrack = iTrack + 1; jTrack < nTracks; ++jTrack)
                             {
-                                //PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetTrackParentDaughterRelationship(*m_pPandora, pTrack, trackVec[jTrack]));
-                                //PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetTrackParentDaughterRelationship(*m_pPandora, (int*)(pTrack.id()), (int*)(trackVec.getTracks(jTrack).id()) ) );
-                                PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetTrackParentDaughterRelationship(*m_pPandora, (int*)(pTrack.id()), (int*)(pReconstructedParticle.getTracks(jTrack).id()) ) );
+                                PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetTrackParentDaughterRelationship(*m_pPandora, GetTrackAddress(collectionMaps, pTrack), GetTrackAddress(collectionMaps, pReconstructedParticle.getTracks(jTrack) ) ) );
                             }
                         }
 
@@ -257,9 +230,7 @@ pandora::StatusCode TrackCreator::ExtractKinks(const CollectionMaps& collectionM
                         {
                             for (unsigned int jTrack = iTrack + 1; jTrack < nTracks; ++jTrack)
                             {
-                                //PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetTrackSiblingRelationship(*m_pPandora, pTrack, trackVec[jTrack]));
-                                //PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetTrackSiblingRelationship(*m_pPandora, (int*)(pTrack.id()), (int*)(trackVec.getTracks(jTrack).id()) ));
-                                PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetTrackSiblingRelationship(*m_pPandora, (int*)(pTrack.id()), (int*)(pReconstructedParticle.getTracks(jTrack).id()) ));
+                                PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetTrackSiblingRelationship(*m_pPandora, GetTrackAddress(collectionMaps, pTrack), GetTrackAddress(collectionMaps, pReconstructedParticle.getTracks(jTrack) ) ) );
                             }
                         }
                     }
@@ -278,50 +249,44 @@ pandora::StatusCode TrackCreator::ExtractKinks(const CollectionMaps& collectionM
 
     return pandora::STATUS_CODE_SUCCESS;
 }
-*/
 //------------------------------------------------------------------------------------------------------------------------------------------
-/*
-pandora::StatusCode TrackCreator::ExtractProngsAndSplits(const EVENT::LCEvent *const pLCEvent)
+
+pandora::StatusCode TrackCreator::ExtractProngsAndSplits(const CollectionMaps& collectionMaps)
 {
-    for (StringVector::const_iterator iter = m_settings.m_prongSplitVertexCollections.begin(), iterEnd = m_settings.m_prongSplitVertexCollections.end();
-        iter != iterEnd; ++iter)
+    std::cout<<"start TrackCreator::ExtractProngsAndSplits:"<<std::endl;
+    for (StringVector::const_iterator iter = m_settings.m_prongSplitVertexCollections.begin(), iterEnd = m_settings.m_prongSplitVertexCollections.end(); iter != iterEnd; ++iter)
     {
+        if(collectionMaps.collectionMap_Vertex.find(*iter) == collectionMaps.collectionMap_Vertex.end()) { std::cout<<"not find "<<(*iter)<<std::endl; continue;}
         try
         {
-            const EVENT::LCCollection *pProngOrSplitCollection = pLCEvent->getCollection(*iter);
+            const std::vector<edm4hep::Vertex>& pProngOrSplitCollection = (collectionMaps.collectionMap_Vertex.find(*iter))->second;
 
-            for (int i = 0, iMax = pProngOrSplitCollection->getNumberOfElements(); i < iMax; ++i)
+            for (int i = 0, iMax = pProngOrSplitCollection.size(); i < iMax; ++i)
             {
                 try
                 {
-                    EVENT::Vertex *pVertex = dynamic_cast<Vertex*>(pProngOrSplitCollection->getElementAt(i));
+                    const edm4hep::Vertex  pVertex0 = pProngOrSplitCollection.at(i);
+                    const edm4hep::Vertex* pVertex  = &(pVertex0);
 
-                    if (NULL == pVertex)
-                        throw EVENT::Exception("Collection type mismatch");
+                    if (NULL == pVertex) throw ("Collection type mismatch");
+                    const edm4hep::ConstReconstructedParticle pReconstructedParticle = pVertex->getAssociatedParticle();
 
-                    EVENT::ReconstructedParticle *pReconstructedParticle = pVertex->getAssociatedParticle();
-                    const EVENT::TrackVec &trackVec(pReconstructedParticle->getTracks());
-
-                    if (this->IsConflictingRelationship(trackVec))
-                        continue;
+                    if (this->IsConflictingRelationship(pReconstructedParticle))continue;
 
                     // Extract the prong/split vertex information
-                    for (unsigned int iTrack = 0, nTracks = trackVec.size(); iTrack < nTracks; ++iTrack)
+                    for (unsigned int iTrack = 0, nTracks = pReconstructedParticle.tracks_size(); iTrack < nTracks; ++iTrack)
                     {
-                        EVENT::Track *pTrack = trackVec[iTrack];
-                        (0 == iTrack) ? m_parentTrackList.insert(pTrack) : m_daughterTrackList.insert(pTrack);
-                        streamlog_out(DEBUG) << "Prong or Split Track " << iTrack << ", nHits " << pTrack->getTrackerHits().size() << std::endl;
+                        edm4hep::ConstTrack pTrack = pReconstructedParticle.getTracks(iTrack);
+                        (0 == iTrack) ? m_parentTrackList.insert(pTrack.id()) : m_daughterTrackList.insert(pTrack.id());
 
-                        if (0 == m_settings.m_shouldFormTrackRelationships)
-                            continue;
+                        if (0 == m_settings.m_shouldFormTrackRelationships) continue;
 
                         // Make track parent-daughter relationships
                         if (0 == iTrack)
                         {
                             for (unsigned int jTrack = iTrack + 1; jTrack < nTracks; ++jTrack)
                             {
-                                PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetTrackParentDaughterRelationship(*m_pPandora,
-                                    pTrack, trackVec[jTrack]));
+                                PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetTrackParentDaughterRelationship(*m_pPandora, GetTrackAddress(collectionMaps, pTrack), GetTrackAddress(collectionMaps, pReconstructedParticle.getTracks(jTrack) ) ) );
                             }
                         }
 
@@ -330,21 +295,20 @@ pandora::StatusCode TrackCreator::ExtractProngsAndSplits(const EVENT::LCEvent *c
                         {
                             for (unsigned int jTrack = iTrack + 1; jTrack < nTracks; ++jTrack)
                             {
-                                PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetTrackSiblingRelationship(*m_pPandora,
-                                    pTrack, trackVec[jTrack]));
+                                PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetTrackSiblingRelationship(*m_pPandora, GetTrackAddress(collectionMaps, pTrack), GetTrackAddress(collectionMaps, pReconstructedParticle.getTracks(jTrack) ) ) );
                             }
                         }
                     }
                 }
-                catch (EVENT::Exception &exception)
+                catch (...)
                 {
-                    streamlog_out(WARNING) << "Failed to extract prong/split vertex: " << exception.what() << std::endl;
+                    std::cout << "Failed to extract prong/split vertex" <<std::endl;
                 }
             }
         }
-        catch (EVENT::Exception &exception)
+        catch (...)
         {
-            streamlog_out(DEBUG5) << "Failed to extract prong/split vertex collection: " << *iter << ", " << exception.what() << std::endl;
+            std::cout<< "Failed to extract prong/split vertex collection: " << *iter << std::endl;
         }
     }
 
@@ -353,102 +317,92 @@ pandora::StatusCode TrackCreator::ExtractProngsAndSplits(const EVENT::LCEvent *c
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-pandora::StatusCode TrackCreator::ExtractV0s(const EVENT::LCEvent *const pLCEvent)
+pandora::StatusCode TrackCreator::ExtractV0s(const CollectionMaps& collectionMaps)
 {
-    for (StringVector::const_iterator iter = m_settings.m_v0VertexCollections.begin(), iterEnd = m_settings.m_v0VertexCollections.end();
-        iter != iterEnd; ++iter)
+    std::cout<<"start TrackCreator::ExtractV0s:"<<std::endl;
+    for (StringVector::const_iterator iter = m_settings.m_v0VertexCollections.begin(), iterEnd = m_settings.m_v0VertexCollections.end(); iter != iterEnd; ++iter)
     {
+        if(collectionMaps.collectionMap_Vertex.find(*iter) == collectionMaps.collectionMap_Vertex.end()) { std::cout<<"not find "<<(*iter)<<std::endl; continue;}
         try
         {
-            const EVENT::LCCollection *pV0Collection = pLCEvent->getCollection(*iter);
+            const std::vector<edm4hep::Vertex>& pV0Collection = (collectionMaps.collectionMap_Vertex.find(*iter))->second;
 
-            for (int i = 0, iMax = pV0Collection->getNumberOfElements(); i < iMax; ++i)
+            for (int i = 0, iMax = pV0Collection.size(); i < iMax; ++i)
             {
                 try
                 {
-                    EVENT::Vertex *pVertex = dynamic_cast<Vertex*>(pV0Collection->getElementAt(i));
+                    const edm4hep::Vertex  pVertex0 = pV0Collection.at(i);
+                    const edm4hep::Vertex* pVertex  = &(pVertex0);
 
-                    if (NULL == pVertex)
-                        throw EVENT::Exception("Collection type mismatch");
+                    if (NULL == pVertex) throw ("Collection type mismatch");
 
-                    EVENT::ReconstructedParticle *pReconstructedParticle = pVertex->getAssociatedParticle();
-                    const EVENT::TrackVec &trackVec(pReconstructedParticle->getTracks());
+                    const edm4hep::ConstReconstructedParticle pReconstructedParticle = pVertex->getAssociatedParticle();
 
-                    if (this->IsConflictingRelationship(trackVec))
-                        continue;
+                    if (this->IsConflictingRelationship(pReconstructedParticle))continue;
 
                     // Extract the v0 vertex information
-                    const int vertexPdgCode(pReconstructedParticle->getType());
+                    const int vertexPdgCode(pReconstructedParticle.getType());
 
-                    for (unsigned int iTrack = 0, nTracks = trackVec.size(); iTrack < nTracks; ++iTrack)
+                    for (unsigned int iTrack = 0, nTracks = pReconstructedParticle.tracks_size(); iTrack < nTracks; ++iTrack)
                     {
-                        EVENT::Track *pTrack = trackVec[iTrack];
-                        m_v0TrackList.insert(pTrack);
-                        streamlog_out(DEBUG) << "V0Track " << iTrack << ", nHits " << pTrack->getTrackerHits().size() << std::endl;
+                        edm4hep::ConstTrack pTrack = pReconstructedParticle.getTracks(iTrack);
+                        m_v0TrackList.insert(pTrack.id());
 
                         int trackPdgCode = pandora::UNKNOWN_PARTICLE_TYPE;
 
                         switch (vertexPdgCode)
                         {
                         case pandora::PHOTON :
-                            (pTrack->getOmega() > 0) ? trackPdgCode = pandora::E_PLUS : trackPdgCode = pandora::E_MINUS;
+                            (pTrack.getTrackStates(0).omega > 0) ? trackPdgCode = pandora::E_PLUS : trackPdgCode = pandora::E_MINUS;
                             break;
                         case pandora::LAMBDA :
-                            (pTrack->getOmega() > 0) ? trackPdgCode = pandora::PROTON : trackPdgCode = pandora::PI_MINUS;
+                            (pTrack.getTrackStates(0).omega > 0) ? trackPdgCode = pandora::PROTON : trackPdgCode = pandora::PI_MINUS;
                             break;
                         case pandora::LAMBDA_BAR :
-                            (pTrack->getOmega() > 0) ? trackPdgCode = pandora::PI_PLUS : trackPdgCode = pandora::PROTON_BAR;
+                            (pTrack.getTrackStates(0).omega > 0) ? trackPdgCode = pandora::PI_PLUS : trackPdgCode = pandora::PROTON_BAR;
                             break;
                         case pandora::K_SHORT :
-                            (pTrack->getOmega() > 0) ? trackPdgCode = pandora::PI_PLUS : trackPdgCode = pandora::PI_MINUS;
+                            (pTrack.getTrackStates(0).omega > 0) ? trackPdgCode = pandora::PI_PLUS : trackPdgCode = pandora::PI_MINUS;
                             break;
                         default :
-                            (pTrack->getOmega() > 0) ? trackPdgCode = pandora::PI_PLUS : trackPdgCode = pandora::PI_MINUS;
+                            (pTrack.getTrackStates(0).omega > 0) ? trackPdgCode = pandora::PI_PLUS : trackPdgCode = pandora::PI_MINUS;
                             break;
                         }
 
                         m_trackToPidMap.insert(TrackToPidMap::value_type(pTrack, trackPdgCode));
 
-                        if (0 == m_settings.m_shouldFormTrackRelationships)
-                            continue;
+                        if (0 == m_settings.m_shouldFormTrackRelationships) continue;
 
                         // Make track sibling relationships
                         for (unsigned int jTrack = iTrack + 1; jTrack < nTracks; ++jTrack)
                         {
-                            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetTrackSiblingRelationship(*m_pPandora,
-                                pTrack, trackVec[jTrack]));
+                            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetTrackSiblingRelationship(*m_pPandora, GetTrackAddress(collectionMaps, pTrack), GetTrackAddress(collectionMaps, pReconstructedParticle.getTracks(jTrack) ) ) );
                         }
                     }
                 }
-                catch (EVENT::Exception &exception)
+                catch (...)
                 {
-                    streamlog_out(WARNING) << "Failed to extract v0 vertex: " << exception.what() << std::endl;
+                    std::cout<< "Failed to extract v0 vertex" << std::endl;
                 }
             }
         }
-        catch (EVENT::Exception &exception)
+        catch (...)
         {
-            streamlog_out(DEBUG5) << "Failed to extract v0 vertex collection: " << *iter << ", " << exception.what() << std::endl;
+            std::cout << "Failed to extract v0 vertex collection: " << *iter << std::endl;
         }
     }
 
     return pandora::STATUS_CODE_SUCCESS;
 }
-*/
 //------------------------------------------------------------------------------------------------------------------------------------------
 
 bool TrackCreator::IsConflictingRelationship(const edm4hep::ConstReconstructedParticle &Particle) const
 {
-    //for (unsigned int iTrack = 0, nTracks = trackVec.size(); iTrack < nTracks; ++iTrack)
-    //for (unsigned int iTrack = 0, nTracks = trackVec.tracks_size(); iTrack < nTracks; ++iTrack)
-    std::cout<<"Particle en="<<Particle.getEnergy()<<std::endl;
     for (unsigned int iTrack = 0, nTracks = Particle.tracks_size(); iTrack < nTracks; ++iTrack)
     {
-        //EVENT::Track *pTrack = trackVec[iTrack];
         edm4hep::ConstTrack pTrack = Particle.getTracks(iTrack) ;
         unsigned int pTrack_id = pTrack.id() ;
 
-        //if (this->IsDaughter(pTrack) || this->IsParent(pTrack) || this->IsV0(pTrack))
         if (this->IsDaughter(pTrack_id) || this->IsParent(pTrack_id) || this->IsV0(pTrack_id))
             return true;
     }
@@ -456,6 +410,20 @@ bool TrackCreator::IsConflictingRelationship(const edm4hep::ConstReconstructedPa
     return false;
 }
 
+const edm4hep::Track* TrackCreator::GetTrackAddress(const CollectionMaps& collectionMaps, const edm4hep::ConstTrack& pTrack )
+{
+    for (StringVector::const_iterator iter = m_settings.m_trackCollections.begin(), iterEnd = m_settings.m_trackCollections.end(); iter != iterEnd; ++iter)
+    {
+        if(collectionMaps.collectionMap_Track.find(*iter) == collectionMaps.collectionMap_Track.end()) { std::cout<<"not find "<<(*iter)<<std::endl; continue;}
+        const std::vector<edm4hep::Track>& pTrackCollection = (collectionMaps.collectionMap_Track.find(*iter))->second;
+        for (int i = 0, iMax = pTrackCollection.size(); i < iMax; ++i)
+        {
+            const edm4hep::Track& pTrack0 = pTrackCollection.at(i);
+            if (pTrack.id() == pTrack0.id()) return (const edm4hep::Track*) (&pTrack0);
+        }
+    }
+    return NULL;
+}
 //------------------------------------------------------------------------------------------------------------------------------------------
 
 pandora::StatusCode TrackCreator::CreateTracks(const CollectionMaps& collectionMaps)
@@ -480,8 +448,6 @@ pandora::StatusCode TrackCreator::CreateTracks(const CollectionMaps& collectionM
                     if (NULL == pTrack) throw ("Collection type mismatch");
 
                     int minTrackHits = m_settings.m_minTrackHits;
-                    //const float tanLambda(std::fabs(pTrack->getTanLambda()));
-                    //std::cout<<"track states size="<<pTrack->trackStates_size()<<std::endl;
                     const float tanLambda(std::fabs(pTrack->getTrackStates(0).tanLambda));
 
                     if (tanLambda > m_tanLambdaFtd)
@@ -507,9 +473,7 @@ pandora::StatusCode TrackCreator::CreateTracks(const CollectionMaps& collectionM
 
                     // Proceed to create the pandora track
                     PandoraApi::Track::Parameters trackParameters;
-                    //trackParameters.m_d0 = pTrack->getD0();
                     trackParameters.m_d0 = pTrack->getTrackStates(0).D0;
-                    //trackParameters.m_z0 = pTrack->getZ0();
                     trackParameters.m_z0 = pTrack->getTrackStates(0).Z0;
                     trackParameters.m_pParentAddress = pTrack;
                     // By default, assume tracks are charged pions
@@ -559,31 +523,21 @@ pandora::StatusCode TrackCreator::CreateTracks(const CollectionMaps& collectionM
 
 void TrackCreator::GetTrackStates(const edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const
 {
-    //const TrackState *pTrackState = pTrack->getTrackState(TrackState::AtIP);
     edm4hep::TrackState pTrackState = pTrack->getTrackStates(1); // ref  /cvmfs/cepcsw.ihep.ac.cn/prototype/LCIO/include/EVENT/TrackState.h 
 
-    //if (!pTrackState)  throw pandora::StatusCodeException(pandora::STATUS_CODE_NOT_INITIALIZED);
 
-    //const double pt(m_bField * 2.99792e-4 / std::fabs(pTrackState->getOmega()));
     const double pt(m_bField * 2.99792e-4 / std::fabs(pTrackState.omega));
-    //trackParameters.m_momentumAtDca = pandora::CartesianVector(std::cos(pTrackState->getPhi()), std::sin(pTrackState->getPhi()), pTrackState->getTanLambda()) * pt;
     trackParameters.m_momentumAtDca = pandora::CartesianVector(std::cos(pTrackState.phi), std::sin(pTrackState.phi), pTrackState.tanLambda) * pt;
-    //this->CopyTrackState(pTrack->getTrackState(TrackState::AtFirstHit), trackParameters.m_trackStateAtStart);
     this->CopyTrackState(pTrack->getTrackStates(2), trackParameters.m_trackStateAtStart);
 
-    //fg: curling TPC tracks have pointers to track segments stored -> need to get track states from last segment!
-    //const EVENT::Track *pEndTrack = (pTrack->getTracks().empty() ?  pTrack  :  pTrack->getTracks().back());
     auto pEndTrack = (pTrack->tracks_size() ==0 ) ?  *pTrack  :  pTrack->getTracks(pTrack->tracks_size()-1);
 
-    //std::cout<<"GetTrackStates 1.6"<<", end track trackStates_size()="<<pEndTrack.trackStates_size()<<std::endl;
     
-    //this->CopyTrackState(pEndTrack->getTrackState(TrackState::AtLastHit), trackParameters.m_trackStateAtEnd);
-    //this->CopyTrackState(pEndTrack->getTrackState(TrackState::AtCalorimeter), trackParameters.m_trackStateAtCalorimeter);
     
     this->CopyTrackState(pEndTrack.getTrackStates(3), trackParameters.m_trackStateAtEnd);
-    //this->CopyTrackState(pEndTrack.getTrackStates(4), trackParameters.m_trackStateAtCalorimeter);
     //FIXME ? LCIO input only has 4 states, so 4 can't be used.
-    this->CopyTrackState(pEndTrack.getTrackStates(3), trackParameters.m_trackStateAtCalorimeter);
+    if( pEndTrack.trackStates_size()<5) this->CopyTrackState(pEndTrack.getTrackStates(3), trackParameters.m_trackStateAtCalorimeter);
+    else  this->CopyTrackState(pEndTrack.getTrackStates(4), trackParameters.m_trackStateAtCalorimeter);
     
     
     trackParameters.m_isProjectedToEndCap = ((std::fabs(trackParameters.m_trackStateAtCalorimeter.Get().GetPosition().GetZ()) < m_eCalEndCapInnerZ) ? false : true);
@@ -599,7 +553,6 @@ void TrackCreator::GetTrackStates(const edm4hep::Track *const pTrack, PandoraApi
 
 float TrackCreator::CalculateTrackTimeAtCalorimeter(const edm4hep::Track *const pTrack) const
 {
-    //const pandora::Helix helix(pTrack->getPhi(), pTrack->getD0(), pTrack->getZ0(), pTrack->getOmega(), pTrack->getTanLambda(), m_bField);
     const pandora::Helix helix(pTrack->getTrackStates(0).phi, pTrack->getTrackStates(0).D0, pTrack->getTrackStates(0).Z0, pTrack->getTrackStates(0).omega, pTrack->getTrackStates(0).tanLambda, m_bField);
     const pandora::CartesianVector &referencePoint(helix.GetReferencePoint());
 
@@ -655,15 +608,10 @@ float TrackCreator::CalculateTrackTimeAtCalorimeter(const edm4hep::Track *const 
 
 void TrackCreator::CopyTrackState(const edm4hep::TrackState & pTrackState, pandora::InputTrackState &inputTrackState) const
 {
-    //if (!pTrackState)  throw pandora::StatusCodeException(pandora::STATUS_CODE_NOT_INITIALIZED);
-    //const double pt(m_bField * 2.99792e-4 / std::fabs(pTrackState->getOmega()));
     const double pt(m_bField * 2.99792e-4 / std::fabs(pTrackState.omega));
 
-    //const double px(pt * std::cos(pTrackState->getPhi()));
     const double px(pt * std::cos(pTrackState.phi));
-    //const double py(pt * std::sin(pTrackState->getPhi()));
     const double py(pt * std::sin(pTrackState.phi));
-    //const double pz(pt * pTrackState->getTanLambda());
     const double pz(pt * pTrackState.tanLambda);
 
     const double xs(pTrackState.referencePoint[0]);
@@ -713,7 +661,6 @@ void TrackCreator::TrackReachesECAL(const edm4hep::Track *const pTrack, PandoraA
                 (std::fabs(z) - m_settings.m_reachesECalFtdZMaxDistance < m_ftdZPositions[j]) &&
                 (std::fabs(z) + m_settings.m_reachesECalFtdZMaxDistance > m_ftdZPositions[j]))
             {
-                //if (static_cast<int>(j) > maxOccupiedFtdLayer) maxOccupiedFtdLayer = static_cast<int>(j);
                 if ( j > maxOccupiedFtdLayer) maxOccupiedFtdLayer = j;
                 break;
             }
@@ -765,19 +712,14 @@ void TrackCreator::DefineTrackPfoUsage(const edm4hep::Track *const pTrack, Pando
     bool canFormPfo(false);
     bool canFormClusterlessPfo(false);
 
-    //if (trackParameters.m_reachesCalorimeter.Get() && !this->IsParent(pTrack))
     if (trackParameters.m_reachesCalorimeter.Get() && !this->IsParent(pTrack->id()))
     {
-        //const float d0(std::fabs(pTrack->getD0())), z0(std::fabs(pTrack->getZ0()));
         const float d0(std::fabs(pTrack->getTrackStates(0).D0)), z0(std::fabs(pTrack->getTrackStates(0).Z0));
 
-        //EVENT::TrackerHitVec trackerHitvec(pTrack->getTrackerHits());
         float rInner(std::numeric_limits<float>::max()), zMin(std::numeric_limits<float>::max());
 
-        //for (EVENT::TrackerHitVec::const_iterator iter = trackerHitvec.begin(), iterEnd = trackerHitvec.end(); iter != iterEnd; ++iter)
         for (std::vector<edm4hep::ConstTrackerHit>::const_iterator iter = pTrack->trackerHits_begin(), iterEnd = pTrack->trackerHits_end(); iter != iterEnd; ++iter)
         {
-            //const double *pPosition((*iter)->getPosition());
             const edm4hep::Vector3d pPosition = (*iter).getPosition(); 
             const float x(pPosition[0]), y(pPosition[1]), absoluteZ(std::fabs(pPosition[2]));
             const float r(std::sqrt(x * x + y * y));
@@ -855,7 +797,6 @@ bool TrackCreator::PassesQualityCuts(const edm4hep::Track *const pTrack, const P
     if (trackParameters.m_trackStateAtCalorimeter.Get().GetPosition().GetMagnitude() < m_settings.m_minTrackECalDistanceFromIp)
         return false;
 
-    //if (std::fabs(pTrack->getOmega()) < std::numeric_limits<float>::epsilon())
     if (std::fabs(pTrack->getTrackStates(0).omega) < std::numeric_limits<float>::epsilon())
     {
         std::cout<<"ERROR Track has Omega = 0 " << std::endl;
@@ -864,7 +805,6 @@ bool TrackCreator::PassesQualityCuts(const edm4hep::Track *const pTrack, const P
 
     // Check momentum uncertainty is reasonable to use track
     const pandora::CartesianVector &momentumAtDca(trackParameters.m_momentumAtDca.Get());
-    //const float sigmaPOverP(std::sqrt(pTrack->getCovMatrix()[5]) / std::fabs(pTrack->getOmega()));
     const float sigmaPOverP(std::sqrt(pTrack->getTrackStates(0).covMatrix[5]) / std::fabs(pTrack->getTrackStates(0).omega));
 
     if (sigmaPOverP > m_settings.m_maxTrackSigmaPOverP)
@@ -930,12 +870,6 @@ bool TrackCreator::PassesQualityCuts(const edm4hep::Track *const pTrack, const P
 
 int TrackCreator::GetNTpcHits(const edm4hep::Track *const pTrack) const
 {
-    // ATTN
-    //fg: hit numbers are now given in different order wrt LOI:  
-    // trk->subdetectorHitNumbers()[ 2 * ILDDetID::TPC - 1 ] =  hitsInFit ;  
-    // trk->subdetectorHitNumbers()[ 2 * ILDDetID::TPC - 2 ] =  hitCount ;  
-    // ---- use hitsInFit :
-    //return pTrack->getSubdetectorHitNumbers()[ 2 * lcio::ILDDetID::TPC - 1 ];
     return pTrack->getSubDetectorHitNumbers(2 * lcio::ILDDetID::TPC - 1);// still use LCIO code now
 }
 
@@ -943,12 +877,6 @@ int TrackCreator::GetNTpcHits(const edm4hep::Track *const pTrack) const
 
 int TrackCreator::GetNFtdHits(const edm4hep::Track *const pTrack) const
 {
-    // ATTN
-    //fg: hit numbers are now given in different order wrt LOI:  
-    // trk->subdetectorHitNumbers()[ 2 * ILDDetID::TPC - 1 ] =  hitsInFit ;  
-    // trk->subdetectorHitNumbers()[ 2 * ILDDetID::TPC - 2 ] =  hitCount ;  
-    // ---- use hitsInFit :
-    //return pTrack->getSubdetectorHitNumbers()[ 2 * lcio::ILDDetID::FTD - 1 ];
     return pTrack->getSubDetectorHitNumbers( 2 * lcio::ILDDetID::FTD - 1 );
 }
 

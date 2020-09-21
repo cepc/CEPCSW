@@ -1,5 +1,4 @@
 /**
- *  @file   MarlinPandora/src/CaloHitCreator.cc
  * 
  *  @brief  Implementation of the calo hit creator class.
  * 
@@ -69,12 +68,6 @@ CaloHitCreator::CaloHitCreator(const Settings &settings, const pandora::Pandora 
     dd4hep::rec::LayeredCalorimeterData* Data = detElement.extension<dd4hep::rec::LayeredCalorimeterData>() ;
     if(!Data) throw "Failed to get LayeredCalorimeterData ...";
     m_cellIDConverter = new dd4hep::rec::CellIDPositionConverter(*m_dd4hep);
-    /*
-    m_compact = "/junofs/users/wxfang/MyGit/lcg97/UsingK4FWCore/0514/CEPCSW/Detector/DetEcalMatrix/compact/det.xml";
-    dd4hep::Detector& description = dd4hep::Detector::getInstance();
-    description.fromCompact( m_compact );
-    m_cellIDConverter = new dd4hep::rec::CellIDPositionConverter(description);
-    */
 
     m_eCalBarrelOuterZ        = Data->extent[3];
     m_eCalBarrelInnerPhi0     = Data->inner_phi0;
@@ -202,14 +195,7 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
 
                     PandoraApi::CaloHit::Parameters caloHitParameters;
                     caloHitParameters.m_hitType = pandora::ECAL;
-                    caloHitParameters.m_isDigital = false;//FIXME, maybe this means the MIP thershold cut haven't be applied yet ?
-                    /* 
-                    dd4hep::Position position = m_cellIDConverter->position(pCaloHit->getCellID());
-                    long id_sys,id_x,id_y,id_z ;
-                    GetCoding(pCaloHit, id_sys, id_x, id_y, id_z);
-                    std::cout << "ECAL id =" << pCaloHit->getCellID()<<",sys="<<id_sys<<",x="<<id_x<<",y="<<id_y<<",z="<<id_z << std::endl;
-                    std::cout << "ECAL id =" << pCaloHit->getCellID()<<",x="<<position.x()<<",y="<<position.y()<<",z="<<position.z() << std::endl;
-                    */
+                    caloHitParameters.m_isDigital = false;
                     caloHitParameters.m_isInOuterSamplingLayer = false;
                     this->GetCommonCaloHitProperties(pCaloHit, caloHitParameters);
 
@@ -224,7 +210,7 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
                     }
                     else
                     { // will not be used for ECAL Matrix
-                        caloHitParameters.m_layer = cellIdDecoder(pCaloHit)[layerCoding.c_str()] + 1;//FIXME, should use + 1? because the decoded layer is start from 0.
+                        caloHitParameters.m_layer = cellIdDecoder(pCaloHit)[layerCoding.c_str()] + 1;
                         this->GetEndCapCaloHitProperties(pCaloHit, endcapLayerLayout, caloHitParameters, absorberCorrection);
                         caloHitParameters.m_hadronicEnergy = eCalToHadGeVEndCap * pCaloHit->getEnergy();
                     }

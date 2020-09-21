@@ -193,7 +193,7 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
                     }
 
                     //caloHitParameters.m_mipEquivalentEnergy = pCaloHit->getEnergy() * eCalToMip * absorberCorrection;
-                    caloHitParameters.m_mipEquivalentEnergy = pCaloHit->getEnergy() * eCalToMip;//FIXME. is absorberCorrection it needed for digi input
+                    caloHitParameters.m_mipEquivalentEnergy = pCaloHit->getEnergy() * eCalToMip;//is absorberCorrection it needed for digi input, also the m_mipEquivalentEnergy seems is not used in alg
 
                     if (caloHitParameters.m_mipEquivalentEnergy.Get() < eCalMipThreshold)
                         continue;
@@ -266,7 +266,7 @@ pandora::StatusCode CaloHitCreator::CreateHCalCaloHits(const CollectionMaps& col
 
                     PandoraApi::CaloHit::Parameters caloHitParameters;
                     caloHitParameters.m_hitType = pandora::HCAL;
-                    caloHitParameters.m_isDigital = false;
+                    caloHitParameters.m_isDigital = false;// if it is DHCAL or AHCAL
                     caloHitParameters.m_layer = cellIdDecoder(pCaloHit)[layerCoding.c_str()];
                     caloHitParameters.m_isInOuterSamplingLayer = (this->GetNLayersFromEdge(pCaloHit) <= m_settings.m_nOuterSamplingLayers);
                     this->GetCommonCaloHitProperties(pCaloHit, caloHitParameters);
