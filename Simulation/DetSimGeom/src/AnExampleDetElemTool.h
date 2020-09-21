@@ -33,6 +33,7 @@ private:
 
     SmartIF<IGeoSvc> m_geosvc;
     ToolHandle<ISensDetTool> m_calo_sdtool;
+    ToolHandle<ISensDetTool> m_driftchamber_sdtool;
 };
 
 #endif
