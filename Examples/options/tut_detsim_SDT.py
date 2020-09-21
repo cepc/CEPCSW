@@ -139,6 +139,10 @@ if dedxoption == "DummyDedxSimTool":
     dedx_simtool = DummyDedxSimTool("DummyDedxSimTool")
 elif dedxoption == "BetheBlochEquationDedxSimTool":
     dedx_simtool = BetheBlochEquationDedxSimTool("BetheBlochEquationDedxSimTool")
+    dedx_simtool.material_Z = 2
+    dedx_simtool.material_A = 4
+    dedx_simtool.scale = 10
+    dedx_simtool.resolution = 0.0001
 
 ##############################################################################
 # POD I/O

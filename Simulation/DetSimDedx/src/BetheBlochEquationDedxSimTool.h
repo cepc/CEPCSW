@@ -3,7 +3,6 @@
 
 #include "DetSimInterface/IDedxSimTool.h"
 #include <GaudiKernel/AlgTool.h>
-#include <random>
 
 class BetheBlochEquationDedxSimTool: public extends<AlgTool, IDedxSimTool> {
     public:
@@ -23,9 +22,6 @@ class BetheBlochEquationDedxSimTool: public extends<AlgTool, IDedxSimTool> {
         float m_me;// Here me is the electron rest mass
         float m_K; // K was set as a constant.
         float m_I; // Mean excitation energy
-
-        std::default_random_engine m_generator;
-        std::normal_distribution<double>* m_distribution;
 };
 
 #endif
