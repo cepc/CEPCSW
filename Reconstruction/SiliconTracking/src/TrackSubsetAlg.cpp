@@ -206,7 +206,7 @@ StatusCode TrackSubsetAlg::execute(){
     edm4hep::Track* track = accepted[i];
     
     std::vector<edm4hep::ConstTrackerHit> trackerHitsObj;
-    std::vector<edm4hep::TrackerHit*> trackerHits;
+    std::vector<edm4hep::ConstTrackerHit> trackerHits;
     std::copy(track->trackerHits_begin(), track->trackerHits_end(), std::back_inserter(trackerHitsObj));
 
     for(unsigned i=0; i<trackerHitsObj.size(); i++){
@@ -225,12 +225,12 @@ StatusCode TrackSubsetAlg::execute(){
     covMatrix[9]  = ( _initialTrackError_z0    ); //sigma_z0^2
     covMatrix[14] = ( _initialTrackError_tanL  ); //sigma_tanl^2
     
-    std::vector< std::pair<float, edm4hep::TrackerHit*> > r2_values;
+    std::vector< std::pair<float, edm4hep::ConstTrackerHit> > r2_values;
     r2_values.reserve(trackerHits.size());
     
-    for (std::vector<edm4hep::TrackerHit*>::iterator it=trackerHits.begin(); it!=trackerHits.end(); ++it) {
-      edm4hep::TrackerHit* h = *it;
-      float r2 = h->getPosition()[0]*h->getPosition()[0]+h->getPosition()[1]*h->getPosition()[1];
+    for (std::vector<edm4hep::ConstTrackerHit>::iterator it=trackerHits.begin(); it!=trackerHits.end(); ++it) {
+      edm4hep::ConstTrackerHit h = *it;
+      float r2 = h.getPosition()[0]*h.getPosition()[0]+h.getPosition()[1]*h.getPosition()[1];
       r2_values.push_back(std::make_pair(r2, *it));
     }
     
@@ -239,7 +239,7 @@ StatusCode TrackSubsetAlg::execute(){
     trackerHits.clear();
     trackerHits.reserve(r2_values.size());
     
-    for (std::vector< std::pair<float, edm4hep::TrackerHit*> >::iterator it=r2_values.begin(); it!=r2_values.end(); ++it) {
+    for (std::vector< std::pair<float, edm4hep::ConstTrackerHit> >::iterator it=r2_values.begin(); it!=r2_values.end(); ++it) {
       trackerHits.push_back(it->second);
     }
 
@@ -264,9 +264,9 @@ StatusCode TrackSubsetAlg::execute(){
     
     // Add hit numbers 
     
-    std::vector<std::pair<edm4hep::TrackerHit* , double> > hits_in_fit ;
-    std::vector<std::pair<edm4hep::TrackerHit* , double> > outliers ;
-    std::vector<edm4hep::TrackerHit*> all_hits;
+    std::vector<std::pair<edm4hep::ConstTrackerHit , double> > hits_in_fit ;
+    std::vector<std::pair<edm4hep::ConstTrackerHit , double> > outliers ;
+    std::vector<edm4hep::ConstTrackerHit> all_hits;
     all_hits.reserve(300);
     
     marlinTrk->getHitsInFit(hits_in_fit);

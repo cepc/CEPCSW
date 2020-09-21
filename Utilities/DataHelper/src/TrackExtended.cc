@@ -11,7 +11,7 @@ TrackExtended::TrackExtended( ) {
     _group = NULL;
 }
 
-TrackExtended::TrackExtended( Track * track) {
+TrackExtended::TrackExtended(ConstTrack track) {
     _track = track;
     _superCluster = NULL;
     _trackerHitVector.clear();
@@ -32,7 +32,7 @@ TrackExtended::TrackExtended( TrackerHitExtended * trackerhit) {
 
 TrackExtended::~TrackExtended() {}
 
-Track * TrackExtended::getTrack() {
+ConstTrack TrackExtended::getTrack() {
     return _track;
 }
 

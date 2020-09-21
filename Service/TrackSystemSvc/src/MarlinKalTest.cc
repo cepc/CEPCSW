@@ -418,11 +418,11 @@ namespace MarlinTrk{
     return ml_retval;
   }
   
-  const ILDVMeasLayer* MarlinKalTest::findMeasLayer( edm4hep::TrackerHit* trkhit) const {
+  const ILDVMeasLayer* MarlinKalTest::findMeasLayer( edm4hep::ConstTrackerHit trkhit) const {
     
-    const TVector3 hit_pos( trkhit->getPosition()[0], trkhit->getPosition()[1], trkhit->getPosition()[2]) ;
+    const TVector3 hit_pos( trkhit.getPosition()[0], trkhit.getPosition()[1], trkhit.getPosition()[2]) ;
     
-    return this->findMeasLayer( trkhit->getCellID(), hit_pos ) ;
+    return this->findMeasLayer( trkhit.getCellID(), hit_pos ) ;
     
   }
   

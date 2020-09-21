@@ -22,7 +22,7 @@ public:
                Double_t       *x,
                Double_t       *dx,
                Double_t        bfield,
-               edm4hep::TrackerHit* trkhit) 
+               edm4hep::ConstTrackerHit trkhit) 
   : ILDVTrackHit(ms, x, dx, bfield, ILDPlanarStripHit_DIM,trkhit)
   { /* no op */ } 
   

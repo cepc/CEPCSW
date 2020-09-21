@@ -33,13 +33,13 @@ void Fitter::init_BField(){
 
 }
 
-bool compare_TrackerHit_z( edm4hep::TrackerHit* a, edm4hep::TrackerHit* b ){
-  return ( fabs(a->getPosition()[2]) < fabs( b->getPosition()[2]) ); //compare their z values
+bool compare_TrackerHit_z( edm4hep::ConstTrackerHit a, edm4hep::ConstTrackerHit b ){
+  return ( fabs(a.getPosition()[2]) < fabs( b.getPosition()[2]) ); //compare their z values
 }
 
-bool compare_TrackerHit_R( edm4hep::TrackerHit* a, edm4hep::TrackerHit* b ){
-  double Rad_a2 = (a->getPosition()[0]*a->getPosition()[0]) + (a->getPosition()[1]*a->getPosition()[1]) ;
-  double Rad_b2 = (b->getPosition()[0]*b->getPosition()[0]) + (b->getPosition()[1]*b->getPosition()[1]) ;
+bool compare_TrackerHit_R( edm4hep::ConstTrackerHit a, edm4hep::ConstTrackerHit b ){
+  double Rad_a2 = (a.getPosition()[0]*a.getPosition()[0]) + (a.getPosition()[1]*a.getPosition()[1]) ;
+  double Rad_b2 = (b.getPosition()[0]*b.getPosition()[0]) + (b.getPosition()[1]*b.getPosition()[1]) ;
   
   return ( Rad_a2 < Rad_b2 ); //compare their radii
 }
@@ -84,21 +84,21 @@ void Fitter::fitVXD(){
      
   unsigned number_of_added_hits = 0;
   unsigned ndof_added = 0;
-  std::vector< edm4hep::TrackerHit* > added_hits;
-  std::vector< edm4hep::TrackerHit* > added_hits_2D;
+  std::vector< edm4hep::ConstTrackerHit > added_hits;
+  std::vector< edm4hep::ConstTrackerHit > added_hits_2D;
   
   for( it = _trackerHits.begin() ; it != _trackerHits.end() ; ++it ) {
-    edm4hep::TrackerHit* trkHit = Navigation::Instance()->GetTrackerHit((*it).getObjectID());
+    edm4hep::ConstTrackerHit trkHit = Navigation::Instance()->GetTrackerHit((*it).getObjectID());
     bool isSuccessful = false; 
     
-    if( UTIL::BitSet32( trkHit->getType() )[ UTIL::ILDTrkHitTypeBit::COMPOSITE_SPACEPOINT ]   ){ //it is a composite spacepoint
+    if( UTIL::BitSet32( trkHit.getType() )[ UTIL::ILDTrkHitTypeBit::COMPOSITE_SPACEPOINT ]   ){ //it is a composite spacepoint
       //Split it up and hits to the MarlinTrk
-      std::vector< edm4hep::TrackerHit* > rawHits;
-      //const LCObjectVec rawObjects = trkHit->getRawHits();
-      //for( unsigned k=0; k<rawObjects.size(); k++ ) rawHits.push_back( dynamic_cast< TrackerHit* >( rawObjects[k] ) );
-      int nRawHit = trkHit->rawHits_size();
+      std::vector< edm4hep::ConstTrackerHit > rawHits;
+      //const LCObjectVec rawObjects = trkHit.getRawHits();
+      //for( unsigned k=0; k<rawObjects.size(); k++ ) rawHits.push_back( dynamic_cast< ConstTrackerHit >( rawObjects[k] ) );
+      int nRawHit = trkHit.rawHits_size();
       for( unsigned k=0; k< nRawHit; k++ ){
-	edm4hep::TrackerHit* rawHit = Navigation::Instance()->GetTrackerHit(trkHit->getRawHits(k));
+	edm4hep::ConstTrackerHit rawHit = Navigation::Instance()->GetTrackerHit(trkHit.getRawHits(k));
 	rawHits.push_back(rawHit);
       }
       std::sort( rawHits.begin(), rawHits.end(), compare_TrackerHit_R );
@@ -142,7 +142,7 @@ void Fitter::fitVXD(){
   
   for (unsigned ihit=0; ihit <added_hits.size(); ++ihit) {
     // check if this a space point or 2D hit 
-    if(UTIL::BitSet32( added_hits[ihit]->getType() )[ UTIL::ILDTrkHitTypeBit::ONE_DIMENSIONAL ] == false ){
+    if(UTIL::BitSet32( added_hits[ihit].getType() )[ UTIL::ILDTrkHitTypeBit::ONE_DIMENSIONAL ] == false ){
       // then add to the list 
       added_hits_2D.push_back(added_hits[ihit]);
       
@@ -151,9 +151,9 @@ void Fitter::fitVXD(){
   
   // initialise with space-points not strips 
   // make a helix from 3 hits to get a trackstate
-  const edm4hep::Vector3d x1 = added_hits_2D[0]->getPosition();
-  const edm4hep::Vector3d x2 = added_hits_2D[ added_hits_2D.size()/2 ]->getPosition();
-  const edm4hep::Vector3d x3 = added_hits_2D.back()->getPosition();   
+  const edm4hep::Vector3d x1 = added_hits_2D[0].getPosition();
+  const edm4hep::Vector3d x2 = added_hits_2D[ added_hits_2D.size()/2 ].getPosition();
+  const edm4hep::Vector3d x3 = added_hits_2D.back().getPosition();   
   
   init_BField();
   HelixTrack helixTrack( x1, x2, x3, _bField, HelixTrack::forwards );
@@ -223,7 +223,7 @@ void Fitter::fitVXD(){
   
   // fitting finished get hits in the fit for safety checks:
   
-  std::vector<std::pair<edm4hep::TrackerHit*, double> > hits_in_fit;
+  std::vector<std::pair<edm4hep::ConstTrackerHit, double> > hits_in_fit;
   
   // remember the hits are ordered in the order in which they were fitted
   // here we are fitting inwards so the first is the last and vice verse
@@ -240,14 +240,14 @@ void Fitter::fitVXD(){
     throw FitterException( s.str() );
     
   }
-  edm4hep::TrackerHit* first_hit_in_fit = hits_in_fit.back().first;
-  if (!first_hit_in_fit) {
+  edm4hep::ConstTrackerHit first_hit_in_fit = hits_in_fit.back().first;
+  if (! first_hit_in_fit.isAvailable()) {
     throw FitterException( std::string("Fitter::fit(): TrackerHit pointer to first hit == NULL ")  ) ;
   }
   
   
-  edm4hep::TrackerHit* last_hit_in_fit = hits_in_fit.front().first;
-  if (!last_hit_in_fit) {
+  edm4hep::ConstTrackerHit last_hit_in_fit = hits_in_fit.front().first;
+  if (!last_hit_in_fit.isAvailable()) {
     throw FitterException( std::string("Fitter::fit(): TrackerHit pointer to last hit == NULL ")  ) ;
   }
   
@@ -275,21 +275,21 @@ void Fitter::fit(){
   
   unsigned number_of_added_hits = 0;
   unsigned ndof_added = 0;
-  std::vector<edm4hep::TrackerHit*> added_hits;
+  std::vector<edm4hep::ConstTrackerHit> added_hits;
   
   for( it = _trackerHits.begin() ; it != _trackerHits.end() ; ++it ) {
-    edm4hep::TrackerHit* trkHit = Navigation::Instance()->GetTrackerHit((*it).getObjectID());
+    edm4hep::ConstTrackerHit trkHit = Navigation::Instance()->GetTrackerHit((*it).getObjectID());
     bool isSuccessful = false; 
-    //std::cout << "Hit " << trkHit->id() << " " << trkHit->getPosition() << std::endl;
-    if( UTIL::BitSet32( trkHit->getType() )[ UTIL::ILDTrkHitTypeBit::COMPOSITE_SPACEPOINT ]   ){ //it is a composite spacepoint
+    //std::cout << "Hit " << trkHit->id() << " " << trkHit.getPosition() << std::endl;
+    if( UTIL::BitSet32( trkHit.getType() )[ UTIL::ILDTrkHitTypeBit::COMPOSITE_SPACEPOINT ]   ){ //it is a composite spacepoint
       //Split it up and hits to the MarlinTrk
-      std::vector<edm4hep::TrackerHit*> rawHits;
-      //const LCObjectVec rawObjects = trkHit->getRawHits();                    
-      //for( unsigned k=0; k<rawObjects.size(); k++ ) rawHits.push_back( dynamic_cast< TrackerHit* >( rawObjects[k] ) );
-      int nRawHit = trkHit->rawHits_size();
+      std::vector<edm4hep::ConstTrackerHit> rawHits;
+      //const LCObjectVec rawObjects = trkHit.getRawHits();                    
+      //for( unsigned k=0; k<rawObjects.size(); k++ ) rawHits.push_back( dynamic_cast< ConstTrackerHit >( rawObjects[k] ) );
+      int nRawHit = trkHit.rawHits_size();
       for( unsigned k=0; k< nRawHit; k++ ){
-	edm4hep::TrackerHit* rawHit = Navigation::Instance()->GetTrackerHit(trkHit->getRawHits(k));
-	//std::cout << "Raw Hit " << rawHit->id() << " " << rawHit->getPosition() << std::endl;
+	edm4hep::ConstTrackerHit rawHit = Navigation::Instance()->GetTrackerHit(trkHit.getRawHits(k));
+	//std::cout << "Raw Hit " << rawHit->id() << " " << rawHit.getPosition() << std::endl;
 	rawHits.push_back(rawHit);
       }
       std::sort( rawHits.begin(), rawHits.end(), compare_TrackerHit_z );
@@ -334,9 +334,9 @@ void Fitter::fit(){
     
   // initialise with space-points not strips 
   // make a helix from 3 hits to get a trackstate
-  const edm4hep::Vector3d x1 = added_hits[0]->getPosition();
-  const edm4hep::Vector3d x2 = added_hits[ added_hits.size()/2 ]->getPosition();
-  const edm4hep::Vector3d x3 = added_hits.back()->getPosition();
+  const edm4hep::Vector3d x1 = added_hits[0].getPosition();
+  const edm4hep::Vector3d x2 = added_hits[ added_hits.size()/2 ].getPosition();
+  const edm4hep::Vector3d x3 = added_hits.back().getPosition();
   
   init_BField();
   HelixTrack helixTrack( x1, x2, x3, _bField, HelixTrack::forwards );
@@ -396,7 +396,7 @@ void Fitter::fit(){
   
   // fitting finished get hits in the fit for safety checks:
   
-  std::vector<std::pair<edm4hep::TrackerHit*, double> > hits_in_fit;
+  std::vector<std::pair<edm4hep::ConstTrackerHit, double> > hits_in_fit;
   
   // remember the hits are ordered in the order in which they were fitted
   // here we are fitting inwards so the first is the last and vice verse
@@ -410,13 +410,13 @@ void Fitter::fit(){
     
     throw FitterException( s.str() );
   }
-  edm4hep::TrackerHit* first_hit_in_fit = hits_in_fit.back().first;
-  if (!first_hit_in_fit) {
+  edm4hep::ConstTrackerHit first_hit_in_fit = hits_in_fit.back().first;
+  if (!first_hit_in_fit.isAvailable()) {
     throw FitterException( std::string("Fitter::fit(): TrackerHit pointer to first hit == NULL ")  ) ;
   }
   
-  edm4hep::TrackerHit* last_hit_in_fit = hits_in_fit.front().first;
-  if (!last_hit_in_fit) {
+  edm4hep::ConstTrackerHit last_hit_in_fit = hits_in_fit.front().first;
+  if (!last_hit_in_fit.isAvailable()) {
     throw FitterException( std::string("Fitter::fit(): TrackerHit pointer to last hit == NULL ")  ) ;
   }
   
@@ -478,13 +478,13 @@ const TrackStatePlus* Fitter::getTrackStatePlus( int trackStateLocation ){
      }
    }
    case 2/*lcio::TrackState::AtFirstHit*/:{
-     std::vector<std::pair<edm4hep::TrackerHit*, double> > hits_in_fit;
+     std::vector<std::pair<edm4hep::ConstTrackerHit, double> > hits_in_fit;
          
      // remember the hits are ordered in the order in which they were fitted
      // here we are fitting inwards so the first is the last and vice verse
      _marlinTrk->getHitsInFit(hits_in_fit);
      
-     edm4hep::TrackerHit* first_hit_in_fit = hits_in_fit.back().first;
+     edm4hep::ConstTrackerHit first_hit_in_fit = hits_in_fit.back().first;
           
      return_code = _marlinTrk->getTrackState(first_hit_in_fit, *trackState, chi2, ndf ) ;
      
@@ -506,10 +506,10 @@ const TrackStatePlus* Fitter::getTrackStatePlus( int trackStateLocation ){
      }
    }
    case 3/*lcio::TrackState::AtLastHit*/:{
-     std::vector<std::pair<edm4hep::TrackerHit*, double> > hits_in_fit;
+     std::vector<std::pair<edm4hep::ConstTrackerHit, double> > hits_in_fit;
      _marlinTrk->getHitsInFit(hits_in_fit);
      
-     edm4hep::TrackerHit* last_hit_in_fit = hits_in_fit.front().first;
+     edm4hep::ConstTrackerHit last_hit_in_fit = hits_in_fit.front().first;
           
      return_code = _marlinTrk->getTrackState(last_hit_in_fit, *trackState, chi2, ndf ) ;
          
@@ -531,10 +531,10 @@ const TrackStatePlus* Fitter::getTrackStatePlus( int trackStateLocation ){
      break;
    }
    case 4/*lcio::TrackState::AtCalorimeter*/:{
-     std::vector<std::pair<edm4hep::TrackerHit*, double> > hits_in_fit;
+     std::vector<std::pair<edm4hep::ConstTrackerHit, double> > hits_in_fit;
      _marlinTrk->getHitsInFit(hits_in_fit);
      
-     edm4hep::TrackerHit* last_hit_in_fit = hits_in_fit.front().first;
+     edm4hep::ConstTrackerHit last_hit_in_fit = hits_in_fit.front().first;
           
      UTIL::BitField64 encoder( UTIL::ILDCellID0::encoder_string ) ; 
      encoder.reset() ;  // reset to 0

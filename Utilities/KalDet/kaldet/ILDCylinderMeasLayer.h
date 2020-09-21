@@ -71,7 +71,7 @@ public:
                                 TKalMatrix &H)    const;
   
   /** Convert LCIO Tracker Hit to an ILDCylinderHit  */
-  virtual ILDVTrackHit* ConvertLCIOTrkHit(edm4hep::TrackerHit* trkhit) const ;
+  virtual ILDVTrackHit* ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const ;
   
   /** Get the intersection and the CellID, needed for multilayers */
   virtual int getIntersectionAndCellID(const TVTrack  &hel,

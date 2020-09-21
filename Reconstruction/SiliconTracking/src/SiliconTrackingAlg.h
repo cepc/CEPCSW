@@ -402,11 +402,11 @@ class SiliconTrackingAlg : public GaudiAlgorithm {
   //  int _createMap;
   
   UTIL::BitField64* _encoder;
-  int getDetectorID(edm4hep::TrackerHit* hit) { _encoder->setValue(hit->getCellID()); return (*_encoder)[lcio::ILDCellID0::subdet]; }
-  int getSideID(edm4hep::TrackerHit* hit)     { _encoder->setValue(hit->getCellID()); return (*_encoder)[lcio::ILDCellID0::side]; };
-  int getLayerID(edm4hep::TrackerHit* hit)    { _encoder->setValue(hit->getCellID()); return (*_encoder)[lcio::ILDCellID0::layer]; };
-  int getModuleID(edm4hep::TrackerHit* hit)   { _encoder->setValue(hit->getCellID()); return (*_encoder)[lcio::ILDCellID0::module]; };
-  int getSensorID(edm4hep::TrackerHit* hit)   { _encoder->setValue(hit->getCellID()); return (*_encoder)[lcio::ILDCellID0::sensor]; };
+  int getDetectorID(edm4hep::ConstTrackerHit hit) { _encoder->setValue(hit.getCellID()); return (*_encoder)[lcio::ILDCellID0::subdet]; }
+  int getSideID(edm4hep::ConstTrackerHit hit)     { _encoder->setValue(hit.getCellID()); return (*_encoder)[lcio::ILDCellID0::side]; };
+  int getLayerID(edm4hep::ConstTrackerHit hit)    { _encoder->setValue(hit.getCellID()); return (*_encoder)[lcio::ILDCellID0::layer]; };
+  int getModuleID(edm4hep::ConstTrackerHit hit)   { _encoder->setValue(hit.getCellID()); return (*_encoder)[lcio::ILDCellID0::module]; };
+  int getSensorID(edm4hep::ConstTrackerHit hit)   { _encoder->setValue(hit.getCellID()); return (*_encoder)[lcio::ILDCellID0::sensor]; };
   
   StatusCode setupGearGeom() ;
   

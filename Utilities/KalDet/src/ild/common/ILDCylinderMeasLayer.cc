@@ -2,6 +2,8 @@
  *
  * @author S.Aplin DESY
  */
+
+
 #include "kaltest/TKalTrack.h" 
 
 #include "ILDCylinderMeasLayer.h"
@@ -108,13 +110,13 @@ void ILDCylinderMeasLayer::CalcDhDa(const TVTrackHit &vht, // tracker hit not us
 
 /** Convert LCIO Tracker Hit to an ILDCylinderHit  */
 
-ILDVTrackHit* ILDCylinderMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit* trkhit) const {
-  if ( ! trkhit) {
+ILDVTrackHit* ILDCylinderMeasLayer::ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const {
+  if ( ! trkhit.isAvailable() ) {
     // streamlog_out(ERROR) << "ILDCylinderMeasLayer::ConvertLCIOTrkHit trkhit pointer is NULL" << std::endl;
     return NULL;
   }
 
-  const edm4hep::Vector3d& pos = trkhit->getPosition();
+  const edm4hep::Vector3d& pos = trkhit.getPosition();
   const TVector3 hit(pos.x, pos.y, pos.z) ;
   //SJA:FIXME: this assumes that the cylinder is centred at 0,0
   
@@ -129,16 +131,16 @@ ILDVTrackHit* ILDCylinderMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit* trkhi
   
   
   //EVENT::TrackerHitZCylinder* cylinder_hit = dynamic_cast<EVENT::TrackerHitZCylinder*>( trkhit ) ;
-  if(trkhit->getType()==16){
+  if(trkhit.getType()==16){
   //if(cylinder_hit){
     // convert errors
-    dx[0] = trkhit->getCovMatrix(0);
-    dx[1] = trkhit->getCovMatrix(1);
+    dx[0] = trkhit.getCovMatrix(0);
+    dx[1] = trkhit.getCovMatrix(1);
   }
   else {
     // convert errors
-    dx[0] = sqrt(trkhit->getCovMatrix(0) + trkhit->getCovMatrix(2)) ;
-    dx[1] = sqrt(trkhit->getCovMatrix(5)); 
+    dx[0] = sqrt(trkhit.getCovMatrix(0) + trkhit.getCovMatrix(2)) ;
+    dx[1] = sqrt(trkhit.getCovMatrix(5)); 
   }
   
     

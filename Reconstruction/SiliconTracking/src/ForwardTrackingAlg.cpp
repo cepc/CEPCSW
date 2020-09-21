@@ -264,7 +264,7 @@ StatusCode ForwardTrackingAlg::execute(){
     for(auto trackerHit : *hitFTDCollections[iCol]){
       edm4hep::ConstTrackerHit hit = trackerHit;
       debug() << "hit " << trackerHit.id() << " " << KiTrackMarlin::getCellID0Info( trackerHit.getCellID() ) 
-	      << " " << KiTrackMarlin::getPositionInfo( &hit )<< endmsg;
+	      << " " << KiTrackMarlin::getPositionInfo( hit )<< endmsg;
          
       //Make an FTDHit01 from the TrackerHit 
       FTDHit01* ftdHit = new FTDHit01 ( trackerHit , _sectorSystemFTD );

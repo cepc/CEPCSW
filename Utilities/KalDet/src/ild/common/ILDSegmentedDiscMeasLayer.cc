@@ -124,13 +124,14 @@ TKalMatrix ILDSegmentedDiscMeasLayer::XvToMv(const TVector3 &xv) const
 //  
 //  
 //  mv(1,0)  = xv.Y() ;
-  /*
-  std::cout << "\t ILDSegmentedDiscMeasLayer::XvToMv: "
-	    << " x = " << xv.X() 
-	    << " y = " << xv.Y() 
-	    << " z = " << xv.Z() 
-	    << std::endl;
-  */
+
+  // streamlog_out(DEBUG0) << "\t ILDSegmentedDiscMeasLayer::XvToMv: "
+  // << " x = " << xv.X() 
+  // << " y = " << xv.Y() 
+  // << " z = " << xv.Z() 
+  // << std::endl;
+
+  
   // coordinate matrix to return
   TKalMatrix mv(ILDPlanarHit_DIM,1);
 
@@ -165,23 +166,24 @@ TKalMatrix ILDSegmentedDiscMeasLayer::XvToMv(const TVector3 &xv) const
   double v =   ( cos_theta * delta_y * cos_phi - cos_theta * delta_x * sin_phi) ; 
   mv(1,0) = v ;
   
-  /*
-  std::cout << "\t ILDSegmentedDiscMeasLayer::XvToMv: phi_sensor = " << phi_sensor << " phi = " << phi << " sign_z = " << sign_z<< std::endl;
   
-  std::cout << "\t ILDSegmentedDiscMeasLayer::XvToMv: "
-	    << " mv(0,0) = " << mv(0,0) 
-	    << " mv(1,0) = " << mv(1,0) 
-	    << std::endl;
-  */
+  // streamlog_out(DEBUG0) << "\t ILDSegmentedDiscMeasLayer::XvToMv: phi_sensor = " << phi_sensor << " phi = " << phi << " sign_z = " << sign_z<< std::endl;
+  
+  // streamlog_out(DEBUG0) << "\t ILDSegmentedDiscMeasLayer::XvToMv: "
+  // << " mv(0,0) = " << mv(0,0) 
+  // << " mv(1,0) = " << mv(1,0) 
+  // << std::endl;
+
   return mv;
   
 }
 
 
-TVector3 ILDSegmentedDiscMeasLayer::HitToXv(const TVTrackHit &vht) const {
+TVector3 ILDSegmentedDiscMeasLayer::HitToXv(const TVTrackHit &vht) const
+{
   
-  //std::cout << "\t ILDSegmentedDiscMeasLayer::HitToXv: "
-  //	    << " vht(0,0) = " << vht(0,0) << " vht(1,0) = " << vht(1,0) << std::endl;
+  // streamlog_out(DEBUG0) << "\t ILDSegmentedDiscMeasLayer::HitToXv: "
+  // << " vht(0,0) = " << vht(0,0) << " vht(1,0) = " << vht(1,0) << std::endl;
   
   const ILDPlanarHit &mv = dynamic_cast<const ILDPlanarHit &>(vht);
     
@@ -191,8 +193,8 @@ TVector3 ILDSegmentedDiscMeasLayer::HitToXv(const TVTrackHit &vht) const {
 //  double z = this->GetXc().Z() ;
 
   UTIL::BitField64 encoder( lcio::ILDCellID0::encoder_string ) ;
-  edm4hep::TrackerHit* hit = mv.getLCIOTrackerHit();
-  encoder.setValue(hit->getCellID());
+  edm4hep::ConstTrackerHit hit = mv.getLCIOTrackerHit();
+  encoder.setValue(hit.getCellID());
   int segmentIndex = encoder[lcio::ILDCellID0::module] / 2 ;
   
   
@@ -223,13 +225,13 @@ TVector3 ILDSegmentedDiscMeasLayer::HitToXv(const TVTrackHit &vht) const {
   double y = delta_y + sensor_y0; 
   
   double z = sensor_z0 ;
-  /*
-  std::cout << "\t ILDSegmentedDiscMeasLayer::HitToXv: "
-	    << " x = " << x 
-	    << " y = " << y 
-	    << " z = " << z 
-	    << std::endl;
-  */
+  
+  // streamlog_out(DEBUG0) << "\t ILDSegmentedDiscMeasLayer::HitToXv: "
+  // << " x = " << x 
+  // << " y = " << y 
+  // << " z = " << z 
+  // << std::endl;
+
   return TVector3(x,y,z);
 
 }
@@ -282,20 +284,21 @@ void ILDSegmentedDiscMeasLayer::CalcDhDa(const TVTrackHit &vht,
   Int_t hdim = TMath::Max(5,sdim-1);
   
   // Set H = (@h/@a) = (@d/@a, @z/@a)^t
-    
+  
+  
   double dudx =   cos_phi;
   double dudy =   sin_phi;
   
   double dvdx =  -cos_theta * sin_phi;
   double dvdy =   cos_theta * cos_phi;
-  /*
-  std::cout << "\t ILDSegmentedDiscMeasLayer::CalcDhDa: "
-	    << " dudx = " << dudx 
-	    << " dudy = " << dudy
-	    << " dvdx = " << dvdx 
-	    << " dvdy = " << dvdy 
-	    << std::endl;
-  */	    
+  
+  // streamlog_out(DEBUG0) << "\t ILDSegmentedDiscMeasLayer::CalcDhDa: "
+  // << " dudx = " << dudx 
+  // << " dudy = " << dudy
+  // << " dvdx = " << dvdx 
+  // << " dvdy = " << dvdy 
+  // << std::endl;
+  
   for (Int_t i=0; i<hdim; i++) {
     
     H(0,i) = dudx * dxphiada(0,i) + dudy * dxphiada(1,i) ;
@@ -308,6 +311,18 @@ void ILDSegmentedDiscMeasLayer::CalcDhDa(const TVTrackHit &vht,
     H(1,sdim-1) = 0.;
 
   }
+  
+ 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 }
 
 
@@ -480,19 +495,16 @@ Bool_t ILDSegmentedDiscMeasLayer::IsOnSurface(const TVector3 &xx) const
 }
 
 
-ILDVTrackHit* ILDSegmentedDiscMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit* trkhit) const {
+ILDVTrackHit* ILDSegmentedDiscMeasLayer::ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const {
   //EVENT::TrackerHitPlane* plane_hit = dynamic_cast<EVENT::TrackerHitPlane*>( trkhit ) ;
+  if(trkhit.getType()!=8) {
   //if( plane_hit == NULL )  { 
     // streamlog_out(ERROR) << "ILDSegmentedDiscMeasLayer::ConvertLCIOTrkHit dynamic_cast to TrackerHitPlane failed " << std::endl; 
-    //return NULL; // SJA:FIXME: should be replaced with an exception  
-  //}
-  if((trkhit->getType()&8)!=8) {
-    std::cout << "ILDSegmentedDiscMeasLayer::ConvertLCIOTrkHit dynamic_cast to ILDPlanarHit failed " << std::endl;
-    throw std::logic_error("Invalid invoke ILDSegmentedDiscMeasLayer by TrackerHit trkhit");
+    return NULL; // SJA:FIXME: should be replaced with an exception  
   }
   
   // remember here the "position" of the hit in fact defines the origin of the plane it defines so u and v are per definition 0. 
-  const edm4hep::Vector3d& pos=trkhit->getPosition();
+  const edm4hep::Vector3d& pos=trkhit.getPosition();
   const TVector3 hit(pos.x, pos.y, pos.z) ;
   
   // convert to layer coordinates       
@@ -506,23 +518,23 @@ ILDVTrackHit* ILDSegmentedDiscMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit* 
   x[0] = h(0, 0);
   x[1] = h(1, 0);
   
-  dx[0] = trkhit->getCovMatrix(2);
-  dx[1] = trkhit->getCovMatrix(5);
+  dx[0] = trkhit.getCovMatrix(2);
+  dx[1] = trkhit.getCovMatrix(5);
   
   bool hit_on_surface = IsOnSurface(hit);
-  /*
-  std::cout << "ILDSegmentedDiscMeasLayer::ConvertLCIOTrkHit: ILDPlanarHit created" 
-	    << " for CellID " << trkhit->getCellID()
-	    << " u = "  <<  x[0]
-	    << " v = "  <<  x[1]
-	    << " du = " << dx[0]
-	    << " dv = " << dx[1]
-	    << " x = "  << pos.x
-	    << " y = "  << pos.y
-	    << " z = "  << pos.z
-	    << " onSurface = " << hit_on_surface
-	    << std::endl ;
-  */
+  
+  // streamlog_out(DEBUG1) << "ILDSegmentedDiscMeasLayer::ConvertLCIOTrkHit: ILDPlanarHit created" 
+  //       		<< " for CellID " << trkhit.getCellID()
+  //       		<< " u = "  <<  x[0]
+  //       		<< " v = "  <<  x[1]
+  //       		<< " du = " << dx[0]
+  //       		<< " dv = " << dx[1]
+  //       		<< " x = "  << pos.x
+  //       		<< " y = "  << pos.y
+  //       		<< " z = "  << pos.z
+  //       		<< " onSurface = " << hit_on_surface
+  //       		<< std::endl ;
+  
   ILDPlanarHit hh( *this , x, dx, this->GetBz(),trkhit);
   
   this->HitToXv(hh);

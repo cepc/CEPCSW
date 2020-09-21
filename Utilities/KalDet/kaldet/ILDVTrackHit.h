@@ -19,15 +19,15 @@ public:
   
    /** Constructor Taking coordinates and associated measurement layer, with bfield and number of measurement dimentions*/
   ILDVTrackHit(const TVMeasLayer &ms, Double_t *x, Double_t *dx, 
-               Double_t bfield , Int_t dim, edm4hep::TrackerHit* trkhit) 
+               Double_t bfield , Int_t dim, edm4hep::ConstTrackerHit trkhit) 
   : TVTrackHit(ms, x, dx, bfield, dim), _trkhit(trkhit)
   { /* no op */ }
   
-  edm4hep::TrackerHit* getLCIOTrackerHit() const { return _trkhit; }
+  edm4hep::ConstTrackerHit getLCIOTrackerHit() const { return _trkhit; }
   
 private:
   
-  edm4hep::TrackerHit* _trkhit;
+  edm4hep::ConstTrackerHit _trkhit;
   
 };
 #endif

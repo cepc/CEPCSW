@@ -1,10 +1,10 @@
 
-#include "LCIOTrackPropagators.h"
+#include "TrackSystemSvc/LCIOTrackPropagators.h"
 
 #include <cmath>
 #include <iostream>
 
-#include "IMPL/TrackStateImpl.h"
+#include "edm4hep/TrackState.h"
 
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/SymMatrix.h"
@@ -15,20 +15,20 @@
 
 namespace LCIOTrackPropagators{
   
-  int PropagateLCIOToNewRef( IMPL::TrackStateImpl& ts, double xref, double yref, double zref ) {
+  int PropagateLCIOToNewRef( edm4hep::TrackState& ts, double xref, double yref, double zref ) {
     
     //    std::cout << "PropagateLCIOToNewRef: x:y:z = " << xref << " : " << yref << " : " << zref << std::endl ;
     
     // Convert Parameters
     
-    const double d0    = ts.getD0() ;
-    const double phi0  = ts.getPhi() ;
-    const double omega = ts.getOmega() ;
-    const double z0    = ts.getZ0() ;
-    const double tanL  = ts.getTanLambda() ;
+    const double d0    = ts.D0 ;
+    const double phi0  = ts.phi ;
+    const double omega = ts.omega ;
+    const double z0    = ts.Z0 ;
+    const double tanL  = ts.tanLambda ;
     
     //   const double charge = omega/fabs(omega) ;
-    const float* ref = ts.getReferencePoint() ;  
+    edm4hep::Vector3f ref = ts.referencePoint ;  
     
     const double radius = 1.0/omega ; 
     
@@ -65,7 +65,7 @@ namespace LCIOTrackPropagators{
       for(int jcol=0; jcol<irow+1; ++jcol){
         //      std::cout << "row = " << irow << " col = " << jcol << std::endl ;
         //      std::cout << "cov["<< icov << "] = " << _cov[icov] << std::endl ;
-        cov0[irow][jcol] = ts.getCovMatrix()[icov] ;
+        cov0[irow][jcol] = ts.covMatrix[icov] ;
         ++icov ;
       }
     }
@@ -100,7 +100,7 @@ namespace LCIOTrackPropagators{
     
     CLHEP::HepSymMatrix covPrime =  cov0.similarity(propagatorMatrix);
     
-    EVENT::FloatVec cov( 15 )  ; 
+    std::array<float,15> cov;
     
     icov = 0 ;
     
@@ -116,11 +116,11 @@ namespace LCIOTrackPropagators{
     while ( phi0Prime < -M_PI  ) phi0Prime += 2.0*M_PI ;
     while ( phi0Prime >= M_PI )  phi0Prime -= 2.0*M_PI ;
     
-    ts.setD0( d0Prime ) ;  
-    ts.setPhi( phi0Prime  ) ; 
-    ts.setOmega( omega ) ;
-    ts.setZ0( z0Prime ) ;  
-    ts.setTanLambda( tanL ) ;  
+    ts.D0 = d0Prime;  
+    ts.phi = phi0Prime ; 
+    ts.omega = omega;
+    ts.Z0 = z0Prime ;  
+    ts.tanLambda = tanL;  
     
     
     float refPointPrime[3] ;
@@ -128,9 +128,9 @@ namespace LCIOTrackPropagators{
     refPointPrime[1] = yref ;
     refPointPrime[2] = zref ;
     
-    ts.setReferencePoint(refPointPrime) ;
+    ts.referencePoint = refPointPrime;
     
-    ts.setCovMatrix( cov ) ;
+    ts.covMatrix = cov;
     
     return 0 ;
     
@@ -142,22 +142,22 @@ namespace LCIOTrackPropagators{
   // For direction== 1  the first crossing traversing in positive s will be taken
   // For direction==-1  the first crossing traversing in negative s will be taken
   
-  int PropagateLCIOToCylinder( IMPL::TrackStateImpl& ts, float r0, float x0, float y0, int direction, double epsilon){
+  int PropagateLCIOToCylinder( edm4hep::TrackState& ts, float r0, float x0, float y0, int direction, double epsilon){
     
     // taken from http://paulbourke.net/geometry/2circle/tvoght.c
     
     //    std::cout << "PropagateLCIOToCylinder: r = " << r0 << " x0:y0 = " << x0 << " : " << y0 << " direction = " << direction << std::endl ;
     
     
-    const double x_ref = ts.getReferencePoint()[0] ; 
-    const double y_ref = ts.getReferencePoint()[1] ; 
-    const double z_ref = ts.getReferencePoint()[2] ; 
+    const double x_ref = ts.referencePoint[0] ; 
+    const double y_ref = ts.referencePoint[1] ; 
+    const double z_ref = ts.referencePoint[2] ; 
     
-    const double d0    = ts.getD0() ;
-    const double z0    = ts.getZ0() ;
-    const double phi0  = ts.getPhi() ;
-    const double tanl  = ts.getTanLambda() ;
-    const double omega = ts.getOmega() ;
+    const double d0    = ts.D0 ;
+    const double z0    = ts.Z0 ;
+    const double phi0  = ts.phi ;
+    const double tanl  = ts.tanLambda ;
+    const double omega = ts.omega ;
     
     const double rho   = 1.0 / omega ;
     const double x_pca = x_ref - d0 * sin(phi0) ; 
@@ -305,18 +305,18 @@ namespace LCIOTrackPropagators{
     
   }
   
-  int PropagateLCIOToZPlane( IMPL::TrackStateImpl& ts, float z) {
+  int PropagateLCIOToZPlane( edm4hep::TrackState& ts, float z) {
     
     
-    const double x_ref = ts.getReferencePoint()[0] ; 
-    const double y_ref = ts.getReferencePoint()[1] ; 
-    const double z_ref = ts.getReferencePoint()[2] ; 
+    const double x_ref = ts.referencePoint[0] ; 
+    const double y_ref = ts.referencePoint[1] ; 
+    const double z_ref = ts.referencePoint[2] ; 
     
-    const double d0    = ts.getD0() ;
-    const double z0    = ts.getZ0() ;
-    const double phi0  = ts.getPhi() ;
-    const double tanl  = ts.getTanLambda() ;
-    const double omega = ts.getOmega() ;
+    const double d0    = ts.D0 ;
+    const double z0    = ts.Z0 ;
+    const double phi0  = ts.phi ;
+    const double tanl  = ts.tanLambda ;
+    const double omega = ts.omega ;
     
     const double x_pca = x_ref - d0 * sin(phi0) ; 
     const double y_pca = y_ref + d0 * cos(phi0) ; 
@@ -340,22 +340,22 @@ namespace LCIOTrackPropagators{
   // For direction ==  0  the closest crossing point will be taken
   // For direction ==  1  the first crossing traversing in positive s will be taken
   // For direction == -1  the first crossing traversing in negative s will be taken
-  int PropagateLCIOToPlaneParralelToZ( IMPL::TrackStateImpl& ts, float x1, float y1, float x2, float y2, int direction, double epsilon) {
+  int PropagateLCIOToPlaneParralelToZ( edm4hep::TrackState& ts, float x1, float y1, float x2, float y2, int direction, double epsilon) {
     
     // check that direction has one of the correct values
     if( !( direction == 0 || direction == 1 || direction == -1) ) return -1 ;
     
     // taken from http://paulbourke.net/geometry/sphereline/raysphere.c
     
-    const double x_ref = ts.getReferencePoint()[0] ; 
-    const double y_ref = ts.getReferencePoint()[1] ; 
-    const double z_ref = ts.getReferencePoint()[2] ; 
+    const double x_ref = ts.referencePoint[0] ; 
+    const double y_ref = ts.referencePoint[1] ; 
+    const double z_ref = ts.referencePoint[2] ; 
     
-    const double d0    = ts.getD0() ;
-    const double z0    = ts.getZ0() ;
-    const double phi0  = ts.getPhi() ;
-    const double tanl  = ts.getTanLambda() ;
-    const double omega = ts.getOmega() ;
+    const double d0    = ts.D0 ;
+    const double z0    = ts.Z0 ;
+    const double phi0  = ts.phi ;
+    const double tanl  = ts.tanLambda ;
+    const double omega = ts.omega ;
     
     const double rho   = 1.0 / omega ;
     const double x_pca = x_ref - d0 * sin(phi0) ; 

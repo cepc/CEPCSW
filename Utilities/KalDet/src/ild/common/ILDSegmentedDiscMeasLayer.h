@@ -77,7 +77,7 @@ public:
                                 TKalMatrix &H)  const;
   
   /** Convert LCIO Tracker Hit to an ILDPLanarTrackHit  */
-  virtual ILDVTrackHit* ConvertLCIOTrkHit(edm4hep::TrackerHit* trkhit) const ;
+  virtual ILDVTrackHit* ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const ;
 
   /** overloaded version of CalcXingPointWith using closed solution*/
   virtual Int_t    CalcXingPointWith(const TVTrack  &hel,

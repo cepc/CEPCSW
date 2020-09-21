@@ -4,6 +4,7 @@
 //#include "lcio.h"
 //#include "EVENT/LCIO.h"
 #include "edm4hep/Track.h"
+#include "edm4hep/TrackConst.h"
 #include <vector>
 //#include "ClusterExtended.h"
 //#include "TrackerHitExtended.h"
@@ -32,10 +33,10 @@ class TrackExtended {
 
     TrackExtended( );
     TrackExtended( TrackerHitExtended * trackerhit );
-    TrackExtended( edm4hep::Track * track );
+    TrackExtended( edm4hep::ConstTrack track );
     ~TrackExtended();
     
-    edm4hep::Track * getTrack();
+    edm4hep::ConstTrack getTrack();
     const float * getSeedDirection();
     const float * getSeedPosition();
     ClusterExtendedVec & getClusterVec();
@@ -95,7 +96,7 @@ class TrackExtended {
     ClusterExtended *_superCluster;
     ClusterExtendedVec _clusterVec;
     GroupTracks * _group;
-    edm4hep::Track * _track;
+    edm4hep::ConstTrack _track;
     float _seedDirection[3];
     float _seedPosition[3];
     TrackerHitExtendedVec _trackerHitVector;    

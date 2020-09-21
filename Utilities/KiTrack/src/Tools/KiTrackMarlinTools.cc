@@ -150,8 +150,8 @@ void KiTrackMarlin::saveToRoot( std::string rootFileName, std::string treeName ,
 }
 
 
-//bool KiTrackMarlin::compare_TrackerHit_z( edm4hep::ConstTrackerHit* a, edm4hep::ConstTrackerHit* b ){
-//  return ( fabs(a->getPosition()[2]) < fabs( b->getPosition()[2]) ); //compare their z values
+//bool KiTrackMarlin::compare_TrackerHit_z( edm4hep::ConstTrackerHit a, edm4hep::ConstTrackerHit b ){
+//  return ( fabs(a.getPosition()[2]) < fabs( b.getPosition()[2]) ); //compare their z values
 //}
 
 bool KiTrackMarlin::compare_TrackerHit_z( edm4hep::ConstTrackerHit& a, edm4hep::ConstTrackerHit& b ){
@@ -197,13 +197,13 @@ VXDHitSimple* KiTrackMarlin::createVirtualIPHit( const SectorSystemVXD* sectorSy
 }
 
 
-std::string KiTrackMarlin::getPositionInfo( edm4hep::ConstTrackerHit* hit ){
+std::string KiTrackMarlin::getPositionInfo( edm4hep::ConstTrackerHit hit ){
    
    std::stringstream info;
    
-   double x = hit->getPosition()[0];
-   double y = hit->getPosition()[1];
-   double z = hit->getPosition()[2];
+   double x = hit.getPosition()[0];
+   double y = hit.getPosition()[1];
+   double z = hit.getPosition()[2];
    
    info << "(" << x << "," << y << "," << z << ")";
    
@@ -245,11 +245,11 @@ std::string KiTrackMarlin::getTrackHitInfo( ITrack* track){
 
 std::string KiTrackMarlin::getTrackHitInfo( edm4hep::Track* track){
   std::stringstream info;
-  //std::vector< edm4hep::TrackerHit* > hits;
+  //std::vector< edm4hep::ConstTrackerHit > hits;
   unsigned int nHits = track->trackerHits_size();
   for(unsigned i=0; i<nHits; i++){
     edm4hep::ConstTrackerHit hit = track->getTrackerHits(i);
-    info << getPositionInfo(&hit);
+    info << getPositionInfo(hit);
   }
    
   //for( unsigned i=0; i < hits.size(); i++ ){

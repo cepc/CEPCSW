@@ -244,19 +244,19 @@ Bool_t ILDPlanarMeasLayer::IsOnSurface(const TVector3 &xx) const
 }
 
 
-ILDVTrackHit* ILDPlanarMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit* trkhit) const {
-  //std::cout << "ILDPlanarMeasLayer::ConvertLCIOTrkHit " << trkhit << " type=" << trkhit->getType() << std::endl;
+ILDVTrackHit* ILDPlanarMeasLayer::ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const {
+  //std::cout << "ILDPlanarMeasLayer::ConvertLCIOTrkHit " << trkhit << " type=" << trkhit.getType() << std::endl;
   //EVENT::TrackerHitPlane* plane_hit = dynamic_cast<EVENT::TrackerHitPlane*>( trkhit ) ;
-  if((trkhit->getType()&8)!=8){
-    std::cout << "ILDPlanarMeasLayer::ConvertLCIOTrkHit Warning: type is not 8, but " << (trkhit->getType()&8) << std::endl;
+  if((trkhit.getType()&8)!=8){
+    std::cout << "ILDPlanarMeasLayer::ConvertLCIOTrkHit Warning: type is not 8, but " << (trkhit.getType()&8) << std::endl;
     return NULL;
   }
   //if( plane_hit == NULL )  return NULL; // SJA:FIXME: should be replaced with an exception  
 
-  //gear::Vector3D U(1.0,plane_hit->getU()[1],plane_hit->getU()[0],gear::Vector3D::spherical);
-  //gear::Vector3D V(1.0,plane_hit->getV()[1],plane_hit->getV()[0],gear::Vector3D::spherical);
-  gear::Vector3D U(1.0,trkhit->getCovMatrix(1),trkhit->getCovMatrix(0),gear::Vector3D::spherical);
-  gear::Vector3D V(1.0,trkhit->getCovMatrix(4),trkhit->getCovMatrix(3),gear::Vector3D::spherical);
+  //gear::Vector3D U(1.0,plane_hit.getU()[1],plane_hit.getU()[0],gear::Vector3D::spherical);
+  //gear::Vector3D V(1.0,plane_hit.getV()[1],plane_hit.getV()[0],gear::Vector3D::spherical);
+  gear::Vector3D U(1.0,trkhit.getCovMatrix(1),trkhit.getCovMatrix(0),gear::Vector3D::spherical);
+  gear::Vector3D V(1.0,trkhit.getCovMatrix(4),trkhit.getCovMatrix(3),gear::Vector3D::spherical);
   gear::Vector3D Z(0.0,0.0,1.0);
   
   const float eps = 1.0e-07;
@@ -272,7 +272,7 @@ ILDVTrackHit* ILDPlanarMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit* trkhit)
   }
 
   // remember here the "position" of the hit in fact defines the origin of the plane it defines so u and v are per definition 0. 
-  const edm4hep::Vector3d& pos=trkhit->getPosition();
+  const edm4hep::Vector3d& pos=trkhit.getPosition();
   const TVector3 hit(pos.x, pos.y, pos.z) ;
   
   // convert to layer coordinates       
@@ -284,13 +284,13 @@ ILDVTrackHit* ILDPlanarMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit* trkhit)
   x[0] = h(0, 0);
   x[1] = h(1, 0);
   
-  dx[0] = trkhit->getCovMatrix(2);
-  dx[1] = trkhit->getCovMatrix(5);
+  dx[0] = trkhit.getCovMatrix(2);
+  dx[1] = trkhit.getCovMatrix(5);
   
   bool hit_on_surface = IsOnSurface(hit);
   /*
   std::cout << "ILDPlanarMeasLayer::ConvertLCIOTrkHit ILDPlanarHit created" 
-			<< " for CellID " << trkhit->getCellID()
+			<< " for CellID " << trkhit.getCellID()
 			<< " Layer R = " << this->GetXc().Perp() 
 			<< " Layer phi = " << this->GetXc().Phi() 
 			<< " Layer z0 = " << this->GetXc().Z() 
