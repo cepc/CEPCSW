@@ -14,8 +14,8 @@ double BetheBlochEquationDedxSimTool::dedx(const G4Step* aStep)
 
     G4Material* material = gTrack->GetMaterial();
     G4double material_density = material->GetDensity() / (CLHEP::g/CLHEP::cm3); // conert from G4 unit.
-    G4double material_Z = material->GetZ();
-    G4double material_A = material->GetA();
+    G4double material_Z = m_material_Z;
+    G4double material_A = m_material_A;
 
     m_I = material_Z*10;  // Approximate
 

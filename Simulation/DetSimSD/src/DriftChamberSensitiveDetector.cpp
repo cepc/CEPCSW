@@ -46,6 +46,8 @@ DriftChamberSensitiveDetector::ProcessHits(G4Step* step, G4TouchableHistory*) {
     HitContribution contrib = dd4hep::sim::Geant4Hit::extractContribution(step);
     // Now, invokes the dE/dx simulator
     double dedx = 0.0;
+    dedx = m_dedx_simtool->dedx(step);
+    // G4cout << "-----> dedx: " << dedx << G4endl;
 
     double de = hit_len * dedx;
     // contrib.deposit = de; // if need the de from dedx simulator

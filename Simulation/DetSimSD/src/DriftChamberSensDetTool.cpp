@@ -41,6 +41,8 @@ DriftChamberSensDetTool::createSD(const std::string& name) {
     if (name == "DriftChamber") {
         DriftChamberSensitiveDetector* dcsd = new DriftChamberSensitiveDetector(name, *dd4hep_geo);
         dcsd->setDedxSimTool(m_dedx_simtool);
+
+        sd = dcsd;
     }
 
 
