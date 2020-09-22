@@ -66,14 +66,14 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 	dd4hep::Material	air(theDetector.material("Air"));
 	dd4hep::Volume	envelopeVol(det_name, envelope, air);
 	dd4hep::PlacedVolume	envelopePlv = motherVol.placeVolume(envelopeVol, Position(0,0,0));
-	envelopeVol.setVisAttributes(theDetector, "VisibleGreen" );
+	envelopeVol.setVisAttributes(theDetector, "InvisibleWithChildren" );
 	ECAL.setPlacement(envelopePlv);
 
     //Define specific material and volumen for detElement
 	dd4hep::Material mat_BGO(theDetector.material("G4_BGO"));
 	dd4hep::Trapezoid trap(dim_x1, dim_x2, dim_y, dim_y, dim_z);
 	dd4hep::Volume det_vol("trap_vol", trap, mat_BGO);
-	det_vol.setVisAttributes(theDetector, "VisibleRed");
+	det_vol.setVisAttributes(theDetector, "VisibleGreen");
 	dd4hep::DetElement stavedet(ECAL, "trap",detid);
 
 	//Loop to place crystalls in one part
@@ -88,7 +88,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 			dd4hep::Volume bar_odd("box_bar", dd4hep::Box(barz_odd/2, bary/2, barx/2), mat_BGO);
     		bar_odd.setSensitiveDetector(sens);
 			for(int iz=1; iz<=Nbarz_odd;iz++){
-				dd4hep::PlacedVolume plv = det_vol.placeVolume(bar_odd, Position((2*iphi-1)*barz_odd/2-lx, (2*iz-1)*barx/2-dim_y, (2*ilayer-1)*bary/2-dim_z));
+				dd4hep::PlacedVolume plv = det_vol.placeVolume(bar_odd, Position(lx-(2*iphi-1)*barz_odd/2, (2*iz-1)*barx/2-dim_y, (2*ilayer-1)*bary/2-dim_z));
 				plv.addPhysVolID("layer", ilayer).addPhysVolID("block", iphi).addPhysVolID("bar", iz);
 				std::string barname = "CrystalBar_"+std::to_string(ilayer)+"_"+std::to_string(iphi)+"_"+std::to_string(iz);
 				dd4hep::DetElement sd(stavedet, barname, detid);
