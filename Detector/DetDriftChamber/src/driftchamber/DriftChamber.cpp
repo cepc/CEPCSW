@@ -82,13 +82,13 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 
       if(layer_id<inner_chamber_layer_number){
         current_vol_ptr = &det_inner_chamber_vol;
-        rmin = inner_chamber_radius_min+(layer_id*chamber_layer_width)+0.01;
-        rmax = rmin+9.99;
+        rmin = inner_chamber_radius_min+(layer_id*chamber_layer_width);
+        rmax = rmin+chamber_layer_width;
         layer_name = det_name+"_inner_chamber_vol"+_toString(layer_id,"_layer%d");
       }else{
         current_vol_ptr = &det_outer_chamber_vol;
-        rmin = outer_chamber_radius_min+((layer_id-inner_chamber_layer_number)*chamber_layer_width)+0.01;
-        rmax = rmin+9.99;
+        rmin = outer_chamber_radius_min+((layer_id-inner_chamber_layer_number)*chamber_layer_width);
+        rmax = rmin+chamber_layer_width;
         layer_name = det_name+"_outer_chamber_vol"+_toString(layer_id,"_layer%d");
       }
       dd4hep::Tube layer_solid(rmin,rmax,chamber_length*0.5);
