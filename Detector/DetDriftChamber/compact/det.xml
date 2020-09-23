@@ -7,7 +7,7 @@
     url="http://github.com/cepc/CEPCSW"
     status="development"
     version="v0">
-    <comment>Test with Drift Chamber</comment>        
+    <comment>Test with Drift Chamber</comment>
   </info>
 
   <includes>
