@@ -91,12 +91,14 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         rmax = rmin+chamber_layer_width;
         layer_name = det_name+"_outer_chamber_vol"+_toString(layer_id,"_layer%d");
       }
+      /// Construction of drift chamber layers
       dd4hep::Tube layer_solid(rmin,rmax,chamber_length*0.5);
       dd4hep::Volume layer_vol(layer_name,layer_solid,det_mat);
       dd4hep::Transform3D transform_layer(dd4hep::Rotation3D(),dd4hep::Position(0.,0.,0.));
       dd4hep::PlacedVolume layer_phy = (*current_vol_ptr).placeVolume(layer_vol, transform_layer);
       layer_phy.addPhysVolID("layer",layer_id);
 
+      /// Set drift chamber layers to sensitive detector
       dd4hep::SensitiveDetector sd = sens;
       layer_vol.setSensitiveDetector(sens);
       sd.setType("tracker");
