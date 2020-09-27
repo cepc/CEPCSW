@@ -4,7 +4,8 @@
 ################################################################################
 gaudi_subdir(DetDriftChamber v0r0)
 
-gaudi_depends_on_subdirs(GaudiKernel)
+gaudi_depends_on_subdirs(Detector/DetSegmentation)
+#gaudi_depends_on_subdirs(GaudiKernel)
 
 
 find_package(DD4hep COMPONENTS DDRec DDG4 DDParsers REQUIRED)

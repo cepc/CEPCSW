@@ -57,9 +57,9 @@
 
   <readouts>
     <readout name="DriftChamberHitsCollection">
-      <segmentation type="NoSegmentation"/>
+      <segmentation type="GridDriftChamber" delta_phi="8*deg" identifier_phi="phi"/>
 
-      <id>system:8,chamber:1,layer:8</id>
+      <id>system:8,chamber:1,layer:8,phi:16</id>
     </readout>
   </readouts>
 

@@ -12,6 +12,7 @@
 #include "XML/Utilities.h"
 #include "DDRec/DetectorData.h"
 #include "DDSegmentation/Segmentation.h"
+#include "DetSegmentation/GridDriftChamber.h"
 
 using namespace dd4hep;
 using namespace dd4hep::detail;
@@ -73,6 +74,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     // - outer
     dd4hep::Tube det_outer_chamber_solid(outer_chamber_radius_min, outer_chamber_radius_max, outer_chamber_length*0.5);
     dd4hep::Volume det_outer_chamber_vol(det_name+"_outer_chamber_vol", det_outer_chamber_solid, det_mat);
+
 
     // - layer
     for(int layer_id=0; layer_id<(inner_chamber_layer_number+outer_chamber_layer_number-1);layer_id++) {
