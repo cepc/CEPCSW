@@ -8,8 +8,10 @@
 
 #include "DD4hep/Detector.h"
 #include <DD4hep/Objects.h>
+#include "G4ThreeVector.hh"
 
 
+#include <array>
 #include <math.h>
 #include <cmath>
 #include <algorithm>
@@ -77,29 +79,49 @@ StatusCode DCHDigiAlg::execute()
     double tot_edep   = 0 ;
     double tot_length = 0 ;
     double tot_time = 0 ;
-    double tot_x = 0 ;
-    double tot_y = 0 ;
-    double tot_z = 0 ;
+    double pos_x = 0 ;
+    double pos_y = 0 ;
+    double pos_z = 0 ;
     int simhit_size = iter->second.size();
     for(unsigned int i=0; i< simhit_size; i++)
     {
-        tot_edep   += iter->second.at(i).getEDep();//GeV
+        tot_edep += iter->second.at(i).getEDep();//GeV
+    }
+    float min_distance = 999 ;
+    for(unsigned int i=0; i< simhit_size; i++)
+    {
+        G4ThreeVector west(0,0,0);
+        G4ThreeVector east(0,0,0);
+        G4ThreeVector pos(iter->second.at(i).getPosition()[0], iter->second.at(i).getPosition()[1], iter->second.at(i).getPosition()[2]);
+        G4ThreeVector numerator = (east-west).cross(west-pos) ;
+        G4ThreeVector denominator = (east-west) ;
+        float distance = numerator.mag()/denominator.mag() ;
+        std::cout<<"distance="<<distance<<std::endl;
+        if(distance < min_distance){
+            min_distance = distance;
+            pos_x = pos.x();
+            pos_y = pos.y();
+            pos_z = pos.z();
+        }
         tot_length += iter->second.at(i).getPathLength();//mm
-        tot_time += iter->second.at(i).getTime();
+        /*
         tot_x    += iter->second.at(i).getEDep()*iter->second.at(i).getPosition()[0];
         tot_y    += iter->second.at(i).getEDep()*iter->second.at(i).getPosition()[1];
         tot_z    += iter->second.at(i).getEDep()*iter->second.at(i).getPosition()[2];
+        */
  
         auto asso = AssoVec->create();
         asso.setRec(trkHit);
         asso.setSim(iter->second.at(i));
-        asso.setWeight(1.0/simhit_size);
+        asso.setWeight(iter->second.at(i).getEDep()/tot_edep);
     }
     
-    trkHit.setTime(tot_time/simhit_size);
-    trkHit.setEDep(tot_edep);
+    trkHit.setTime(min_distance*1e3/m_velocity);//m_velocity is um/ns, drift time in ns
+    trkHit.setEDep(tot_edep);// GeV
     trkHit.setEdx (tot_edep*1000/(tot_length/10) ); // MeV/cm, need check!
-    trkHit.setPosition (edm4hep::Vector3d(tot_x/tot_edep, tot_y/tot_edep, tot_z/tot_edep));//center mass
+    //trkHit.setPosition (edm4hep::Vector3d(tot_x/tot_edep, tot_y/tot_edep, tot_z/tot_edep));//center mass
+    trkHit.setPosition (edm4hep::Vector3d(pos_x, pos_y, pos_z));//position of closest sim hit
+    trkHit.setCovMatrix(std::array<float, 6>{m_res_x, 0, m_res_y, 0, 0, m_res_z});//cov(x,x) , cov(y,x) , cov(y,y) , cov(z,x) , cov(z,y) , cov(z,z) in mm
   }
   std::cout<<"output digi DCHhit size="<< Vec->size() <<std::endl;
   _nEvt ++ ;

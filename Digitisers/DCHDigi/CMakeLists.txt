@@ -1,5 +1,7 @@
 gaudi_subdir(DCHDigi v0r0)
 
+find_package(Geant4 REQUIRED ui_all vis_all)
+include(${Geant4_USE_FILE})
 find_package(DD4hep COMPONENTS DDG4 REQUIRED)
 find_package(EDM4HEP REQUIRED )
 message("EDM4HEP_INCLUDE_DIRS: ${EDM4HEP_INCLUDE_DIR}")
