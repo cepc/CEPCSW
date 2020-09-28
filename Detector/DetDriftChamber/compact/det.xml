@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lccdd>
- 
+
   <info name="DriftChamber"
-	title="Test with Drift Chamber"
-	author="Tao Lin"
-	url="http://github.com/cepc/CEPCSW"
-	status="development"
-	version="v0">
-    <comment>Test with Drift Chamber</comment>        
+    title="Test with Drift Chamber"
+    author="Tao Lin"
+    url="http://github.com/cepc/CEPCSW"
+    status="development"
+    version="v0">
+    <comment>Test with Drift Chamber</comment>
   </info>
 
   <includes>
@@ -34,7 +34,10 @@
     <constant name="SDT_outer_chamber_radius_min" value="1085*mm"/>
     <constant name="SDT_outer_chamber_radius_max" value="SDT_radius_max"/>
     <constant name="SDT_outer_chamber_length" value="SDT_length"/>
-    
+
+    <constant name="SDT_inner_chamber_layer_number" value="67"/>
+    <constant name="SDT_outer_chamber_layer_number" value="63"/>
+    <constant name="SDT_chamber_layer_width" value="10*mm"/>
 
   </define>
 
@@ -49,18 +52,14 @@
   <detectors>
     <detector id="1" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="VisibleBlue" sensitive="true">
       <!-- Use cm as unit if you want to use Pandora for reconstruction -->
-    </detector>
+     </detector>
   </detectors>
-  
+
   <readouts>
     <readout name="DriftChamberHitsCollection">
-      <!-- <segmentation type="NoSegmentation"/> -->
+      <segmentation type="GridDriftChamber" delta_phi="8*deg" identifier_phi="phi"/>
 
-      <segmentation type="CartesianGridXYZ"
-                    grid_size_x="1*cm"
-                    grid_size_y="1*cm"
-                    grid_size_z="1*cm"/>
-      <id>system:8,chamber:1,x:-16,y:-16,z:-16</id>
+      <id>system:8,chamber:1,layer:8,phi:16</id>
     </readout>
   </readouts>
 
