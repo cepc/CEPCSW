@@ -8,7 +8,7 @@
 
 #include "DD4hep/Detector.h"
 #include <DD4hep/Objects.h>
-#include "G4ThreeVector.hh"
+#include "DDRec/Vector3D.h"
 
 
 #include <array>
@@ -90,12 +90,12 @@ StatusCode DCHDigiAlg::execute()
     float min_distance = 999 ;
     for(unsigned int i=0; i< simhit_size; i++)
     {
-        G4ThreeVector west(0,0,0);
-        G4ThreeVector east(0,0,0);
-        G4ThreeVector pos(iter->second.at(i).getPosition()[0], iter->second.at(i).getPosition()[1], iter->second.at(i).getPosition()[2]);
-        G4ThreeVector numerator = (east-west).cross(west-pos) ;
-        G4ThreeVector denominator = (east-west) ;
-        float distance = numerator.mag()/denominator.mag() ;
+        dd4hep::rec::Vector3D  west(0,0,0);
+        dd4hep::rec::Vector3D  east(0,0,0);
+        dd4hep::rec::Vector3D  pos(iter->second.at(i).getPosition()[0], iter->second.at(i).getPosition()[1], iter->second.at(i).getPosition()[2]);
+        dd4hep::rec::Vector3D  numerator = (east-west).cross(west-pos) ;
+        dd4hep::rec::Vector3D  denominator = (east-west) ;
+        float distance = numerator.r()/denominator.r() ;
         std::cout<<"distance="<<distance<<std::endl;
         if(distance < min_distance){
             min_distance = distance;
