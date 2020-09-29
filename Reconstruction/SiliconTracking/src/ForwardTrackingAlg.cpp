@@ -216,9 +216,10 @@ StatusCode ForwardTrackingAlg::execute(){
   debug() << "\t\t---Reading in Collections---" << endmsg;
   Navigation::Instance()->Initialize();
   std::vector<const edm4hep::TrackerHitCollection*> hitFTDCollections;
-
+  int pixelCollectionID = -1; 
   try {
     auto hitFTDPixelCol = _inFTDPixelColHdl.get();
+    pixelCollectionID = hitFTDPixelCol->getID();
     hitFTDCollections.push_back(hitFTDPixelCol);
     Navigation::Instance()->AddTrackerHitCollection(hitFTDPixelCol);
   }
@@ -262,6 +263,9 @@ StatusCode ForwardTrackingAlg::execute(){
     debug() << "Number of hits in collection " << hitFTDCollections[iCol]->getID() << ": " << nHits << endmsg;
 
     for(auto trackerHit : *hitFTDCollections[iCol]){
+      if(pixelCollectionID==hitFTDCollections[iCol]->getID()){
+	if ( UTIL::BitSet32( trackerHit.getType() )[ UTIL::ILDTrkHitTypeBit::ONE_DIMENSIONAL ] ) continue;
+      }
       edm4hep::ConstTrackerHit hit = trackerHit;
       debug() << "hit " << trackerHit.id() << " " << KiTrackMarlin::getCellID0Info( trackerHit.getCellID() ) 
 	      << " " << KiTrackMarlin::getPositionInfo( hit )<< endmsg;
