@@ -17,18 +17,24 @@ TrackSystemSvc::~TrackSystemSvc(){
 
 MarlinTrk::IMarlinTrkSystem* TrackSystemSvc::getTrackSystem(){
   if(!m_trackSystem){
+    gear::GearMgr* mgr=0; 
     auto _gear = service<IGearSvc>("GearSvc");
     if ( !_gear ) {
-      error() << "Failed to find GearSvc ..." << endmsg;
-      return 0;
+      info() << "Failed to find GearSvc ..." << endmsg;
     }
-    gear::GearMgr* mgr = _gear->getGearMgr();
+    else{
+      mgr = _gear->getGearMgr();
+    }
 
     auto _geoSvc = service<IGeoSvc>("GeoSvc");
     if ( !_geoSvc ) {
-      error() << "Failed to find GeoSvc ..." << endmsg;
+      info() << "Failed to find GeoSvc ..." << endmsg;
+    }
+    if(mgr==0&&_geoSvc==0){
+      fatal() << "Both GearSvc and GeoSvc invalid!" << endmsg;
       return 0;
     }
+
     m_trackSystem = new MarlinTrk::MarlinKalTest( *mgr, _geoSvc ) ;
   }
   return m_trackSystem;
