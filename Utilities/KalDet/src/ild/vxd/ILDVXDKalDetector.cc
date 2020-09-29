@@ -10,6 +10,11 @@
 #include <UTIL/BitField64.h>
 #include <UTIL/ILDConf.h>
 
+#include "DetInterface/IGeoSvc.h"
+#include "DD4hep/Detector.h"
+#include "DDRec/DetectorData.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+
 #include <gear/GEAR.h>
 #include "gear/BField.h"
 #include <gearimpl/ZPlanarParametersImpl.h>
@@ -44,8 +49,12 @@ ILDVXDKalDetector::ILDVXDKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geo
   
   _vxd_Cryostat.exists = false;
   
-  this->setupGearGeom(gearMgr, geoSvc) ;
-  
+  if(geoSvc){
+    this->setupGearGeom(geoSvc) ;
+  }
+  else{
+    this->setupGearGeom(gearMgr) ;
+  }
   //--The Ladder structure (realistic ladder)--
   int nLadders;
   
@@ -315,18 +324,84 @@ ILDVXDKalDetector::ILDVXDKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geo
   SetOwner();                   
 }
 
-
-
-
-void ILDVXDKalDetector::setupGearGeom( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc){
-  
-  const gear::VXDParameters& pVXDDetMainObject = gearMgr.getVXDParameters();
-  const gear::VXDParameters* pVXDDetMain2 = &pVXDDetMainObject;
-  const gear::ZPlanarParametersImpl* pVXDDetMain = geoSvc->getVXDParameters();
-  const gear::VXDLayerLayout& pVXDLayerLayout = pVXDDetMain->getVXDLayerLayout();
-  const gear::VXDLayerLayout& pVXDLayerLayout2 = pVXDDetMain2->getVXDLayerLayout();
+void ILDVXDKalDetector::setupGearGeom( const gear::GearMgr& gearMgr ){
+  const gear::VXDParameters& pVXDDetMain = gearMgr.getVXDParameters();
+  const gear::VXDLayerLayout& pVXDLayerLayout = pVXDDetMain.getVXDLayerLayout();
 
   _bZ = gearMgr.getBField().at( gear::Vector3D( 0.,0.,0.)  ).z() ;
+
+  _nLayers = pVXDLayerLayout.getNLayers();
+  _VXDgeo.resize(_nLayers);
+
+  for( int layer=0; layer < _nLayers; ++layer){
+    _VXDgeo[layer].nLadders = pVXDLayerLayout.getNLadders(layer);
+    _VXDgeo[layer].phi0 = pVXDLayerLayout.getPhi0(layer);
+    _VXDgeo[layer].dphi = 2*M_PI / _VXDgeo[layer].nLadders;
+    _VXDgeo[layer].senRMin = pVXDLayerLayout.getSensitiveDistance(layer);
+    _VXDgeo[layer].supRMin = pVXDLayerLayout.getLadderDistance(layer);
+    _VXDgeo[layer].length = pVXDLayerLayout.getSensitiveLength(layer) * 2.0 ; // note: gear for historical reasons uses the halflength
+    _VXDgeo[layer].width = pVXDLayerLayout.getSensitiveWidth(layer);
+    _VXDgeo[layer].offset = pVXDLayerLayout.getSensitiveOffset(layer);
+    _VXDgeo[layer].senThickness = pVXDLayerLayout.getSensitiveThickness(layer);
+    _VXDgeo[layer].supThickness = pVXDLayerLayout.getLadderThickness(layer);
+    //std::cout << layer << ": " << _VXDgeo[layer].nLadders << " " << _VXDgeo[layer].phi0 << " " << _VXDgeo[layer].dphi << " " << _VXDgeo[layer].senRMin
+    //          << " " << _VXDgeo[layer].supRMin << " " << _VXDgeo[layer].length << " " << _VXDgeo[layer].width << " " << _VXDgeo[layer].offset
+    //          << " " << _VXDgeo[layer].senThickness << " " << _VXDgeo[layer].supThickness << std::endl;
+  }
+  
+  _relative_position_of_measurement_surface = 0.5 ;
+
+  try {
+    _relative_position_of_measurement_surface =  pVXDDetMain.getDoubleVal( "relative_position_of_measurement_surface"  );
+  }
+  catch (gear::UnknownParameterException& e) {}
+  try {
+    const gear::GearParameters& pVXDInfra = gearMgr.getGearParameters("VXDInfra");                                                                                                  
+    _vxd_Cryostat.alRadius    = pVXDInfra.getDoubleVal( "CryostatAlRadius"  );
+    _vxd_Cryostat.alThickness = pVXDInfra.getDoubleVal( "CryostatAlThickness"  );
+    _vxd_Cryostat.alInnerR    = pVXDInfra.getDoubleVal( "CryostatAlInnerR"  );
+    _vxd_Cryostat.alZEndCap   = pVXDInfra.getDoubleVal( "CryostatAlZEndCap"  );
+    _vxd_Cryostat.alHalfZ     = pVXDInfra.getDoubleVal( "CryostatAlHalfZ"  );
+
+    _vxd_Cryostat.shellInnerR    = pVXDDetMain.getShellInnerRadius();
+    _vxd_Cryostat.shellThickness = pVXDDetMain.getShellOuterRadius() - _vxd_Cryostat.shellInnerR;
+    _vxd_Cryostat.shelllHalfZ    = pVXDDetMain.getShellHalfLength();
+
+    _vxd_Cryostat.exists = true;
+    //std::cout << "VXDInfra: " << _vxd_Cryostat.alRadius << " " << _vxd_Cryostat.alThickness << " " << _vxd_Cryostat.alInnerR << " " << _vxd_Cryostat.alZEndCap << " " 
+    //	      << _vxd_Cryostat.alHalfZ << " " << _vxd_Cryostat.shellInnerR << " " << _vxd_Cryostat.shellThickness << " " << _vxd_Cryostat.shelllHalfZ << std::endl;
+  }    
+  catch (gear::UnknownParameterException& e) {
+    std::cout << e.what() << std::endl ;
+    _vxd_Cryostat.exists = false;
+
+  }
+}
+
+
+void ILDVXDKalDetector::setupGearGeom( IGeoSvc* geoSvc){
+  /*
+  dd4hep::DetElement world = geoSvc->getDD4HepGeo();
+  dd4hep::DetElement vxd;
+  const std::map<std::string, dd4hep::DetElement>& subs = world.children();
+  for(std::map<std::string, dd4hep::DetElement>::const_iterator it=subs.begin();it!=subs.end();it++){
+    if(it->first!="VXD") continue;
+    vxd = it->second;
+  }
+  dd4hep::rec::ZPlanarData* vxdData = nullptr;
+  try{
+    vxdData = vxd.extension<dd4hep::rec::ZPlanarData>();
+  }
+  catch(std::runtime_error& e){
+    std::cout << e.what() << " " << vxdData << std::endl;
+    throw GaudiException(e.what(), "FATAL", StatusCode::FAILURE);
+  }
+  */
+  const dd4hep::Direction& field = geoSvc->lcdd()->field().magneticField(dd4hep::Position(0,0,0));
+  _bZ = field.z();
+  
+  const gear::ZPlanarParametersImpl* pVXDDetMain = geoSvc->getVXDParameters();
+  const gear::VXDLayerLayout& pVXDLayerLayout = pVXDDetMain->getVXDLayerLayout();
   
   _nLayers = pVXDLayerLayout.getNLayers(); 
   _VXDgeo.resize(_nLayers);
@@ -347,42 +422,16 @@ void ILDVXDKalDetector::setupGearGeom( const gear::GearMgr& gearMgr, IGeoSvc* ge
     _VXDgeo[layer].offset = pVXDLayerLayout.getSensitiveOffset(layer); 
     _VXDgeo[layer].senThickness = pVXDLayerLayout.getSensitiveThickness(layer); 
     _VXDgeo[layer].supThickness = pVXDLayerLayout.getLadderThickness(layer); 
-    std::cout << layer << ": " << _VXDgeo[layer].nLadders << " " << _VXDgeo[layer].phi0 << " " << _VXDgeo[layer].dphi << " " << _VXDgeo[layer].senRMin 
-	      << " " << _VXDgeo[layer].supRMin << " " << _VXDgeo[layer].length << " " << _VXDgeo[layer].width << " " << _VXDgeo[layer].offset
-	      << " " << _VXDgeo[layer].senThickness << " " << _VXDgeo[layer].supThickness << std::endl; 
-    std::cout << layer << ": " << pVXDLayerLayout2.getNLadders(layer) << " " << pVXDLayerLayout2.getPhi0(layer) << " " << 2*M_PI/pVXDLayerLayout2.getNLadders(layer)
-	      << " " << pVXDLayerLayout2.getSensitiveDistance(layer) << " " << pVXDLayerLayout2.getLadderDistance(layer)
-	      << " " << pVXDLayerLayout2.getSensitiveLength(layer)*2 << " " << pVXDLayerLayout2.getSensitiveWidth(layer)
-	      << " " << pVXDLayerLayout2.getSensitiveOffset(layer) << " " << pVXDLayerLayout2.getSensitiveThickness(layer)
-	      << " " << pVXDLayerLayout2.getLadderThickness(layer) << std::endl;
+    //std::cout << layer << ": " << _VXDgeo[layer].nLadders << " " << _VXDgeo[layer].phi0 << " " << _VXDgeo[layer].dphi << " " << _VXDgeo[layer].senRMin 
+    //	      << " " << _VXDgeo[layer].supRMin << " " << _VXDgeo[layer].length << " " << _VXDgeo[layer].width << " " << _VXDgeo[layer].offset
+    //	      << " " << _VXDgeo[layer].senThickness << " " << _VXDgeo[layer].supThickness << std::endl; 
   }
   // by default, we put the measurement surface in the middle of the sensitive
   // layer, this can optionally be changed, e.g. in the case of the FPCCD where the 
   // epitaxial layer is 15 mu thick (in a 50 mu wafer)
   _relative_position_of_measurement_surface = 0.5 ;
-
-  try {
-
-    _relative_position_of_measurement_surface =  pVXDDetMain->getDoubleVal( "relative_position_of_measurement_surface"  ); 
-
-    // streamlog_out(DEBUG) << " ILDVXDKalDetector::setupGearGeom:  relative_position_of_measurement_surface parameter is provided : " <<  _relative_position_of_measurement_surface << std::endl ;
-
-  } catch (gear::UnknownParameterException& e) {}
-
   // Cryostat
   try {
-    
-    //const gear::GearParameters& pVXDInfraObject = gearMgr.getGearParameters("VXDInfra");
-    //const gear::GearParameters* pVXDInfra = &pVXDInfraObject;
-    //change Gear to GeoSvc
-    //const gear::GearParametersImpl* pVXDInfra = geoSvc->getDetParameters("VXDInfra");
-    //_vxd_Cryostat.alRadius    = pVXDInfra->getDoubleVal( "CryostatAlRadius"  );
-    //_vxd_Cryostat.alThickness = pVXDInfra->getDoubleVal( "CryostatAlThickness"  );
-    //_vxd_Cryostat.alInnerR    = pVXDInfra->getDoubleVal( "CryostatAlInnerR"  );
-    //_vxd_Cryostat.alZEndCap   = pVXDInfra->getDoubleVal( "CryostatAlZEndCap"  );
-    //_vxd_Cryostat.alHalfZ     = pVXDInfra->getDoubleVal( "CryostatAlHalfZ"  );
-    //change GearParametersImpl to get directly
-    //const std::map<std::string,double>& vxdInfra = geoSvc->getDetParameters("VXDInfra");
     _vxd_Cryostat.alRadius    = geoSvc->getDetParameter("VXDInfra","CryostatAlRadius");
     _vxd_Cryostat.alThickness = geoSvc->getDetParameter("VXDInfra","CryostatAlThickness");
     _vxd_Cryostat.alInnerR    = geoSvc->getDetParameter("VXDInfra","CryostatAlInnerR");
@@ -394,10 +443,10 @@ void ILDVXDKalDetector::setupGearGeom( const gear::GearMgr& gearMgr, IGeoSvc* ge
     _vxd_Cryostat.shelllHalfZ    = pVXDDetMain->getShellHalfLength();
     
     _vxd_Cryostat.exists = true;
+    //std::cout << "VXDInfra: " << _vxd_Cryostat.alRadius << " " << _vxd_Cryostat.alThickness << " " << _vxd_Cryostat.alInnerR << " " << _vxd_Cryostat.alZEndCap << " "
+    //          << _vxd_Cryostat.alHalfZ << " " << _vxd_Cryostat.shellInnerR << " " << _vxd_Cryostat.shellThickness << " " << _vxd_Cryostat.shelllHalfZ << std::endl;
   }
-  //catch (gear::UnknownParameterException& e) {
   catch (std::runtime_error& e) {
-    //streamlog_out( WARNING ) << "ILDVXDKalDetector Cryostat values not found in GEAR file " << std::endl ;
     std::cout << e.what() << std::endl ;
     _vxd_Cryostat.exists = false;
   

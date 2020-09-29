@@ -16,18 +16,20 @@ namespace gear{
   class GearMgr ;
 }
 
+class IGeoSvc;
 
 class ILDSITKalDetector : public TVKalDetector {
   
 public:
   
   /** Initialize the SIT from GEAR */
-  ILDSITKalDetector( const gear::GearMgr& gearMgr );
+  ILDSITKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc );
   
   
 private:
   
   void setupGearGeom( const gear::GearMgr& gearMgr ) ;
+  void setupGearGeom( IGeoSvc* geoSvc );
   
   int _nLayers ;
   double _bZ ;

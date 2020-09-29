@@ -9,6 +9,11 @@
 #include <UTIL/BitField64.h>
 #include <UTIL/ILDConf.h>
 
+#include "DetInterface/IGeoSvc.h"
+#include "DD4hep/Detector.h"
+#include "DDRec/DetectorData.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+
 #include <gear/GEAR.h>
 #include "gear/BField.h"
 #include <gear/ZPlanarParameters.h>
@@ -22,21 +27,25 @@
 
 // #include "streamlog/streamlog.h"
 
-ILDSITKalDetector::ILDSITKalDetector( const gear::GearMgr& gearMgr )
+ILDSITKalDetector::ILDSITKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc )
 : TVKalDetector(300) // SJA:FIXME initial size, 300 looks reasonable for ILD, though this would be better stored as a const somewhere
 {
   
   
   // streamlog_out(DEBUG4) << "ILDSITKalDetector building SIT detector using GEAR " << std::endl ;
 
-  MaterialDataBase::Instance().registerForService(gearMgr);
-
+  MaterialDataBase::Instance().registerForService(gearMgr, geoSvc);
+  
   TMaterial & air       = *MaterialDataBase::Instance().getMaterial("air");
   TMaterial & silicon   = *MaterialDataBase::Instance().getMaterial("silicon");
   TMaterial & carbon    = *MaterialDataBase::Instance().getMaterial("carbon");
-  
-  this->setupGearGeom(gearMgr) ;
-  
+  if(geoSvc){
+    this->setupGearGeom(geoSvc);
+  }
+  else{
+    this->setupGearGeom(gearMgr) ;
+  }
+
   if (_isStripDetector) {
     // streamlog_out(DEBUG4) << "\t\t building SIT detector as STRIP Detector." << std::endl ;    
   } else {
@@ -241,7 +250,7 @@ void ILDSITKalDetector::setupGearGeom( const gear::GearMgr& gearMgr ){
   //           if this is not done then the exposed areas of the support would leave a carbon - air boundary,
   //           which if traversed in the reverse direction to the next boundary then the track would be propagated through carbon
   //           for a significant distance 
-  
+  //std::cout << "=============SIT strip angle: " << strip_angle_deg << "==============" << std::endl;
   for( int layer=0; layer < _nLayers; ++layer){
     
       
@@ -271,7 +280,9 @@ void ILDSITKalDetector::setupGearGeom( const gear::GearMgr& gearMgr ){
     } else {
       _SITgeo[layer].stripAngle = 0.0 ;
     }
-
+    //std::cout << _SITgeo[layer].nLadders << " " << _SITgeo[layer].phi0 << " "<< _SITgeo[layer].dphi << " " << _SITgeo[layer].senRMin << " " << _SITgeo[layer].supRMin << " "
+    //          << _SITgeo[layer].length << " " << _SITgeo[layer].width << " " << _SITgeo[layer].offset << " " << _SITgeo[layer].senThickness << " " << _SITgeo[layer].supThickness << " "
+    //          << _SITgeo[layer].nSensorsPerLadder << " " << _SITgeo[layer].sensorLength << std::endl;
     // streamlog_out(DEBUG0) << " layer  = " << layer << std::endl;
     // streamlog_out(DEBUG0) << " nSensorsPerLadder  = " << _SITgeo[layer].nSensorsPerLadder << std::endl;
     // streamlog_out(DEBUG0) << " sensorLength  = " << _SITgeo[layer].sensorLength << std::endl;
@@ -280,7 +291,61 @@ void ILDSITKalDetector::setupGearGeom( const gear::GearMgr& gearMgr ){
     
   }
   
-  
-  
-  
+}
+
+void ILDSITKalDetector::setupGearGeom( IGeoSvc* geoSvc ){
+
+  dd4hep::DetElement world = geoSvc->getDD4HepGeo();
+  dd4hep::DetElement sit;
+  const std::map<std::string, dd4hep::DetElement>& subs = world.children();
+  for(std::map<std::string, dd4hep::DetElement>::const_iterator it=subs.begin();it!=subs.end();it++){
+    if(it->first!="SIT") continue;
+    sit = it->second;
+  }
+  dd4hep::rec::ZPlanarData* sitData = nullptr;
+  try{
+    sitData = sit.extension<dd4hep::rec::ZPlanarData>();
+  }
+  catch(std::runtime_error& e){
+    std::cout << e.what() << " " << sitData << std::endl;
+    throw GaudiException(e.what(), "FATAL", StatusCode::FAILURE);
+  }
+
+  const dd4hep::Direction& field = geoSvc->lcdd()->field().magneticField(dd4hep::Position(0,0,0));
+  _bZ = field.z();
+
+  std::vector<dd4hep::rec::ZPlanarData::LayerLayout>& sitlayers = sitData->layers;
+  _nLayers = sitlayers.size();
+  _SITgeo.resize(_nLayers);
+
+  double strip_angle_deg = sitData->angleStrip/CLHEP::degree;
+  if(strip_angle_deg!=0){
+    _isStripDetector = true;
+  }
+  //std::cout << "=============SIT strip angle: " << strip_angle_deg << "==============" << std::endl;
+  for( int layer=0; layer < _nLayers; ++layer){
+    dd4hep::rec::ZPlanarData::LayerLayout& pSITLayerLayout = sitlayers[layer];
+    
+    _SITgeo[layer].nLadders = pSITLayerLayout.ladderNumber;
+    _SITgeo[layer].phi0 = pSITLayerLayout.phi0;
+    _SITgeo[layer].dphi = 2*M_PI / _SITgeo[layer].nLadders;
+    _SITgeo[layer].senRMin = pSITLayerLayout.distanceSensitive*CLHEP::cm;
+    _SITgeo[layer].supRMin = pSITLayerLayout.distanceSupport*CLHEP::cm;
+    _SITgeo[layer].length = pSITLayerLayout.zHalfSensitive*2.0*CLHEP::cm; // note: gear for historical reasons uses the halflength                                                         
+    _SITgeo[layer].width = pSITLayerLayout.widthSensitive*CLHEP::cm;
+    _SITgeo[layer].offset = pSITLayerLayout.offsetSensitive*CLHEP::cm;
+    _SITgeo[layer].senThickness = pSITLayerLayout.thicknessSensitive*CLHEP::cm;
+    _SITgeo[layer].supThickness = pSITLayerLayout.thicknessSupport*CLHEP::cm;
+    _SITgeo[layer].nSensorsPerLadder = pSITLayerLayout.sensorsPerLadder;
+    _SITgeo[layer].sensorLength = _SITgeo[layer].length / _SITgeo[layer].nSensorsPerLadder;
+
+    if (_isStripDetector) {
+      _SITgeo[layer].stripAngle = strip_angle_deg * M_PI/180 ;
+    } else {
+      _SITgeo[layer].stripAngle = 0.0 ;
+    }
+    //std::cout << _SITgeo[layer].nLadders << " " << _SITgeo[layer].phi0 << " "<< _SITgeo[layer].dphi << " " << _SITgeo[layer].senRMin << " " << _SITgeo[layer].supRMin << " "
+    //	      << _SITgeo[layer].length << " " << _SITgeo[layer].width << " " << _SITgeo[layer].offset << " " << _SITgeo[layer].senThickness << " " << _SITgeo[layer].supThickness << " "
+    //	      << _SITgeo[layer].nSensorsPerLadder << " " << _SITgeo[layer].sensorLength << " " << pSITLayerLayout.lengthSensor << std::endl; 
+  }
 }

@@ -14,12 +14,13 @@ namespace gear{
   class GearMgr ;
 }
 
+class IGeoSvc;
 
 class ILDTPCKalDetector : public TVKalDetector {
 public:
   
   /** Initialize the TPC from GEAR */
-  ILDTPCKalDetector( const gear::GearMgr& gearMgr );
+  ILDTPCKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc=0 );
   
   
 private:

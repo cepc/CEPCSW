@@ -16,6 +16,10 @@
 #include <sstream>
 #include <cmath>
 
+#include "DD4hep/Detector.h"
+#include "DDRec/DetectorData.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+
 #include "gear/GEAR.h"
 #include "gear/BField.h"
 #include "gearimpl/Util.h"
@@ -26,28 +30,33 @@
 ILDSupportKalDetector::ILDSupportKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc ) : 
 TVKalDetector(10) 
 {
-  
+  Double_t bz;
+  std::vector<double> z, rInner, rOuter;
   // streamlog_out(DEBUG1) << "ILDSupportKalDetector building beampipe using GEAR " << std::endl ;
-  
-  const gear::GearParameters& pBeamPipe = gearMgr.getGearParameters("BeamPipe");
-  const Double_t bz = gearMgr.getBField().at( gear::Vector3D( 0.,0.,0.)  ).z() ;
-  
-  // switch gear to dd4hep::rec, once validated, gear will been removed. 
-  const dd4hep::rec::ConicalSupportData* pBeamPipeData = geoSvc->getBeamPipeData();
-  const std::vector<dd4hep::rec::ConicalSupportData::Section>& sections = pBeamPipeData->sections;
-  std::cout << "======================BeamPipe===================" << std::endl;
-  for(int i=0;i<sections.size();i++){
-    std::cout << sections[i].zPos << " " << sections[i].rInner << " " << sections[i].rOuter << std::endl;
+  if(geoSvc){
+    const dd4hep::rec::ConicalSupportData* pBeamPipeData = geoSvc->getBeamPipeData();
+    const std::vector<dd4hep::rec::ConicalSupportData::Section>& sections = pBeamPipeData->sections;
+    const dd4hep::Direction& field = geoSvc->lcdd()->field().magneticField(dd4hep::Position(0,0,0));
+    bz = field.z();
+    for(int i=0;i<sections.size();i++){
+      z.push_back(sections[i].zPos);
+      rInner.push_back(sections[i].rInner);
+      rOuter.push_back(sections[i].rOuter);
+    }
   }
-  std::cout << "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" << std::endl;
-  // the beampipe is supposed to be a chain of cut cones (cut, that means the spike is cut off, also called a cone frustum).
-  // as they are connected, RStart[i] == REnd[i-1]. With this all we need are the z values and the radii at the place.
-  const std::vector<double> z = pBeamPipe.getDoubleVals("Z");
-  const std::vector<double> rInner = pBeamPipe.getDoubleVals("RInner"); //inner radius of the cone
-  const std::vector<double> rOuter = pBeamPipe.getDoubleVals("ROuter"); //outer radius of the cone
-  for(int i=0;i<sections.size();i++){
-    std::cout << z[i] << " " << rInner[i] << " " << rOuter[i] << std::endl;
+  else{
+    const gear::GearParameters& pBeamPipe = gearMgr.getGearParameters("BeamPipe");
+    bz = gearMgr.getBField().at( gear::Vector3D( 0.,0.,0.)  ).z() ;
+    
+    // the beampipe is supposed to be a chain of cut cones (cut, that means the spike is cut off, also called a cone frustum).
+    // as they are connected, RStart[i] == REnd[i-1]. With this all we need are the z values and the radii at the place.
+    z = pBeamPipe.getDoubleVals("Z");
+    rInner = pBeamPipe.getDoubleVals("RInner"); //inner radius of the cone
+    rOuter = pBeamPipe.getDoubleVals("ROuter"); //outer radius of the cone
   }
+  //for(int i=0;i<sections.size();i++){
+  //  std::cout << z[i] << " " << rInner[i] << " " << rOuter[i] << std::endl;
+  //}
   MaterialDataBase::Instance().registerForService(gearMgr, geoSvc);
   TMaterial & beam      = *MaterialDataBase::Instance().getMaterial("beam");
   TMaterial & air       = *MaterialDataBase::Instance().getMaterial("air");

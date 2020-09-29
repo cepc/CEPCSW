@@ -10,6 +10,11 @@
 
 #include <sstream>
 
+#include "DetInterface/IGeoSvc.h"
+#include "DD4hep/Detector.h"
+#include "DDRec/DetectorData.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+
 #include "gear/GEAR.h"
 #include "gear/BField.h"
 #include "gear/TPCParameters.h"
@@ -22,37 +27,69 @@
 // #include "streamlog/streamlog.h"
 
 
-ILDTPCKalDetector::ILDTPCKalDetector( const gear::GearMgr& gearMgr ) : 
+ILDTPCKalDetector::ILDTPCKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc ) : 
 TVKalDetector(250) // SJA:FIXME initial size, 250 looks reasonable for ILD, though this would be better stored as a const somewhere
 {
-  
+  Double_t bz;
+  Int_t    nlayers;
+  Double_t lhalf, rstep, rmin, rtub, outerr, inthick, outthick;
   // streamlog_out(DEBUG1) << "ILDTPCKalDetector building TPC detector using GEAR " << std::endl ;
-  
-  const gear::TPCParameters& tpcParams = gearMgr.getTPCParameters();
-  
-  const gear::PadRowLayout2D& pL = tpcParams.getPadLayout() ; 
+  if(geoSvc){
+    dd4hep::DetElement world = geoSvc->getDD4HepGeo();
+    dd4hep::DetElement tpc;
+    const std::map<std::string, dd4hep::DetElement>& subs = world.children();
+    for(std::map<std::string, dd4hep::DetElement>::const_iterator it=subs.begin();it!=subs.end();it++){
+      if(it->first!="TPC") continue;
+      tpc = it->second;
+    }
+    dd4hep::rec::FixedPadSizeTPCData* tpcData = nullptr;
+    try{
+      tpcData = tpc.extension<dd4hep::rec::FixedPadSizeTPCData>();
+    }
+    catch(std::runtime_error& e){
+      std::cout << e.what() << " " << tpcData << std::endl;
+      throw GaudiException(e.what(), "FATAL", StatusCode::FAILURE);
+    }
 
-  // streamlog_out(DEBUG1) << "ILDTPCKalDetector - got padlayout with nLayers = " <<  pL.getNRows()  <<  std::endl ;
+    const dd4hep::Direction& field = geoSvc->lcdd()->field().magneticField(dd4hep::Position(0,0,0));
+    bz = field.z();
+    nlayers = tpcData->maxRow;
+    lhalf = tpcData->driftLength*CLHEP::cm;
+    rstep = tpcData->padHeight*CLHEP::cm;
+    rmin = tpcData->rMinReadout*CLHEP::cm + 0.5*rstep;
+    rtub = tpcData->rMin*CLHEP::cm;
+    outerr = tpcData->rMax*CLHEP::cm;
+    inthick = tpcData->innerWallThickness*CLHEP::cm;
+    outthick = tpcData->outerWallThickness*CLHEP::cm;
+    //std::cout << "TPC: " << nlayers << " " << lhalf << " " << rstep << " " << rmin << " " << rtub << " " << outerr << " " << inthick << " " << outthick << std::endl;
+  }
+  else{
+    const gear::TPCParameters& tpcParams = gearMgr.getTPCParameters();
+  
+    const gear::PadRowLayout2D& pL = tpcParams.getPadLayout() ; 
 
-  const Double_t bz = gearMgr.getBField().at( gear::Vector3D( 0.,0.,0.)  ).z() ;
+    // std::cout << "ILDTPCKalDetector - got padlayout with nLayers = " <<  pL.getNRows()  <<  std::endl ;
+    
+    bz = gearMgr.getBField().at( gear::Vector3D( 0.,0.,0.)  ).z() ;
   
-  static const Int_t    nlayers   =  pL.getNRows() ;   // n rows
-  static const Double_t lhalf     =  tpcParams.getMaxDriftLength() ;  // half length
-  
-  static const Double_t rstep     =  pL.getRowHeight(0) ;     // step length of radius
-  
-  // assuming that this is the radius of the first measurment layer ....
-  static const Double_t rmin      =  tpcParams.getPlaneExtent()[0]   + rstep/2. ;   // minimum radius
-  
-  // streamlog_out( DEBUG0 ) << tpcParams << std::endl ;
-  
-  static const Double_t rtub      = tpcParams.getDoubleVal("tpcInnerRadius")  ; // inner r of support tube
-  static const Double_t outerr    = tpcParams.getDoubleVal("tpcOuterRadius")  ; // outer radius of TPC
-  
-  static const Double_t inthick   =  tpcParams.getDoubleVal("tpcInnerWallThickness")  ;   // thickness of inner shell
-  static const Double_t outthick  =  tpcParams.getDoubleVal("tpcOuterWallThickness")  ;   // thickness of outer shell
+    nlayers   =  pL.getNRows() ;   // n rows
+    lhalf     =  tpcParams.getMaxDriftLength() ;  // half length
+    rstep     =  pL.getRowHeight(0) ;     // step length of radius
+    
+    // assuming that this is the radius of the first measurment layer ....
+    rmin      =  tpcParams.getPlaneExtent()[0]   + rstep/2. ;   // minimum radius
+    
+    // std::cout << tpcParams << std::endl ;
+    
+    rtub      = tpcParams.getDoubleVal("tpcInnerRadius")  ; // inner r of support tube
+    outerr    = tpcParams.getDoubleVal("tpcOuterRadius")  ; // outer radius of TPC
+    
+    inthick   =  tpcParams.getDoubleVal("tpcInnerWallThickness")  ;   // thickness of inner shell
+    outthick  =  tpcParams.getDoubleVal("tpcOuterWallThickness")  ;   // thickness of outer shell
+    //std::cout << "TPC: " << nlayers << " " << lhalf << " " << rstep << " " << rmin << " " << rtub << " " << outerr << " " << inthick << " " << outthick << std::endl;
+  }    
 
-  MaterialDataBase::Instance().registerForService(gearMgr);
+  MaterialDataBase::Instance().registerForService(gearMgr, geoSvc);
   TMaterial & air          = *MaterialDataBase::Instance().getMaterial("air");
   TMaterial & tpcgas       = *MaterialDataBase::Instance().getMaterial("tpcgas");
   //  TMaterial & aluminium    = *MaterialDataBase::Instance().getMaterial("aluminium");

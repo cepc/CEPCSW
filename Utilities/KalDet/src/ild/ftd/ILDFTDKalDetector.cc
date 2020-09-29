@@ -5,6 +5,10 @@
 
 #include <sstream>
 
+#include "DetInterface/IGeoSvc.h"
+#include "DD4hep/Detector.h"
+#include "DDRec/DetectorData.h"
+
 #include "gear/GEAR.h"
 #include "gear/BField.h"
 #include "gearimpl/Util.h"
@@ -19,18 +23,23 @@
 #include <UTIL/ILDConf.h>
 
 // #include "streamlog/streamlog.h"
-
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "TVector3.h"
 
-ILDFTDKalDetector::ILDFTDKalDetector( const gear::GearMgr& gearMgr ) : 
+ILDFTDKalDetector::ILDFTDKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc ) : 
 TVKalDetector(300), _nDisks(0) // SJA:FIXME initial size, 300 looks reasonable for ILD, though this would be better stored as a const somewhere
 {
   
   // streamlog_out(DEBUG1) << "ILDFTDKalDetector building FTD detector using GEAR " << std::endl ;
   
-  MaterialDataBase::Instance().registerForService(gearMgr);
-  setupGearGeom( gearMgr ) ; 
-  
+  MaterialDataBase::Instance().registerForService(gearMgr, geoSvc);
+  if(geoSvc){
+    setupGearGeom( geoSvc ) ; 
+  }
+  else{
+    setupGearGeom( gearMgr );
+  }
+
   this->build_staggered_design();
 
   
@@ -380,7 +389,7 @@ void ILDFTDKalDetector::setupGearGeom( const gear::GearMgr& gearMgr ){
     
   }
 
-  
+  //std::cout << "=============FTD strip angle: " << strip_angle_deg << "==============" << std::endl;
   _nDisks = ftdlayers.getNLayers() ; // just do the first disk for now 
   _FTDgeo.resize(_nDisks);
   
@@ -419,6 +428,11 @@ void ILDFTDKalDetector::setupGearGeom( const gear::GearMgr& gearMgr ){
       _FTDgeo[disk].stripAngle = 0.0 ;
     }
 
+
+    //std::cout << _FTDgeo[disk].nPetals << " " << _FTDgeo[disk].dphi << " " << _FTDgeo[disk].phi0 << " " << _FTDgeo[disk].alpha << " "
+    //          << _FTDgeo[disk].rInner << " " << _FTDgeo[disk].height << " " << _FTDgeo[disk].innerBaseLength << " " << _FTDgeo[disk].outerBaseLength << " "
+    //          << _FTDgeo[disk].senThickness << " " <<  _FTDgeo[disk].supThickness << " " << _FTDgeo[disk].senZPos_even_front << " " << _FTDgeo[disk].senZPos_odd_front << " "
+    //          << _FTDgeo[disk].isDoubleSided << " " << _FTDgeo[disk].isStripReadout << " " << _FTDgeo[disk].nSensors << " " << _FTDgeo[disk].stripAngle << std::endl;
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Assertions       ////////////////////////////////////////////////////////////////////////////////////
     
@@ -498,4 +512,117 @@ void ILDFTDKalDetector::setupGearGeom( const gear::GearMgr& gearMgr ){
   }
   
   
+}
+
+void ILDFTDKalDetector::setupGearGeom( IGeoSvc* geoSvc ){
+  dd4hep::DetElement world = geoSvc->getDD4HepGeo();
+  dd4hep::DetElement ftd;
+  const std::map<std::string, dd4hep::DetElement>& subs = world.children();
+  for(std::map<std::string, dd4hep::DetElement>::const_iterator it=subs.begin();it!=subs.end();it++){
+    if(it->first!="FTD") continue;
+    ftd = it->second;
+  }
+  dd4hep::rec::ZDiskPetalsData* ftdData = nullptr;
+  try{
+    ftdData = ftd.extension<dd4hep::rec::ZDiskPetalsData>();
+  }
+  catch(std::runtime_error& e){
+    std::cout << e.what() << " " << ftdData << std::endl;
+    throw GaudiException(e.what(), "FATAL", StatusCode::FAILURE);
+  }
+  
+  const dd4hep::Direction& field = geoSvc->lcdd()->field().magneticField(dd4hep::Position(0,0,0));
+  _bZ = field.z();
+
+  double strip_angle_deg = ftdData->angleStrip/CLHEP::degree;
+  bool strip_angle_present = true;
+
+  std::vector<dd4hep::rec::ZDiskPetalsData::LayerLayout>& ftdlayers = ftdData->layers;
+  _nDisks = ftdlayers.size() ;
+
+  _FTDgeo.resize(_nDisks);
+
+  double eps = 1.0e-08;
+  //std::cout << "=============FTD strip angle: " << strip_angle_deg << "==============" << std::endl; 
+  for(int disk=0; disk< _nDisks; ++disk){
+    dd4hep::rec::ZDiskPetalsData::LayerLayout& ftdlayer = ftdlayers[disk];
+    _FTDgeo[disk].nPetals = ftdlayer.petalNumber ;
+    _FTDgeo[disk].dphi = 2*M_PI /  _FTDgeo[disk].nPetals ;
+    _FTDgeo[disk].phi0 = ftdlayer.phi0 ;
+    _FTDgeo[disk].alpha = ftdlayer.alphaPetal ;
+    _FTDgeo[disk].rInner = ftdlayer.distanceSensitive*CLHEP::cm ;
+    _FTDgeo[disk].height = ftdlayer.lengthSensitive*CLHEP::cm ;
+    _FTDgeo[disk].innerBaseLength =  ftdlayer.widthInnerSensitive*CLHEP::cm ;
+    _FTDgeo[disk].outerBaseLength =  ftdlayer.widthOuterSensitive*CLHEP::cm ;
+    _FTDgeo[disk].senThickness =  ftdlayer.thicknessSensitive*CLHEP::cm ;
+    _FTDgeo[disk].supThickness =  ftdlayer.thicknessSupport*CLHEP::cm ;
+
+    _FTDgeo[disk].senZPos_even_front = ftdlayer.zPosition*CLHEP::cm - ftdlayer.zOffsetSensitive*CLHEP::cm;//getSensitiveZposition(disk, 0, 1) ;
+    _FTDgeo[disk].senZPos_odd_front = ftdlayer.zPosition*CLHEP::cm - ftdlayer.zOffsetSensitive*CLHEP::cm - 2*ftdlayer.zOffsetSupport*CLHEP::cm;//getSensitiveZposition(disk, 1, 1) ;
+
+    _FTDgeo[disk].isDoubleSided  = ftdlayer.typeFlags[dd4hep::rec::ZDiskPetalsData::SensorType::DoubleSided];
+    _FTDgeo[disk].isStripReadout = !((bool)ftdlayer.typeFlags[dd4hep::rec::ZDiskPetalsData::SensorType::Pixel]);
+    _FTDgeo[disk].nSensors = ftdlayer.sensorsPerPetal;
+
+
+    if (strip_angle_present) {
+      _FTDgeo[disk].stripAngle = strip_angle_deg * M_PI/180 ;
+    } else {
+      _FTDgeo[disk].stripAngle = 0.0 ;
+    }
+    //std::cout << _FTDgeo[disk].nPetals << " " << _FTDgeo[disk].dphi << " " << _FTDgeo[disk].phi0 << " " << _FTDgeo[disk].alpha << " "
+    //	      << _FTDgeo[disk].rInner << " " << _FTDgeo[disk].height << " " << _FTDgeo[disk].innerBaseLength << " " << _FTDgeo[disk].outerBaseLength << " "
+    //	      << _FTDgeo[disk].senThickness << " " <<  _FTDgeo[disk].supThickness << " " << _FTDgeo[disk].senZPos_even_front << " " << _FTDgeo[disk].senZPos_odd_front << " " 
+    //	      << _FTDgeo[disk].isDoubleSided << " " << _FTDgeo[disk].isStripReadout << " " << _FTDgeo[disk].nSensors << " " << _FTDgeo[disk].stripAngle << std::endl;
+    
+    assert( _FTDgeo[disk].nPetals%2 == 0 );
+    assert( fabs( ftdlayer.widthInnerSupport - ftdlayer.widthInnerSensitive ) < eps );
+    assert( fabs( ftdlayer.widthOuterSupport - ftdlayer.widthOuterSensitive ) < eps );
+    assert( fabs( ftdlayer.lengthSupport - ftdlayer.lengthSensitive ) < eps );
+    assert( fabs( ftdlayer.distanceSupport - ftdlayer.distanceSensitive ) < eps );
+    if( _FTDgeo[disk].isDoubleSided ) assert( _FTDgeo[disk].nSensors%2 == 0 );
+    assert( fabs( ftdlayer.alphaPetal ) < eps );
+    /*
+    if( _FTDgeo[disk].isDoubleSided ){
+
+      for( int iPetal=0; iPetal< _FTDgeo[disk].nPetals; iPetal++){
+
+        int sensors1Side = _FTDgeo[disk].nSensors/2;
+	for( int iSensor=2; iSensor <= sensors1Side; iSensor++ ){
+
+          assert( fabs( ftdlayers.getSensitiveZposition( disk, iPetal, iSensor) - ftdlayers.getSensitiveZposition( disk, iPetal, iSensor-1) ) < eps );
+
+        }
+
+	for( int iSensor=sensors1Side + 2; iSensor <= _FTDgeo[disk].nSensors; iSensor++ ){
+
+          assert( fabs( ftdlayers.getSensitiveZposition( disk, iPetal, iSensor) - ftdlayers.getSensitiveZposition( disk, iPetal, iSensor-1) ) < eps );
+          assert( fabs( ftdlayers.getSensitiveZposition( disk, iPetal, iSensor) ) - fabs( ftdlayers.getSensitiveZposition( disk, iPetal, iSensor-sensors1Side ) ) >= 0. );
+        }
+      }
+    }
+    else{
+
+      for( int iPetal=0; iPetal< _FTDgeo[disk].nPetals; iPetal++){
+
+        for(int iSensor=2; iSensor <= _FTDgeo[disk].nSensors; iSensor++ ){
+
+	  assert( fabs( ftdlayers.getSensitiveZposition( disk, iPetal, iSensor) - ftdlayers.getSensitiveZposition( disk, iPetal, iSensor-1) ) < eps );
+
+        }
+      } 
+    }
+
+    for( int iPetal=0; iPetal< _FTDgeo[disk].nPetals; iPetal++){
+
+      int side = ftdlayers.getSupportZposition( disk, iPetal ) > 0? 1 : -1;
+
+      double endSensitive = ftdlayers.getSensitiveZposition( disk, iPetal, 1) + side * _FTDgeo[disk].senThickness/2.;
+      double endSupport =   ftdlayers.getSupportZposition( disk, iPetal ) -side * _FTDgeo[disk].supThickness/2.;
+
+      assert( fabs( endSensitive- endSupport ) < eps );
+
+    }
+    */
+  }
 }

@@ -128,7 +128,7 @@ namespace MarlinTrk{
       
       bool SIT_found = false ;
       try{
-        ILDSITKalDetector* sitdet = new ILDSITKalDetector( *_gearMgr )  ;
+        ILDSITKalDetector* sitdet = new ILDSITKalDetector( *_gearMgr, _geoSvc )  ;
         // store the measurement layer id's for the active layers 
         this->storeActiveMeasurementModuleIDs(sitdet);
         _det->Install( *sitdet ) ;
@@ -151,7 +151,7 @@ namespace MarlinTrk{
       }
 
       try{
-        ILDSETKalDetector* setdet = new ILDSETKalDetector( *_gearMgr )  ;
+        ILDSETKalDetector* setdet = new ILDSETKalDetector( *_gearMgr, _geoSvc )  ;
         // store the measurement layer id's for the active layers
         this->storeActiveMeasurementModuleIDs(setdet);
         _det->Install( *setdet ) ;
@@ -163,7 +163,7 @@ namespace MarlinTrk{
 
       bool FTD_found = false ;
       try{
-        ILDFTDKalDetector* ftddet = new ILDFTDKalDetector( *_gearMgr )  ;
+        ILDFTDKalDetector* ftddet = new ILDFTDKalDetector( *_gearMgr, _geoSvc )  ;
         // store the measurement layer id's for the active layers 
         this->storeActiveMeasurementModuleIDs(ftddet);
         _det->Install( *ftddet ) ;    
@@ -186,7 +186,7 @@ namespace MarlinTrk{
       }
 
       try{
-        ILDTPCKalDetector* tpcdet = new ILDTPCKalDetector( *_gearMgr )  ;
+        ILDTPCKalDetector* tpcdet = new ILDTPCKalDetector( *_gearMgr, _geoSvc )  ;
         // store the measurement layer id's for the active layers
         this->storeActiveMeasurementModuleIDs(tpcdet);
         _det->Install( *tpcdet ) ;
