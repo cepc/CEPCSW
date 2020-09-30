@@ -211,7 +211,7 @@ void SetParDisk( XMLHandlerDB db)
   
 }
 //=END======================= PARAMETERS SETTERS FUNCTIONS ================================END=/
-};
+}
 
   using namespace cepc;
 /** Construction of FTD detector, ported from Mokka driver FTD_simple_Staggered.cc
