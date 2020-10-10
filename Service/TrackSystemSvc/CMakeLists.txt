@@ -21,7 +21,7 @@ gaudi_install_headers(TrackSystemSvc)
 gaudi_add_library(TrackSystemSvcLib ${TrackSystemSvcLib_srcs}
     PUBLIC_HEADERS TrackSystemSvc
     INCLUDE_DIRS GaudiKernel ROOT CLHEP gear ${LCIO_INCLUDE_DIRS} ${EDM4HEP_INCLUDE_DIRS}
-    LINK_LIBRARIES DataHelperLib KalTestLib KalDetLib GaudiKernel ROOT CLHEP $ENV{GEAR}/lib/libgear.so $ENV{GEAR}/lib/libgearsurf.so ${LCIO_LIBRARIES}
+    LINK_LIBRARIES DataHelperLib KalTestLib KalDetLib GaudiKernel ROOT CLHEP ${GEAR_LIBRARIES} ${LCIO_LIBRARIES}
      -Wl,--no-as-needed
      EDM4HEP::edm4hep EDM4HEP::edm4hepDict
      -Wl,--as-needed
