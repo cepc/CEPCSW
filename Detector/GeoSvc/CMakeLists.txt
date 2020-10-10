@@ -27,7 +27,8 @@ gaudi_add_module(GeoSvc
                  LINK_LIBRARIES
                    DD4hep 
                    ${DD4hep_COMPONENT_LIBRARIES} 
-                   GaudiKernel 
-		   ${GEAR_LIBRARIES}
+                   GaudiKernel
+                   ${GEAR_LIBRARIES}
+                   ${ROOT_LIBRARIES}
                    # ROOT
 )
