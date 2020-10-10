@@ -29,5 +29,5 @@ gaudi_add_library(TrackSystemSvcLib ${TrackSystemSvcLib_srcs}
 
 gaudi_add_module(TrackSystemSvc ${TrackSystemSvc_srcs}
 				INCLUDE_DIRS GaudiKernel gear 
-				LINK_LIBRARIES TrackSystemSvcLib GaudiKernel $ENV{GEAR}/lib/libgear.so
+				LINK_LIBRARIES TrackSystemSvcLib GaudiKernel ${GEAR_LIBRARIES}
 )
