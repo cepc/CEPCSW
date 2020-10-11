@@ -57,7 +57,7 @@ function run-cmake() {
 
     cd $blddir
 
-    local clhep_prefix=$(clhep-config --prefix)
+    local clhep_prefix=$(eval echo $(clhep-config --prefix))
     local clhep_include=${clhep_prefix}/include
 
     # locate the pandorapfa
