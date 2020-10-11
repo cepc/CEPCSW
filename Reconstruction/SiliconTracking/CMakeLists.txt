@@ -17,6 +17,6 @@ set(SiliconTracking_srcs src/*.cpp)
 
 # Modules
 gaudi_add_module(SiliconTracking ${SiliconTracking_srcs}
-    INCLUDE_DIRS GaudiKernel FWCore gear ${GSLx_INCLUDE_DIRS} ${LCIOx_INCLUDE_DIRS}
-    LINK_LIBRARIES TrackSystemSvcLib DataHelperLib KiTrackLib GaudiKernel FWCore $ENV{GEAR}/lib/libgearsurf.so ${GSL_LIBRARIES} ${LCIO_LIBRARIES} 
+    INCLUDE_DIRS GaudiKernel FWCore gear ${GSL_INCLUDE_DIRS} ${LCIO_INCLUDE_DIRS}
+    LINK_LIBRARIES TrackSystemSvcLib DataHelperLib KiTrackLib GaudiKernel FWCore ${GEAR_LIBRARIES} ${GSL_LIBRARIES} ${LCIO_LIBRARIES} 
 )
