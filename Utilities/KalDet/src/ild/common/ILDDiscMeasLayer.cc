@@ -211,7 +211,7 @@ ILDVTrackHit* ILDDiscMeasLayer::ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhi
   
   //edm4hep::TrackerHitPlane* plane_hit = dynamic_cast<EVENT::TrackerHitPlane*>( trkhit ) ;
   //edm4hep::TrackerHitPlane* plane_hit = trkhit;
-  if(trkhit.getType()!=8) return NULL;
+  if((trkhit.getType()&8)!=8) return NULL;
   
   //edm4hep::ConstTrackerHit plane_hit = trkhit;
   //if( plane_hit == NULL )  return NULL; // SJA:FIXME: should be replaced with an exception  
