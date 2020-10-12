@@ -1,6 +1,5 @@
 gaudi_subdir(SimpleDigi v0r0)
 
-find_package(CLHEP REQUIRED)
 find_package(GEAR REQUIRED)
 find_package(GSL REQUIRED ) 
 find_package(LCIO REQUIRED ) 

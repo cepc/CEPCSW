@@ -5,7 +5,6 @@
 
 gaudi_subdir(KalDet v0r0)
 
-find_package(CLHEP REQUIRED)
 find_package(LCIO)
 find_package(GEAR)
 find_package(ROOT COMPONENTS MathCore)

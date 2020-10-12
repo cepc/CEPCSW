@@ -1,7 +1,6 @@
 gaudi_subdir(TrackSystemSvc v0r0)
 
 find_package(ROOT 6.14 REQUIRED COMPONENTS Matrix Physics)
-find_package(CLHEP REQUIRED)
 find_package(GEAR REQUIRED)
 find_package(LCIO REQUIRED)
 find_package(EDM4HEP REQUIRED)

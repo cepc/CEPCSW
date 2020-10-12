@@ -1,6 +1,5 @@
 gaudi_subdir(GaudiPandora v0r0)
 
-find_package(CLHEP REQUIRED)
 find_package(LCIO REQUIRED ) 
 find_package(GEAR REQUIRED)
 message("ENV GEAR: $ENV{GEAR}")
