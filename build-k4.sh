@@ -78,7 +78,6 @@ function run-cmake() {
     local cmake_modules=${pandorapfa_cmake_modules}
 
     cmake .. -DHOST_BINARY_TAG=${k4_platform} \
-          -DCLHEP_INCLUDE_DIR=${clhep_include} \
           -DCMAKE_MODULE_PATH=${cmake_modules} || {
         error: "Failed to cmake"
         return 1
