@@ -497,7 +497,7 @@ Bool_t ILDSegmentedDiscMeasLayer::IsOnSurface(const TVector3 &xx) const
 
 ILDVTrackHit* ILDSegmentedDiscMeasLayer::ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const {
   //EVENT::TrackerHitPlane* plane_hit = dynamic_cast<EVENT::TrackerHitPlane*>( trkhit ) ;
-  if(trkhit.getType()!=8) {
+  if((trkhit.getType()&8)!=8) {
   //if( plane_hit == NULL )  { 
     // streamlog_out(ERROR) << "ILDSegmentedDiscMeasLayer::ConvertLCIOTrkHit dynamic_cast to TrackerHitPlane failed " << std::endl; 
     return NULL; // SJA:FIXME: should be replaced with an exception  

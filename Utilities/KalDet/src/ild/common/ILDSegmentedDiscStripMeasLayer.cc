@@ -245,7 +245,7 @@ void ILDSegmentedDiscStripMeasLayer::CalcDhDa(const TVTrackHit &vht,
 ILDVTrackHit* ILDSegmentedDiscStripMeasLayer::ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const {
   
   //EVENT::TrackerHitPlane* plane_hit = dynamic_cast<EVENT::TrackerHitPlane*>( trkhit ) ;
-  if(trkhit.getType()!=8){
+  if((trkhit.getType()&8)!=8){
   //if( plane_hit == NULL )  { 
     // streamlog_out(ERROR) << "ILDSegmentedDiscStripMeasLayer::ConvertLCIOTrkHit dynamic_cast to TrackerHitPlane failed " << std::endl; 
     return NULL; // SJA:FIXME: should be replaced with an exception  
@@ -272,20 +272,20 @@ ILDVTrackHit* ILDSegmentedDiscStripMeasLayer::ConvertLCIOTrkHit(edm4hep::ConstTr
     
   bool hit_on_surface = IsOnSurface(hit);
   
-  // streamlog_out(DEBUG1) << "ILDSegmentedDiscStripMeasLayer::ConvertLCIOTrkHit ILDPlanarStripHit created" 
-  // << " for CellID " << trkhit.getCellID()
-  // << " Disc Z = " << this->GetXc().Z() 
-  // << " u = "  <<  x[0]
-  // << " du = " << dx[0];
+  //std::cout << "ILDSegmentedDiscStripMeasLayer::ConvertLCIOTrkHit ILDPlanarStripHit created" 
+  //	    << " for CellID " << trkhit.getCellID()
+  //	    << " Disc Z = " << this->GetXc().Z() 
+  //	    << " u = "  <<  x[0]
+  //	    << " du = " << dx[0];
   
-  // if(ILDPlanarStripHit_DIM == 2)  streamlog_out(DEBUG1) << " v = "  <<  x[1] << " dv = " << dx[1];
+  //if(ILDPlanarStripHit_DIM == 2)  std::cout << " v = "  <<  x[1] << " dv = " << dx[1];
   
-  // streamlog_out(DEBUG1) << " x = " << hit.x()
-  //       		<< " y = " << hit.y()
-  //       		<< " z = " << hit.z()
-  //       		<< " r = " << hit.Perp()
-  //       		<< " onSurface = " << hit_on_surface
-  //       		<< std::endl ;
+  //std::cout << " x = " << hit.x()
+  //	    << " y = " << hit.y()
+  //	    << " z = " << hit.z()
+  //	    << " r = " << hit.Perp()
+  //	    << " onSurface = " << hit_on_surface
+  //	    << std::endl ;
   
   ILDPlanarStripHit hh( *this , x, dx, this->GetBz(),trkhit);
   
