@@ -57,9 +57,6 @@ function run-cmake() {
 
     cd $blddir
 
-    local clhep_prefix=$(eval echo $(clhep-config --prefix))
-    local clhep_include=${clhep_prefix}/include
-
     # locate the pandorapfa
     local pandorapfa=$(echo $CMAKE_PREFIX_PATH | tr ':' '\n' | grep pandorapfa | head -n1)
     info: "Find PandoraPFA: $pandorapfa"
