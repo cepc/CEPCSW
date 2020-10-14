@@ -20,7 +20,7 @@ inline bool hasTrackStateAt(edm4hep::ConstTrack track, int location) {
 inline edm4hep::TrackState getTrackStateAt(edm4hep::ConstTrack track, int location) {
     for (auto it = track.trackStates_begin(); it != track.trackStates_end(); it++) {
         if (it->location == location) {
-            *it;
+            return *it;
         }
     }
     return edm4hep::TrackState();
