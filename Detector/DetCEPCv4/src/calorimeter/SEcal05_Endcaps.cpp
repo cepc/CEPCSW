@@ -130,7 +130,8 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   double Ecal_Barrel_halfZ                  = theDetector.constant<double>("Ecal_Barrel_halfZ");
 
   int    Ecal_barrel_number_of_towers       = theDetector.constant<int>("Ecal_barrel_number_of_towers");
-  
+
+  std::string Ecal_support_material         = theDetector.constant<string>("Ecal_support_material");
   double Ecal_support_thickness             = theDetector.constant<double>("Ecal_support_thickness");
   double Ecal_front_face_thickness          = theDetector.constant<double>("Ecal_front_face_thickness");
   double Ecal_lateral_face_thickness        = theDetector.constant<double>("Ecal_lateral_face_thickness");
@@ -248,12 +249,24 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   // check that resulting quadrant size is consistent with compact description
   // here we assume that the width of an alveolus in the endcaps is the same as that in the barrel.
   double barrel_alv_width    = ( Ecal_Barrel_halfZ*2./Ecal_barrel_z_modules - 2.*Ecal_lateral_face_thickness ) / Ecal_barrel_number_of_towers;
+  /*
   double calc_endcap_rout(EcalEndcap_inner_radius);
   for (size_t i=0; i<ntowers.size(); i++) {
     calc_endcap_rout+=ntowers[i]*barrel_alv_width + 2.*Ecal_lateral_face_thickness;
   }
 
   cout << "alveolus width = " << barrel_alv_width << endl;
+  */
+  // varied endcap alveolus same as MokkaC's CEPC_v4, fucd
+  // alveolus_dim_z in order to match, in fact, barrel_alv_width is okay.
+  double alveolus_dim_z = barrel_alv_width - 2 * Ecal_fiber_thickness_alveolus - 2 * Ecal_Slab_H_fiber_thickness - 2 * Ecal_Slab_shielding;
+  double calc_endcap_rout = EcalBarrel_inner_radius + module_thickness + Ecal_endcap_extra_size;
+  double endcap_y_botton      = EcalEndcap_inner_radius + Ecal_lateral_face_thickness;
+  double endcap_y_top         = calc_endcap_rout - Ecal_lateral_face_thickness;
+  double endcap_y_height      = endcap_y_top - endcap_y_botton;
+  double endcap_alv_n     = int((endcap_y_height/alveolus_dim_z) + 0.5);
+  //double endcap_alv_width = endcap_y_height/endcap_alv_n - 2 * Ecal_fiber_thickness_alveolus - 2 * Ecal_Slab_H_fiber_thickness - 2 * Ecal_Slab_shielding;
+  double endcap_alv_width = endcap_y_height/endcap_alv_n;
 
   //  compare calculated size vs that in compact description
   if ( fabs( calc_endcap_rout - EcalEndcap_outer_radius ) > 0.1*dd4hep::mm ) {
@@ -266,9 +279,9 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
 
 
   helper.setTowersUnits( ntowers,
-			 barrel_alv_width,
+			 endcap_alv_width, //barrel_alv_width,
 			 Ecal_n_wafers_per_tower,
-			 Ecal_lateral_face_thickness,
+			 0, //Ecal_lateral_face_thickness,
                          Ecal_fiber_thickness_alveolus + Ecal_Slab_H_fiber_thickness + Ecal_Slab_shielding,
 			 Ecal_guard_ring_size );
 
@@ -288,14 +301,16 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   PolyhedraRegular ECPolyHedra(8, M_PI/8., 0., calc_endcap_rout, module_thickness);
 
   // take just one quadrant of the octagon, and remove the centre box
+  
   double quadr = calc_endcap_rout; // anything which is big enough
   Box quadrant( quadr, quadr , module_thickness);
+
   IntersectionSolid EndCapSolid( ECPolyHedra, 
 				 quadrant,
 				 Position( quadr - EcalEndcap_inner_radius, 
 					   quadr + EcalEndcap_inner_radius, 0 ) );
-
-  Volume EnvLogEndCap("EcalEndcapQuadrant",EndCapSolid,theDetector.material("CarbonFiber"));
+  
+  Volume EnvLogEndCap("EcalEndcapQuadrant",EndCapSolid,theDetector.material(Ecal_support_material));
 
   // kink position wrt bottom of quadrant (inside the lateral support)
   // Y==0 is defined as outer edge of lateral face of inner module of quadrant
@@ -303,11 +318,11 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
 
   helper.setModuleDimensions(1, // xytype
 			     0, // xztype
-			     calc_endcap_rout + EcalEndcap_inner_radius, // dxMax
+			     calc_endcap_rout + EcalEndcap_inner_radius - 2*Ecal_lateral_face_thickness, // dxMax
 			     kink_y
 			     );
   
-  helper.setTranslation ( Position ( -EcalEndcap_inner_radius , EcalEndcap_inner_radius, -module_thickness/2. ) );
+  helper.setTranslation ( Position ( -EcalEndcap_inner_radius , EcalEndcap_inner_radius + Ecal_lateral_face_thickness, -module_thickness/2. ) );
 
   // make the module
 
@@ -315,13 +330,13 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   caloData->layoutType = LayeredCalorimeterData::EndcapLayout ;
 
   DetElement mod_det ("quad0",det_id);
-
+  
   helper.makeModule( EnvLogEndCap, 
 		     mod_det,
 		     *caloData,
 		     theDetector, 
 		     sens );
-
+  
   for (size_t i=0; i<caloData->layers.size(); i++) {
     caloData->layers[i].distance += Ecal_Barrel_halfZ + Ecal_cables_gap; // add IP->front face distance
   }

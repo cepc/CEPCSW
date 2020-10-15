@@ -121,7 +121,6 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   Layering      layering (element);
 
   Material      air       = theDetector.air();
-  Material      CF        = theDetector.material("CarbonFiber");
 
   int           det_id    = x_det.id();
   xml_comp_t    x_staves  = x_det.staves();
@@ -164,6 +163,7 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   double Ecal_radiator_thickness3           = theDetector.constant<double>("Ecal_radiator_layers_set3_thickness");
   double Ecal_Barrel_halfZ                  = theDetector.constant<double>("Ecal_Barrel_halfZ");
 
+  std::string Ecal_support_material         = theDetector.constant<string>("Ecal_support_material");
   double Ecal_support_thickness             = theDetector.constant<double>("Ecal_support_thickness");
   double Ecal_front_face_thickness          = theDetector.constant<double>("Ecal_front_face_thickness");
   double Ecal_lateral_face_thickness        = theDetector.constant<double>("Ecal_lateral_face_thickness");
@@ -185,10 +185,14 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   double      EcalEndcapRing_max_z          = theDetector.constant<double>("EcalEndcapRing_max_z");
 
 
-  double      crossing_angle = theDetector.constant<double>("CepC_Main_Crossing_Angle");
+  //double      crossing_angle = theDetector.constant<double>("CepC_Main_Crossing_Angle");
+  double      crossing_angle = theDetector.constant<double>("Ecal_ECRing_Crossing_Angle");
+
   bool        Ecal_Barrel_PreshowerLayer         = theDetector.constant<int>("Ecal_Barrel_Preshower") > 0;
 
   double      Ecal_barrel_thickness         = theDetector.constant<double>("Ecal_barrel_thickness");
+
+  Material      CF        = theDetector.material(Ecal_support_material);
 
   //========== fill data for reconstruction ============================
   dd4hep::rec::LayeredCalorimeterData* caloData = new dd4hep::rec::LayeredCalorimeterData ;
@@ -257,7 +261,6 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   std::cout << " module_thickness = " << module_thickness  << std::endl;
 #endif
 
-
   double ECRingSiplateSize = Ecal_endcap_center_box_size
     - 2 * Ecal_EC_Ring_gap
     - 2 * Ecal_lateral_face_thickness;
@@ -295,7 +298,7 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
     SubtractionSolid ECRingSolid( CenterECBox, CenterECTub, hole_position);
 
     //  Volume EnvLogECRing("ECRing",ECRingSolid,theDetector.material("g10"));
-    Volume EnvLogECRing("ECRing",ECRingSolid,theDetector.material("CarbonFiber")); // DJeans 5-sep-2016
+    Volume EnvLogECRing("ECRing",ECRingSolid,theDetector.material(Ecal_support_material)); // DJeans 5-sep-2016
 
     //==============================================================
     // build the layer and place into the ECRing
@@ -401,7 +404,7 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
         // #########################
 
         Tube CenterECTubForSi(0.,
-                              Lcal_outer_radius + Ecal_Lcal_ring_gap + 0.001, // + tolerance,
+                              Lcal_outer_radius + Ecal_Lcal_ring_gap + 1e-9*dd4hep::mm, //0.001, // + tolerance,
                               module_thickness,
                               0.,
                               2 * M_PI);
