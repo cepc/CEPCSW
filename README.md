@@ -32,9 +32,10 @@ $ ./run.sh Examples/options/helloalg.py
 
 * Simulation: Detector Simulation
 
+* Digitization: Digitization
+
 * Reconstruction: Reconstruction
 
-* Service: Common Service
 
 ## Conventions for collections
 Keep the collection names compatible between the prototype and the existing CEPC software.
