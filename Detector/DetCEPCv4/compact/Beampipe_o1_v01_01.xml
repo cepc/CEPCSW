@@ -15,16 +15,16 @@
   
   <!-- central tube -->
   <section type ="Center"                
-	   start="0*mm"                                  end="500*mm"
+	   start="0*mm"                                  end="TUBE_innerCylinder_zEnd_real"
            rMin1="TUBE_innerCylinder_rInner"  rMin2="TUBE_innerCylinder_rInner"       
 	   rMax1="TUBE_innerCylinder_rInner+TUBE_innerCylinder_thickness"        rMax2="TUBE_innerCylinder_rInner+TUBE_innerCylinder_thickness"
 	   material="G4_Be" name="IPInnerTube" />
 
   <!-- first cone -->
   <section type ="Center"
-           start="500*mm"                               end="700*mm"
-           rMin1="TUBE_innerCylinder_rInner"                          rMin2="17*mm"
-           rMax1="TUBE_innerCylinder_rInner+TUBE_innerCylinder_thickness" rMax2="17.5*mm"
+           start="TUBE_innerCylinder_zEnd_real"                               end="TUBE_firstCone_zEnd_real"
+           rMin1="TUBE_innerCylinder_rInner"                          rMin2="TUBE_firstCone_rInnerEnd_real"
+           rMax1="TUBE_innerCylinder_rInner+TUBE_innerCylinder_thickness" rMax2="TUBE_firstCone_rInnerEnd_real+TUBE_firstCone_thickness"
            material="G4_Be" name="IPInnerBulge" />
 
   <!-- second cylinder -->
