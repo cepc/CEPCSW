@@ -5,7 +5,6 @@
 
 gaudi_subdir(KalDet v0r0)
 
-find_package(CLHEP REQUIRED)
 find_package(LCIO)
 find_package(GEAR)
 find_package(ROOT COMPONENTS MathCore)
@@ -77,5 +76,5 @@ set( KalDetLib_srcs ${LIB_SOURCES} ${COMMON_SOURCES} )
 
 gaudi_add_library(KalDetLib ${KalDetLib_srcs}
 		 PUBLIC_HEADERS kaldet
-                 LINK_LIBRARIES GaudiKernel ROOT CLHEP LCIO $ENV{GEAR}/lib/libgearsurf.so KalTestLib EDM4HEP::edm4hep EDM4HEP::edm4hepDict ${DD4hep_COMPONENT_LIBRARIES}
+                 LINK_LIBRARIES GaudiKernel ROOT CLHEP LCIO ${GEAR_LIBRARIES} KalTestLib EDM4HEP::edm4hep EDM4HEP::edm4hepDict ${DD4hep_COMPONENT_LIBRARIES}
 )
