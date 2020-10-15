@@ -1,6 +1,8 @@
 #!/bin/bash
 # This is wrapper to run the build.sh on CI
 
+echo "LCG_RELEASE: ${LCG_RELEASE}"
+
 buildpid=
 logfile=mylog.txt
 
