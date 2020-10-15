@@ -1,6 +1,7 @@
 #!/bin/bash
 # This is wrapper to run the build.sh on CI
 
+buildpid=
 logfile=mylog.txt
 
 if [ "$LCG_RELEASE" = "KEY4HEP_STACK" ]; then
@@ -16,7 +17,14 @@ fi
 
 while ps -p $buildpid 2>/dev/null ; do
     sleep 60
-done
+done &
+echoer=$!
+
+trap 'kill $echoer' 0
+
+wait $buildpid
+statuspid=$?
 
 tail -n100 ${logfile}
 
+exit $statuspid
