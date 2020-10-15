@@ -34,9 +34,12 @@
 
   <!-- a few defined parameters needed for envelopes -->
   <constant name="TUBE_IPOuterTube_start_radius"  value="TUBE_IPInnerBulge_end_innerradius"/>
-  <constant name="TUBE_IPOuterBulge_end_z"        value="top_Lcal_z_begin - TUBE_Lcal_clearance"/>
-  <constant name="TUBE_IPOuterBulge_end_radius"   value="Lcal_outer_radius-LumiCal_tubebulge_overshoot"/>
-  <constant name="TUBE_IPInnerBulge_end_envradius"   value="TUBE_IPInnerBulge_end_innerradius + TUBE_inner_maxthick"/>
+  <!--constant name="TUBE_IPOuterBulge_end_z"        value="top_Lcal_z_begin - TUBE_Lcal_clearance"/-->
+  <constant name="TUBE_IPOuterBulge_end_z"        value="2364.5*mm"/>
+  <!--constant name="TUBE_IPOuterBulge_end_radius"   value="Lcal_outer_radius-LumiCal_tubebulge_overshoot"/-->
+  <constant name="TUBE_IPOuterBulge_end_radius"   value="30*mm"/>
+  <!--constant name="TUBE_IPInnerBulge_end_envradius"   value="TUBE_IPInnerBulge_end_innerradius + TUBE_inner_maxthick"/-->
+  <constant name="TUBE_IPInnerBulge_end_envradius"   value="18.5*mm"/>
   <constant name="TUBE_IPOuterTube_end_envradius"    value="TUBE_IPInnerBulge_end_envradius"/>
 
   <constant name="TUBE_IPOuterBulge_start_envradius"   value="TUBE_IPInnerBulge_end_innerradius+TUBE_outer_maxthick"/>
