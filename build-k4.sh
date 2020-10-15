@@ -21,6 +21,9 @@ function error:() {
 
 function check-cepcsw-envvar() {
     source /cvmfs/sw.hsf.org/key4hep/setup.sh
+    # fix the order of compiler
+    local ccdir=$(dirname $CC)
+    export PATH=$ccdir:$PATH
 }
 
 function build-dir() {

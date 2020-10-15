@@ -10,6 +10,7 @@ language: cpp
 env:
   matrix:
     - COMPILER=gcc;   LCG_RELEASE=LCG_96c_LS; STANDARD=17; COMPILER_VERSION=gcc8;
+    - COMPILER=gcc;   LCG_RELEASE=KEY4HEP_STACK; STANDARD=17; COMPILER_VERSION=gcc8;
 
 before_install:
   - wget --no-check-certificate https://ecsft.cern.ch/dist/cvmfs/cvmfs-release/cvmfs-release-latest_all.deb
@@ -25,7 +26,7 @@ before_install:
   - echo "CVMFS_HTTP_PROXY=DIRECT"                                  | sudo tee -a  /etc/cvmfs/default.local > /dev/null
   - echo "CVMFS_CACHE_BASE='/var/lib/cvmfs'"                        | sudo tee -a  /etc/cvmfs/default.local > /dev/null
   - echo "CVMFS_FORCE_SIGNING='yes'"                                | sudo tee -a  /etc/cvmfs/default.local > /dev/null
-  - echo "CVMFS_REPOSITORIES='sft.cern.ch,sw-nightlies.hsf.org,cepcsw.ihep.ac.cn,container.ihep.ac.cn'"    | sudo tee -a  /etc/cvmfs/default.local > /dev/null
+  - echo "CVMFS_REPOSITORIES='sft.cern.ch,sft-nightlies.cern.ch,sw.hsf.org,sw-nightlies.hsf.org,cepcsw.ihep.ac.cn,container.ihep.ac.cn'"    | sudo tee -a  /etc/cvmfs/default.local > /dev/null
   - echo "CVMFS_SEND_INFO_HEADER=no"                                | sudo tee -a  /etc/cvmfs/default.local > /dev/null
   - cat /etc/cvmfs/default.local
   - # change wrt dd4hep setup: don't manually mount cvmfs folders
@@ -35,15 +36,20 @@ before_install:
   - sudo mkdir -p /cvmfs/sft.cern.ch
   - sudo mkdir -p /cvmfs/sft-nightlies.cern.ch
   - sudo mkdir -p /cvmfs/geant4.cern.ch
+  - sudo mkdir -p /cvmfs/sw.hsf.org
   - sudo mkdir -p /cvmfs/sw-nightlies.hsf.org
   - sudo mkdir -p /cvmfs/cepcsw.ihep.ac.cn
   - sudo mkdir -p /cvmfs/container.ihep.ac.cn
   - ls /cvmfs/sft.cern.ch
+  - ls /cvmfs/sft-nightlies.cern.ch
   - ls /cvmfs/geant4.cern.ch
+  - ls /cvmfs/sw.hsf.org
   - ls /cvmfs/sw-nightlies.hsf.org
   - ls /cvmfs/cepcsw.ihep.ac.cn
   - ls /cvmfs/container.ihep.ac.cn
   - export CVMFS_REPOS="-v /cvmfs/sft.cern.ch:/cvmfs/sft.cern.ch"
+  - export CVMFS_REPOS="${CVMFS_REPOS} -v /cvmfs/sft-nightlies.cern.ch:/cvmfs/sft-nightlies.cern.ch"
+  - export CVMFS_REPOS="${CVMFS_REPOS} -v /cvmfs/sw.hsf.org:/cvmfs/sw.hsf.org"
   - export CVMFS_REPOS="${CVMFS_REPOS} -v /cvmfs/sw-nightlies.hsf.org:/cvmfs/sw-nightlies.hsf.org"
   - export CVMFS_REPOS="${CVMFS_REPOS} -v /cvmfs/geant4.cern.ch:/cvmfs/geant4.cern.ch"
   - export CVMFS_REPOS="${CVMFS_REPOS} -v /cvmfs/cepcsw.ihep.ac.cn:/cvmfs/cepcsw.ihep.ac.cn"
