@@ -38,6 +38,7 @@
     <constant name="SDT_inner_chamber_layer_number" value="67"/>
     <constant name="SDT_outer_chamber_layer_number" value="63"/>
     <constant name="SDT_chamber_layer_width" value="10*mm"/>
+    <constant name="Epsilon" value="6*deg"/>
 
   </define>
 
@@ -52,12 +53,13 @@
   <detectors>
     <detector id="1" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="VisibleBlue" sensitive="true">
       <!-- Use cm as unit if you want to use Pandora for reconstruction -->
+     <sensitive type="SimpleDriftChamber"/>
      </detector>
   </detectors>
 
   <readouts>
     <readout name="DriftChamberHitsCollection">
-      <segmentation type="GridDriftChamber" delta_phi="8*deg" identifier_phi="phi"/>
+      <segmentation type="GridDriftChamber" cell_size="10*mm" offset_phi="0." epsilon0="Epsilon" detector_length="SDT_half_length" identifier_phi="phi" />
 
       <id>system:8,chamber:1,layer:8,phi:16</id>
     </readout>
