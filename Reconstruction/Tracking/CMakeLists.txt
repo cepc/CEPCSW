@@ -1,6 +1,5 @@
 gaudi_subdir(Tracking v0r0)
 
-find_package(CLHEP REQUIRED)
 find_package(GEAR REQUIRED)
 find_package(GSL REQUIRED ) 
 find_package(LCIO REQUIRED ) 
@@ -19,5 +18,5 @@ set(Tracking_srcs
 # Modules
 gaudi_add_module(Tracking ${Tracking_srcs}
     INCLUDE_DIRS GaudiKernel FWCore CLHEP gear ${GSL_INCLUDE_DIRS} ${LCIO_INCLUDE_DIRS}
-    LINK_LIBRARIES GaudiKernel FWCore CLHEP $ENV{GEAR}/lib/libgearsurf.so ${GSL_LIBRARIES} ${LCIO_LIBRARIES} TrackSystemSvcLib
+    LINK_LIBRARIES GaudiKernel FWCore CLHEP ${GEAR_LIBRARIES} ${GSL_LIBRARIES} ${LCIO_LIBRARIES} TrackSystemSvcLib
 )
