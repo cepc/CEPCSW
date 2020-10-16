@@ -6,6 +6,7 @@ find_package(LCIO REQUIRED)
 find_package(EDM4HEP REQUIRED)
 #find_package(KalTest REQUIRED)
 #find_package(KalDet REQUIRED)
+find_package(DD4hep COMPONENTS DDCore DDRec REQUIRED)
 
 gaudi_depends_on_subdirs(Service/GearSvc Detector/DetInterface Utilities/DataHelper Utilities/KalTest Utilities/KalDet)
 

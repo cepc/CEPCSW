@@ -9,12 +9,17 @@
 #include <UTIL/BitField64.h>
 #include <UTIL/ILDConf.h>
 
+#include "DetInterface/IGeoSvc.h"
+#include "DD4hep/Detector.h"
+#include "DDRec/DetectorData.h"
+
 #include <gear/GEAR.h>
 #include "gear/BField.h"
 #include <gear/ZPlanarParameters.h>
 #include <gear/ZPlanarLayerLayout.h>
 #include "gearimpl/Util.h"
 
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "TMath.h"
 
 #include "math.h"
@@ -22,7 +27,7 @@
 
 // #include "streamlog/streamlog.h"
 
-ILDSETKalDetector::ILDSETKalDetector( const gear::GearMgr& gearMgr )
+ILDSETKalDetector::ILDSETKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc )
 : TVKalDetector(300) // SJA:FIXME initial size, 300 looks reasonable for ILD, though this would be better stored as a const somewhere
 {
   
@@ -35,7 +40,12 @@ ILDSETKalDetector::ILDSETKalDetector( const gear::GearMgr& gearMgr )
   TMaterial & silicon   = *MaterialDataBase::Instance().getMaterial("silicon");
   TMaterial & carbon    = *MaterialDataBase::Instance().getMaterial("carbon");
   
-  this->setupGearGeom(gearMgr) ;
+  if(geoSvc){
+    setupGearGeom( geoSvc ) ;
+  }                                                                                                                                                                                    
+  else{
+    setupGearGeom( gearMgr );
+  }
   
   if (_isStripDetector) {
     // streamlog_out(DEBUG4) << "\t\t building SET detector as STRIP Detector." << std::endl ;
@@ -241,7 +251,7 @@ void ILDSETKalDetector::setupGearGeom( const gear::GearMgr& gearMgr ){
   //           if this is not done then the exposed areas of the support would leave a carbon - air boundary,
   //           which if traversed in the reverse direction to the next boundary then the track would be propagated through carbon
   //           for a significant distance 
-  
+  //std::cout << "=============SET strip angle: " << strip_angle_deg << "==============" << std::endl;
   for( int layer=0; layer < _nLayers; ++layer){
     
       
@@ -271,7 +281,9 @@ void ILDSETKalDetector::setupGearGeom( const gear::GearMgr& gearMgr ){
     } else {
       _SETgeo[layer].stripAngle = 0.0 ;
     }
-
+    //std::cout << _SETgeo[layer].nLadders << " " << _SETgeo[layer].phi0 << " "<< _SETgeo[layer].dphi << " " << _SETgeo[layer].senRMin << " " << _SETgeo[layer].supRMin << " "
+    //          << _SETgeo[layer].length << " " << _SETgeo[layer].width << " " << _SETgeo[layer].offset << " " << _SETgeo[layer].senThickness << " " << _SETgeo[layer].supThickness << " "
+    //          << _SETgeo[layer].nSensorsPerLadder << " " << _SETgeo[layer].sensorLength << std::endl;
     // streamlog_out(DEBUG0) << " layer  = " << layer << std::endl;
     // streamlog_out(DEBUG0) << " nSensorsPerLadder  = " << _SETgeo[layer].nSensorsPerLadder << std::endl;
     // streamlog_out(DEBUG0) << " sensorLength  = " << _SETgeo[layer].sensorLength << std::endl;
@@ -279,8 +291,57 @@ void ILDSETKalDetector::setupGearGeom( const gear::GearMgr& gearMgr ){
     // streamlog_out(DEBUG0) << " _isStripDetector  = " << _isStripDetector << std::endl;
 
   }
-  
-  
-  
-  
+}
+
+void ILDSETKalDetector::setupGearGeom( IGeoSvc* geoSvc ){
+  dd4hep::DetElement world = geoSvc->getDD4HepGeo();
+  dd4hep::DetElement set;
+  const std::map<std::string, dd4hep::DetElement>& subs = world.children();
+  for(std::map<std::string, dd4hep::DetElement>::const_iterator it=subs.begin();it!=subs.end();it++){
+    if(it->first!="SET") continue;
+    set = it->second;
+  }
+  dd4hep::rec::ZPlanarData* setData = nullptr;
+  try{
+    setData = set.extension<dd4hep::rec::ZPlanarData>();
+  }
+  catch(std::runtime_error& e){
+    std::cout << e.what() << " " << setData << std::endl;
+    throw GaudiException(e.what(), "FATAL", StatusCode::FAILURE);
+  }
+
+  const dd4hep::Direction& field = geoSvc->lcdd()->field().magneticField(dd4hep::Position(0,0,0));
+  _bZ = field.z();
+
+  std::vector<dd4hep::rec::ZPlanarData::LayerLayout>& setlayers = setData->layers;
+  _nLayers = setlayers.size();
+  _SETgeo.resize(_nLayers);
+
+  double strip_angle_deg = setData->angleStrip/CLHEP::degree;
+  //std::cout << "=============SET strip angle: " << strip_angle_deg << "==============" << std::endl;
+  for( int layer=0; layer < _nLayers; ++layer){
+    dd4hep::rec::ZPlanarData::LayerLayout& pSETLayerLayout = setlayers[layer];
+
+    _SETgeo[layer].nLadders = pSETLayerLayout.ladderNumber;
+    _SETgeo[layer].phi0 = pSETLayerLayout.phi0;
+    _SETgeo[layer].dphi = 2*M_PI / _SETgeo[layer].nLadders;
+    _SETgeo[layer].senRMin = pSETLayerLayout.distanceSensitive*CLHEP::cm;
+    _SETgeo[layer].supRMin = pSETLayerLayout.distanceSupport*CLHEP::cm;
+    _SETgeo[layer].length = pSETLayerLayout.zHalfSensitive*2.0*CLHEP::cm; // note: gear for historical reasons uses the halflength
+    _SETgeo[layer].width = pSETLayerLayout.widthSensitive*CLHEP::cm;
+    _SETgeo[layer].offset = pSETLayerLayout.offsetSensitive*CLHEP::cm;
+    _SETgeo[layer].senThickness = pSETLayerLayout.thicknessSensitive*CLHEP::cm;
+    _SETgeo[layer].supThickness = pSETLayerLayout.thicknessSupport*CLHEP::cm;
+    _SETgeo[layer].nSensorsPerLadder = pSETLayerLayout.sensorsPerLadder;
+    _SETgeo[layer].sensorLength = _SETgeo[layer].length / _SETgeo[layer].nSensorsPerLadder;
+
+    if (_isStripDetector) {
+      _SETgeo[layer].stripAngle = strip_angle_deg * M_PI/180 ;
+    } else {
+      _SETgeo[layer].stripAngle = 0.0 ;
+    }
+    //std::cout << _SETgeo[layer].nLadders << " " << _SETgeo[layer].phi0 << " "<< _SETgeo[layer].dphi << " " << _SETgeo[layer].senRMin << " " << _SETgeo[layer].supRMin << " "
+    //        << _SETgeo[layer].length << " " << _SETgeo[layer].width << " " << _SETgeo[layer].offset << " " << _SETgeo[layer].senThickness << " " << _SETgeo[layer].supThickness << " "
+    //        << _SETgeo[layer].nSensorsPerLadder << " " << _SETgeo[layer].sensorLength << " " << pSETLayerLayout.lengthSensor << std::endl;
+  }
 }

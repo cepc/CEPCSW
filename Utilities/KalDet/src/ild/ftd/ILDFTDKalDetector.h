@@ -11,17 +11,17 @@
 
 class TNode;
 class TVector3;
+class IGeoSvc;
 
 namespace gear{
   class GearMgr ;
 }
 
-
 class ILDFTDKalDetector : public TVKalDetector {
 public:
   
   /** Initialize the FTD from GEAR */
-  ILDFTDKalDetector( const gear::GearMgr& gearMgr );
+  ILDFTDKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc  );
   
   
 private:
@@ -80,6 +80,7 @@ private:
   
   
   void setupGearGeom( const gear::GearMgr& gearMgr ) ;
+  void setupGearGeom( IGeoSvc* geoSvc );
   
   int _nDisks ;
   double _bZ ;

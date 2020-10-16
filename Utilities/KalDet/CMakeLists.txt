@@ -9,6 +9,7 @@ find_package(LCIO)
 find_package(GEAR)
 find_package(ROOT COMPONENTS MathCore)
 find_package(EDM4HEP REQUIRED)
+find_package(DD4hep COMPONENTS DDCore DDRec REQUIRED)
 
 gaudi_depends_on_subdirs(
   Detector/DetInterface
@@ -75,5 +76,5 @@ set( KalDetLib_srcs ${LIB_SOURCES} ${COMMON_SOURCES} )
 
 gaudi_add_library(KalDetLib ${KalDetLib_srcs}
 		 PUBLIC_HEADERS kaldet
-                 LINK_LIBRARIES GaudiKernel ROOT CLHEP LCIO ${GEAR_LIBRARIES} KalTestLib EDM4HEP::edm4hep EDM4HEP::edm4hepDict
+                 LINK_LIBRARIES GaudiKernel ROOT CLHEP LCIO ${GEAR_LIBRARIES} KalTestLib EDM4HEP::edm4hep EDM4HEP::edm4hepDict ${DD4hep_COMPONENT_LIBRARIES}
 )
