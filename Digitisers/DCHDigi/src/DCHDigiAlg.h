@@ -43,8 +43,10 @@ protected:
   //float m_length;
   dd4hep::rec::CellIDPositionConverter* m_cellIDConverter;
  
-  //Gaudi::Property<float> m_scale     { this, "Scale", 1 };
-  //Gaudi::Property<float> m_resolution{ this, "Res", 0.01 };
+  Gaudi::Property<float> m_res_x     { this, "res_x", 0.11};//mm
+  Gaudi::Property<float> m_res_y     { this, "res_y", 0.11};//mm
+  Gaudi::Property<float> m_res_z     { this, "res_z", 1   };//mm
+  Gaudi::Property<float> m_velocity  { this, "drift_velocity", 40};// um/ns
 
   // Input collections
   DataHandle<edm4hep::SimTrackerHitCollection> r_SimDCHCol{"DriftChamberHitsCollection", Gaudi::DataHandle::Reader, this};
