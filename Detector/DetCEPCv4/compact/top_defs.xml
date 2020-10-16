@@ -32,7 +32,7 @@
 
   <!-- SIT -->
   <constant name="SIT1_Half_Length_Z" value="368.00*mm"/>
-  <constant name="SIT1_Radius"        value="153.00*mm"/>
+  <constant name="SIT1_Radius"        value="152.90*mm"/>
   <constant name="SIT2_Half_Length_Z" value="644.00*mm"/>
   <constant name="SIT2_Radius"        value="299.90*mm"/>
 
@@ -44,7 +44,8 @@
   <constant name="Ecal_Tpc_gap" value="35*mm"/>
   <constant name="Ecal_Hcal_symmetry"   value="8"/>
 
-  <constant name="Ecal_barrel_thickness" value="196.96*mm"/>
+  <!--constant name="Ecal_barrel_thickness" value="196.96*mm"/-->
+  <constant name="Ecal_barrel_thickness" value="185.*mm"/>
 
   <constant name="Hcal_Ecal_gap" value="30*mm"/>
 
@@ -90,7 +91,7 @@
   <constant name="top_Lcal_inner_radius" value="30.0*mm"/>
   <constant name="Lcal_outer_radius"     value="100.0*mm"/>
   <constant name="LumiCal_tubebulge_overshoot"   value="11.2*mm"/>
-  <constant name="top_Lcal_z_begin"      value="Ecal_endcap_zmin" />
+  <constant name="top_Lcal_z_begin"      value="951.9*mm" />
 
   <!-- lhcal -->
   <constant name="top_LHCal_thickness"               value="480*mm"/>
@@ -112,20 +113,20 @@
   <constant name="BCal_rOuter" value="140*mm"/>
 
   <!-- the beam tube -->
-  <constant name="TUBE_IPInnerTube_end_z"         value="500*mm"/>
+  <constant name="TUBE_IPInnerTube_end_z"         value="230*mm"/>
   <constant name="TUBE_central_inner_radius" value="14*mm"/>
   <constant name="TUBE_central_thickness" value="0.5*mm"/>
 
-  <constant name="TUBE_IPInnerBulge_end_z"        value="700*mm"/>
-  <constant name="TUBE_IPInnerBulge_end_innerradius" value="17.5*mm"/>
+  <constant name="TUBE_IPInnerBulge_end_z"        value="970*mm"/>
+  <constant name="TUBE_IPInnerBulge_end_innerradius" value="14*mm"/>
 
-  <constant name="TUBE_IPOuterTube_start_z"       value="700*mm"/>
-  <constant name="TUBE_IPOuterTube_end_z"         value="700*mm"/>
+  <constant name="TUBE_IPOuterTube_start_z"       value="500*mm"/>
+  <constant name="TUBE_IPOuterTube_end_z"         value="230*mm"/>
 
   <constant name="TUBE_Lcal_clearance" value="20*mm"/>
 
   <!-- space left for envelopes (counting from inner beampipe surface) -->
   <constant name="TUBE_inner_maxthick" value="1.0*mm"/> 
-  <constant name="TUBE_outer_maxthick" value="3.0*mm"/> 
+  <constant name="TUBE_outer_maxthick" value="1.0*mm"/> 
 
 </define>

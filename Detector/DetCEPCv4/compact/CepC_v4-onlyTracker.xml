@@ -48,8 +48,8 @@
   <include ref="display.xml"/>
   <include ref="Beampipe_o1_v01_01.xml"/>
   <include ref="vxd07.xml"/>
-  <include ref="ftd_simple_staggered_02.xml"/>
-  <include ref="sit_simple_pixel_sensors_01.xml"/>
+  <include ref="ftd_cepc.xml"/>
+  <include ref="sit_simple_planar_sensors_01.xml"/>
   <include ref="tpc10_01.xml"/>
   <include ref="set_simple_planar_sensors_01.xml"/>
   <!--include ref="SEcal05_siw_Barrel.xml"/>

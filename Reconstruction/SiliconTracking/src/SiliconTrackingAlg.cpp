@@ -435,7 +435,8 @@ int SiliconTrackingAlg::InitialiseFTD() {
     _nTotalFTDHits = nelem;
     
     //for (int ielem=0; ielem<nelem; ++ielem) {
-    for(auto hit : *hitFTDPixelCol){  
+    for(auto hit : *hitFTDPixelCol){
+      if ( UTIL::BitSet32( hit.getType() )[ UTIL::ILDTrkHitTypeBit::ONE_DIMENSIONAL ] ) continue;
       //dm4hep::ConstTrackerHit hit = hitFTDPixelCol->at(ielem);
       TrackerHitExtended * hitExt = new TrackerHitExtended( hit );
       //gear::Vector3D U(1.0,hit->getU()[1],hit->getU()[0],gear::Vector3D::spherical);

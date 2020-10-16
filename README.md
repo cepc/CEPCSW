@@ -1,12 +1,12 @@
 # [CEPCSW](https://cepc.github.io/CEPCSW/)
 
-[![Build Status](https://travis-ci.org/cepc/CEPCSW.svg?branch=master)](https://travis-ci.org/cepc/CEPCSW)
+[![Build Status](https://www.travis-ci.com/cepc/CEPCSW.svg?branch=master)](https://www.travis-ci.com/cepc/CEPCSW)
 
 CEPC offline software prototype based on [Key4hep](https://github.com/key4hep).
 
 ## Quick start
 
-Start the container in lxslc7 (OS: CentOS7):
+Start an SL6 container in lxslc7 (OS: CentOS7):
 ```
 $ /cvmfs/container.ihep.ac.cn/bin/hep_container shell SL6
 ```
@@ -32,9 +32,10 @@ $ ./run.sh Examples/options/helloalg.py
 
 * Simulation: Detector Simulation
 
+* Digitization: Digitization
+
 * Reconstruction: Reconstruction
 
-* Service: Common Service
 
 ## Conventions for collections
 Keep the collection names compatible between the prototype and the existing CEPC software.

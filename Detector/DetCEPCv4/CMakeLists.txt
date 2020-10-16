@@ -23,7 +23,9 @@ install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/compact DESTINATION Detector/DetCEPC
 set(DetCEPCv4_src
     src/tracker/VXD04_geo.cpp
     src/tracker/FTD_Simple_Staggered_geo.cpp
+    src/tracker/FTD_cepc_geo.cpp
     src/tracker/SIT_Simple_Pixel_geo.cpp 
+    src/tracker/SIT_Simple_Planar_geo.cpp
     src/tracker/TPC10_geo.cpp
     src/tracker/SET_Simple_Planar_geo.cpp
     src/calorimeter/SEcal05_Helpers.cpp
@@ -43,7 +45,7 @@ gaudi_add_module(DetCEPCv4
                   src/include
 		  LINK_LIBRARIES
                   # GaudiKernel
-                  DD4hep
+                  #DD4hep
                   ${DD4hep_COMPONENT_LIBRARIES}
                   # ROOT 
                   # Geant4

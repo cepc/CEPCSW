@@ -136,8 +136,6 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   string        det_name  = x_det.nameStr();
   Layering      layering (element);
 
-  Material      carbon_fibre = theDetector.material("CarbonFiber");
-
   int           det_id    = x_det.id();
   DetElement    sdet      (det_name,det_id);
 
@@ -193,6 +191,7 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   double Ecal_radiator_thickness3           = theDetector.constant<double>("Ecal_radiator_layers_set3_thickness");
 
   // CF support dimensions
+  std::string Ecal_support_material         = theDetector.constant<string>("Ecal_support_material");
   double Ecal_support_thickness             = theDetector.constant<double>("Ecal_support_thickness");
   double Ecal_front_face_thickness          = theDetector.constant<double>("Ecal_front_face_thickness");
   double Ecal_lateral_face_thickness        = theDetector.constant<double>("Ecal_lateral_face_thickness");
@@ -231,6 +230,7 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   }
 
   //---------------------------------
+  Material      carbon_fibre = theDetector.material(Ecal_support_material);
 
   // set up the helper, which will make a module for us
 
@@ -258,7 +258,12 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
 			 Ecal_fiber_thickness_alveolus,   //     N_FIBERS_ALVEOLUS*Ecal_fiber_thickness,
                          Ecal_front_face_thickness,
                          Ecal_support_thickness);
-
+  cout << "SEcal05_Barrel: CF "
+       << Ecal_fiber_thickness_structure/dd4hep::mm << " mm "
+       << Ecal_fiber_thickness_alveolus/dd4hep::mm << " mm "
+       << Ecal_front_face_thickness/dd4hep::mm << " mm "
+       << Ecal_support_thickness/dd4hep::mm << " mm " << endl;
+    
   helper.setPlugLength( Ecal_plugLength );
 
   // check resulting thickness is consistent with what's in compact description
@@ -320,7 +325,8 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   //  double min_dim_x = max_dim_x - 2*module_thickness; // shorter one (assumes octagon)
 
   //  double max_dim_x    = 2. * tan(M_PI/nsides) * Ecal_inner_radius + module_thickness_noSupport / tan( 2*M_PI/nsides );  // longest side 
-  double max_dim_x    = 2. * tan(M_PI/nsides) * Ecal_inner_radius + module_thickness_noSupport / sin( 2*M_PI/nsides );  // longest side : fix DJeans 03/2017
+  //double max_dim_x    = 2. * tan(M_PI/nsides) * Ecal_inner_radius + module_thickness_noSupport / sin( 2*M_PI/nsides );  // longest side : fix DJeans 03/2017
+  double max_dim_x    = 2. * tan(M_PI/nsides) * Ecal_inner_radius + module_thickness / sin( 2*M_PI/nsides );  // in order to same as MokkaC's CEPC_v4, fucd 
   double min_dim_x = max_dim_x - 2*module_thickness/tan( 2*M_PI/nsides ) ; // shorter one
 
   if ( min_dim_x<0 || max_dim_x<0 ) {
@@ -388,7 +394,8 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   // altered to get alignment as in ECAL interface design doc fig10
   //   end of slabs aligned to inner face of support plate in next stave (not the outer surface)
   // double Y = (module_thickness/2.) / sin(M_PI/4.);
-  double Y = (module_thickness_noSupport/2.) / sin(2.*M_PI/nsides);
+  // double Y = (module_thickness_noSupport/2.) / sin(2.*M_PI/nsides);
+  double Y = (module_thickness/2.) / sin(2.*M_PI/nsides);
 
   // stave numbering from 1->8
   //   stave = 1 is in +ve x direction

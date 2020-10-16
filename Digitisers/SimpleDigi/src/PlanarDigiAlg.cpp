@@ -110,7 +110,9 @@ StatusCode PlanarDigiAlg::execute()
   unsigned int thisSeed = _SEEDER->getSeed(this, _nEvt, 0);
   gsl_rng_set( _rng, thisSeed ) ;   
   debug() << "seed set to " << thisSeed << endmsg;
-  
+
+  auto trkhitVec = _outColHdl.createAndPut();
+  auto relCol = _outRelColHdl.createAndPut();
   //auto STHcol = _inColHdl.get();
   //if ( STHcol == nullptr ) {
   //  debug() << "Collection " << _inColHdl.fullKey() << " is unavailable in event " << _nEvt << endmsg;
@@ -132,9 +134,6 @@ StatusCode PlanarDigiAlg::execute()
 
   unsigned nCreatedHits=0;
   unsigned nDismissedHits=0;
-
-  auto trkhitVec = _outColHdl.createAndPut();
-  auto relCol = _outRelColHdl.createAndPut();
 
   //CellIDEncoder<TrackerHitPlaneImpl> cellid_encoder( lcio::ILDCellID0::encoder_string , trkhitVec ) ;
 
@@ -205,7 +204,10 @@ StatusCode PlanarDigiAlg::execute()
     //                << endmsg;
     //        continue;
     //      }
-
+    if( (_resU.size() > 1 && layer > _resU.size()-1) || (_resV.size() > 1 && layer > _resV.size()-1) ) {
+      fatal() << "layer exceeds resolution vector, please check input parameters ResolutionU and ResolutionV" << endmsg;
+      return StatusCode::FAILURE;
+    }
 
     float resU = ( _resU.size() > 1 ?   _resU.value().at(  layer )     : _resU.value().at(0)   )  ;
     float resV = ( _resV.size() > 1 ?   _resV.value().at(  layer )     : _resV.value().at(0)   )  ; 
@@ -267,7 +269,7 @@ StatusCode PlanarDigiAlg::execute()
     }
 
     // for 1D strip measurements: set v to 0! Only the measurement in u counts!
-    if( _isStrip ) localPointSmeared[1] = 0. ;
+    if( _isStrip || (resU!=0&&resV==0) ) localPointSmeared[1] = 0. ;
 
     // convert back to global position for TrackerHitPlaneImpl
     CLHEP::Hep3Vector globalPointSmeared = ms->getCoordinateSystem()->getGlobalPoint(localPointSmeared);
@@ -324,7 +326,7 @@ StatusCode PlanarDigiAlg::execute()
     else trkHit->setdV( resV ) ;
     */
     trkHit.setType(8);
-    if( _isStrip ){
+    if( _isStrip || (resU!=0&&resV==0) ){
       trkHit.setType( UTIL::set_bit( trkHit.getType() , UTIL::ILDTrkHitTypeBit::ONE_DIMENSIONAL ) ) ;
     }
 

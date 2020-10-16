@@ -149,6 +149,7 @@ std::vector <SEcal05_Helpers::dimposXYStruct> SEcal05_Helpers::getAbsPlateXYDime
     ss.posY = _module_dY_total/2.;
     absorbersheets.push_back(ss);
   }
+
   return absorbersheets;
 }
 
@@ -205,8 +206,7 @@ std::vector <SEcal05_Helpers::dimposXYStruct> SEcal05_Helpers::getSlabXYDimensio
           ss.posX = ss.sizeX/2.; // this aligns the -X end of slab
 
 	  ss.sizeX -=  _plugLength;  // DANIELHACK
-	  ss.posX  +=  _plugLength/2.;  // DANIELHACK      
-
+	  ss.posX  +=  _plugLength/2.;  // DANIELHACK
         } else {
 	  cout << " SEcal05_Helpers ERROR _module_XYtype = " << _module_XYtype << "!!!" << endl;
 	  assert(0);
@@ -409,7 +409,7 @@ void SEcal05_Helpers::makeModule( dd4hep::Volume & mod_vol,  // the volume we'll
   int det_id           = _x_det->id();
   xml_comp_t x_staves  = _x_det->staves();
 
-  _carbon_fibre_material = theDetector.material("CarbonFiber");
+  _carbon_fibre_material = theDetector.material(theDetector.constant<std::string>("Ecal_support_material"));
   _radiator_material     = theDetector.material(x_staves.materialStr());
   _air_material          = theDetector.air();
 
@@ -511,7 +511,6 @@ void SEcal05_Helpers::makeModule( dd4hep::Volume & mod_vol,  // the volume we'll
           // Position the layer.
           dd4hep::Position      bsl_pos = getTranslatedPosition(plSize.posX, plSize.posY, currentLayerBase_pos_Z + rad_pos_Z );
 
-	  //          dd4hep::PlacedVolume  barrelStructureLayer_phv = 
 	  mod_vol.placeVolume(barrelStructureLayer_vol, bsl_pos);
 
         } // loop over sheets
@@ -580,11 +579,9 @@ void SEcal05_Helpers::makeModule( dd4hep::Volume & mod_vol,  // the volume we'll
       for (size_t islab = 0; islab<slabDims.size(); islab++) {
         myLayerNumTemp = myLayerNum;
         double slab_dim_X  = slabDims[islab].sizeX;
-
+	double slab_dim_Y  = slabDims[islab].sizeY - 2.*_towerGap; //fucd
         // make an air volume for the alveolus
-        dd4hep::Box        l_box( slab_dim_X/2. ,
-                                            slabDims[islab].sizeY/2. - _CF_alvWall,
-                                            slab_dim_Z/2. );
+        dd4hep::Box        l_box( slab_dim_X/2., slab_dim_Y/2, slab_dim_Z/2. );
 
         dd4hep::Volume     l_vol( _det_name+"_alveolus_"+l_name, l_box, _air_material);
 	l_vol.setVisAttributes(theDetector.visAttributes( "GrayVis" ) );
@@ -607,10 +604,10 @@ void SEcal05_Helpers::makeModule( dd4hep::Volume & mod_vol,  // the volume we'll
           dd4hep::Material slice_material  = theDetector.material( x_slice.materialStr() );
 
 	  std::string vis_str = x_slice.visStr();
-
+	  
 	  if ( !x_slice.isSensitive() ) { // not the sensitive slice: just a layer of stuff
 
-	    dd4hep::Box      s_box( slab_dim_X/2. , slabDims[islab].sizeY/2. - _CF_alvWall, s_thick/2. );
+	    dd4hep::Box      s_box( slab_dim_X/2. , slab_dim_Y/2, s_thick/2. );
 	    dd4hep::Volume   s_vol(_det_name+"_"+l_name+"_"+s_name, s_box, slice_material);
 	    s_vol.setVisAttributes(theDetector.visAttributes( vis_str ));
 
@@ -619,12 +616,16 @@ void SEcal05_Helpers::makeModule( dd4hep::Volume & mod_vol,  // the volume we'll
 	    l_vol.placeVolume(s_vol, s_pos );
 
 	  } else { // sensitive slice
+	    dd4hep::Box      s_box( slab_dim_X/2. , slab_dim_Y/2, s_thick/2. );
+	    dd4hep::Volume   s_vol(_det_name+"_"+l_name+"_"+s_name, s_box, slice_material);
+            s_vol.setVisAttributes(theDetector.visAttributes( vis_str ));
 
+	    dd4hep::Position s_pos( 0, 0, s_pos_Z + s_thick/2. );
+	    l_vol.placeVolume(s_vol, s_pos );
             // Normal squared wafers - this is just the sensitive part
             // square piece of silicon, not including guard ring. guard ring material is not included
 
             dd4hep::Box WaferSiSolid( unit_sensitive_dim_Y/2., unit_sensitive_dim_Y/2., s_thick/2.);
-
 	    // get the standard cell size in X for this layer
 	    double cell_size_x = waferSeg ? waferSeg->cellDimensions(0)[0] : megatileSeg->cellDimensions(myLayerNumTemp, 0)[0];
 	    double cell_size_y = waferSeg ? waferSeg->cellDimensions(0)[1] : megatileSeg->cellDimensions(myLayerNumTemp, 0)[1];
@@ -682,8 +683,10 @@ void SEcal05_Helpers::makeModule( dd4hep::Volume & mod_vol,  // the volume we'll
 		WaferSiLog.setVisAttributes(theDetector.visAttributes( wafer_vis_str ));	  
                 WaferSiLog.setSensitiveDetector(sens);
 
-                dd4hep::Position w_pos(wafer_pos_X + megatile_size_x/2., wafer_pos_Y, s_pos_Z + s_thick/2. );
-                dd4hep::PlacedVolume wafer_phv = l_vol.placeVolume(WaferSiLog, w_pos );
+                //dd4hep::Position w_pos(wafer_pos_X + megatile_size_x/2., wafer_pos_Y, s_pos_Z + s_thick/2. );
+                //dd4hep::PlacedVolume wafer_phv = l_vol.placeVolume(WaferSiLog, w_pos );
+		dd4hep::Position w_pos(wafer_pos_X + megatile_size_x/2., wafer_pos_Y, 0);
+		dd4hep::PlacedVolume wafer_phv = s_vol.placeVolume(WaferSiLog, w_pos );
                 wafer_phv.addPhysVolID("wafer", wafer_num);
 		wafer_phv.addPhysVolID("layer", myLayerNumTemp );
 
