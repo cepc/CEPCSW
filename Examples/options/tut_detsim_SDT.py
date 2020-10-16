@@ -64,6 +64,12 @@ gun = GtGunTool("GtGunTool")
 # gun.EnergyMaxs = [100.] # GeV
 
 gun.Particles = ["e-"]
+
+# gun.PositionXs = [100.] # mm
+# gun.PositionYs = [100.] # mm
+# gun.PositionZs = [0.] # mm
+
+
 gun.EnergyMins = [1.] # GeV
 gun.EnergyMaxs = [1.] # GeV
 

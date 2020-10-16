@@ -30,6 +30,13 @@ bool G4PrimaryCnvTool::mutate(G4Event* anEvent) {
                                                      vertex.y*CLHEP::mm,
                                                      vertex.z*CLHEP::mm,
                                                      t);
+
+        info() << "Geant4 Primary Vertex: ("
+               << vertex.x*CLHEP::mm << ","
+               << vertex.y*CLHEP::mm << ","
+               << vertex.z*CLHEP::mm << ")"
+               << endmsg;
+
         // pdg/particle
         int pdgcode = p.getPDG();
         G4ParticleTable* particletbl = G4ParticleTable::GetParticleTable();
