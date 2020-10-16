@@ -15,7 +15,25 @@ GtGunTool::initialize() {
         error() << "Please specify the list of particle names/pdgs" << endmsg;
         return StatusCode::FAILURE;
     }
+
+    // Position
+    if (m_positionXs.value().size()
+        && m_positionXs.value().size() != m_particles.value().size()) {
+        error() << "Mismatched PositionXs and particles." << endmsg;
+        return StatusCode::FAILURE;
+    }
+    if (m_positionYs.value().size()
+        && m_positionYs.value().size() != m_particles.value().size()) {
+        error() << "Mismatched PositionYs and particles." << endmsg;
+        return StatusCode::FAILURE;
+    }
+    if (m_positionZs.value().size()
+        && m_positionZs.value().size() != m_particles.value().size()) {
+        error() << "Mismatched PositionZs and particles." << endmsg;
+        return StatusCode::FAILURE;
+    }
     
+    // Energy
     if (m_energymins.value().size() != m_particles.value().size()) {
         error() << "Mismatched energies and particles." << endmsg;
         return StatusCode::FAILURE;
@@ -89,7 +107,16 @@ GtGunTool::mutate(MyHepMC::GenEvent& event) {
         // mcp.setCharge();
         mcp.setTime(0.0);
         mcp.setMass(mass);
-        // mcp.setVertex(); 
+
+        // Unit is mm
+        double x = 0;
+        double y = 0;
+        double z = 0;
+        if (i<m_positionXs.value().size()) { x = m_positionXs.value()[i]; }
+        if (i<m_positionYs.value().size()) { y = m_positionYs.value()[i]; }
+        if (i<m_positionZs.value().size()) { z = m_positionZs.value()[i]; }
+
+        mcp.setVertex(edm4hep::Vector3d(x,y,z)); 
         // mcp.setEndpoint();
 
         // assume energy is momentum

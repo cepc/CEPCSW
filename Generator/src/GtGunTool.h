@@ -34,6 +34,11 @@ private:
 
     Gaudi::Property<std::vector<std::string>> m_particles{this, "Particles"};
 
+    Gaudi::Property<std::vector<double>> m_positionXs{this, "PositionXs"};
+    Gaudi::Property<std::vector<double>> m_positionYs{this, "PositionYs"};
+    Gaudi::Property<std::vector<double>> m_positionZs{this, "PositionZs"};
+
+
     Gaudi::Property<std::vector<double>> m_energymins{this, "EnergyMins"};
     Gaudi::Property<std::vector<double>> m_energymaxs{this, "EnergyMaxs"};
 
