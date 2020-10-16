@@ -25,7 +25,7 @@ using namespace dd4hep::rec ;
 
 static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         xml_h e,
-        dd4hep::SensitiveDetector Sens) {
+        dd4hep::SensitiveDetector sens) {
     // ------- Lambda functions ---- //
     auto delta_a_func = [](auto x, auto y) { return 0.5 * ( x + y ); };
 
@@ -38,9 +38,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     std::string det_name = x_det.nameStr();
     std::string det_type = x_det.typeStr();
 
-    dd4hep::SensitiveDetector sens = Sens;
-    dd4hep::xml::Dimension sdType = x_det.child(_U(sensitive));
-    sens.setType(sdType.typeStr());
+    dd4hep::SensitiveDetector sd = sens;
 
     // - global
     double chamber_radius_min = theDetector.constant<double>("SDT_radius_min");
@@ -87,7 +85,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     dd4hep::Volume det_outer_chamber_vol(det_name+"_outer_chamber_vol", det_outer_chamber_solid, det_mat);
 
     //Initialize the segmentation
-    dd4hep::Readout readout = sens.readout();
+    dd4hep::Readout readout = sd.readout();
     dd4hep::Segmentation geomseg = readout.segmentation();
     dd4hep::Segmentation* _geoSeg = &geomseg;
 
@@ -130,7 +128,6 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         layer_phy.addPhysVolID("layer",layer_id);
 
         //Set drift chamber layers to sensitive detector
-        dd4hep::SensitiveDetector sd = sens;
         layer_vol.setSensitiveDetector(sens);
         sd.setType("tracker");
       }
