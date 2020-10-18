@@ -3,7 +3,10 @@
 from Gaudi.Configuration import *
 
 from Configurables import K4DataSvc
-dsvc = K4DataSvc("EventDataSvc", input="test.root")
+dsvc = K4DataSvc("EventDataSvc",
+                 # input="test.root"
+                 input="test-detsim10.root"
+)
 
 from Configurables import PodioInput
 podioinput = PodioInput("PodioReader", collections=[
