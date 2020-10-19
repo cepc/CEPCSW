@@ -15,11 +15,11 @@
 namespace nnclu {
 
    /** fast check if integer is in a given range [Min,Max] */
-  template <unsigned Min,unsigned Max >
+  template <int Min, int Max >
   inline bool inRange( int i){   return ( (unsigned int) ( i - Min )  <= (unsigned int) ( Max - Min ) ); }
 
   /** fast check if integer is not in a given range [Min,Max] */
-  template <unsigned Min,unsigned Max >
+  template <int Min, int Max >
   inline bool notInRange( int i){   return ( (unsigned int) ( i - Min )  > (unsigned int) ( Max - Min ) ); }
 
 
