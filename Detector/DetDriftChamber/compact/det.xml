@@ -38,7 +38,7 @@
     <constant name="SDT_inner_chamber_layer_number" value="67"/>
     <constant name="SDT_outer_chamber_layer_number" value="63"/>
     <constant name="SDT_chamber_layer_width" value="10*mm"/>
-    <constant name="Epsilon" value="6*deg"/>
+    <constant name="Epsilon" value="0*deg"/>
 
   </define>
 
@@ -59,9 +59,9 @@
 
   <readouts>
     <readout name="DriftChamberHitsCollection">
-      <segmentation type="GridDriftChamber" cell_size="10*mm" offset_phi="0." epsilon0="Epsilon" detector_length="SDT_half_length" identifier_phi="phi" />
+      <segmentation type="GridDriftChamber" cell_size="10*mm" offset_phi="0." epsilon0="Epsilon" detector_length="SDT_half_length" identifier_phi="cellID" />
 
-      <id>system:8,chamber:1,layer:8,phi:16</id>
+      <id>system:8,chamber:1,layer:8,cellID:16</id>
     </readout>
   </readouts>
 

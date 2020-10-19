@@ -13,7 +13,7 @@ GridDriftChamber::GridDriftChamber(const std::string& cellEncoding) : Segmentati
   registerParameter("cell_size", "cell size", m_cellSize, 0., SegmentationParameter::LengthUnit);
   registerParameter("offset_phi", "offset in phi", m_offsetPhi, 0., SegmentationParameter::LengthUnit, true);
   registerParameter("detector_length", "Length of the wire", m_detectorLength, 1., SegmentationParameter::LengthUnit);
-  registerIdentifier("identifier_phi", "Cell ID identifier for phi", m_phiID, "phi");
+  registerIdentifier("identifier_phi", "Cell ID identifier for phi", m_phiID, "cellID");
 }
 
 GridDriftChamber::GridDriftChamber(const BitFieldCoder* decoder) : Segmentation(decoder) {
@@ -23,9 +23,9 @@ GridDriftChamber::GridDriftChamber(const BitFieldCoder* decoder) : Segmentation(
 
   registerParameter("cell_size", "cell size", m_cellSize, 1., SegmentationParameter::LengthUnit);
   registerParameter("offset_phi", "offset in phi", m_offsetPhi, 0., SegmentationParameter::LengthUnit, true);
-  registerParameter("epsilon0", "epsilon", m_epsilon0, 0., SegmentationParameter::LengthUnit, true);
+  registerParameter("epsilon0", "epsilon", m_epsilon0, 0., SegmentationParameter::AngleUnit, true);
   registerParameter("detector_length", "Length of the wire", m_detectorLength, 1., SegmentationParameter::LengthUnit);
-  registerIdentifier("identifier_phi", "Cell ID identifier for phi", m_phiID, "phi");
+  registerIdentifier("identifier_phi", "Cell ID identifier for phi", m_phiID, "cellID");
 }
 
 Vector3D GridDriftChamber::position(const CellID& /*cID*/) const {
