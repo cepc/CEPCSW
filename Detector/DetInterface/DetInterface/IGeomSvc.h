@@ -1,5 +1,5 @@
 //
-//  IGeoSvc.h
+//  IGeomSvc.h
 //
 //  Based on FCCSW with some modification.
 //  In the design, the geometry shoud only depends on DD4hep. 
@@ -34,12 +34,12 @@ namespace gear{
 class TMaterial;
 // class G4VUserDetectorConstruction;
 
-class GAUDI_API IGeoSvc : virtual public IService {
+class GAUDI_API IGeomSvc : virtual public IService {
 public:
   typedef dd4hep::DDSegmentation::BitFieldCoder Decoder;
 public:
   /// InterfaceID
-  DeclareInterfaceID(IGeoSvc, 1, 0);
+  DeclareInterfaceID(IGeomSvc, 1, 0);
   // receive DD4hep Geometry
   virtual dd4hep::DetElement getDD4HepGeo() = 0;
   virtual dd4hep::Detector* lcdd() = 0;
@@ -59,7 +59,7 @@ public:
   virtual const double getDetParameter(std::string set_name, std::string par_name) = 0;
   virtual TMaterial* getMaterial(std::string s) = 0;
 
-  virtual ~IGeoSvc() {}
+  virtual ~IGeomSvc() {}
 };
 
 #endif  // IGEOSVC_H

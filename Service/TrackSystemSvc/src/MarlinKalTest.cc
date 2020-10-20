@@ -26,7 +26,7 @@
 #include "gear/BField.h"
 #include "gear/TPCParameters.h"
 #include "gear/PadRowLayout2D.h"
-#include "DetInterface/IGeoSvc.h"
+#include "DetInterface/IGeomSvc.h"
 
 #include <math.h>
 #include <cmath>
@@ -39,7 +39,7 @@
 
 namespace MarlinTrk{
   
-  MarlinKalTest::MarlinKalTest( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc) : 
+  MarlinKalTest::MarlinKalTest( const gear::GearMgr& gearMgr, IGeomSvc* geoSvc) : 
   _ipLayer(NULL) ,
   _gearMgr( &gearMgr ),
   _geoSvc(geoSvc){

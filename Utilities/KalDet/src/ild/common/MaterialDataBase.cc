@@ -9,7 +9,7 @@
 #include "gearimpl/Util.h"
 #include <gear/SimpleMaterial.h>
 #include <gearimpl/GearParametersImpl.h>
-#include "DetInterface/IGeoSvc.h"
+#include "DetInterface/IGeomSvc.h"
 
 #include "TMaterial.h"
 
@@ -47,7 +47,7 @@ TMaterial* MaterialDataBase::getMaterial(std::string mat_name){
   
 }
 
-void MaterialDataBase::initialise( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc ){
+void MaterialDataBase::initialise( const gear::GearMgr& gearMgr, IGeomSvc* geoSvc ){
   
   if( !_isInitialised ){
     this->createMaterials(gearMgr, geoSvc); 
@@ -57,7 +57,7 @@ void MaterialDataBase::initialise( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc
   
 }
 
-void MaterialDataBase::registerForService(const gear::GearMgr& gearMgr, IGeoSvc* geoSvc ) {
+void MaterialDataBase::registerForService(const gear::GearMgr& gearMgr, IGeomSvc* geoSvc ) {
   
   if( !_isInitialised ){
     //std::cout << "debug fucd: " << "--------------------" << std::endl;
@@ -91,7 +91,7 @@ void MaterialDataBase::addMaterial(TMaterial* mat, std::string name) {
 }
 
 
-void MaterialDataBase::createMaterials(const gear::GearMgr& gearMgr, IGeoSvc* geoSvc ){
+void MaterialDataBase::createMaterials(const gear::GearMgr& gearMgr, IGeomSvc* geoSvc ){
   
   Double_t A, Z, density, radlen ;
   std::string name;
@@ -231,7 +231,7 @@ void MaterialDataBase::createMaterials(const gear::GearMgr& gearMgr, IGeoSvc* ge
     else std::cout << "Material VXDSupportMaterial not found" << std::endl; 
   }
   catch( gear::UnknownParameterException& e){   
-    std::cout << "Error while read material from GeoSvc!" << std::endl;
+    std::cout << "Error while read material from GeomSvc!" << std::endl;
   }
   
   

@@ -1,10 +1,10 @@
 
 ##############################################################################
-# Package: GeoSvc
-#    Desc: implement the IGeoSvc interface.
+# Package: GeomSvc
+#    Desc: implement the IGeomSvc interface.
 ##############################################################################
 
-gaudi_subdir(GeoSvc v0r0)
+gaudi_subdir(GeomSvc v0r0)
 
 gaudi_depends_on_subdirs(
     FWCore
@@ -17,8 +17,8 @@ find_package(GEAR REQUIRED)
 
 message("GEAR_LIBRARIES: ${GEAR_LIBRARIES}")
 
-gaudi_add_module(GeoSvc
-                 src/GeoSvc.cpp
+gaudi_add_module(GeomSvc
+                 src/GeomSvc.cpp
                  INCLUDE_DIRS
                    # DetInterface
                    # DD4hep

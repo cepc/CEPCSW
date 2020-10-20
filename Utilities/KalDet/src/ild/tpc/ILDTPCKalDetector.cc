@@ -10,7 +10,7 @@
 
 #include <sstream>
 
-#include "DetInterface/IGeoSvc.h"
+#include "DetInterface/IGeomSvc.h"
 #include "DD4hep/Detector.h"
 #include "DDRec/DetectorData.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -27,7 +27,7 @@
 // #include "streamlog/streamlog.h"
 
 
-ILDTPCKalDetector::ILDTPCKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc ) : 
+ILDTPCKalDetector::ILDTPCKalDetector( const gear::GearMgr& gearMgr, IGeomSvc* geoSvc ) : 
 TVKalDetector(250) // SJA:FIXME initial size, 250 looks reasonable for ILD, though this would be better stored as a const somewhere
 {
   Double_t bz;

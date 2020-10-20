@@ -11,9 +11,9 @@ DECLARE_COMPONENT(DriftChamberSensDetTool);
 StatusCode DriftChamberSensDetTool::initialize() {
     StatusCode sc;
 
-    m_geosvc = service<IGeoSvc>("GeoSvc");
+    m_geosvc = service<IGeomSvc>("GeomSvc");
     if (!m_geosvc) {
-        error() << "Failed to find GeoSvc." << endmsg;
+        error() << "Failed to find GeomSvc." << endmsg;
         return StatusCode::FAILURE;
     }
 

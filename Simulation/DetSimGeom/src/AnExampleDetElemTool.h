@@ -8,7 +8,7 @@
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
 
-#include "DetInterface/IGeoSvc.h"
+#include "DetInterface/IGeomSvc.h"
 #include "DetSimInterface/IDetElemTool.h"
 #include "DetSimInterface/ISensDetTool.h"
 
@@ -31,7 +31,7 @@ private:
     // DD4hep XML compact file path
     Gaudi::Property<std::string> m_dd4hep_xmls{this, "detxml"};
 
-    SmartIF<IGeoSvc> m_geosvc;
+    SmartIF<IGeomSvc> m_geosvc;
     ToolHandle<ISensDetTool> m_calo_sdtool;
     ToolHandle<ISensDetTool> m_driftchamber_sdtool;
 };

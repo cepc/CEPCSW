@@ -16,7 +16,7 @@
 typedef std::vector<edm4hep::ConstTrackerHit> TrackerHitVec;
 using namespace MarlinTrk;
 
-// by fucd: 3.5->3.0 default, will be read from GeoSvc
+// by fucd: 3.5->3.0 default, will be read from GeomSvc
 // if compare to Marlin, should change to 3.5
 float Fitter::_bField = 3.5;//later on overwritten with the value read by geo file
 

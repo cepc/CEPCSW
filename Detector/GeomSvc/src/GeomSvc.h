@@ -1,8 +1,8 @@
-#ifndef GeoSvc_h
-#define GeoSvc_h
+#ifndef GeomSvc_h
+#define GeomSvc_h
 
 // Interface
-#include "DetInterface/IGeoSvc.h"
+#include "DetInterface/IGeomSvc.h"
 
 // Gaudi
 #include "GaudiKernel/IIncidentListener.h"
@@ -22,16 +22,16 @@
 class dd4hep::DetElement;
 class TGeoNode;
 
-class GeoSvc: public extends<Service, IGeoSvc> {
+class GeomSvc: public extends<Service, IGeomSvc> {
  public:
-  GeoSvc(const std::string& name, ISvcLocator* svc);
-  ~GeoSvc();
+  GeomSvc(const std::string& name, ISvcLocator* svc);
+  ~GeomSvc();
   
   // Service
   StatusCode initialize() override;
   StatusCode finalize() override;
   
-  // IGeoSvc
+  // IGeomSvc
   dd4hep::DetElement getDD4HepGeo() override;
   dd4hep::Detector* lcdd() override;
   
@@ -76,4 +76,4 @@ private:
   };
 };
 
-#endif // GeoSvc_h
+#endif // GeomSvc_h

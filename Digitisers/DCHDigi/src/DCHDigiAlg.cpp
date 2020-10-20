@@ -36,8 +36,8 @@ DCHDigiAlg::DCHDigiAlg(const std::string& name, ISvcLocator* svcLoc)
 StatusCode DCHDigiAlg::initialize()
 {
   /*
-  m_geosvc = service<IGeoSvc>("GeoSvc");
-  if ( !m_geosvc )  throw "DCHDigiAlg :Failed to find GeoSvc ...";
+  m_geosvc = service<IGeomSvc>("GeomSvc");
+  if ( !m_geosvc )  throw "DCHDigiAlg :Failed to find GeomSvc ...";
   dd4hep::Detector* m_dd4hep = m_geosvc->lcdd();
   if ( !m_dd4hep )  throw "DCHDigiAlg :Failed to get dd4hep::Detector ...";
   m_cellIDConverter = new dd4hep::rec::CellIDPositionConverter(*m_dd4hep);

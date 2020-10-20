@@ -16,7 +16,7 @@
 
 #include <DDRec/DetectorData.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include "DetInterface/IGeoSvc.h"
+#include "DetInterface/IGeomSvc.h"
 
 #include <string>
 #include <iostream>
@@ -148,7 +148,7 @@ protected:
      std::ostream *_output;
      std::string m_encoder_str;
 
-     SmartIF<IGeoSvc> m_geosvc;
+     SmartIF<IGeomSvc> m_geosvc;
      dd4hep::Detector* m_dd4hep_geo;
      dd4hep::DDSegmentation::BitFieldCoder* m_decoder;
 };

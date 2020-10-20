@@ -5,7 +5,7 @@
 #include "GaudiAlg/GaudiAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
 
-#include "DetInterface/IGeoSvc.h"
+#include "DetInterface/IGeomSvc.h"
 
 #include "DD4hep/Detector.h"
 
@@ -27,7 +27,7 @@ public:
     virtual StatusCode finalize();
 
 private:
-    SmartIF<IGeoSvc> m_geosvc;
+    SmartIF<IGeomSvc> m_geosvc;
     dd4hep::Detector* m_dd4hep_geo;
     dd4hep::DDSegmentation::BitFieldCoder* m_decoder;
 
