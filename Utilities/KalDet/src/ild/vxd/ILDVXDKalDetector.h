@@ -11,7 +11,7 @@
 #include "TMath.h"
 
 class TNode;
-class IGeoSvc;
+class IGeomSvc;
 
 namespace gear{
   class GearMgr ;
@@ -22,13 +22,13 @@ class ILDVXDKalDetector : public TVKalDetector {
   
 public:
   
-  ILDVXDKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc);
+  ILDVXDKalDetector( const gear::GearMgr& gearMgr, IGeomSvc* geoSvc);
   
   
 private:
   
   void setupGearGeom( const gear::GearMgr& gearMgr );
-  void setupGearGeom( IGeoSvc* geoSvc) ;
+  void setupGearGeom( IGeomSvc* geoSvc) ;
   
   int _nLayers ;
   double _bZ ;

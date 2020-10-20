@@ -1,4 +1,4 @@
-#include "GeoSvc.h"
+#include "GeomSvc.h"
 #include "gearimpl/GearParametersImpl.h"
 #include "TMath.h"
 #include "TMaterial.h"
@@ -19,19 +19,19 @@
 #include <iomanip>
 #include <iostream>
 
-DECLARE_COMPONENT(GeoSvc)
+DECLARE_COMPONENT(GeomSvc)
 
-GeoSvc::GeoSvc(const std::string& name, ISvcLocator* svc)
+GeomSvc::GeomSvc(const std::string& name, ISvcLocator* svc)
 : base_class(name, svc), m_dd4hep_geo(nullptr), m_vxdData(nullptr), m_beamPipeData(nullptr){
 
 }
 
-GeoSvc::~GeoSvc() {
+GeomSvc::~GeomSvc() {
 
 }
 
 StatusCode
-GeoSvc::initialize() {
+GeomSvc::initialize() {
   StatusCode sc = Service::initialize();
 
   m_dd4hep_geo = &(dd4hep::Detector::getInstance());
@@ -68,14 +68,14 @@ GeoSvc::initialize() {
 }
 
 StatusCode
-GeoSvc::finalize() {
+GeomSvc::finalize() {
   StatusCode sc;
   if(m_vxdParameters) delete m_vxdParameters;
   return sc;
 }
 
 dd4hep::DetElement
-GeoSvc::getDD4HepGeo() {
+GeomSvc::getDD4HepGeo() {
     if (lcdd()) {
         return lcdd()->world();
     }
@@ -83,15 +83,15 @@ GeoSvc::getDD4HepGeo() {
 }
 
 dd4hep::Detector*
-GeoSvc::lcdd() {
+GeomSvc::lcdd() {
     return m_dd4hep_geo;
 }
 
 
-IGeoSvc::Decoder*
-GeoSvc::getDecoder(const std::string& readout_name) {
+IGeomSvc::Decoder*
+GeomSvc::getDecoder(const std::string& readout_name) {
 
-    IGeoSvc::Decoder* decoder = nullptr;
+    IGeomSvc::Decoder* decoder = nullptr;
 
     if (!lcdd()) {
         error() << "Failed to get lcdd()" << endmsg;
@@ -121,26 +121,26 @@ GeoSvc::getDecoder(const std::string& readout_name) {
 }
 
 
-const std::map<std::string,double>& GeoSvc::getDetParameters(std::string name){
+const std::map<std::string,double>& GeomSvc::getDetParameters(std::string name){
   if(m_detParameters.find(name)!=m_detParameters.end()) return m_detParameters[name];
   else{
     char message[200];
-    sprintf(message,"GeoSvc has not the parameter set named %s", name); 
+    sprintf(message,"GeomSvc has not the parameter set named %s", name); 
     throw std::runtime_error(message);
   }
 }
 
-const double GeoSvc::getDetParameter(std::string set_name, std::string par_name){
+const double GeomSvc::getDetParameter(std::string set_name, std::string par_name){
   std::map<std::string, std::map<std::string,double> >::iterator it=m_detParameters.find(set_name);
   if(it!=m_detParameters.end()){
     if(it->second.find(par_name)!=it->second.end()) return it->second[par_name];  
   }
   char message[200];
-  sprintf(message,"GeoSvc has not the parameter named %s in set %s", par_name, set_name);
+  sprintf(message,"GeomSvc has not the parameter named %s in set %s", par_name, set_name);
   throw std::runtime_error(message);
 }
 
-StatusCode GeoSvc::convertVXD(dd4hep::DetElement& vxd){
+StatusCode GeomSvc::convertVXD(dd4hep::DetElement& vxd){
   StatusCode sc;
   //fucd: another method to obtain parameters, but not fully for KalDet  
   bool extensionDataValid = true;
@@ -575,7 +575,7 @@ StatusCode GeoSvc::convertVXD(dd4hep::DetElement& vxd){
   return sc;
 }
 
-TGeoNode* GeoSvc::FindNode(TGeoNode* mother, char* name){
+TGeoNode* GeomSvc::FindNode(TGeoNode* mother, char* name){
   TGeoNode* next = 0;
   if(mother->GetNdaughters()!=0){ 
     for(int i=0;i<mother->GetNdaughters();i++){
@@ -594,7 +594,7 @@ TGeoNode* GeoSvc::FindNode(TGeoNode* mother, char* name){
   return next;
 }
 
-TMaterial* GeoSvc::getMaterial(std::string name){
+TMaterial* GeomSvc::getMaterial(std::string name){
   std::map<std::string, TMaterial*>::const_iterator it = m_materials.find(name);
   if(it!=m_materials.end()) return it->second;
   else return 0;     

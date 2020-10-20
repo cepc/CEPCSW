@@ -9,7 +9,7 @@
 
 #include <DDRec/DetectorData.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include "DetInterface/IGeoSvc.h"
+#include "DetInterface/IGeomSvc.h"
 
 
 
@@ -36,7 +36,7 @@ public:
  
 protected:
 
-  SmartIF<IGeoSvc> m_geosvc;
+  SmartIF<IGeomSvc> m_geosvc;
   typedef std::vector<float> FloatVec;
   int _nEvt ;
 

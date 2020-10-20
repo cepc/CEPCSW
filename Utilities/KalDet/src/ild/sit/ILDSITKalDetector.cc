@@ -9,7 +9,7 @@
 #include <UTIL/BitField64.h>
 #include <UTIL/ILDConf.h>
 
-#include "DetInterface/IGeoSvc.h"
+#include "DetInterface/IGeomSvc.h"
 #include "DD4hep/Detector.h"
 #include "DDRec/DetectorData.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -27,7 +27,7 @@
 
 // #include "streamlog/streamlog.h"
 
-ILDSITKalDetector::ILDSITKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc )
+ILDSITKalDetector::ILDSITKalDetector( const gear::GearMgr& gearMgr, IGeomSvc* geoSvc )
 : TVKalDetector(300) // SJA:FIXME initial size, 300 looks reasonable for ILD, though this would be better stored as a const somewhere
 {
   
@@ -293,7 +293,7 @@ void ILDSITKalDetector::setupGearGeom( const gear::GearMgr& gearMgr ){
   
 }
 
-void ILDSITKalDetector::setupGearGeom( IGeoSvc* geoSvc ){
+void ILDSITKalDetector::setupGearGeom( IGeomSvc* geoSvc ){
 
   dd4hep::DetElement world = geoSvc->getDD4HepGeo();
   dd4hep::DetElement sit;

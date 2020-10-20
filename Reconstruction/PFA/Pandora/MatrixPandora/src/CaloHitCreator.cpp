@@ -57,11 +57,11 @@ CaloHitCreator::CaloHitCreator(const Settings &settings, const pandora::Pandora 
     _GEAR = iSvc->getGearMgr();
 
 
-    IGeoSvc*  Svc = 0;
-    StatusCode sc1 = svcloc->service("GeoSvc", Svc, false);
+    IGeomSvc*  Svc = 0;
+    StatusCode sc1 = svcloc->service("GeomSvc", Svc, false);
     if ( !sc1 )
     {
-        throw "Failed to find GeoSvc ...";
+        throw "Failed to find GeomSvc ...";
     }
     m_dd4hep = Svc->lcdd();
     const dd4hep::DetElement &detElement = m_dd4hep->detector("CaloDetector");

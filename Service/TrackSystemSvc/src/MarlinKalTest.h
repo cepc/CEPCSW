@@ -19,13 +19,13 @@
 
 #include <cmath>
 #include <vector>
-#include "DetInterface/IGeoSvc.h"
+#include "DetInterface/IGeomSvc.h"
 
 class TKalDetCradle ;
 class TVKalDetector ;
 class ILDVMeasLayer ;
 class THelicalTrack ;
-//class IGeoSvc;
+//class IGeomSvc;
 class ILDCylinderMeasLayer;
 
 namespace edm4hep{
@@ -48,7 +48,7 @@ namespace MarlinTrk{
     
     
     /** Default c'tor, initializes the geometry from GEAR. */
-    MarlinKalTest( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc) ;
+    MarlinKalTest( const gear::GearMgr& gearMgr, IGeomSvc* geoSvc) ;
     
     /** d'tor */
     ~MarlinKalTest() ;
@@ -92,7 +92,7 @@ namespace MarlinTrk{
     const ILDCylinderMeasLayer* _ipLayer ;
     
     const gear::GearMgr* _gearMgr ;
-    IGeoSvc* _geoSvc;
+    IGeomSvc* _geoSvc;
     
     TKalDetCradle* _det ;            // the detector cradle
     

@@ -35,8 +35,8 @@ StatusCode CaloDigiAlg::initialize()
 {
 
   std::cout<<"CaloDigiAlg::m_scale="<<m_scale<<std::endl;
-  m_geosvc = service<IGeoSvc>("GeoSvc");
-  if ( !m_geosvc )  throw "CaloDigiAlg :Failed to find GeoSvc ...";
+  m_geosvc = service<IGeomSvc>("GeomSvc");
+  if ( !m_geosvc )  throw "CaloDigiAlg :Failed to find GeomSvc ...";
   dd4hep::Detector* m_dd4hep = m_geosvc->lcdd();
   if ( !m_dd4hep )  throw "CaloDigiAlg :Failed to get dd4hep::Detector ...";
   m_cellIDConverter = new dd4hep::rec::CellIDPositionConverter(*m_dd4hep);
