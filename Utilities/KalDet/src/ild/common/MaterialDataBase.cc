@@ -204,36 +204,25 @@ void MaterialDataBase::createMaterials(const gear::GearMgr& gearMgr, IGeoSvc* ge
 
   
   // VXD Support Material
-  
-  try{
-  
-    //const gear::SimpleMaterial& vxd_sup_mat = gearMgr.getSimpleMaterial("VXDSupportMaterial");
-    /*
-    const gear::GearParametersImpl* vxd_sup_mat = geoSvc->getDetParameters("VXDSupportMaterial");
-    
-    A = vxd_sup_mat->getDoubleVal("A");
-    Z = vxd_sup_mat->getDoubleVal("Z");
-    density = vxd_sup_mat->getDoubleVal("Density");
-    radlen  = vxd_sup_mat->getDoubleVal("RadL");
-    name    = vxd_sup_mat->getStringVal("Name");
-    */
-    //A       = vxd_sup_mat.getA();
-    //Z       = vxd_sup_mat.getZ();
-    //density = vxd_sup_mat.getDensity() * (1000.0/ 1000000.0); // kg/m^3 -> g/cm^3
-    //radlen  = vxd_sup_mat.getRadLength() / 10.0 ; // mm -> cm
-    //name    = vxd_sup_mat.getName() ;
-    //std::cout << "debug fucd: " << "==================" << geoSvc << std::endl;
-    //TMaterial &vxdsupport = *new TMaterial(name.c_str(), "", A, Z, density, radlen, 0.);
-    //this->addMaterial(&vxdsupport, name);
+  if(geoSvc){
     TMaterial* vxdsupport = geoSvc->getMaterial("VXDSupportMaterial");
-    //std::cout << "debug fucd: " << "==================" << std::endl;
     if(vxdsupport) this->addMaterial(vxdsupport, "VXDSupportMaterial");
-    else std::cout << "Material VXDSupportMaterial not found" << std::endl; 
+    else std::cout << "Material VXDSupportMaterial not found" << std::endl;
   }
-  catch( gear::UnknownParameterException& e){   
-    std::cout << "Error while read material from GeoSvc!" << std::endl;
+  else{
+    try{
+      const gear::SimpleMaterial& vxd_sup_mat = gearMgr.getSimpleMaterial("VXDSupportMaterial");
+      A       = vxd_sup_mat.getA();
+      Z       = vxd_sup_mat.getZ();
+      density = vxd_sup_mat.getDensity() * (1000.0/ 1000000.0); // kg/m^3 -> g/cm^3
+      radlen  = vxd_sup_mat.getRadLength() / 10.0 ; // mm -> cm
+      name    = vxd_sup_mat.getName() ;
+      TMaterial &vxdsupport = *new TMaterial(name.c_str(), "", A, Z, density, radlen, 0.);
+      this->addMaterial(&vxdsupport, name);
+    }
+    catch( gear::UnknownParameterException& e){   
+      std::cout << "Error while read material from GeoSvc!" << std::endl;
+    }
   }
-  
-  
 }
 
