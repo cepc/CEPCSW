@@ -26,9 +26,9 @@
 #include "gearimpl/Util.h"
 #include "gear/CalorimeterParameters.h"
 // #include "streamlog/streamlog.h"
-#include "DetInterface/IGeoSvc.h"
+#include "DetInterface/IGeomSvc.h"
 
-ILDSupportKalDetector::ILDSupportKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc ) : 
+ILDSupportKalDetector::ILDSupportKalDetector( const gear::GearMgr& gearMgr, IGeomSvc* geoSvc ) : 
 TVKalDetector(10) 
 {
   Double_t bz;

@@ -13,7 +13,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "DetSimInterface/ISensDetTool.h"
 #include "DetSimInterface/IDedxSimTool.h"
-#include "DetInterface/IGeoSvc.h"
+#include "DetInterface/IGeomSvc.h"
 
 
 class DriftChamberSensDetTool: public extends<AlgTool, ISensDetTool> {
@@ -32,7 +32,7 @@ public:
 private:
 
     // in order to initialize SD, we need to get the lcdd()
-    SmartIF<IGeoSvc> m_geosvc;
+    SmartIF<IGeomSvc> m_geosvc;
     ToolHandle<IDedxSimTool> m_dedx_simtool;
     Gaudi::Property<std::string> m_dedx_sim_option{this, "DedxSimTool"};
 

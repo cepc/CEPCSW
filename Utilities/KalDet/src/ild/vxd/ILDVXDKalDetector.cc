@@ -10,7 +10,7 @@
 #include <UTIL/BitField64.h>
 #include <UTIL/ILDConf.h>
 
-#include "DetInterface/IGeoSvc.h"
+#include "DetInterface/IGeomSvc.h"
 #include "DD4hep/Detector.h"
 #include "DDRec/DetectorData.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -22,7 +22,7 @@
 #include <gear/VXDParameters.h>
 #include <gear/VXDLayerLayout.h>
 #include "gearimpl/Util.h"
-#include "DetInterface/IGeoSvc.h"
+#include "DetInterface/IGeomSvc.h"
 
 #include "TMath.h"
 
@@ -31,7 +31,7 @@
 
 // #include "streamlog/streamlog.h"
 
-ILDVXDKalDetector::ILDVXDKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc )
+ILDVXDKalDetector::ILDVXDKalDetector( const gear::GearMgr& gearMgr, IGeomSvc* geoSvc )
 : TVKalDetector(300) // SJA:FIXME initial size, 300 looks reasonable for ILD, though this would be better stored as a const somewhere
 {
   
@@ -381,7 +381,7 @@ void ILDVXDKalDetector::setupGearGeom( const gear::GearMgr& gearMgr ){
 }
 
 
-void ILDVXDKalDetector::setupGearGeom( IGeoSvc* geoSvc){
+void ILDVXDKalDetector::setupGearGeom( IGeomSvc* geoSvc){
   /*
   dd4hep::DetElement world = geoSvc->getDD4HepGeo();
   dd4hep::DetElement vxd;

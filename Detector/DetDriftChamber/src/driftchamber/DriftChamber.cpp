@@ -8,8 +8,10 @@
 //====================================================================
 
 #include "DD4hep/DetFactoryHelper.h"
+#include "DD4hep/Printout.h"
 #include "XML/Layering.h"
 #include "XML/Utilities.h"
+#include "XML/XMLElements.h"
 #include "DDRec/DetectorData.h"
 #include "DDSegmentation/Segmentation.h"
 #include "DetSegmentation/GridDriftChamber.h"
@@ -24,6 +26,9 @@ using namespace dd4hep::rec ;
 static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         xml_h e,
         dd4hep::SensitiveDetector sens) {
+    // ------- Lambda functions ---- //
+    auto delta_a_func = [](auto x, auto y) { return 0.5 * ( x + y ); };
+
     // =======================================================================
     // Parameter Definition
     // =======================================================================
@@ -32,6 +37,8 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 
     std::string det_name = x_det.nameStr();
     std::string det_type = x_det.typeStr();
+
+    dd4hep::SensitiveDetector sd = sens;
 
     // - global
     double chamber_radius_min = theDetector.constant<double>("SDT_radius_min");
@@ -52,6 +59,8 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     int inner_chamber_layer_number = theDetector.constant<int>("SDT_inner_chamber_layer_number");
     int outer_chamber_layer_number = theDetector.constant<int>("SDT_outer_chamber_layer_number");
     double chamber_layer_width  = theDetector.constant<double>("SDT_chamber_layer_width");
+
+    double epsilon = theDetector.constant<double>("Epsilon");
 
     // =======================================================================
     // Detector Construction
@@ -75,36 +84,55 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     dd4hep::Tube det_outer_chamber_solid(outer_chamber_radius_min, outer_chamber_radius_max, outer_chamber_length*0.5);
     dd4hep::Volume det_outer_chamber_vol(det_name+"_outer_chamber_vol", det_outer_chamber_solid, det_mat);
 
+    //Initialize the segmentation
+    dd4hep::Readout readout = sd.readout();
+    dd4hep::Segmentation geomseg = readout.segmentation();
+    dd4hep::Segmentation* _geoSeg = &geomseg;
+
+    auto DCHseg = dynamic_cast<dd4hep::DDSegmentation::GridDriftChamber*>(_geoSeg->segmentation());
 
     // - layer
-    for(int layer_id=0; layer_id<(inner_chamber_layer_number+outer_chamber_layer_number-1);layer_id++) {
-      double rmin,rmax;
-      std::string layer_name;
-      dd4hep::Volume* current_vol_ptr = nullptr;
+      for(int layer_id = 0; layer_id < (inner_chamber_layer_number+outer_chamber_layer_number); layer_id++) {
+        double rmin,rmax,offset;
+        std::string layer_name;
+        dd4hep::Volume* current_vol_ptr = nullptr;
 
-      if(layer_id<inner_chamber_layer_number){
-        current_vol_ptr = &det_inner_chamber_vol;
-        rmin = inner_chamber_radius_min+(layer_id*chamber_layer_width);
-        rmax = rmin+chamber_layer_width;
-        layer_name = det_name+"_inner_chamber_vol"+_toString(layer_id,"_layer%d");
-      }else{
-        current_vol_ptr = &det_outer_chamber_vol;
-        rmin = outer_chamber_radius_min+((layer_id-inner_chamber_layer_number)*chamber_layer_width);
-        rmax = rmin+chamber_layer_width;
-        layer_name = det_name+"_outer_chamber_vol"+_toString(layer_id,"_layer%d");
+        if( layer_id < inner_chamber_layer_number ) {
+           current_vol_ptr = &det_inner_chamber_vol;
+           rmin = inner_chamber_radius_min+(layer_id*chamber_layer_width);
+           rmax = rmin+chamber_layer_width;
+           layer_name = det_name+"_inner_chamber_vol"+_toString(layer_id,"_layer%d");
+        }
+        else {
+           current_vol_ptr = &det_outer_chamber_vol;
+           rmin = outer_chamber_radius_min+((layer_id-inner_chamber_layer_number)*chamber_layer_width);
+           rmax = rmin+chamber_layer_width;
+           layer_name = det_name+"_outer_chamber_vol"+_toString(layer_id,"_layer%d");
+        }
+
+        //Construction of drift chamber layers
+        double rmid = delta_a_func(rmin,rmax);
+        double ilayer_cir = 2 * M_PI * rmid;
+        double ncell = ilayer_cir / chamber_layer_width;
+        int ncell_layer = ceil(ncell);
+        int numWire = ncell_layer;
+        double layer_Phi = 2*M_PI / ncell_layer;
+        if(layer_id %2 ==0){ offset = 0.; }
+        else { offset = 0.5 * layer_Phi; }
+
+        DCHseg->setGeomParams(layer_id, layer_Phi, rmid, epsilon, offset);
+        DCHseg->setWiresInLayer(layer_id, numWire);
+
+        dd4hep::Tube layer_solid(rmin,rmax,chamber_length*0.5);
+        dd4hep::Volume layer_vol(layer_name,layer_solid,det_mat);
+        dd4hep::Transform3D transform_layer(dd4hep::Rotation3D(),dd4hep::Position(0.,0.,0.));
+        dd4hep::PlacedVolume layer_phy = (*current_vol_ptr).placeVolume(layer_vol, transform_layer);
+        layer_phy.addPhysVolID("layer",layer_id);
+
+        //Set drift chamber layers to sensitive detector
+        layer_vol.setSensitiveDetector(sens);
+        sd.setType("tracker");
       }
-      /// Construction of drift chamber layers
-      dd4hep::Tube layer_solid(rmin,rmax,chamber_length*0.5);
-      dd4hep::Volume layer_vol(layer_name,layer_solid,det_mat);
-      dd4hep::Transform3D transform_layer(dd4hep::Rotation3D(),dd4hep::Position(0.,0.,0.));
-      dd4hep::PlacedVolume layer_phy = (*current_vol_ptr).placeVolume(layer_vol, transform_layer);
-      layer_phy.addPhysVolID("layer",layer_id);
-
-      /// Set drift chamber layers to sensitive detector
-      dd4hep::SensitiveDetector sd = sens;
-      layer_vol.setSensitiveDetector(sens);
-      sd.setType("tracker");
-   }
 
     // - place in det
     // inner

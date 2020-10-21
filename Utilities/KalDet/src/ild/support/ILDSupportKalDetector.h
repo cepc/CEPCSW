@@ -13,7 +13,7 @@ class TNode;
 namespace gear{
   class GearMgr ;
 }
-class IGeoSvc;
+class IGeomSvc;
 
 class ILDCylinderMeasLayer;
 
@@ -21,7 +21,7 @@ class ILDSupportKalDetector : public TVKalDetector {
 public:
   
   /** Initialize the support structures from GEAR */
-  ILDSupportKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc );
+  ILDSupportKalDetector( const gear::GearMgr& gearMgr, IGeomSvc* geoSvc );
   
   /** Returns the special layer inside the Beam Pipe used for propagation to the IP */
   ILDCylinderMeasLayer* getIPLayer() { return _ipLayer; }

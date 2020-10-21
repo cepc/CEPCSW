@@ -50,6 +50,7 @@ StatusCode TrackSystemSvc::initialize(){
   m_trackSystems.clear();
 
   m_trackSystems[0] = getTrackSystem(0);
+
   
   return StatusCode::SUCCESS;
 }

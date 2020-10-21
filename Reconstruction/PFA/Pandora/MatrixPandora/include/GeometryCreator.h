@@ -12,7 +12,7 @@
 
 #include "GaudiKernel/ISvcLocator.h"
 
-#include "DetInterface/IGeoSvc.h"
+#include "DetInterface/IGeomSvc.h"
 #include "DD4hep/DD4hepUnits.h"
 #include "DD4hep/Detector.h"
 

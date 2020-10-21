@@ -5,7 +5,7 @@
 
 #include <sstream>
 
-#include "DetInterface/IGeoSvc.h"
+#include "DetInterface/IGeomSvc.h"
 #include "DD4hep/Detector.h"
 #include "DDRec/DetectorData.h"
 #include "DD4hep/DD4hepUnits.h"
@@ -27,7 +27,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "TVector3.h"
 
-ILDFTDKalDetector::ILDFTDKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc ) : 
+ILDFTDKalDetector::ILDFTDKalDetector( const gear::GearMgr& gearMgr, IGeomSvc* geoSvc ) : 
 TVKalDetector(300), _nDisks(0) // SJA:FIXME initial size, 300 looks reasonable for ILD, though this would be better stored as a const somewhere
 {
   // streamlog_out(DEBUG1) << "ILDFTDKalDetector building FTD detector using GEAR " << std::endl ;
@@ -510,7 +510,7 @@ void ILDFTDKalDetector::setupGearGeom( const gear::GearMgr& gearMgr ){
   
 }
 
-void ILDFTDKalDetector::setupGearGeom( IGeoSvc* geoSvc ){
+void ILDFTDKalDetector::setupGearGeom( IGeomSvc* geoSvc ){
   dd4hep::DetElement world = geoSvc->getDD4HepGeo();
   dd4hep::DetElement ftd;
   const std::map<std::string, dd4hep::DetElement>& subs = world.children();

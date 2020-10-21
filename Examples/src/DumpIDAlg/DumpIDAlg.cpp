@@ -18,9 +18,9 @@ DumpIDAlg::DumpIDAlg(const std::string& name, ISvcLocator* svcLoc)
 
 StatusCode DumpIDAlg::initialize()
 {
-    m_geosvc = service<IGeoSvc>("GeoSvc");
+    m_geosvc = service<IGeomSvc>("GeomSvc");
     if (!m_geosvc) {
-        error() << "Failed to find GeoSvc." << endmsg;
+        error() << "Failed to find GeomSvc." << endmsg;
         return StatusCode::FAILURE;
     }
     m_dd4hep_geo = m_geosvc->lcdd();

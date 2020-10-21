@@ -9,7 +9,7 @@
 
 #include "GaudiKernel/AlgTool.h"
 #include "DetSimInterface/ISensDetTool.h"
-#include "DetInterface/IGeoSvc.h"
+#include "DetInterface/IGeomSvc.h"
 
 class CalorimeterSensDetTool: public extends<AlgTool, ISensDetTool> {
 
@@ -27,7 +27,7 @@ public:
 private:
 
     // in order to initialize SD, we need to get the lcdd()
-    SmartIF<IGeoSvc> m_geosvc;
+    SmartIF<IGeomSvc> m_geosvc;
 
 };
 

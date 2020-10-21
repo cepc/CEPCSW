@@ -178,8 +178,8 @@ geometry_option = &#34;CepC_v4-onlyVXD.xml&#34;
 geometry_path = os.path.join(os.getenv(&#34;DETCEPCV4ROOT&#34;), 
                              &#34;compact&#34;, geometry_option)
 
-from Configurables import GeoSvc
-geosvc = GeoSvc(&#34;GeoSvc&#34;)
+from Configurables import GeomSvc
+geosvc = GeomSvc(&#34;GeomSvc&#34;)
 geosvc.compact = geometry_path
 ```
 * The compact file is in XML format, which describes the detector. 

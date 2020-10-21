@@ -18,7 +18,7 @@ class TMaterial;
 namespace gear{
   class GearMgr ;
 }
-class IGeoSvc;
+class IGeomSvc;
 // fg: define the MaterialDataBaseException as an lcio Exception to allow for 
 //     messages to be printed in what() 
 typedef lcio::Exception MaterialDataBaseException ;
@@ -46,12 +46,12 @@ public:
   /** Get Material via name */
   TMaterial* getMaterial(std::string mat_name) ;  
   
-  void registerForService(const gear::GearMgr& gearMgr, IGeoSvc* geoSvc=0) ;
+  void registerForService(const gear::GearMgr& gearMgr, IGeomSvc* geoSvc=0) ;
   
   
 private:
  
-  void initialise(const gear::GearMgr& gearMgr, IGeoSvc* geoSvc) ;
+  void initialise(const gear::GearMgr& gearMgr, IGeomSvc* geoSvc) ;
   
   MaterialDataBase() { _material_map.clear(); _isInitialised = false ; _gearMgr = 0; }                               // Private constructor
   
@@ -60,7 +60,7 @@ private:
   MaterialDataBase& operator=(const MaterialDataBase&) ;      // Prevent assignment
   
   void addMaterial(TMaterial* mat, std::string name); 
-  void createMaterials(const gear::GearMgr& gearMgr, IGeoSvc* geoSvc);
+  void createMaterials(const gear::GearMgr& gearMgr, IGeomSvc* geoSvc);
   
   // private member variables
   std::map<std::string,TMaterial* > _material_map;
