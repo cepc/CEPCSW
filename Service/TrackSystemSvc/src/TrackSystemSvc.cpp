@@ -26,15 +26,15 @@ MarlinTrk::IMarlinTrkSystem* TrackSystemSvc::getTrackSystem(void* address){
       mgr = _gear->getGearMgr();
     }
 
-    auto _geoSvc = service<IGeoSvc>("GeoSvc");
+    auto _geoSvc = service<IGeomSvc>("GeomSvc");
     if ( !_geoSvc ) {
-      info() << "Failed to find GeoSvc ..." << endmsg;
+      info() << "Failed to find GeomSvc ..." << endmsg;
     }
     if(mgr==0&&_geoSvc==0){
-      fatal() << "Both GearSvc and GeoSvc invalid!" << endmsg;
+      fatal() << "Both GearSvc and GeomSvc invalid!" << endmsg;
       return 0;
     }
-    debug() << "GearMgr=" << mgr << " GeoSvc=" << _geoSvc << endmsg;
+    debug() << "GearMgr=" << mgr << " GeomSvc=" << _geoSvc << endmsg;
     MarlinTrk::IMarlinTrkSystem* sys = new MarlinTrk::MarlinKalTest( *mgr, _geoSvc );
     m_trackSystems[address] = sys;
     debug() << "Track system created successfully for " << address << endmsg;
