@@ -27,9 +27,9 @@ gaudi_add_module(DetDriftChamber
                   ${DetDriftChamber_src}
 		  INCLUDE_DIRS
                   # DD4hep ROOT Geant4 src/include
-		  LINK_LIBRARIES 
+		  LINK_LIBRARIES GaudiKernel DD4hep ROOT DetSegmentation
                   # GaudiKernel 
-                  DD4hep ${DD4hep_COMPONENT_LIBRARIES} 
+                  #DD4hep ${DD4hep_COMPONENT_LIBRARIES} 
                   # ROOT Geant4
 )
 
