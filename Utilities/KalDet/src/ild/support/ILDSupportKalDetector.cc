@@ -19,6 +19,7 @@
 #include "DD4hep/Detector.h"
 #include "DDRec/DetectorData.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "DD4hep/DD4hepUnits.h"
 
 #include "gear/GEAR.h"
 #include "gear/BField.h"
@@ -37,11 +38,11 @@ TVKalDetector(10)
     const dd4hep::rec::ConicalSupportData* pBeamPipeData = geoSvc->getBeamPipeData();
     const std::vector<dd4hep::rec::ConicalSupportData::Section>& sections = pBeamPipeData->sections;
     const dd4hep::Direction& field = geoSvc->lcdd()->field().magneticField(dd4hep::Position(0,0,0));
-    bz = field.z();
+    bz = field.z()/dd4hep::tesla;
     for(int i=0;i<sections.size();i++){
-      z.push_back(sections[i].zPos);
-      rInner.push_back(sections[i].rInner);
-      rOuter.push_back(sections[i].rOuter);
+      z.push_back(sections[i].zPos*CLHEP::cm  );
+      rInner.push_back(sections[i].rInner*CLHEP::cm );
+      rOuter.push_back(sections[i].rOuter*CLHEP::cm );
     }
   }
   else{
@@ -54,8 +55,8 @@ TVKalDetector(10)
     rInner = pBeamPipe.getDoubleVals("RInner"); //inner radius of the cone
     rOuter = pBeamPipe.getDoubleVals("ROuter"); //outer radius of the cone
   }
-  //for(int i=0;i<sections.size();i++){
-  //  std::cout << z[i] << " " << rInner[i] << " " << rOuter[i] << std::endl;
+  //for(int i=0;i<z.size();i++){
+  //std::cout << z[i] << " " << rInner[i] << " " << rOuter[i] << std::endl;
   //}
   MaterialDataBase::Instance().registerForService(gearMgr, geoSvc);
   TMaterial & beam      = *MaterialDataBase::Instance().getMaterial("beam");

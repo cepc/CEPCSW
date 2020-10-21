@@ -14,6 +14,7 @@
 #include "DD4hep/Detector.h"
 #include "DDRec/DetectorData.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "DD4hep/DD4hepUnits.h"
 
 #include <gear/GEAR.h>
 #include "gear/BField.h"
@@ -48,13 +49,14 @@ ILDVXDKalDetector::ILDVXDKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geo
   TMaterial & aluminium = *MaterialDataBase::Instance().getMaterial("aluminium");
   
   _vxd_Cryostat.exists = false;
-  
+
   if(geoSvc){
     this->setupGearGeom(geoSvc) ;
   }
   else{
     this->setupGearGeom(gearMgr) ;
   }
+
   //--The Ladder structure (realistic ladder)--
   int nLadders;
   
@@ -398,7 +400,7 @@ void ILDVXDKalDetector::setupGearGeom( IGeoSvc* geoSvc){
   }
   */
   const dd4hep::Direction& field = geoSvc->lcdd()->field().magneticField(dd4hep::Position(0,0,0));
-  _bZ = field.z();
+  _bZ = field.z()/dd4hep::tesla;
   
   const gear::ZPlanarParametersImpl* pVXDDetMain = geoSvc->getVXDParameters();
   const gear::VXDLayerLayout& pVXDLayerLayout = pVXDDetMain->getVXDLayerLayout();

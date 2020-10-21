@@ -20,6 +20,7 @@
 #include "gearimpl/Util.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "DD4hep/DD4hepUnits.h"
 #include "TMath.h"
 
 #include "math.h"
@@ -46,7 +47,7 @@ ILDSETKalDetector::ILDSETKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geo
   else{
     setupGearGeom( gearMgr );
   }
-  
+
   if (_isStripDetector) {
     // streamlog_out(DEBUG4) << "\t\t building SET detector as STRIP Detector." << std::endl ;
   } else {
@@ -311,7 +312,7 @@ void ILDSETKalDetector::setupGearGeom( IGeoSvc* geoSvc ){
   }
 
   const dd4hep::Direction& field = geoSvc->lcdd()->field().magneticField(dd4hep::Position(0,0,0));
-  _bZ = field.z();
+  _bZ = field.z()/dd4hep::tesla;
 
   std::vector<dd4hep::rec::ZPlanarData::LayerLayout>& setlayers = setData->layers;
   _nLayers = setlayers.size();

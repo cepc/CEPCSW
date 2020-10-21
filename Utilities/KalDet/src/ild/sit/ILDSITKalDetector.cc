@@ -13,6 +13,7 @@
 #include "DD4hep/Detector.h"
 #include "DDRec/DetectorData.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "DD4hep/DD4hepUnits.h"
 
 #include <gear/GEAR.h>
 #include "gear/BField.h"
@@ -30,28 +31,26 @@
 ILDSITKalDetector::ILDSITKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc )
 : TVKalDetector(300) // SJA:FIXME initial size, 300 looks reasonable for ILD, though this would be better stored as a const somewhere
 {
+  // std::cout << "ILDSITKalDetector building SIT detector using GEAR " << std::endl ;
   
-  
-  // streamlog_out(DEBUG4) << "ILDSITKalDetector building SIT detector using GEAR " << std::endl ;
-
   MaterialDataBase::Instance().registerForService(gearMgr, geoSvc);
   
   TMaterial & air       = *MaterialDataBase::Instance().getMaterial("air");
   TMaterial & silicon   = *MaterialDataBase::Instance().getMaterial("silicon");
   TMaterial & carbon    = *MaterialDataBase::Instance().getMaterial("carbon");
+
   if(geoSvc){
     this->setupGearGeom(geoSvc);
   }
   else{
     this->setupGearGeom(gearMgr) ;
   }
-
+  
   if (_isStripDetector) {
     // streamlog_out(DEBUG4) << "\t\t building SIT detector as STRIP Detector." << std::endl ;    
   } else {
     // streamlog_out(DEBUG4) << "\t\t building SIT detector as PIXEL Detector." << std::endl ;    
   }
-
   
   //--The Ladder structure (realistic ladder)--
   int nLadders;
@@ -141,9 +140,7 @@ ILDSITKalDetector::ILDSITKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geo
           }
           
           
-          // streamlog_out(DEBUG0) << "ILDSITKalDetector add surface with CellID = "
-          // << CellID
-          // << std::endl ;
+	  //std::cout << "ILDSITKalDetector add surface with CellID = " << CellID << std::endl ;
           
         }
         
@@ -187,10 +184,8 @@ ILDSITKalDetector::ILDSITKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geo
             Add(new ILDParallelPlanarMeasLayer(silicon, silicon, sensitive_distance+sensitive_thickness*0.5, currPhi, _bZ, measurement_plane_sorting_policy, width, sensor_length, offset, z_centre_sensor, offset, true, CellID, "SITMeaslayer" )) ;
           }
 
-                                    
-          // streamlog_out(DEBUG0) << "ILDSITKalDetector add surface with CellID = "
-          // << CellID
-          // << std::endl ;
+	  
+	  //std::cout << "ILDSITKalDetector add surface with CellID = " << CellID << std::endl ;
 
           
         }
@@ -312,7 +307,7 @@ void ILDSITKalDetector::setupGearGeom( IGeoSvc* geoSvc ){
   }
 
   const dd4hep::Direction& field = geoSvc->lcdd()->field().magneticField(dd4hep::Position(0,0,0));
-  _bZ = field.z();
+  _bZ = field.z()/dd4hep::tesla;
 
   std::vector<dd4hep::rec::ZPlanarData::LayerLayout>& sitlayers = sitData->layers;
   _nLayers = sitlayers.size();

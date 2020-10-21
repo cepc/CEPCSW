@@ -14,6 +14,7 @@
 #include "DD4hep/Detector.h"
 #include "DDRec/DetectorData.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "DD4hep/DD4hepUnits.h"
 
 #include "gear/GEAR.h"
 #include "gear/BField.h"
@@ -52,7 +53,7 @@ TVKalDetector(250) // SJA:FIXME initial size, 250 looks reasonable for ILD, thou
     }
 
     const dd4hep::Direction& field = geoSvc->lcdd()->field().magneticField(dd4hep::Position(0,0,0));
-    bz = field.z();
+    bz = field.z()/dd4hep::tesla;
     nlayers = tpcData->maxRow;
     lhalf = tpcData->driftLength*CLHEP::cm;
     rstep = tpcData->padHeight*CLHEP::cm;

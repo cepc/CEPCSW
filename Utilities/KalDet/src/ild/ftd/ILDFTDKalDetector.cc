@@ -8,6 +8,7 @@
 #include "DetInterface/IGeoSvc.h"
 #include "DD4hep/Detector.h"
 #include "DDRec/DetectorData.h"
+#include "DD4hep/DD4hepUnits.h"
 
 #include "gear/GEAR.h"
 #include "gear/BField.h"
@@ -29,7 +30,6 @@
 ILDFTDKalDetector::ILDFTDKalDetector( const gear::GearMgr& gearMgr, IGeoSvc* geoSvc ) : 
 TVKalDetector(300), _nDisks(0) // SJA:FIXME initial size, 300 looks reasonable for ILD, though this would be better stored as a const somewhere
 {
-  
   // streamlog_out(DEBUG1) << "ILDFTDKalDetector building FTD detector using GEAR " << std::endl ;
   
   MaterialDataBase::Instance().registerForService(gearMgr, geoSvc);
@@ -41,14 +41,10 @@ TVKalDetector(300), _nDisks(0) // SJA:FIXME initial size, 300 looks reasonable f
   }
 
   this->build_staggered_design();
-
   
   SetOwner();
   
 }
-
-
-
 
 void ILDFTDKalDetector::build_staggered_design() {
   
@@ -532,7 +528,7 @@ void ILDFTDKalDetector::setupGearGeom( IGeoSvc* geoSvc ){
   }
   
   const dd4hep::Direction& field = geoSvc->lcdd()->field().magneticField(dd4hep::Position(0,0,0));
-  _bZ = field.z();
+  _bZ = field.z()/dd4hep::tesla;
 
   double strip_angle_deg = ftdData->angleStrip/CLHEP::degree;
   bool strip_angle_present = true;
