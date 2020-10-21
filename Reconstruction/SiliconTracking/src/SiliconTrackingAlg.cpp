@@ -64,7 +64,7 @@ DECLARE_COMPONENT( SiliconTrackingAlg )
 
 SiliconTrackingAlg::SiliconTrackingAlg(const std::string& name, ISvcLocator* svcLoc)
 : GaudiAlgorithm(name, svcLoc) {
-  
+
   //_description = "Pattern recognition in silicon trackers";
   
   _fastfitter = new MarlinTrk::HelixFit();
@@ -111,7 +111,7 @@ StatusCode  SiliconTrackingAlg::initialize() {
     error() << "Failed to find TrackSystemSvc ..." << endmsg;
     return StatusCode::FAILURE;
   }
-  _trksystem =  _trackSystemSvc->getTrackSystem();
+  _trksystem =  _trackSystemSvc->getTrackSystem(this);
   
   if( _trksystem == 0 ){
     error() << "Cannot initialize MarlinTrkSystem of Type: KalTest" <<endmsg;
@@ -448,12 +448,12 @@ int SiliconTrackingAlg::InitialiseFTD() {
       const float eps = 1.0e-07;
       // V must be the global z axis 
       if( fabs(V.dot(Z)) > eps ) {
-	error() << "SiliconTrackingAlg: VXD Hit measurment vectors V is not in the global X-Y plane. \n\n  exit(1) called from file " << __FILE__ << " and line " << __LINE__ << endmsg;
+	error() << "SiliconTrackingAlg: FTD Hit measurment vectors V is not in the global X-Y plane. \n\n  exit(1) called from file " << __FILE__ << " and line " << __LINE__ << endmsg;
 	exit(1);
       }
       
       if( fabs(U.dot(Z)) > eps ) {
-	error() << "SiliconTrackingAlg: VXD Hit measurment vectors U is not in the global X-Y plane. \n\n exit(1) called from file " << __FILE__ << " and line " << __LINE__ << endmsg;
+	error() << "SiliconTrackingAlg: FTD Hit measurment vectors U is not in the global X-Y plane. \n\n exit(1) called from file " << __FILE__ << " and line " << __LINE__ << endmsg;
 	exit(1);
       }
       // SJA:FIXME Here dU and dV are almost certainly dX and dY ... should test ...
@@ -491,7 +491,7 @@ int SiliconTrackingAlg::InitialiseFTD() {
 	else {
 	  layer = 2*layer + 1;
 	}
-	
+	//debug() << "_petalBasedFTDWithOverlaps = true layer->2*layer,2layer+1 according to petalIndex = " << petalIndex << endmsg;
       }
       if (layer >= _nlayersFTD) {
 	fatal() << "SiliconTrackingAlg => fatal error in FTD : layer is outside allowed range : " << layer << " number of layers = " << _nlayersFTD <<  endmsg;
@@ -509,7 +509,7 @@ int SiliconTrackingAlg::InitialiseFTD() {
       int iCode = iSemiSphere + 2*layer + 2*_nlayersFTD*iPhi;
       _sectorsFTD[iCode].push_back( hitExt );
       
-      debug() << " FTD Pixel Hit added : @ " << pos[0] << " " << pos[1] << " " << pos[2] << " drphi " << hitExt->getResolutionRPhi() << " dz " << hitExt->getResolutionZ() << "  iPhi = " << iPhi <<  " iSemiSphere "  << iSemiSphere << " iCode = " << iCode << "  layer = " << layer << endmsg;  
+      debug() << " FTD Pixel Hit added : @ " << pos[0] << " " << pos[1] << " " << pos[2] << " drphi " << hitExt->getResolutionRPhi() << " dz " << hitExt->getResolutionZ() << "  iPhi = " << iPhi << " iSemiSphere "  << iSemiSphere << " iCode = " << iCode << " layer = " << layer << " cellID = " << hit.getCellID() << endmsg;  
     }
   }
   // Reading out FTD SpacePoint Collection
@@ -579,7 +579,6 @@ int SiliconTrackingAlg::InitialiseFTD() {
       unsigned int petalIndex = static_cast<unsigned int>(getModuleID(hit));
       
       if ( _petalBasedFTDWithOverlaps == true ) {
-        
         // as we are dealing with staggered petals we will use 2*nlayers in each directions +/- z
         // the layers will follow the even odd numbering of the petals 
         if ( petalIndex % 2 == 0 ) {
@@ -588,7 +587,7 @@ int SiliconTrackingAlg::InitialiseFTD() {
         else {
           layer = 2*layer + 1;
         }
-        
+        //debug() << "_petalBasedFTDWithOverlaps = true layer->2*layer,2layer+1 according to petalIndex = " << petalIndex << endmsg;
       }
       
       if (layer >= _nlayersFTD) {
@@ -607,7 +606,7 @@ int SiliconTrackingAlg::InitialiseFTD() {
       int iCode = iSemiSphere + 2*layer + 2*_nlayersFTD*iPhi;
       _sectorsFTD[iCode].push_back( hitExt );
       
-      debug() << " FTD SpacePoint Hit added : @ " << pos[0] << " " << pos[1] << " " << pos[2] << " drphi " << hitExt->getResolutionRPhi() << " dz " << hitExt->getResolutionZ() << "  iPhi = " << iPhi <<  " iSemiSphere "  << iSemiSphere << " iCode = " << iCode << "  layer = " << layer << endmsg;  
+      debug() << " FTD SpacePoint Hit added : @ " << pos[0] << " " << pos[1] << " " << pos[2] << " drphi " << hitExt->getResolutionRPhi() << " dz " << hitExt->getResolutionZ() << "  iPhi = " << iPhi << " iSemiSphere "  << iSemiSphere << " iCode = " << iCode << " layer = " << layer << " cellID = " << hit.getCellID() << endmsg;  
       
     }
   }
@@ -677,7 +676,7 @@ int SiliconTrackingAlg::InitialiseVTX() {
         exit(1);
       }
       TrackerHitExtended * hitExt = new TrackerHitExtended(hit);
-      debug() << "Saved TrackerHit pointer in TrackerHitExtended " << ielem << ": " << hitExt->getTrackerHit() << std::endl;
+      //debug() << "Saved TrackerHit id in TrackerHitExtended " << ielem << ": " << hitExt->getTrackerHit().id() << std::endl;
             
       // SJA:FIXME: just use planar res for now
       hitExt->setResolutionRPhi(hit.getCovMatrix()[2]);
@@ -799,7 +798,7 @@ int SiliconTrackingAlg::InitialiseVTX() {
         // or a PIXEL based SIT, using 2D TrackerHitPlane like the VXD above
 	// by fucd
         //else if ( ( trkhit_P = dynamic_cast<TrackerHitPlane*>( hitCollection->getElementAt( ielem ) ) ) )  {
-	else if( UTIL::BitSet32( trkhit.getType() )[ 31 ]){
+	else if( UTIL::BitSet32( trkhit.getType() )[ 3 ]){
           // first we need to check if the measurement vectors are aligned with the global coordinates 
           //gear::Vector3D U(1.0,trkhit_P->getU()[1],trkhit_P->getU()[0],gear::Vector3D::spherical);
           //gear::Vector3D V(1.0,trkhit_P->getV()[1],trkhit_P->getV()[0],gear::Vector3D::spherical);
@@ -907,6 +906,7 @@ StatusCode  SiliconTrackingAlg::finalize(){
   //delete _trksystem ; _trksystem = 0;
   //delete _histos ; _histos = 0;
   info() << "Processed " << _nEvt << " events " << endmsg;
+  info() << lcio::ILDCellID0::encoder_string << " " << UTIL::ILDCellID0::encoder_string << endmsg;
   return GaudiAlgorithm::finalize();
 }
 
@@ -2052,7 +2052,7 @@ void SiliconTrackingAlg::AttachRemainingVTXHitsSlow() {
             // Here we are trying to find if a hits are too close i.e. closer than _minDistToDelta
 	    edm4hep::ConstTrackerHit trkhit1 = hit->getTrackerHit();
 	    edm4hep::ConstTrackerHit trkhit2 = hitVector[IHIT]->getTrackerHit();                  
-            
+	    
             if ( trkhit1.getCellID() == trkhit2.getCellID() ){ // i.e. they are in the same sensor
               
               float distance = 0.;
@@ -2691,9 +2691,9 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
         continue ; 
       }
       //TrackImpl* Track = new TrackImpl ;
-      auto track = trk_col->create();
+      //auto track = trk_col->create();
       //fucd
-      //edm4hep::Track track;// = new edm4hep::Track;
+      edm4hep::Track track;// = new edm4hep::Track;
       // setup initial dummy covariance matrix
       //std::vector<float> covMatrix;
       //covMatrix.resize(15);
@@ -2840,7 +2840,7 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
       
       //trk_col->addElement(Track);     
       //fucd
-      //trk_col->push_back(track);
+      trk_col->push_back(track);
       for(int i=0;i<track.trackStates_size();i++){
 	// 1 = lcio::EVENT::TrackState::AtIP
 	edm4hep::TrackState trkStateIP = track.getTrackStates(i);

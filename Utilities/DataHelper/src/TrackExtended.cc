@@ -33,7 +33,11 @@ TrackExtended::TrackExtended( TrackerHitExtended * trackerhit) {
 TrackExtended::~TrackExtended() {}
 
 ConstTrack TrackExtended::getTrack() {
-    return _track;
+  if(!_track.isAvailable()){
+    std::cout << "Error: track not available" << _track.isAvailable() << " id= " << _track.id() << std::endl;
+    throw std::runtime_error("Error: track not available");
+  }
+  return _track;
 }
 
 const float * TrackExtended::getSeedPosition() {

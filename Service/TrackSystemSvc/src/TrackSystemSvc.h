@@ -9,14 +9,14 @@ class TrackSystemSvc : public extends<Service, ITrackSystemSvc>{
   TrackSystemSvc(const std::string& name, ISvcLocator* svc);
   ~TrackSystemSvc();
 
-  MarlinTrk::IMarlinTrkSystem* getTrackSystem() override;
-  void removeTrackSystem() override;
+  MarlinTrk::IMarlinTrkSystem* getTrackSystem(void* address=0) override;
+  void removeTrackSystem(void* address=0) override;
 
   StatusCode initialize() override;
   StatusCode finalize() override;
 
  private:
-  MarlinTrk::IMarlinTrkSystem* m_trackSystem;
+  std::map<void*, MarlinTrk::IMarlinTrkSystem*> m_trackSystems;
 };
 
 #endif
