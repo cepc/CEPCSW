@@ -1,5 +1,6 @@
 gaudi_subdir(DataHelper v0r0)
 
+find_package(CLHEP REQUIRED)
 find_package(EDM4HEP REQUIRED)
 find_package(GSL REQUIRED )
 message("GSL: ${GSL_LIBRARIES} ")
@@ -15,5 +16,5 @@ set(DataHelperLib_srcs src/*.cc src/*.cpp)
 
 gaudi_add_library(DataHelperLib ${DataHelperLib_srcs}
     PUBLIC_HEADERS DataHelper
-    LINK_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict ${GSL_LIBRARIES}
+    LINK_LIBRARIES EDM4HEP::edm4hep EDM4HEP::edm4hepDict ${GSL_LIBRARIES} CLHEP
 )
