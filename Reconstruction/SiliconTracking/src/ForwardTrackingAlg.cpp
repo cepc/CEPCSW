@@ -137,7 +137,7 @@ StatusCode ForwardTrackingAlg::initialize(){
     error() << "Failed to find TrackSystemSvc ..." << endmsg;
     return StatusCode::FAILURE;
   }
-  _trkSystem =  _trackSystemSvc->getTrackSystem();
+  _trkSystem =  _trackSystemSvc->getTrackSystem(this);
 
   if( _trkSystem == 0 ){
     error() << "Cannot initialize MarlinTrkSystem of Type: KalTest" <<endmsg;
@@ -150,7 +150,7 @@ StatusCode ForwardTrackingAlg::initialize(){
   _trkSystem->setOption( MarlinTrk::IMarlinTrkSystem::CFG::useSmoothing,  _SmoothOn) ;    //smoothing
 
   // initialise the tracking system
-  //_trkSystem->init() ;
+  _trkSystem->init() ;
 
   /**********************************************************************************************/
   /*       Do a few checks, if the set parameters are right                                     */

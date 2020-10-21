@@ -8,15 +8,15 @@
 DECLARE_COMPONENT(TrackSystemSvc)
 
 TrackSystemSvc::TrackSystemSvc(const std::string& name, ISvcLocator* svc)
-  : base_class(name, svc),
-    m_trackSystem(nullptr){
+  : base_class(name, svc){
 }
 
 TrackSystemSvc::~TrackSystemSvc(){
 }
 
-MarlinTrk::IMarlinTrkSystem* TrackSystemSvc::getTrackSystem(){
-  if(!m_trackSystem){
+MarlinTrk::IMarlinTrkSystem* TrackSystemSvc::getTrackSystem(void* address){
+  std::map<void*, MarlinTrk::IMarlinTrkSystem*>::iterator it=m_trackSystems.find(address);
+  if(it==m_trackSystems.end()){
     gear::GearMgr* mgr=0; 
     auto _gear = service<IGearSvc>("GearSvc");
     if ( !_gear ) {
@@ -34,45 +34,39 @@ MarlinTrk::IMarlinTrkSystem* TrackSystemSvc::getTrackSystem(){
       fatal() << "Both GearSvc and GeoSvc invalid!" << endmsg;
       return 0;
     }
-
-    m_trackSystem = new MarlinTrk::MarlinKalTest( *mgr, _geoSvc ) ;
+    debug() << "GearMgr=" << mgr << " GeoSvc=" << _geoSvc << endmsg;
+    MarlinTrk::IMarlinTrkSystem* sys = new MarlinTrk::MarlinKalTest( *mgr, _geoSvc );
+    m_trackSystems[address] = sys;
+    debug() << "Track system created successfully for " << address << endmsg;
+    return sys;
   }
-  return m_trackSystem;
+  return it->second;
 }
 
 StatusCode TrackSystemSvc::initialize(){
-
-  auto _gear = service<IGearSvc>("GearSvc");
-  if ( !_gear ) {
-    error() << "Failed to find GearSvc ..." << endmsg;
-    return StatusCode::FAILURE;
+  for(std::map<void*, MarlinTrk::IMarlinTrkSystem*>::iterator it=m_trackSystems.begin();it!=m_trackSystems.end();it++){
+    delete it->second;
   }
-  gear::GearMgr* mgr = _gear->getGearMgr();
+  m_trackSystems.clear();
 
-  auto _geoSvc = service<IGeoSvc>("GeoSvc");
-  if ( !_geoSvc ) {
-    error() << "Failed to find GeoSvc ..." << endmsg;
-    return StatusCode::FAILURE;
-  }
-  m_trackSystem = new MarlinTrk::MarlinKalTest( *mgr, _geoSvc ) ;
+  m_trackSystems[0] = getTrackSystem(0);
   
   return StatusCode::SUCCESS;
 }
 
-void TrackSystemSvc::removeTrackSystem(){
-  if ( m_trackSystem ) {
-    delete m_trackSystem;
-    m_trackSystem = nullptr;
+void TrackSystemSvc::removeTrackSystem(void* address){
+  std::map<void*, MarlinTrk::IMarlinTrkSystem*>::iterator it=m_trackSystems.find(address);
+  if ( it!=m_trackSystems.end() ) {
+    delete it->second;
+    m_trackSystems.erase(it);
   }
   return;
 }
 
 StatusCode TrackSystemSvc::finalize(){
-  
-  // if ( m_trackSystem ) {
-  //   delete m_trackSystem;
-  //   m_trackSystem = nullptr;
-  // }
+  for(std::map<void*, MarlinTrk::IMarlinTrkSystem*>::iterator it=m_trackSystems.begin();it!=m_trackSystems.end();it++){
+    delete it->second;
+  }
   
   return StatusCode::SUCCESS;
 }

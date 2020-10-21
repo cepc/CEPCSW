@@ -59,10 +59,10 @@ StatusCode SpacePointBuilderAlg::initialize() {
     return StatusCode::FAILURE;
   }
 
-  MarlinTrk::IMarlinTrkSystem* _trksystem =  _trackSystemSvc->getTrackSystem();
+  MarlinTrk::IMarlinTrkSystem* _trksystem =  _trackSystemSvc->getTrackSystem(this);
   _trksystem->init();
 
-  _trackSystemSvc->removeTrackSystem();
+  _trackSystemSvc->removeTrackSystem(this);
   
   return GaudiAlgorithm::initialize();
 }
@@ -204,7 +204,8 @@ StatusCode SpacePointBuilderAlg::execute(){
 
               spacePoint.setType( UTIL::set_bit( spacePoint.getType() ,  UTIL::ILDTrkHitTypeBit::COMPOSITE_SPACEPOINT ) ) ;
 
-              spCol->push_back( spacePoint ); 
+              spCol->push_back( spacePoint );
+	      debug() << "Hit accepted id = " << spacePoint.id() << " cellID = " << spacePoint.getCellID() << endmsg;
 	      //debug() << "push_back space point's id=" << spCol->at(spCol->size()-1).id() << endmsg;
               createdSpacePoints++;
               
@@ -433,12 +434,12 @@ edm4hep::TrackerHit SpacePointBuilderAlg::createSpacePoint( edm4hep::ConstTracke
   cov_plane(1,1) = (0.5 * du2) / cos2_alpha;
   cov_plane(2,2) = (0.5 * du2) / sin2_alpha;
   
-  debug() << "\t cov_plane  = " << cov_plane << endmsg;  
-  debug() << "\tstrip_angle = " << VA.angle(VB)/(M_PI/180) / 2.0 << " degrees " << endmsg;
+  debug() << "cov_plane  = " << cov_plane << endmsg;  
+  debug() << "strip_angle = " << VA.angle(VB)/(M_PI/180) / 2.0 << " degrees " << endmsg;
   
   CLHEP::HepSymMatrix cov_xyz= cov_plane.similarity(rot_sensor_matrix);
   
-  debug() << "\t cov_xyz  = " << cov_xyz << endmsg;
+  debug() << "cov_xyz  = " << cov_xyz << endmsg;
   
   std::array<float, 6> cov;
   //EVENT::FloatVec cov( 9 )  ; 
@@ -453,9 +454,7 @@ edm4hep::TrackerHit SpacePointBuilderAlg::createSpacePoint( edm4hep::ConstTracke
   }
   
   spacePoint.setCovMatrix(cov);
-  
-  debug() << "\tHit accepted id=" << spacePoint.id() << endmsg;
-  
+    
   return spacePoint;
 }
 /*
