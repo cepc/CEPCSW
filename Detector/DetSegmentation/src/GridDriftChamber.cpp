@@ -44,23 +44,31 @@ CellID GridDriftChamber::cellID(const Vector3D& /*localPosition*/, const Vector3
   double phi_hit = phiFromXY(globalPosition);
   double posx = globalPosition.X;
   double posy = globalPosition.Y;
-  double offsetphi;
+  double offsetphi= m_offset;
   int _lphi;
-  if(layerID % 2 == 0) {
-      offsetphi = 0.;
-     _lphi = (int) (phi_hit / _currentLayerphi);
-   }
-  else {
-    offsetphi = _currentLayerphi / 2.;
+//  if(layerID % 2 == 0) {
+//      offsetphi = 0.;
+//     _lphi = (int) (phi_hit / _currentLayerphi);
+//   }
+//  else {
+//    offsetphi = _currentLayerphi / 2.;
     if(phi_hit >= offsetphi) {
-    _lphi = (int) ((phi_hit - offsetphi)/ _currentLayerphi);
+      _lphi = (int) ((phi_hit - offsetphi)/ _currentLayerphi);
     }
     else {
-    _lphi = (int) ((phi_hit - offsetphi + 2 * M_PI)/ _currentLayerphi);
+      _lphi = (int) ((phi_hit - offsetphi + 2 * M_PI)/ _currentLayerphi);
     }
-  }
   int lphi = _lphi;
   _decoder->set(cID, m_phiID, lphi);
+
+//std::cout << "#######################################: " 
+//          <<  " offset : " << m_offset
+//          << " offsetphi: " << offsetphi
+//          << " layerID: " << layerID
+//          << " r: " << _currentRadius
+//          << " layerphi: " << _currentLayerphi
+//          << std::endl;
+
   return cID;
 }
 

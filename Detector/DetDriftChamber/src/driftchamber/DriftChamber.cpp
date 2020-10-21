@@ -93,7 +93,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 
     // - layer
       for(int layer_id = 0; layer_id < (inner_chamber_layer_number+outer_chamber_layer_number); layer_id++) {
-        double rmin,rmax;
+        double rmin,rmax,offset;
         std::string layer_name;
         dd4hep::Volume* current_vol_ptr = nullptr;
 
@@ -117,8 +117,10 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         int ncell_layer = ceil(ncell);
         int numWire = ncell_layer;
         double layer_Phi = 2*M_PI / ncell_layer;
+        if(layer_id %2 ==0){ offset = 0.; }
+        else { offset = 0.5 * layer_Phi; }
 
-        DCHseg->setGeomParams(layer_id, layer_Phi, rmid, epsilon);
+        DCHseg->setGeomParams(layer_id, layer_Phi, rmid, epsilon, offset);
         DCHseg->setWiresInLayer(layer_id, numWire);
 
         dd4hep::Tube layer_solid(rmin,rmax,chamber_length*0.5);

@@ -15,6 +15,21 @@
  *  @author    nalipour
  */
 
+
+typedef struct Layer
+ {
+   double layerphi;
+   double R;
+   double eps;
+   double offset;
+   Layer(){};
+   Layer(double x, double y, double z, double k):layerphi(x),R(y),eps(z),offset(k){};
+   bool operator < (const Layer &a) const
+   {
+      return layerphi < a.layerphi;
+   }
+ } LAYER;
+
 namespace dd4hep {
 namespace DDSegmentation {
 class GridDriftChamber : public Segmentation {
@@ -42,8 +57,9 @@ public:
     return std::atan2(aposition.Y, aposition.X) + M_PI ;
   }
 
-  inline void setGeomParams(int layer, double layerphi, double R, double eps ) {
-     layer_params[layer] = {layerphi,R,eps};
+  inline void setGeomParams(int layer, double layerphi, double R, double eps, double offset ) {
+    // layer_params[layer] = {layerphi,R,eps};
+    layer_params.insert(std::pair<int,LAYER>(layer,LAYER(layerphi,R,eps,offset)));
    }
 
   inline void setWiresInLayer(int layer, int numWires)
@@ -52,20 +68,21 @@ public:
     updateParams(layer);
     for (int i = 0; i<numWires; ++i) {
 
-    if(layer % 2 == 0) { phi0 = 0.; }
-    else { phi0 = 0.5 * _currentLayerphi; }
+//    if(layer % 2 == 0) { phi0 = 0.; }
+//    else { phi0 = 0.5 * _currentLayerphi; }
+      double phi0 = m_offset;
 
-    auto phi_start = _currentLayerphi * i + phi0;
-    if(phi_start > 2 * M_PI) { phi_start = phi_start - 2 * M_PI; }
-    auto phi_end = phi_start + _currentLayerphi;
+      auto phi_start = _currentLayerphi * i + phi0;
+      if(phi_start > 2 * M_PI) { phi_start = phi_start - 2 * M_PI; }
+      auto phi_end = phi_start + _currentLayerphi;
 
-    TVector3 Wstart = returnWirePosition(phi_start, 1);
-    TVector3 Wend = returnWirePosition(phi_end, -1);
+      TVector3 Wstart = returnWirePosition(phi_start, 1);
+      TVector3 Wend = returnWirePosition(phi_end, -1);
 
-    TVector3 Wmid = (Wstart+Wend)*(1/2.0);
-    TVector3 Wdirection = (Wend - Wstart);
+      TVector3 Wmid = (Wstart+Wend)*(1/2.0);
+      TVector3 Wdirection = (Wend - Wstart);
 
-    m_wiresPositions[layer].push_back(std::make_pair(Wmid, Wdirection));
+      m_wiresPositions[layer].push_back(std::make_pair(Wmid, Wdirection));
       }
   }
 
@@ -82,20 +99,23 @@ public:
   void updateParams(int layer)  const{
     auto it_end = layer_params.cend();
     --it_end;
-    double layerphi = it_end->second[0];
-    double radius = it_end->second[1];
-    double eps = it_end->second[2];
+    double layerphi = it_end->second.layerphi;
+    double radius = it_end->second.R;
+    double eps = it_end->second.eps;
+    double offset = it_end->second.offset;
 
     auto map_it = layer_params.find(layer);
     if (map_it != layer_params.cend()) {
-     layerphi = map_it->second[0];
-     radius = map_it->second[1];
-     eps = map_it->second[2];
+     layerphi = map_it->second.layerphi;
+     radius = map_it->second.R;
+     eps = map_it->second.eps;
+     offset = map_it->second.offset;
     }
     _currentLayerphi = layerphi;
     _currentRadius = radius;
     m_epsilon = eps;
-  }
+    m_offset = offset;
+ }
 
   inline double returnAlpha() const {
     double alpha = 2 * std::asin(m_detectorLength * std::tan(m_epsilon0)/(2 * _currentRadius));
@@ -105,7 +125,7 @@ public:
 protected:
   /* *** nalipour *** */
   double phi(const CellID& cID) const;
-  std::map<int,std::vector<double>> layer_params; // <layer, {layerphi, R, eps}>
+  std::map<int,LAYER> layer_params; // <layer, {layerphi, R, eps, offset}>
   std::map<int, std::vector<std::pair<TVector3, TVector3> >> m_wiresPositions; // < layer, vec<WireMidpoint, WireDirection> >
 
   double m_cellSize;
@@ -118,6 +138,7 @@ protected:
   mutable double _currentLayerphi;
   mutable double _currentRadius;
   mutable double m_epsilon;
+  mutable double m_offset;
 
 };
 }
