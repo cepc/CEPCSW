@@ -7,7 +7,6 @@ message("EDM4HEP_INCLUDE_DIRS: ${EDM4HEP_INCLUDE_DIR}")
 message("EDM4HEP_LIB: ${EDM4HEP_LIBRARIES}")
 include_directories(${EDM4HEP_INCLUDE_DIR})
 
-find_package(CLHEP REQUIRED)
 find_package(podio REQUIRED )
 
 set(srcs

@@ -4,7 +4,7 @@ find_package(LCIO REQUIRED )
 find_package(GEAR REQUIRED)
 message("ENV GEAR: $ENV{GEAR}")
 
-
+find_package(CLHEP REQUIRED;CONFIG)
 find_package(EDM4HEP REQUIRED )
 include_directories(${EDM4HEP_INCLUDE_DIR})
 
@@ -37,8 +37,8 @@ set(dir_srcs
 set(dir_include include)
 # Modules
 gaudi_add_module(GaudiPandora ${dir_srcs}
-    INCLUDE_DIRS ${dir_include} GaudiKernel FWCore CLHEP  ${LCIO_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} gear  
-    LINK_LIBRARIES GaudiKernel FWCore CLHEP ROOT ${LCIO_LIBRARIES} ${GEAR_LIBRARIES} DataHelperLib 
+    INCLUDE_DIRS ${dir_include} GaudiKernel FWCore ${CLHEP_INCLUDE_DIR}  ${LCIO_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} gear  
+    LINK_LIBRARIES GaudiKernel FWCore ${CLHEP_LIBRARIES} ROOT ${LCIO_LIBRARIES} ${GEAR_LIBRARIES} DataHelperLib 
       -Wl,--no-as-needed 
       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
       -Wl,--as-needed 
