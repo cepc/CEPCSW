@@ -1,5 +1,6 @@
 gaudi_subdir(G2CDArbor v0r0)
 
+find_package(CLHEP REQUIRED;CONFIG)
 find_package(DD4hep COMPONENTS DDG4 REQUIRED)
 find_package(EDM4HEP REQUIRED)
 find_package(GEAR REQUIRED)
@@ -21,7 +22,7 @@ set(G2CDArbor_srcs src/*.cpp)
 
 # Modules
 gaudi_add_module(G2CDArbor ${G2CDArbor_srcs}
-    INCLUDE_DIRS K4FWCore GaudiKernel GaudiAlgLib CLHEP DD4hep gear ${GSL_INCLUDE_DIRS} ${LCIO_INCLUDE_DIRS}
-    LINK_LIBRARIES K4FWCore GaudiKernel GaudiAlgLib CLHEP DD4hep ${GEAR_LIBRARIES} ${GSL_LIBRARIES} ${LCIO_LIBRARIES}
+    INCLUDE_DIRS K4FWCore GaudiKernel GaudiAlgLib ${CLHEP_INCLUDE_DIR} DD4hep gear ${GSL_INCLUDE_DIRS} ${LCIO_INCLUDE_DIRS}
+    LINK_LIBRARIES K4FWCore GaudiKernel GaudiAlgLib ${CLHEP_LIBRARIES} DD4hep ${GEAR_LIBRARIES} ${GSL_LIBRARIES} ${LCIO_LIBRARIES}
     EDM4HEP::edm4hep EDM4HEP::edm4hepDict
 )

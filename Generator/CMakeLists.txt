@@ -23,7 +23,7 @@ find_package(LCIO)
 find_package(podio)
 find_package(EDM4HEP)
 find_package(HepMC)
-find_package(CLHEP)
+find_package(CLHEP REQUIRED;CONFIG)
 find_package(K4FWCore REQUIRED)
 
 if(ROOT_FOUND)

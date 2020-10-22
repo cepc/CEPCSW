@@ -91,10 +91,10 @@ StatusCode PlanarDigiAlg::initialize()
     return StatusCode::FAILURE;
   }
   
-  MarlinTrk::IMarlinTrkSystem* _trksystem =  _trackSystemSvc->getTrackSystem();
+  MarlinTrk::IMarlinTrkSystem* _trksystem =  _trackSystemSvc->getTrackSystem(this);
   _trksystem->init();
   
-  _trackSystemSvc->removeTrackSystem();
+  _trackSystemSvc->removeTrackSystem(this);
   
   return GaudiAlgorithm::initialize();
 }
@@ -338,8 +338,8 @@ StatusCode PlanarDigiAlg::execute()
     float weight = 1.0;
 
     debug() <<" Set relation between "
-            << " sim hit " << SimTHit 
-            << " to tracker hit " << trkHit
+            << " sim hit " << SimTHit.id() 
+            << " to tracker hit " << trkHit.id()
             << " with a weight of " << weight 
             << endmsg;
     trkHit.addToRawHits(SimTHit.getObjectID());
