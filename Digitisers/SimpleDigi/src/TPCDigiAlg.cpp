@@ -13,7 +13,6 @@
 
 #include "DataHelper/Circle.h"
 #include "DataHelper/SimpleHelix.h"
-#include "DataHelper/constants.h"
 #include "DataHelper/LCCylinder.h"
 
 #include "EventSeeder/IEventSeeder.h"
@@ -23,7 +22,7 @@
 
 //stl exception handler
 #include <stdexcept>
-#include "DataHelper/constants.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "voxel.h"
 
 #include "GearSvc/IGearSvc.h"
@@ -38,7 +37,6 @@
 #define TRKHITNCOVMATRIX 6
 
 //using namespace lcio ;
-using namespace constants ;
 using namespace std ;
 
 DECLARE_COMPONENT(TPCDigiAlg)
@@ -62,7 +60,7 @@ TPCDigiAlg::TPCDigiAlg(const std::string& name, ISvcLocator* svcLoc)
   //_description = "Produces TPC TrackerHit collection from SimTrackerHit collection, smeared in RPhi and Z. A search is made for adjacent hits on a pad row, if they are closer in z and r-phi than the steering parameters _doubleHitResRPhi (default value 2.0 mm) and _doubleHitResZ (default value 5.0 mm) they are considered to overlap. Clusters of hits smaller than _maxMerge (default value 3) are merged into a single tracker hit, with the position given as the average poision of the hits in phi and in z. Clusters which have _maxMerge hits or more are determined to be identifiable as multiple hits, and are not added to the tracker hit collection. This of course means that good hits caught up in a cluster of background hits will be lossed." ;
 
   // register steering parameters: name, description, class-variable, default value
-  declareProperty("TPCCollection",_padRowHitCol,
+  declareProperty("TPCCollection",_padRowHitColHdl,
       "The default pad-row based SimTrackerHit collection");
   //registerInputCollection( LCIO::SIMTRACKERHIT,
   //                        "TPCPadRowHitCollectionName" ,
@@ -70,7 +68,7 @@ TPCDigiAlg::TPCDigiAlg(const std::string& name, ISvcLocator* svcLoc)
   //                        _padRowHitColName ,
   //                        std::string("TPCCollection") ) ;
 
-  declareProperty("TPCSpacePointCollection",_spacePointCol,
+  declareProperty("TPCSpacePointCollection",_spacePointColHdl,
       "Additional space point collection which provides additional guide hits between pad row centers.");
   //registerInputCollection( LCIO::SIMTRACKERHIT,
   //                        "TPCSpacePointCollectionName" ,
@@ -78,15 +76,16 @@ TPCDigiAlg::TPCDigiAlg(const std::string& name, ISvcLocator* svcLoc)
   //                        _spacePointColName ,
   //                        std::string("TPCSpacePointCollection") ) ;
 
-  declareProperty("TPCLowPtCollection",_lowPtHitscol,
+  declareProperty("TPCLowPtCollection",_lowPtHitsColHdl,
       "The LowPt SimTrackerHit collection Produced by Mokka TPC Driver TPC0X");
   //registerInputCollection( LCIO::SIMTRACKERHIT,
   //                        "TPCLowPtCollectionName" ,
   //                        "Name of the LowPt SimTrackerHit collection Produced by Mokka TPC Driver TPC0X"  ,
   //                        _lowPtHitscolName ,
   //                        std::string("TPCLowPtCollection") ) ;
+  //declareProperty("MCParticle", _mcColHdl, "The intput MCParticle collection");
 
-  declareProperty("TPCTrackerHitsCol",_TPCTrackerHitsCol,
+  declareProperty("TPCTrackerHitsCol",_TPCTrackerHitsColHdl,
       "The output TrackerHit collection");
   //registerOutputCollection( LCIO::TRACKERHIT,
   //                         "TPCTrackerHitsCol" ,
@@ -94,6 +93,7 @@ TPCDigiAlg::TPCDigiAlg(const std::string& name, ISvcLocator* svcLoc)
   //                         _TPCTrackerHitsCol ,
   //                         std::string("TPCTrackerHits") ) ;
 
+  declareProperty("TPCTrackerHitAssCol", _TPCAssColHdl, "Handle of TrackerHit SimTrackHit relation collection");
   //declareProperty("TPCTrackerHitRelations",_outRelCol,
   //    "The TrackerHit SimTrackHit relation collection");
   //registerOutputCollection(LCIO::LCRELATION,
@@ -103,71 +103,71 @@ TPCDigiAlg::TPCDigiAlg(const std::string& name, ISvcLocator* svcLoc)
   //                         std::string("TPCTrackerHitRelations"));
 
   declareProperty("UseRawHitsToStoreSimhitPointer",
-      _use_raw_hits_to_store_simhit_pointer,
-      "Store the pointer to the SimTrackerHits in RawHits (deprecated) ");
+                  _use_raw_hits_to_store_simhit_pointer=bool(false),
+                  "Store the pointer to the SimTrackerHits in RawHits (deprecated) ");
   //registerProcessorParameter("UseRawHitsToStoreSimhitPointer",
   //                           "Store the pointer to the SimTrackerHits in RawHits (deprecated) ",
   //                           _use_raw_hits_to_store_simhit_pointer,
   //                           bool(false));
 
   declareProperty("PointResolutionPadPhi",_pointResoPadPhi=0.900,
-      "Pad Phi Resolution constant in TPC");
+                  "Pad Phi Resolution constant in TPC");
   //registerProcessorParameter( "PointResolutionPadPhi" ,
   //                           "Pad Phi Resolution constant in TPC"  ,
   //                           _pointResoPadPhi ,
   //                           (float)0.900) ;
 
   declareProperty("RejectCellID0",_rejectCellID0=1,
-      "whether or not to use hits without proper cell ID (pad row)");
+                  "whether or not to use hits without proper cell ID (pad row)");
   //registerProcessorParameter( "RejectCellID0" ,
   //                           "whether or not to use hits without proper cell ID (pad row)"  ,
   //                           _rejectCellID0 ,
   //                           (int)1) ;
 
   declareProperty("PointResolutionRPhi",_pointResoRPhi0=0.050,
-      "R-Phi Resolution constant in TPC");
+                  "R-Phi Resolution constant in TPC");
   //registerProcessorParameter( "PointResolutionRPhi" ,
   //                           "R-Phi Resolution constant in TPC"  ,
   //                           _pointResoRPhi0 ,
   //                           (float)0.050) ;
 
   declareProperty("DiffusionCoeffRPhi",_diffRPhi=0.025,
-      "R-Phi Diffusion Coefficent in TPC");
+                  "R-Phi Diffusion Coefficent in TPC");
   //registerProcessorParameter( "DiffusionCoeffRPhi" ,
   //                           "R-Phi Diffusion Coefficent in TPC"  ,
   //                           _diffRPhi ,
   //                           (float)0.025) ;
 
   declareProperty("N_eff",_nEff=22,
-      "Number of Effective electrons per pad in TPC");
+                  "Number of Effective electrons per pad in TPC");
   //registerProcessorParameter( "N_eff" ,
   //                           "Number of Effective electrons per pad in TPC"  ,
   //                           _nEff ,
   //                           (int)22) ;
 
   declareProperty("PointResolutionZ",_pointResoZ0=0.4,
-      "TPC Z Resolution Coefficent independent of diffusion");
+                  "TPC Z Resolution Coefficent independent of diffusion");
   //registerProcessorParameter( "PointResolutionZ" ,
   //                           "TPC Z Resolution Coefficent independent of diffusion"  ,
   //                           _pointResoZ0 ,
   //                           (float)0.4) ;
 
   declareProperty("DiffusionCoeffZ",_diffZ=0.08,
-      "Z Diffusion Coefficent in TPC");
+                  "Z Diffusion Coefficent in TPC");
   //registerProcessorParameter( "DiffusionCoeffZ" ,
   //                           "Z Diffusion Coefficent in TPC"  ,
   //                           _diffZ ,
   //                           (float)0.08) ;
 
   declareProperty("HitSortingBinningZ",_binningZ=5.0,
-      "Defines spatial slice in Z");
+                  "Defines spatial slice in Z");
   //registerProcessorParameter( "HitSortingBinningZ" ,
   //                           "Defines spatial slice in Z"  ,
   //                           _binningZ ,
   //                           (float)5.0) ;
 
   declareProperty("HitSortingBinningRPhi",_binningRPhi=2.0,
-      "Defines spatial slice in RP");
+                  "Defines spatial slice in RP");
   //registerProcessorParameter( "HitSortingBinningRPhi" ,
   //                           "Defines spatial slice in RP"  ,
   //                           _binningRPhi ,
@@ -175,21 +175,21 @@ TPCDigiAlg::TPCDigiAlg(const std::string& name, ISvcLocator* svcLoc)
 
 
   declareProperty("DoubleHitResolutionZ",_doubleHitResZ=5.0,
-      "Defines the minimum distance for two seperable hits in Z");
+                  "Defines the minimum distance for two seperable hits in Z");
   //registerProcessorParameter( "DoubleHitResolutionZ" ,
   //                           "Defines the minimum distance for two seperable hits in Z"  ,
   //                           _doubleHitResZ ,
   //                           (float)5.0) ;
 
   declareProperty("DoubleHitResolutionRPhi",_doubleHitResRPhi=2.0,
-      "Defines the minimum distance for two seperable hits in RPhi");
+                  "Defines the minimum distance for two seperable hits in RPhi");
   //registerProcessorParameter( "DoubleHitResolutionRPhi" ,
   //                           "Defines the minimum distance for two seperable hits in RPhi"  ,
   //                           _doubleHitResRPhi ,
   //                           (float)2.0) ;
 
   declareProperty("MaxClusterSizeForMerge",_maxMerge=3,
-      "Defines the maximum number of adjacent hits which can be merged");
+                  "Defines the maximum number of adjacent hits which can be merged");
   //registerProcessorParameter( "MaxClusterSizeForMerge" ,
   //                           "Defines the maximum number of adjacent hits which can be merged"  ,
   //                           _maxMerge ,
@@ -401,7 +401,7 @@ StatusCode TPCDigiAlg::initialize()
     return StatusCode::FAILURE;
   }
   _GEAR = _gear->getGearMgr();
-
+  
 
   // initialize gsl random generator
   _random = gsl_rng_alloc(gsl_rng_ranlxs2);
@@ -427,14 +427,14 @@ StatusCode TPCDigiAlg::execute()
 {
   debug() << "in TPCDigiAlg execute()" <<endmsg;
 
-  auto header = _headerCol.get()->at(0);
-  int evtNo = header.getEventNumber();
-  int runNo = header.getRunNumber();
+  //auto header = _headerCol.get()->at(0);
+  //int evtNo = header.getEventNumber();
+  //int runNo = header.getRunNumber();
 
-  unsigned int thisSeed = _SEEDER->getSeed(this, evtNo, runNo);
+  unsigned int thisSeed = _SEEDER->getSeed(this, _nEvt, 0);
   gsl_rng_set( _random, thisSeed);
 
-  debug() << "seed set to " << thisSeed << " for event number "<< evtNo << endmsg;
+  //debug() << "seed set to " << thisSeed << " for event number "<< evtNo << endmsg;
 
    int numberOfVoxelsCreated(0);
 
@@ -456,9 +456,9 @@ StatusCode TPCDigiAlg::execute()
 
   // fg: make sure we have one message in the log file with run and event number for the DBD production ....
   info() << "  =========  processing event "
-                         << std::setw(9) << evtNo << " run "
-                         << std::setw(9) << runNo
-                         << "  ========= " << endmsg;
+         << std::setw(9) << _nEvt/*evtNo*/ << " run "
+         << std::setw(9) << 0/*runNo*/
+         << "  ========= " << endmsg;
 
 
   if(firstEvent==true) {
@@ -489,10 +489,8 @@ StatusCode TPCDigiAlg::execute()
   _tpcRowHits.resize(padLayout.getNRows());
 
   //// created the collection which will be written out
-  _trkhitVec = _TPCTrackerHitsCol.createAndPut();
-  //yzhang TODO
-  //_relCol = new LCCollectionVec(LCIO::LCRELATION);
-  //relCol = _outRelCol.createAndPut();//LCRELATION
+  _trkhitVec = _TPCTrackerHitsColHdl.createAndPut();
+  _relCol = _TPCAssColHdl.createAndPut();//LCRELATION
 
   //zhang TODO
   // to store the weights
@@ -501,9 +499,21 @@ StatusCode TPCDigiAlg::execute()
   //_relCol->setFlag( lcFlag.getFlag()  ) ;
   //
 
-  // first deal with the pad-row based hits from Mokka
-  auto STHcol = _padRowHitCol.get();
+  //auto mcCol = _mcColHdl.get();
+  //auto mcp = mcCol->at(0);
+  //debug() << "First MCParticle " << mcp << endmsg;
 
+  // first deal with the pad-row based hits from Mokka
+  const edm4hep::SimTrackerHitCollection* STHcol = nullptr;
+  try {
+    STHcol = _padRowHitColHdl.get();
+  }
+  catch ( GaudiException &e ) {
+    debug() << "Collection " << _padRowHitColHdl.fullKey() << " is unavailable in event " << _nEvt << endmsg;
+    return StatusCode::SUCCESS;
+  }
+
+  _cellid_encoder = new UTIL::BitField64( lcio::ILDCellID0::encoder_string ) ;
   //int det_id = 0 ;
   //if ( (STHcol != nullptr) && (STHcol->size()>0) ) {
   //  auto SimTHit = STHcol->at( 0 ) ;
@@ -527,172 +537,169 @@ StatusCode TPCDigiAlg::execute()
     _NSimTPCHits = n_sim_hits;
 
     debug() << "number of Pad-Row based SimHits = " << n_sim_hits << endmsg;
-
-
-    // make sure that all the pointers are initialise to NULL
-    //_mcp=NULL;
-    //_previousMCP=NULL;
-    //_nextMCP=NULL;
-    //_nMinus2MCP=NULL;
-    //_nPlus2MCP=NULL;
-
-    //_SimTHit=NULL;
-    //_previousSimTHit=NULL;
-    //_nextSimTHit=NULL;
-    //_nMinus2SimHit=NULL;
-    //_nPlus2SimHit=NULL;
+    
+    edm4hep::ConstMCParticle nMinus2MCP;
+    edm4hep::ConstMCParticle previousMCP;
+    edm4hep::ConstSimTrackerHit nMinus2SimHit;
+    edm4hep::ConstSimTrackerHit previousSimTHit;
 
     debug() << "processing nhit=" << n_sim_hits << endmsg;
     // loop over all the pad row based sim hits
-    for(int i=0; i< n_sim_hits; i++){
+    for(unsigned int i = 0; i<n_sim_hits; i++){
+      auto SimTHit = STHcol->at(i);
 
       // this will used for nominaml smearing for very low pt rubish, so set it to zero initially
       double ptSqrdMC = 0;
-
-      _SimTHit =  STHcol->at( i ) ;
 
       float edep;
       double padPhi(0.0);
       double padTheta (0.0);
 
-
-      debug() << "processing hit " << i << endmsg;
+      auto& pos = SimTHit.getPosition();
+      debug() << "processing hit id = " << SimTHit.id() << endmsg;
       debug() << " SimTHit= "
-      << " x = "  << _SimTHit.getPosition()[0]
-      << " y = "  << _SimTHit.getPosition()[1]
-      << " z = "  << _SimTHit.getPosition()[2]
-      << std::endl ;
+              << " x = "  << pos[0]
+              << " y = "  << pos[1]
+              << " z = "  << pos[2]
+              << endmsg;
 
-
-
-      CLHEP::Hep3Vector thisPoint(_SimTHit.getPosition()[0],_SimTHit.getPosition()[1],_SimTHit.getPosition()[2]);
+      CLHEP::Hep3Vector thisPoint(pos[0],pos[1],pos[2]);
       double padheight = padLayout.getPadHeight(padLayout.getNearestPad(thisPoint.perp(),thisPoint.phi()));
 
       const double bField = _GEAR->getBField().at( gear::Vector3D( 0., 0., 0.) ).z() ;
       // conversion constant. r = pt / (FCT*bField)
       const double FCT = 2.99792458E-4;
-
-      _mcp = _SimTHit.getMCParticle() ;
-
+      bool found_mc = false;
+      edm4hep::ConstMCParticle mcp;
+      try{ // protect crash while MCParticle unavailable
+        mcp = SimTHit.getMCParticle() ;
+      }
+      catch(...){
+        debug() << "catch throw MCParticle not available" << endmsg;
+      }
       // increase the counters for the different classification of simhits
-      //yzhang FIXME _mcp!=NULL
-      if(_mcp.isAvailable()){
+      //yzhang FIXME mcp!=NULL
+      if(mcp.isAvailable()){
 
         // get the pt of the MCParticle, this will used later to uses nominal smearing for low momentum rubish
-        const edm4hep::Vector3f momentumMC= _mcp.getMomentum() ;
+        const edm4hep::Vector3f momentumMC= mcp.getMomentum() ;
         ptSqrdMC = momentumMC[0]*momentumMC[0]+momentumMC[1]*momentumMC[1] ;
-
-        debug() << " mcp "
-        << " px = "  << momentumMC[0]
-        << " py = "  << momentumMC[1]
-        << " pz = "  << momentumMC[2]
-        << endmsg;
-
+        
+        debug() << " mcp id = " << mcp.id() 
+                << " px = "  << momentumMC[0]
+                << " py = "  << momentumMC[1]
+                << " pz = "  << momentumMC[2]
+                << endmsg;
+        
         // SJA:FIXME: the fact that it is a physics hit relies on the fact that for overlay
         // the pointer to the mcp is set to NULL. This distinction may not always be true ...
         ++_NPhysicsSimTPCHits ;
         if( ptSqrdMC > (0.2*0.2) ) ++_NPhysicsAbove02GeVSimTPCHits ;
         if( ptSqrdMC > 1.0 )  ++_NPhysicsAbove1GeVSimTPCHits ;
-
+        
 #ifdef DIGIPLOTS
-//        if(_mcp) plotHelixHitResidual(_mcp, &thisPoint);
+//        if(mcp) plotHelixHitResidual(mcp, &thisPoint);
 #endif
       } else {
+        debug() << "MCParticle not available" << endmsg;
         ++_NBackgroundSimTPCHits;
       }
 
       // if the hits contain the momentum of the particle use this to calculate the angles relative to the pad
       //yzhang TODO
       //colFlag.bitSet(LCIO::THBIT_MOMENTUM) == true
-      //if(colFlag.bitSet(LCIO::THBIT_MOMENTUM)) 
+      //if(colFlag.bitSet(LCIO::THBIT_MOMENTUM))
+      
       bool colFlag_bitSet = true;
       if(colFlag_bitSet){
-
-        const edm4hep::Vector3f mcpMomentum = _mcp.getMomentum() ;
+        // FIXME: fucd, since momentum from SimTrackerHit available, change MCParticle's to SimTrackerHit's, which better?
+        //const edm4hep::Vector3f mcpMomentum = mcp.getMomentum() ;
+        const edm4hep::Vector3f mcpMomentum = SimTHit.getMomentum();
 
         CLHEP::Hep3Vector mom(mcpMomentum[0],mcpMomentum[1],mcpMomentum[2]);
-
         // const double pt = mom.perp();
         // const double radius = pt / (FCT*bField);
-
+        
         // const double tanLambda = mom.z()/pt;
-
         padPhi = fabs(thisPoint.deltaPhi(mom));
         padTheta = mom.theta();
-
       }
-
       else { // LCIO::THBIT_MOMENTUM not set
 
         // as the momentum vector is not available from the hits use triplets of
         // hits to fit a circle and calculate theta and phi relative to the pad
 
-        if ((!_mcp.isAvailable()) || (sqrt(ptSqrdMC) / (FCT*bField)) < ( padheight / (0.1 * twopi))) {
+        if ((!mcp.isAvailable()) || (sqrt(ptSqrdMC) / (FCT*bField)) < ( padheight / (0.1 * CLHEP::twopi))) {
           // if the hit has no record of it MCParticle then there is no way to know if this hit has consecutive hits from the same MCParticle
           // so just set nominal values theta=phi=90
           // here make a cut for particles which will suffer more than a 10 percent change in phi over the distance of the pad
           // R > padheight/(0.1*2PI)
           // in both cases set the angles to 90 degrees
-          padTheta = twopi/4.0 ;
-          padPhi = twopi/4.0 ;
+          padTheta = CLHEP::twopi/4.0 ;
+          padPhi = CLHEP::twopi/4.0 ;
         }
         else{
-
+          edm4hep::ConstSimTrackerHit nextSimTHit;
+          edm4hep::ConstSimTrackerHit nPlus2SimHit;
+          edm4hep::ConstMCParticle nextMCP;
+          edm4hep::ConstMCParticle nPlus2MCP;
           // if there is at least one more hit after this one, set the pointer to the MCParticle for the next hit
           if (i < (n_sim_hits-1) ) {
-            _nextSimTHit =  STHcol->at( i+1 ) ;
-            _nextMCP     = _nextSimTHit.getMCParticle() ;
+            nextSimTHit = STHcol->at( i+1 ) ;
+            nextMCP     = nextSimTHit.getMCParticle() ;
           }
           else{ // set make sure that the pointers are set back to NULL so that the comparisons later hold
-            _nextSimTHit = NULL;
-            _nextMCP = NULL;
+            //nextSimTHit = edm4hep::ConstSimTrackerHit;
+            //nextMCP     = edm4hep::ConstMCParticle;
           }
           // if there is at least two more hits after this one, set the pointer to the MCParticle for the next but one hit
           if (i < (n_sim_hits-2) ) {
-            _nPlus2SimHit = STHcol->at( i+2 );
-            _nPlus2MCP   = _nPlus2SimHit.getMCParticle() ;
+            nPlus2SimHit = STHcol->at( i+2 );
+            nPlus2MCP    = nPlus2SimHit.getMCParticle() ;
           }
           else{ // set make sure that the pointers are set back to NULL so that the comparisons later hold
-            _nPlus2SimHit = NULL;
-            _nPlus2MCP = NULL;
+            //_nPlus2SimHit = edm4hep::ConstSimTrackerHit;
+            //_nPlus2MCP    = edm4hep::ConstMCParticle;
           }
 
-          if      ( _mcp==_previousMCP && _mcp==_nextMCP )    { // middle hit of 3 from the same MCParticle
+          if      ( mcp==previousMCP && mcp==nextMCP )    { // middle hit of 3 from the same MCParticle
 
-            CLHEP::Hep3Vector precedingPoint(_previousSimTHit.getPosition()[0],_previousSimTHit.getPosition()[1],_previousSimTHit.getPosition()[2]) ;
-            CLHEP::Hep3Vector followingPoint(_nextSimTHit.getPosition()[0],_nextSimTHit.getPosition()[1],_nextSimTHit.getPosition()[2]) ;
+            CLHEP::Hep3Vector precedingPoint(previousSimTHit.getPosition()[0],previousSimTHit.getPosition()[1],previousSimTHit.getPosition()[2]) ;
+            CLHEP::Hep3Vector followingPoint(nextSimTHit.getPosition()[0],nextSimTHit.getPosition()[1],nextSimTHit.getPosition()[2]) ;
 
-            debug() << "address of _previousSimTHit = " << _previousSimTHit
-            << " x = "  << _previousSimTHit.getPosition()[0]
-            << " y = "  << _previousSimTHit.getPosition()[1]
-            << " z = "  << _previousSimTHit.getPosition()[2]
-            << std::endl ;
+            debug() << "address of _previousSimTHit = " << previousSimTHit
+                    << " x = "  << previousSimTHit.getPosition()[0]
+                    << " y = "  << previousSimTHit.getPosition()[1]
+                    << " z = "  << previousSimTHit.getPosition()[2]
+                    << std::endl ;
 
-            debug() << "address of _nextSimTHit = " << _nextSimTHit
-            << " x = "  << _nextSimTHit.getPosition()[0]
-            << " y = "  << _nextSimTHit.getPosition()[1]
-            << " z = "  << _nextSimTHit.getPosition()[2]
-            << std::endl ;
+            debug() << "address of _nextSimTHit = " << nextSimTHit
+                    << " x = "  << nextSimTHit.getPosition()[0]
+                    << " y = "  << nextSimTHit.getPosition()[1]
+                    << " z = "  << nextSimTHit.getPosition()[2]
+                    << std::endl ;
 
             // get phi and theta using functions defined below
             padPhi = getPadPhi( &thisPoint, &precedingPoint, &thisPoint, &followingPoint);
             padTheta = getPadTheta(&precedingPoint, &thisPoint, &followingPoint);
 
           }
-          else if ( _mcp==_nextMCP     && _mcp==_nPlus2MCP )  { // first  hit of 3 from the same MCParticle
+          else if ( mcp==nextMCP     && mcp==nPlus2MCP )  { // first  hit of 3 from the same MCParticle
 
-            CLHEP::Hep3Vector followingPoint(_nextSimTHit.getPosition()[0],_nextSimTHit.getPosition()[1],_nextSimTHit.getPosition()[2]) ;
-            CLHEP::Hep3Vector nPlus2Point(_nPlus2SimHit.getPosition()[0],_nPlus2SimHit.getPosition()[1],_nPlus2SimHit.getPosition()[2]) ;
+            CLHEP::Hep3Vector followingPoint(nextSimTHit.getPosition()[0],nextSimTHit.getPosition()[1],nextSimTHit.getPosition()[2]) ;
+            CLHEP::Hep3Vector nPlus2Point(nPlus2SimHit.getPosition()[0],nPlus2SimHit.getPosition()[1],nPlus2SimHit.getPosition()[2]) ;
 
             // get phi and theta using functions defined below
             padPhi = getPadPhi( &thisPoint, &thisPoint, &followingPoint, &nPlus2Point);
             padTheta = getPadTheta(&thisPoint, &followingPoint, &nPlus2Point);
 
           }
-          else if ( _mcp==_previousMCP && _mcp==_nMinus2MCP ) { // last   hit of 3 from the same MCParticle
-
-            CLHEP::Hep3Vector nMinus2Point(_nMinus2SimHit.getPosition()[0],_nMinus2SimHit.getPosition()[1],_nMinus2SimHit.getPosition()[2]);
-            CLHEP::Hep3Vector precedingPoint(_previousSimTHit.getPosition()[0],_previousSimTHit.getPosition()[1],_previousSimTHit.getPosition()[2]);
+          else if ( mcp==previousMCP && mcp==nMinus2MCP ) { // last   hit of 3 from the same MCParticle
+            auto& posMinus = nMinus2SimHit.getPosition();
+            auto& posPrevious = previousSimTHit.getPosition();
+            
+            CLHEP::Hep3Vector nMinus2Point(posMinus[0],posMinus[1],posMinus[2]);
+            CLHEP::Hep3Vector precedingPoint(posPrevious[0],posPrevious[1],posPrevious[2]);
 
             // get phi and theta using functions defined below
             padPhi = getPadPhi( &thisPoint, &nMinus2Point, &precedingPoint, &thisPoint);
@@ -700,15 +707,15 @@ StatusCode TPCDigiAlg::execute()
 
           }
           else{ // the hit is isolated as either a single hit, or a pair of hits, from a single MCParticle
-            padTheta = twopi/4.0 ;
-            padPhi = twopi/4.0 ;
+            padTheta = CLHEP::twopi/4.0 ;
+            padPhi = CLHEP::twopi/4.0 ;
           }
         }
 
 //#ifdef DIGIPLOTS
 //        if(colFlag.bitSet(LCIO::THBIT_MOMENTUM)) {
 //
-//          const float * mcpMomentum = _SimTHit.getMomentum() ;
+//          const float * mcpMomentum = SimTHit.getMomentum() ;
 //
 //          CLHEP::Hep3Vector mom(mcpMomentum[0],mcpMomentum[1],mcpMomentum[2]);
 //
@@ -736,15 +743,15 @@ StatusCode TPCDigiAlg::execute()
 //#endif
 
       }
-
+      debug() << "padPhi = " << padPhi << " padTheta = " << padTheta << endmsg;
       //      int pad = padLayout.getNearestPad(thisPoint.perp(),thisPoint.phi());
-      int layerNumber = _SimTHit.getCellID();
+      int layerNumber = SimTHit.getCellID();
 
       if(_rejectCellID0 && (layerNumber<1)) {
         continue;
       }
 
-      edep = _SimTHit.getEDep();
+      edep = SimTHit.getEDep();
 
       // Calculate Point Resolutions according to Ron's Formula
 
@@ -819,20 +826,20 @@ StatusCode TPCDigiAlg::execute()
       ++numberOfVoxelsCreated;
 
       // store the simhit pointer for this tpcvoxel hit in the hit map
-      _tpcHitMap[atpcVoxel] = _SimTHit;
+      _tpcHitMap[atpcVoxel] = SimTHit;
 
       // move the pointers on
-      _nMinus2MCP = _previousMCP;
-      _previousMCP = _mcp ;
-      _nMinus2SimHit = _previousSimTHit;
-      _previousSimTHit = _SimTHit;
+      nMinus2MCP = previousMCP;
+      previousMCP = mcp ;
+      nMinus2SimHit = previousSimTHit;
+      previousSimTHit = SimTHit;
 
     }
   }
 
   // now process the LowPt collection
   try {
-    auto STHcolLowPt = _lowPtHitscol.get();
+    auto STHcolLowPt = _lowPtHitsColHdl.get();
 
     if(nullptr!=STHcolLowPt){
 
@@ -846,11 +853,9 @@ StatusCode TPCDigiAlg::execute()
       debug() << "number of LowPt hits:" << n_sim_hitsLowPt << endmsg;
 
       // loop over the LowPt hit collection
-      for(int i=0; i< n_sim_hitsLowPt; i++){
+      for(auto SimTHit : *STHcolLowPt){
 
-        _SimTHit = STHcolLowPt->at( i ) ;
-
-        CLHEP::Hep3Vector thisPoint(_SimTHit.getPosition()[0],_SimTHit.getPosition()[1],_SimTHit.getPosition()[2]);
+        CLHEP::Hep3Vector thisPoint(SimTHit.getPosition()[0],SimTHit.getPosition()[1],SimTHit.getPosition()[2]);
 
         const gear::DoubleVec & planeExt = padLayout.getPlaneExtent() ;
         double TPCPadPlaneRMin = planeExt[0] ;
@@ -891,13 +896,13 @@ StatusCode TPCDigiAlg::execute()
         double tpcZRes = _binningZ;
 
         // create a tpc voxel hit for this simhit and store it for this tpc pad row
-        Voxel_tpc * atpcVoxel = new Voxel_tpc(iRowHit,iPhiHit,iZHit, thisPoint, _SimTHit.getEDep(), tpcRPhiRes, tpcZRes);
+        Voxel_tpc * atpcVoxel = new Voxel_tpc(iRowHit,iPhiHit,iZHit, thisPoint, SimTHit.getEDep(), tpcRPhiRes, tpcZRes);
 
         _tpcRowHits.at(iRowHit).push_back(atpcVoxel);
         ++numberOfVoxelsCreated;
 
         // store the simhit pointer for this voxel hit in a map
-        _tpcHitMap[atpcVoxel] = _SimTHit;
+        _tpcHitMap[atpcVoxel] = SimTHit;
 
       }
     }
@@ -1043,10 +1048,10 @@ StatusCode TPCDigiAlg::execute()
       Voxel_tpc* seed_hit = row_hits[j];
       if(seed_hit->IsMerged() || seed_hit->IsClusterHit() || seed_hit->getNumberOfAdjacent() > _maxMerge ) {
         ++_NRevomedHits;
-        _mcp = (_tpcHitMap[ seed_hit ]).getMCParticle() ;
-        if(_mcp.isAvailable()) {
+        auto mcp = (_tpcHitMap[ seed_hit ]).getMCParticle() ;
+        if(mcp.isAvailable()) {
           ++_NLostPhysicsTPCHits;
-          const edm4hep::Vector3f mom= _mcp.getMomentum() ;
+          const edm4hep::Vector3f mom= mcp.getMomentum() ;
           double ptSQRD = mom[0]*mom[0]+mom[1]*mom[1] ;
           if( ptSQRD > (0.2*0.2) ) ++_NLostPhysicsAbove02GeVPtTPCHits ;
           if( ptSQRD > 1.0 )  ++_NLostPhysicsAbove1GeVPtTPCHits ;
@@ -1153,9 +1158,9 @@ void TPCDigiAlg::writeVoxelToHit( Voxel_tpc* aVoxel){
   Voxel_tpc* seed_hit  = aVoxel;
 
   //  if( seed_hit->getRowIndex() > 5 ) return ;
-
+  debug() << "==============" << endmsg;
   //store hit variables
-  edm4hep::TrackerHit trkHit = _trkhitVec->create();
+  edm4hep::TrackerHit trkHit;// = _trkhitVec->create();
   //now the hit pos has to be smeared
 
   double tpcRPhiRes = seed_hit->getRPhiRes();
@@ -1173,8 +1178,8 @@ void TPCDigiAlg::writeVoxelToHit( Voxel_tpc* aVoxel){
 
   // make sure the hit is not smeared beyond the TPC Max DriftLength
   if( fabs(point.z()) > gearTPC.getMaxDriftLength() ) point.setZ( (fabs(point.z()) / point.z() ) * gearTPC.getMaxDriftLength() );
-
-  double pos[3] = {point.x(),point.y(),point.z()};
+  debug() << "==============" << endmsg;
+  edm4hep::Vector3d pos(point.x(),point.y(),point.z());
   trkHit.setPosition(pos);
   trkHit.setEDep(seed_hit->getEDep());
   //  trkHit->setType( 500 );
@@ -1182,13 +1187,13 @@ void TPCDigiAlg::writeVoxelToHit( Voxel_tpc* aVoxel){
   //  int side = lcio::ILDDetID::barrel ;
   //
   //  if( pos[2] < 0.0 ) side = 1 ;
+  //change to Marlin's, fucd 
+  //map<Voxel_tpc*,edm4hep::SimTrackerHit>::iterator it=_tpcHitMap.find(seed_hit);
+  //assert(_tpcHitMap.end() != it);
 
-  map<Voxel_tpc*,edm4hep::SimTrackerHit>::iterator it=_tpcHitMap.find(seed_hit);
-  assert(_tpcHitMap.end() != it);
-
-  const int celId = it->second.getCellID();
-  _cellid_encoder->setValue( celId );
-  trkHit.setCellID( _cellid_encoder->lowWord() );
+  //const int celId = it->second.getCellID();
+  //_cellid_encoder->setValue( celId );
+  //trkHit.setCellID( _cellid_encoder->lowWord() );
 
   //int side   = (*_cellid_encoder)[lcio::ILDCellID0::side];
   //int layer  = (*_cellid_encoder)[lcio::ILDCellID0::layer];
@@ -1202,14 +1207,14 @@ void TPCDigiAlg::writeVoxelToHit( Voxel_tpc* aVoxel){
   //debug() << "sensorNumber = " << sensor << endmsg;
 
 
-  //(*_cellid_encoder)[ lcio::ILDCellID0::subdet ] = lcio::ILDDetID::TPC ;
-  //(*_cellid_encoder)[ lcio::ILDCellID0::layer  ] = seed_hit->getRowIndex() ;
-  //(*_cellid_encoder)[ lcio::ILDCellID0::module ] = 0 ;
+  (*_cellid_encoder)[ lcio::ILDCellID0::subdet ] = lcio::ILDDetID::TPC ;
+  (*_cellid_encoder)[ lcio::ILDCellID0::layer  ] = seed_hit->getRowIndex() ;
+  (*_cellid_encoder)[ lcio::ILDCellID0::module ] = 0 ;
 
   //SJA:FIXME: for now don't use side
   //  (*_cellid_encoder)[ lcio::ILDCellID0::side   ] = side ;
-  //(*_cellid_encoder)[ lcio::ILDCellID0::side   ] = lcio::ILDDetID::barrel ;
-
+  (*_cellid_encoder)[ lcio::ILDCellID0::side   ] = lcio::ILDDetID::barrel ;
+  trkHit.setCellID(_cellid_encoder->lowWord());
   //_cellid_encoder->setCellID( &trkHit ) ;
 
 
@@ -1224,7 +1229,7 @@ void TPCDigiAlg::writeVoxelToHit( Voxel_tpc* aVoxel){
     << "\n" ;
     throw errorMsg.str();
   }
-
+  debug() << "==============" << endmsg;
   // For no error in R
   std::array<float,TRKHITNCOVMATRIX> covMat={sin(unsmearedPhi)*sin(unsmearedPhi)*tpcRPhiRes*tpcRPhiRes,
     -cos(unsmearedPhi)*sin(unsmearedPhi)*tpcRPhiRes*tpcRPhiRes,
@@ -1242,7 +1247,7 @@ void TPCDigiAlg::writeVoxelToHit( Voxel_tpc* aVoxel){
     << "\n" ;
     throw errorMsg.str();
   }
-
+  debug() << "==============" << endmsg;
   if(pos[0]*pos[0]+pos[1]*pos[1]>0.0){
     //    push back the SimTHit for this TrackerHit
 
@@ -1250,21 +1255,16 @@ void TPCDigiAlg::writeVoxelToHit( Voxel_tpc* aVoxel){
       trkHit.addToRawHits(_tpcHitMap[seed_hit].getObjectID());
     }
 
-    //LCRelationImpl* rel = new LCRelationImpl;
+    auto rel = _relCol->create();
+    rel.setRec (trkHit);
+    rel.setSim (_tpcHitMap[seed_hit]);
+    rel.setWeight( 1.0 );
 
-    //yzhang TODO
-    //rel->setFrom (trkHit);
-    //rel->setTo (_tpcHitMap[seed_hit]);
-    //rel->setWeight( 1.0 );
-    //yzhang TODO
-    //_relCol->addElement(rel);
-
-    //yzhang TODO
-    //_trkhitVec->addElement( trkHit );
+    _trkhitVec->push_back( trkHit );
     _NRecTPCHits++;
   }
 
-
+  debug() << "==============" << endmsg;
 #ifdef DIGIPLOTS
 //  edm4hep::SimTrackerHit* theSimHit = _tpcHitMap[seed_hit];
 //  double rSimSqrd = theSimHit->getPosition()[0]*theSimHit->getPosition()[0] + theSimHit->getPosition()[1]*theSimHit->getPosition()[1];
@@ -1296,7 +1296,7 @@ void TPCDigiAlg::writeMergedVoxelsToHit( vector <Voxel_tpc*>* hitsToMerge){
   const gear::PadRowLayout2D& padLayout = gearTPC.getPadLayout() ;
   const gear::Vector2D padCoord = padLayout.getPadCenter(1) ;
 
-  edm4hep::TrackerHit trkHit = _trkhitVec->create();
+  edm4hep::TrackerHit trkHit;// = _trkhitVec->create();
 
   double sumZ = 0;
   double sumPhi = 0;
@@ -1319,13 +1319,10 @@ void TPCDigiAlg::writeMergedVoxelsToHit( vector <Voxel_tpc*>* hitsToMerge){
       trkHit.addToRawHits(_tpcHitMap[hitsToMerge->at(ihitCluster)].getObjectID());
     }
 
-    //yzhang TODO
-    //LCRelationImpl* rel = new LCRelationImpl;
-
-    //rel->setFrom (trkHit);
-    //rel->setTo (_tpcHitMap[ hitsToMerge->at(ihitCluster) ]);
-    //rel->setWeight( float(1.0/number_of_hits_to_merge) );
-    //_relCol->addElement(rel);
+    auto rel = _relCol->create();
+    rel.setRec (trkHit);
+    rel.setSim (_tpcHitMap[ hitsToMerge->at(ihitCluster) ]);
+    rel.setWeight( float(1.0/number_of_hits_to_merge) );
 
   }
 
@@ -1373,19 +1370,16 @@ void TPCDigiAlg::writeMergedVoxelsToHit( vector <Voxel_tpc*>* hitsToMerge){
 
   if( pos[2] < 0.0 ) side = 1 ;
 
-  //(*_cellid_encoder)[ lcio::ILDCellID0::subdet ] = lcio::ILDDetID::TPC ;
-  //(*_cellid_encoder)[ lcio::ILDCellID0::layer  ] = row ;
-  //(*_cellid_encoder)[ lcio::ILDCellID0::module ] = 0 ;
+  (*_cellid_encoder)[ lcio::ILDCellID0::subdet ] = lcio::ILDDetID::TPC ;
+  (*_cellid_encoder)[ lcio::ILDCellID0::layer  ] = row ;
+  (*_cellid_encoder)[ lcio::ILDCellID0::module ] = 0 ;
   ////SJA:FIXME: for now don't use side
   ////  (*_cellid_encoder)[ lcio::ILDCellID0::side   ] = side ;
-  //(*_cellid_encoder)[ lcio::ILDCellID0::side   ] = 0 ;
+  (*_cellid_encoder)[ lcio::ILDCellID0::side   ] = 0 ;
 
   //yzhang FIXME?
   //_cellid_encoder->setCellID( &trkHit ) ;
-  //trkHit.setCellID( _cellid_encoder->lowWord() );
-
-
-
+  trkHit.setCellID( _cellid_encoder->lowWord() );
 
   double phi = mergedPoint->getPhi();
 
@@ -1413,7 +1407,7 @@ void TPCDigiAlg::writeMergedVoxelsToHit( vector <Voxel_tpc*>* hitsToMerge){
 
   if(pos[0]*pos[0]+pos[1]*pos[1]>0.0){
     //yzhang TODO
-    //_trkhitVec->addElement( trkHit );
+    _trkhitVec->push_back( trkHit );
     ++_nRechits;
   } else {
     //???yzhang TODO
@@ -1533,7 +1527,7 @@ double TPCDigiAlg::getPadPhi( CLHEP::Hep3Vector *thisPoint, CLHEP::Hep3Vector* f
     << " lastPoint.z() "  << lastPoint->z()
     << std::endl ;
 
-    return twopi/4.0 ;
+    return CLHEP::twopi/4.0 ;
 
   }
 
@@ -1541,17 +1535,17 @@ double TPCDigiAlg::getPadPhi( CLHEP::Hep3Vector *thisPoint, CLHEP::Hep3Vector* f
 
   Circle theCircle(&firstPointRPhi, &middlePointRPhi, &lastPointRPhi);
 
-  double localPhi = atan2((thisPoint->y() - theCircle.GetCenter()->y()) ,(thisPoint->x() - theCircle.GetCenter()->x())) + (twopi/4.0) ;
+  double localPhi = atan2((thisPoint->y() - theCircle.GetCenter()->y()) ,(thisPoint->x() - theCircle.GetCenter()->x())) + (CLHEP::twopi/4.0) ;
 
-  if(localPhi>twopi) localPhi=localPhi - twopi;
-  if(localPhi<0.0) localPhi=localPhi + twopi;
-  if(localPhi>twopi/2.0) localPhi = localPhi - twopi/2.0 ;
+  if(localPhi>CLHEP::twopi) localPhi=localPhi - CLHEP::twopi;
+  if(localPhi<0.0) localPhi=localPhi + CLHEP::twopi;
+  if(localPhi>CLHEP::pi) localPhi = localPhi - CLHEP::pi ;
 
   double pointPhi = thisPoint->phi();
 
-  if(pointPhi>twopi) pointPhi=pointPhi - twopi;
-  if(pointPhi<0.0) pointPhi=pointPhi + twopi;
-  if(pointPhi>twopi/2.0) pointPhi = pointPhi - twopi/2.0 ;
+  if(pointPhi>CLHEP::twopi) pointPhi=pointPhi - CLHEP::twopi;
+  if(pointPhi<0.0) pointPhi=pointPhi + CLHEP::twopi;
+  if(pointPhi>CLHEP::pi) pointPhi = pointPhi - CLHEP::pi;
 
   double padPhi = fabs(pointPhi - localPhi);
 
@@ -1597,7 +1591,7 @@ double TPCDigiAlg::getPadTheta(CLHEP::Hep3Vector* firstPoint, CLHEP::Hep3Vector*
     << " lastPoint.z() "  << lastPoint->z()
     << endmsg;
 
-    return twopi/4.0 ;
+    return CLHEP::twopi/4.0 ;
 
   }
 

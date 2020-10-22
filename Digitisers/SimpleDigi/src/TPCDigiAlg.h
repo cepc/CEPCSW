@@ -24,7 +24,8 @@ Steve Aplin 26 June 2009 (DESY)
 #include "edm4hep/EventHeaderCollection.h"
 #include "edm4hep/SimTrackerHitCollection.h"
 #include "edm4hep/TrackerHitCollection.h"
-//#include "edm4hep/LCRelationCollection.h"
+#include "edm4hep/MCParticleCollection.h"
+#include "edm4hep/MCRecoTrackerAssociationCollection.h"
 
 #include <gsl/gsl_rng.h>
 
@@ -154,15 +155,17 @@ protected:
   //std::string _padRowHitColName ;
   //std::string _spacePointColName ;
   //std::string _lowPtHitscolName ;
-  DataHandle<edm4hep::SimTrackerHitCollection> _padRowHitCol{"TPCCollection", Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::SimTrackerHitCollection> _spacePointCol{"TPCSpacePointCollection", Gaudi::DataHandle::Reader, this};
-  DataHandle<edm4hep::SimTrackerHitCollection> _lowPtHitscol{"TPCLowPtCollection", Gaudi::DataHandle::Reader, this};
-
+  DataHandle<edm4hep::SimTrackerHitCollection> _padRowHitColHdl{"TPCCollection", Gaudi::DataHandle::Reader, this};
+  DataHandle<edm4hep::SimTrackerHitCollection> _spacePointColHdl{"TPCSpacePointCollection", Gaudi::DataHandle::Reader, this};
+  DataHandle<edm4hep::SimTrackerHitCollection> _lowPtHitsColHdl{"TPCLowPtCollection", Gaudi::DataHandle::Reader, this};
+  //DataHandle<edm4hep::MCParticleCollection> _mcColHdl{"MCParticle", Gaudi::DataHandle::Reader, this};
 
   /** Output collection name.
    */
-  DataHandle<edm4hep::TrackerHitCollection> _TPCTrackerHitsCol{"TPCTrackerHits", Gaudi::DataHandle::Writer, this};
-  //DataHandle<edm4hep::LCRelationCollection> _outRelCol{"TPCTrackerHitRelations", Gaudi::DataHandle::Writer, this};
+  DataHandle<edm4hep::TrackerHitCollection> _TPCTrackerHitsColHdl{"TPCTrackerHits", Gaudi::DataHandle::Writer, this};
+  DataHandle<edm4hep::MCRecoTrackerAssociationCollection> _TPCAssColHdl{"TPCTrackerHitAss", Gaudi::DataHandle::Writer, this};
+  edm4hep::TrackerHitCollection* _trkhitVec;
+  edm4hep::MCRecoTrackerAssociationCollection* _relCol;
 
   bool _use_raw_hits_to_store_simhit_pointer;
 
@@ -172,17 +175,17 @@ protected:
   int _nRun ;
   int _nEvt ;
 
-  edm4hep::ConstMCParticle _mcp;
-  edm4hep::ConstMCParticle _previousMCP;
-  edm4hep::ConstMCParticle _nextMCP;
-  edm4hep::ConstMCParticle _nMinus2MCP;
-  edm4hep::ConstMCParticle _nPlus2MCP;
+  //edm4hep::ConstMCParticle _mcp;
+  //edm4hep::ConstMCParticle _previousMCP;
+  //edm4hep::ConstMCParticle _nextMCP;
+  //edm4hep::ConstMCParticle _nMinus2MCP;
+  //edm4hep::ConstMCParticle _nPlus2MCP;
 
-  edm4hep::SimTrackerHit _SimTHit;
-  edm4hep::SimTrackerHit _previousSimTHit;
-  edm4hep::SimTrackerHit _nextSimTHit;
-  edm4hep::SimTrackerHit _nPlus2SimHit;
-  edm4hep::SimTrackerHit _nMinus2SimHit;
+  //edm4hep::SimTrackerHit _SimTHit;
+  //edm4hep::SimTrackerHit _previousSimTHit;
+  //edm4hep::SimTrackerHit _nextSimTHit;
+  //edm4hep::SimTrackerHit _nPlus2SimHit;
+  //edm4hep::SimTrackerHit _nMinus2SimHit;
 
   gear::GearMgr* _GEAR;
   IEventSeeder* _SEEDER;
@@ -209,8 +212,6 @@ protected:
   std::vector< std::vector <Voxel_tpc *> > _tpcRowHits;
   std::map< Voxel_tpc *,edm4hep::SimTrackerHit > _tpcHitMap;
 
-  edm4hep::TrackerHitCollection* _trkhitVec;
-  //LCCollectionVec* _relCol;
   UTIL::BitField64* _cellid_encoder;
 
   int  _NSimTPCHits;
