@@ -15,13 +15,13 @@
 //---- MarlinUtil
 
 //---- LCIO ---
-#include "IMPL/LCCollectionVec.h"
-#include "EVENT/SimTrackerHit.h"
-#include "UTIL/Operators.h"
-#include "UTIL/LCTOOLS.h"
-#include "UTIL/CellIDDecoder.h"
+//#include "IMPL/LCCollectionVec.h"
+//#include "EVENT/SimTrackerHit.h"
+//#include "UTIL/Operators.h"
+//#include "UTIL/LCTOOLS.h"
+//#include "UTIL/CellIDDecoder.h"
 #include "UTIL/ILDConf.h"
-#include "UTIL/LCIterator.h"
+//#include "UTIL/LCIterator.h"
 
 //-------gsl -----
 #include "gsl/gsl_randist.h"
@@ -198,29 +198,32 @@ void ClupatraAlg::printParameters() {
 StatusCode ClupatraAlg::initialize() {
 
 	// Usually a good idea to
-	printParameters() ;
+        // don't need, since Gaudi Algorithm will print all Property  
+	//printParameters() ;
 
 	auto _trackSystemSvc = service<ITrackSystemSvc>("TrackSystemSvc");
 	if ( !_trackSystemSvc ) {
 		error() << "Fail to find TrackSystemSvc ..." << endmsg;
 	}
-	// _trksystem =  MarlinTrk::Factory::createMarlinTrkSystem( "KalTest" , marlin::Global::GEAR , "" ) ;
 
-	_trksystem = _trackSystemSvc->getTrackSystem();
-	// FIXME Mingrui Important fix it later
-	// _trksystem->setOption( MarlinTrk::IMarlinTrkSystem::CFG::useQMS,        true ) ;
-	_trksystem->setOption( MarlinTrk::IMarlinTrkSystem::CFG::useQMS,        false ) ;
-	_trksystem->setOption( MarlinTrk::IMarlinTrkSystem::CFG::usedEdx,       true) ;
-	_trksystem->setOption( MarlinTrk::IMarlinTrkSystem::CFG::useSmoothing,  false) ;
+	_trksystem = _trackSystemSvc->getTrackSystem(this);
+	if(!_trksystem){
+	  error() << "Cannot initialize MarlinTrkSystem of Type: KalTest" <<endmsg;
+	  return StatusCode::FAILURE;
+	}
+
+	_trksystem->setOption( MarlinTrk::IMarlinTrkSystem::CFG::useQMS,        _MSOn ) ;
+	_trksystem->setOption( MarlinTrk::IMarlinTrkSystem::CFG::usedEdx,       _ElossOn) ;
+	_trksystem->setOption( MarlinTrk::IMarlinTrkSystem::CFG::useSmoothing,  _SmoothOn) ;
 	_trksystem->init() ;
 
 	_nRun = 0 ;
 	_nEvt = 0 ;
-
-        tree = new TTree("Tuple", "Particle Tree");
-        tree->Branch("omega", &omega, "omega/D");
-        tree->Branch("totalCandidates", &totalCandidates, "totalCandidates/I");
-        tree->Branch("eventNumber", &_nEvt, "eventNumber/I");
+	// FIXME: fucd
+        //tree = new TTree("Tuple", "Particle Tree");
+        //tree->Branch("omega", &omega, "omega/D");
+        //tree->Branch("totalCandidates", &totalCandidates, "totalCandidates/I");
+        //tree->Branch("eventNumber", &_nEvt, "eventNumber/I");
 
 	return GaudiAlgorithm::initialize();
 
@@ -299,7 +302,7 @@ StatusCode ClupatraAlg::execute() {
 	//   create clupa and clustering hits for every edm4hep hit
 	//===============================================================================================
 	if (col == nullptr) {
-                return StatusCode::SUCCESS;
+	  return StatusCode::SUCCESS;
         }
 
 
@@ -308,8 +311,6 @@ StatusCode ClupatraAlg::execute() {
 	clupaHits.resize( nHit ) ;       // creates clupa hits (w/ default c'tor)
 	nncluHits.reserve( nHit ) ;
 
-
-	// FIXME: Mingrui fix the output message
 	debug()  << "  create clupatra TPC hits, n = " << nHit << endmsg ;
 
 	// Mingrui!: Copy the items in col to col_copy to avoid losing the pointer.
@@ -317,7 +318,7 @@ StatusCode ClupatraAlg::execute() {
 
 		//------
 		ConstTrackerHit th(col->at(i));
-		// debug() << i << " " << th->getCellID0() << " " << th->getCellID1() << endmsg;
+		//debug() << i << " " << th->getCellID() << endmsg;
 		if ( fabs(th.getPosition()[2]) > driftLength ) continue;
 
 		ClupaHit* ch  = & clupaHits[i] ;
@@ -339,8 +340,7 @@ StatusCode ClupatraAlg::execute() {
 		// May cause a problem
 		ch->layer = getLayer( th );
 
-		// FIXME: Mingrui Debug
-		// streamlog_out( DEBUG ) << "  ch->layer = idDec( th )[ ILDCellID0::layer ] = " <<  ch->layer << " - CellID0 " << th->getCellID0() << std::endl ;
+		//debug() << "ch->layer = idDec( th )[ ILDCellID0::layer ] = " <<  ch->layer << " - CellID0 " << th.getCellID() << endmsg;
 
 		ch->zIndex = zIndex( &th ) ;
 
@@ -358,7 +358,7 @@ StatusCode ClupatraAlg::execute() {
 	HitListVector hitsInLayer( maxTPCLayers ) ;
 	addToHitListVector(  nncluHits.begin(), nncluHits.end() , hitsInLayer  ) ;
 
-	// debug() << "  added  " <<  nncluHits.size()  << "  tp hitsInLayer - > size " <<  hitsInLayer.size() << std::endl ;
+	debug() << "  added  " <<  nncluHits.size()  << "  tp hitsInLayer - > size " <<  hitsInLayer.size() << endmsg;
 
 	//---------------------------------------------------------------------------------------------------------
 
@@ -403,9 +403,9 @@ StatusCode ClupatraAlg::execute() {
 
 	TrackCollection* outCol =  _ClupatraTrackCollectionHandle.createAndPut();
 	TrackCollection* tsCol  =  _ClupatraTrackSegmentCollectionHandle.createAndPut();
-        std::vector<ClupaPlcioConstTrack*> outCol_tmp;
-        std::vector<ClupaPlcioConstTrack*> tsCol_tmp;
-
+        std::vector<ClupaPlcioTrack*> outCol_tmp;
+        std::vector<ClupaPlcioTrack*> tsCol_tmp;
+	
 	//---------------------------------------------------------------------------------------------------------
 
 	timer.time(t_init ) ;
@@ -429,9 +429,9 @@ StatusCode ClupatraAlg::execute() {
 	IMarlinTrkFitter fitter( _trksystem ) ;
 
 
-	debug() << "===============================================================================================\n"
-		<< "   first step of Clupatra algorithm: find seeds with NN-clustering  in " <<  _nLoop << " loops - max dist = " << _distCut <<" \n"
-		<< "===============================================================================================\n"  << endmsg;
+	debug() << "===============================================================================================" << endmsg;
+	debug() << "   first step of Clupatra algorithm: find seeds with NN-clustering  in " <<  _nLoop << " loops - max dist = " << _distCut << endmsg;
+	debug() << "==============================================================================================="  << endmsg;
 
 	// ---- introduce a loop over increasing distance cuts for finding the tracks seeds
 	//      -> should fix (some of) the problems seen @ 3 TeV with extremely boosted jets
@@ -819,8 +819,8 @@ StatusCode ClupatraAlg::execute() {
 
 		MarlinTrk::IMarlinTrack* trk = fit( *icv ) ;
 		trk->smooth() ;
-		edm4hep::ConstTrack edm4hepTrk = converter( *icv ) ;
-		tsCol_tmp.push_back( new ClupaPlcioConstTrack(edm4hepTrk) ) ;
+		edm4hep::Track edm4hepTrk = converter( *icv ) ;
+		tsCol_tmp.push_back( new ClupaPlcioTrack(edm4hepTrk) ) ;
 		MarTrk_of_edm4hepTrack(edm4hepTrk) = 0 ;
 		delete trk ;
 	}
@@ -836,14 +836,13 @@ StatusCode ClupatraAlg::execute() {
 	//  compute some track parameters for possible merging
 	//===============================================================================================
 
-	typedef nnclu::NNClusterer<ClupaPlcioConstTrack> TrackClusterer ;
+	typedef nnclu::NNClusterer<ClupaPlcioTrack> TrackClusterer ;
 	TrackClusterer nntrkclu ;
-	MakePLCIOElement<ClupaPlcioConstTrack> trkMakeElement ;
+	MakePLCIOElement<ClupaPlcioTrack> trkMakeElement ;
 
 	for( int i=0,N=tsCol_tmp.size() ;  i<N ; ++i ) {
-
-		ConstTrack track = tsCol_tmp.at(i)->edm4hepTrack;
-		computeTrackInfo(track) ;
+	  edm4hep::ConstTrack track = tsCol_tmp.at(i)->edm4hepTrack;
+	  computeTrackInfo(track) ;
 	}
 
 	//===============================================================================================
@@ -867,7 +866,7 @@ StatusCode ClupatraAlg::execute() {
 
 			for( int i=0,N=tsCol_tmp.size() ;  i<N ; ++i ){
 
-				edm4hep::ConstTrack trk = tsCol_tmp.at(i)->edm4hepTrack;
+			        edm4hep::ConstTrack trk = tsCol_tmp.at(i)->edm4hepTrack;
 
 				const TrackInfoStruct* ti = TrackInfo_of_edm4hepTrack(trk);
 
@@ -916,7 +915,7 @@ StatusCode ClupatraAlg::execute() {
 
 					//streamlog_out( DEBUG3 ) << lcshort(  (*itC)->first ) << std::endl ;
 
-					edm4hep::ConstTrack trk = (*itC)->first->edm4hepTrack ;
+					edm4hep::ConstTrack trk = (*itC)->first->edm4hepTrack;
 
 					mergedTrk.push_back( trk ) ;
 
@@ -953,8 +952,8 @@ StatusCode ClupatraAlg::execute() {
 
 				MarlinTrk::IMarlinTrack* mTrk = fit( &hits ) ;
 				mTrk->smooth() ;
-				edm4hep::ConstTrack track = converter( &hits ) ;
-				tsCol_tmp.push_back( new ClupaPlcioConstTrack(track) ) ;
+				edm4hep::Track track = converter( &hits ) ;
+				tsCol_tmp.push_back( new ClupaPlcioTrack(track) ) ;
 				MarTrk_of_edm4hepTrack(track) = 0 ;
 				delete mTrk ;
 				computeTrackInfo( track ) ;
@@ -982,10 +981,10 @@ StatusCode ClupatraAlg::execute() {
 		TrackClusterer::cluster_vector curSegCluVec ;
 		curSegCluVec.setOwner() ;
 
-
+		//for(std::vector<ClupaPlcioTrack*>::iterator it=tsCol_tmp.begin();it!=tsCol_tmp.end();it++){
 		for( int i=tsCol_tmp.size()-1 ;  i>=0 ; --i ){
 
-			ConstTrack trk = tsCol_tmp.at(i)->edm4hepTrack;
+		        edm4hep::Track trk = tsCol_tmp.at(i)->edm4hepTrack;
 
 			std::bitset<32> type = trk.getType() ;
 
@@ -1006,18 +1005,21 @@ StatusCode ClupatraAlg::execute() {
 			} else {   // ... is not a curler ->  add a copy to the final tracks collection
 
 
-				if( copyTrackSegments) {
-
-					outCol_tmp.push_back( new ClupaPlcioConstTrack(trk)  ) ;
+			        if( copyTrackSegments) {
+				  
+				        outCol_tmp.push_back( new ClupaPlcioTrack(trk)  ) ;
 
 				}else{
 
-					outCol_tmp.push_back( new ClupaPlcioConstTrack(trk) ) ;
-
+				        outCol_tmp.push_back( new ClupaPlcioTrack(trk) ) ;
+					debug() << "now outCol_tmp size = " << outCol_tmp.size() << endmsg;
 					// FIXME !!! Possibly different with the LCIO version
 					// tsCol-> Do not remove it at the Beginning
 					// Very very important
 					// tsCol->removeElementAt( i ) ;
+					// fucd
+					//delete tsCol_tmp.at(i);
+					tsCol_tmp.erase(tsCol_tmp.begin()+i);
 				}
 
 				// FIXME Mingrui remove
@@ -1032,12 +1034,11 @@ StatusCode ClupatraAlg::execute() {
 
 		nntrkclu.cluster( curSegVec.begin() , curSegVec.end() , std::back_inserter( curSegCluVec ), trkMerge , 2  ) ;
 
-		// FIXME: Mingrui
 		debug() << " ===== merged tracks - # cluster: " << curSegCluVec.size()
 			<< " from " << tsCol_tmp.size() << " track segments "    << "  ============================== " << endmsg ;
 
-for (auto t : tsCol_tmp)
-// std::cout << t->edm4hepTrack << std::endl;
+		//for (auto t : tsCol_tmp)
+		//debug() << t->edm4hepTrack << endmsg;
 
 // debug() << "Finish this line" << endmsg;
 
@@ -1048,14 +1049,13 @@ for (auto t : tsCol_tmp)
 
 			TrackClusterer::cluster_type*  curSegClu = *it ;
 
-			std::list<ConstTrack> mergedTrk ;
+			std::list<edm4hep::Track> mergedTrk ;
 
 			for( TrackClusterer::cluster_type::iterator itC = curSegClu->begin() ; itC != curSegClu->end() ; ++ itC ){
 
-				// FIXME: Mingrui
-				// streamlog_out( DEBUG4 ) << lcshort(  (*itC)->first ) << std::endl ;
-
-				mergedTrk.push_back( (*itC)->first->edm4hepTrack ) ;
+			  //debug() << lcshort(  (*itC)->first ) << endmsg;
+			  //debug() << getOmega((*itC)->first->edm4hepTrack) << endmsg;
+			  mergedTrk.push_back( (*itC)->first->edm4hepTrack ) ;
 			}
 
 
@@ -1074,7 +1074,7 @@ for (auto t : tsCol_tmp)
 
 				// == and copy all the hits
 				unsigned hitCount = 0 ;
-				for( std::list<ConstTrack>::iterator itML = mergedTrk.begin() ; itML != mergedTrk.end() ; ++ itML ){
+				for( std::list<edm4hep::Track>::iterator itML = mergedTrk.begin() ; itML != mergedTrk.end() ; ++ itML ){
 
 					for (auto itHit = (*itML).trackerHits_begin(); itHit != (*itML).trackerHits_end(); itHit++) {
 						trk.addToTrackerHits(*itHit);
@@ -1141,36 +1141,39 @@ for (auto t : tsCol_tmp)
 
 
 
-				// streamlog_out( DEBUG2 ) << "   create new merged track from bestTrack parameters - ptr to MarlinTrk : " << trk->ext<MarTrk>()
-				//  << "   with subdetector hit numbers  : " <<  trk->subdetectorHitNumbers()[0 ] << " , " <<  trk->subdetectorHitNumbers()[1]
-				//  << std::endl ;
+				//debug() << "   create new merged track from bestTrack parameters - ptr to MarlinTrk : " << trk->ext<MarTrk>()
+				//	<< "   with subdetector hit numbers  : " <<  trk->subdetectorHitNumbers()[0 ] << " , " <<  trk->subdetectorHitNumbers()[1]
+				//	<< endmsg;
 
 
-				outCol_tmp.push_back( new ClupaPlcioConstTrack(trk) )  ;
+				outCol_tmp.push_back( new ClupaPlcioTrack(trk) )  ;
 
 			} else { //==========================
 
 				// we move the first segment to the final list and keep pointers to the other segments
 
-				std::list<ConstTrack>::iterator itML = mergedTrk.begin() ;
+			        std::list<edm4hep::Track>::iterator itML = mergedTrk.begin() ;
 
-				ConstTrack trk = (ConstTrack) *itML++ ;
+				edm4hep::Track trk = (edm4hep::Track) *itML++ ;
 
 				for(  ; itML != mergedTrk.end() ; ++itML ){
 
 					// add a pointer to the original track segment
 					// FIXME I need to add sub track
-					// trk->addTrack(**itML) ;
+				  trk.addToTracks(*itML) ;
 				}
 
-				outCol_tmp.push_back( new ClupaPlcioConstTrack(trk) ) ;
-
+				outCol_tmp.push_back( new ClupaPlcioTrack(trk) ) ;
+				debug() << "now outCol_tmp size = " << outCol_tmp.size() << endmsg;
 				//remove from segment collection:
 				for( int i=0,N=tsCol_tmp.size() ; i<N ; ++i) {
-					if( ( tsCol_tmp.at(i)->edm4hepTrack ) == trk ){
-						// FIXME Do not remove
-						// tsCol_tmp.removeElementAt( i ) ;
-						break ;
+				  if( ( tsCol_tmp.at(i)->edm4hepTrack ) == trk ){
+					        // FIXME Do not remove
+						//tsCol_tmp.removeElementAt( i ) ;
+					  //fucd
+					  //delete tsCol_tmp[i];
+					  tsCol_tmp.erase(tsCol_tmp.begin()+i);
+					  break ;
 					}
 				}
 
@@ -1180,7 +1183,7 @@ for (auto t : tsCol_tmp)
 		//---------------------------------------------------------------------------------------------
 		// // add all tracks that have not been merged :
 
-// debug() << "Still works here" << endmsg;
+		debug() << "Still works here" << endmsg;
 		for( TrackClusterer::element_vector::iterator it = curSegVec.begin(); it != curSegVec.end() ;++it){
 
                                 // std::cout << "Can I get the track? 1" << std::endl;
@@ -1188,13 +1191,13 @@ for (auto t : tsCol_tmp)
 
                                 // std::cout << "Can I get the track? 2" << std::endl;
                                 // std::cout << (*it)->first->edm4hepTrack;
-				ConstTrack trk = (*it)->first->edm4hepTrack ;
+			        edm4hep::Track trk = (*it)->first->edm4hepTrack ;
                                 // std::cout << "Can I get the track? 3" << std::endl;
                                 // std::cout << trk << std::endl;
 
 				if( copyTrackSegments) {
 
-					ConstTrack t =  trk;
+				        edm4hep::Track t =  trk;
 
 					TrackInfo_of_edm4hepTrack(t) = 0 ; // set extension to 0 to prevent double free ...
 
@@ -1203,17 +1206,20 @@ for (auto t : tsCol_tmp)
 					// FIXME Mingrui debug
 					// streamlog_out( DEBUG2 ) << "   create new track from existing LCIO track  - ptr to MarlinTrk : " << t->ext<MarTrk>()  << std::endl ;
 
-					outCol_tmp.push_back( new ClupaPlcioConstTrack(t) ) ;
+					outCol_tmp.push_back( new ClupaPlcioTrack(t) ) ;
 
 				} else {
-					outCol_tmp.push_back( new ClupaPlcioConstTrack(trk) ) ;
-
+				        outCol_tmp.push_back( new ClupaPlcioTrack(trk) ) ;
+				        debug() << "now outCol_tmp size = " << outCol_tmp.size() << endmsg;
 					//remove from segment collection:
 					for( int i=0,N=tsCol_tmp.size() ; i<N ; ++i) {
-						if( ( tsCol_tmp.at(i)->edm4hepTrack ) == trk ){
-							// FIXME Do not remove
+					  if( ( tsCol_tmp.at(i)->edm4hepTrack ) == trk ){
+						        // FIXME Do not remove
 							// tsCol->removeElementAt( i ) ;
-							break ;
+						  //fucd
+						  //delete tsCol_tmp[i];
+						  tsCol_tmp.erase(tsCol_tmp.begin()+i);
+						  break ;
 						}
 					}
 				}
@@ -1241,13 +1247,18 @@ for (auto t : tsCol_tmp)
 	timer.time( t_pickup ) ;
 
         totalCandidates = outCol_tmp.size();
+        debug() << "Total " << totalCandidates << " clupatra tracks to save" << endmsg;
         for (auto t : outCol_tmp) {
-            // std::cout << "Final track: omega = " << getOmega(t->edm4hepTrack) << std::endl;
-            // omega = getOmega(t->edm4hepTrack);
-            // tree->Fill();
-            outCol->push_back(t->edm4hepTrack);
+	  debug() << "Final track: omega = " << getOmega(t->edm4hepTrack) << endmsg;
+	  // omega = getOmega(t->edm4hepTrack);
+	  // tree->Fill();
+	  outCol->push_back(t->edm4hepTrack);
         }
-        for (auto t : outCol_tmp) {
+	for (auto t : tsCol_tmp) {
+	  debug() << "Final track segment: omega = " << getOmega(t->edm4hepTrack) << endmsg;
+	  tsCol->push_back(t->edm4hepTrack);
+	}
+	for (auto t : outCol_tmp) {
             delete t;
         }
         for (auto t : tsCol_tmp) {
@@ -1314,7 +1325,8 @@ void ClupatraAlg::computeTrackInfo(  edm4hep::ConstTrack lTrk  ){
 	ti->zMin = zMin ;
 	ti->zMax = zMax ;
 	ti->zAvg = zAvg ;
-
+	
+	//debug() << lTrk.id() << " " << tsF.D0 << " " << tsF.phi << " " << tsF.omega << " " << tsF.Z0 << " " << tsF.tanLambda << endmsg;
 }
 
 
@@ -1361,7 +1373,7 @@ streamlog_out( DEBUG5 ) <<   " ------------------- check()  done " << std::endl 
 //====================================================================================================
 
 StatusCode ClupatraAlg::finalize(){
-        tree->SaveAs("Tuple.root");
+  //tree->SaveAs("Tuple.root");
 
 	/*
 	 * FIXME debug

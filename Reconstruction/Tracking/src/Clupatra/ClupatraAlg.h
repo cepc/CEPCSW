@@ -15,7 +15,7 @@
 #include "gear/TPCModule.h"
 #include "RuntimeMap.h"
 #include "clupatra_new.h"
-#include "TrackingHelper.h"
+#include "Tracking/TrackingHelper.h"
 
 #include "TrackSystemSvc/MarlinTrkUtils.h"
 #include "TrackSystemSvc/HelixTrack.h"
@@ -135,7 +135,9 @@ class ClupatraAlg : public GaudiAlgorithm {
   Gaudi::Property<float> _trackEndsOuterCentralDist{this, "TrackEndsOuterCentralDist", 25.}; // "maximum radial distance [mm] from outer field cage of last hit, such that the track is considered to end at the end " 
   Gaudi::Property<float> _trackEndsOuterForwardDist{this, "TrackEndsOuterForwardDist" , 40.}; // "maximum distance in z [mm] from endplate of last hit, such that the track is considered to end at the end " ,
   Gaudi::Property<float> _trackIsCurlerOmega{this, "TrackIsCurlerOmega", 0.001}; // "minimum curvature omega of a track segment for being considered a curler"
-
+  Gaudi::Property<bool> _MSOn{this, "MultipleScatteringOn", false};
+  Gaudi::Property<bool> _ElossOn{this, "EnergyLossOn", true};
+  Gaudi::Property<bool> _SmoothOn{this, "SmoothOn", false};
 
 
   DataHandle<edm4hep::TrackerHitCollection> _TPCHitCollectionHandle{"TPCTrackerHits", Gaudi::DataHandle::Reader, this};
@@ -146,11 +148,6 @@ class ClupatraAlg : public GaudiAlgorithm {
   DataHandle<edm4hep::TrackCollection> _ClupatraTrackSegmentCollectionHandle{"ClupatraSegmentTracks", Gaudi::DataHandle::Writer, this};
 
   float _bfield ;
-
-  bool _MSOn ;
-  bool _ElossOn ;
-  bool _SmoothOn ;
-
 
   int _nRun ;
   int _nEvt ;
