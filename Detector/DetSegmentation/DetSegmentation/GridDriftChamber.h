@@ -124,8 +124,7 @@ public:
  }
 
 protected:
-  /* *** nalipour *** */
-//  double phi(const CellID& cID) const;
+
   std::map<int,LAYER> layer_params; // <layer, {layerphi, R, eps, offset}>
   std::map<int, std::vector<std::pair<TVector3, TVector3> >> m_wiresPositions; // < layer, vec<WireMidpoint, WireDirection> >
 
