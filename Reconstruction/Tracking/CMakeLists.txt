@@ -15,6 +15,7 @@ gaudi_depends_on_subdirs(
 
 set(Tracking_srcs
     src/Clupatra/*.cpp
+    src/FullLDCTracking/*.cpp
 )
 
 # Modules
