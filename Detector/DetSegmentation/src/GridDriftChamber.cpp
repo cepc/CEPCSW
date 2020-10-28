@@ -79,8 +79,8 @@ double GridDriftChamber::phi(const CellID& cID) const {
   return (_currentLayerphi * 0.5) + binToPosition(phiValue, _currentLayerphi, m_offsetPhi);
 }
 
-double GridDriftChamber::distanceTrackWire(const CellID& cID, const TVector3& hit_start,
-                                           const TVector3& hit_end) const {
+double GridDriftChamber::distanceTrackWire(const CellID& cID, const TVector3& hit_start/*,
+                                           const TVector3& hit_end*/) const {
 
   auto layerIndex = _decoder->get(cID, "layer");
   updateParams(layerIndex);
@@ -88,10 +88,10 @@ double GridDriftChamber::distanceTrackWire(const CellID& cID, const TVector3& hi
   double phi_start = phi(cID);
   double phi_end = phi_start + returnAlpha();
 
-  TVector3 Wstart = returnWirePosition(phi_start, 1);
-  TVector3 Wend = returnWirePosition(phi_end, -1);
+  TVector3 Wstart = 10*returnWirePosition(phi_start, -1); // Convert from cm to mm
+  TVector3 Wend = 10*returnWirePosition(phi_end, 1);   // Convert from cm to mm
 
-  TVector3 a = hit_end - hit_start;
+//  TVector3 a = hit_end - hit_start;
   TVector3 b = Wend - Wstart;
   TVector3 c = Wstart - hit_start;
 

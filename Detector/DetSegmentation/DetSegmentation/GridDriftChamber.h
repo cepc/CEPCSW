@@ -44,7 +44,7 @@ public:
   virtual Vector3D position(const CellID& aCellID) const;
   virtual CellID cellID(const Vector3D& aLocalPosition, const Vector3D& aGlobalPosition,
                         const VolumeID& aVolumeID) const;
-  virtual double distanceTrackWire(const CellID& cID, const TVector3& hit_start, const TVector3& hit_end) const;
+  virtual double distanceTrackWire(const CellID& cID, const TVector3& hit_start/*, const TVector3& hit_end*/) const;
 
   double phi(const CellID& cID) const;
   inline double cell_Size() const { return m_cellSize; }
@@ -55,7 +55,9 @@ public:
   // Setters
 
   inline double phiFromXY(const Vector3D& aposition) const {
-    return std::atan2(aposition.Y, aposition.X) ;
+    double beta =  std::atan2(aposition.Y, aposition.X) ;
+    if( beta < 0 ) { beta = beta + 2 * M_PI; }
+    return beta;
   }
 
   inline void setGeomParams(int layer, double layerphi, double R, double eps, double offset) {
