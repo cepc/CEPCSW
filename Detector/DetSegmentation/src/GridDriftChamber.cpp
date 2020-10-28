@@ -58,8 +58,10 @@ CellID GridDriftChamber::cellID(const Vector3D& /*localPosition*/, const Vector3
     else {
       _lphi = (int) ((phi_hit - offsetphi + 2 * M_PI)/ _currentLayerphi);
     }
+// }
   int lphi = _lphi;
   _decoder->set(cID, m_phiID, lphi);
+
 
 //std::cout << "#######################################: " 
 //          <<  " offset : " << m_offset
@@ -74,7 +76,7 @@ CellID GridDriftChamber::cellID(const Vector3D& /*localPosition*/, const Vector3
 
 double GridDriftChamber::phi(const CellID& cID) const {
   CellID phiValue = _decoder->get(cID, m_phiID);
-  return binToPosition(phiValue, _currentLayerphi, m_offsetPhi);
+  return (_currentLayerphi * 0.5) + binToPosition(phiValue, _currentLayerphi, m_offsetPhi);
 }
 
 double GridDriftChamber::distanceTrackWire(const CellID& cID, const TVector3& hit_start,
@@ -93,8 +95,10 @@ double GridDriftChamber::distanceTrackWire(const CellID& cID, const TVector3& hi
   TVector3 b = Wend - Wstart;
   TVector3 c = Wstart - hit_start;
 
-  double num = std::abs(c.Dot(a.Cross(b)));
-  double denum = (a.Cross(b)).Mag();
+//  double num = std::abs(c.Dot(a.Cross(b)));
+//  double denum = (a.Cross(b)).Mag();
+  double num = (b.Cross(c)).Mag();
+  double denum = b.Mag();
 
   double DCA = 0;
 

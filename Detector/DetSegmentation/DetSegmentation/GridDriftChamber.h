@@ -46,6 +46,7 @@ public:
                         const VolumeID& aVolumeID) const;
   virtual double distanceTrackWire(const CellID& cID, const TVector3& hit_start, const TVector3& hit_end) const;
 
+  double phi(const CellID& cID) const;
   inline double cell_Size() const { return m_cellSize; }
   inline double offset_phi() const { return m_offsetPhi; }
   inline double epsilon0() const { return m_epsilon0; }
@@ -54,10 +55,10 @@ public:
   // Setters
 
   inline double phiFromXY(const Vector3D& aposition) const {
-    return std::atan2(aposition.Y, aposition.X) + M_PI ;
+    return std::atan2(aposition.Y, aposition.X) ;
   }
 
-  inline void setGeomParams(int layer, double layerphi, double R, double eps, double offset ) {
+  inline void setGeomParams(int layer, double layerphi, double R, double eps, double offset) {
     // layer_params[layer] = {layerphi,R,eps};
     layer_params.insert(std::pair<int,LAYER>(layer,LAYER(layerphi,R,eps,offset)));
    }
@@ -72,9 +73,9 @@ public:
 //    else { phi0 = 0.5 * _currentLayerphi; }
       double phi0 = m_offset;
 
-      auto phi_start = _currentLayerphi * i + phi0;
+      auto phi_start = _currentLayerphi * (i + 0.5) + phi0;
       if(phi_start > 2 * M_PI) { phi_start = phi_start - 2 * M_PI; }
-      auto phi_end = phi_start + _currentLayerphi;
+      auto phi_end = phi_start;// + _currentLayerphi;
 
       TVector3 Wstart = returnWirePosition(phi_start, 1);
       TVector3 Wend = returnWirePosition(phi_end, -1);
@@ -117,14 +118,14 @@ public:
     m_offset = offset;
  }
 
-  inline double returnAlpha() const {
-    double alpha = 2 * std::asin(m_detectorLength * std::tan(m_epsilon0)/(2 * _currentRadius));
-    return alpha;
+ inline double returnAlpha() const {
+   double alpha = 2 * std::asin(m_detectorLength * std::tan(m_epsilon0)/(2 * _currentRadius));
+   return alpha;
  }
 
 protected:
   /* *** nalipour *** */
-  double phi(const CellID& cID) const;
+//  double phi(const CellID& cID) const;
   std::map<int,LAYER> layer_params; // <layer, {layerphi, R, eps, offset}>
   std::map<int, std::vector<std::pair<TVector3, TVector3> >> m_wiresPositions; // < layer, vec<WireMidpoint, WireDirection> >
 
