@@ -7,6 +7,7 @@
 #include "UTIL/CellIDDecoder.h"
 #include "UTIL/ILDConf.h"
 #include "lcio.h"
+#include <array>
 
 inline bool hasTrackStateAt(edm4hep::ConstTrack track, int location) {
     for (auto it = track.trackStates_begin(); it != track.trackStates_end(); it++) {
@@ -20,12 +21,15 @@ inline bool hasTrackStateAt(edm4hep::ConstTrack track, int location) {
 inline edm4hep::TrackState getTrackStateAt(edm4hep::ConstTrack track, int location) {
     for (auto it = track.trackStates_begin(); it != track.trackStates_end(); it++) {
         if (it->location == location) {
-            return *it;
+	  return *it;
         }
     }
     return edm4hep::TrackState();
 }
 
+inline std::array<float,15> getCovMatrix(const edm4hep::ConstTrack &track) {
+    return track.getTrackStates(0).covMatrix;
+}
 inline float getTanLambda(const edm4hep::ConstTrack &track) {
     return track.getTrackStates(0).tanLambda;
 }

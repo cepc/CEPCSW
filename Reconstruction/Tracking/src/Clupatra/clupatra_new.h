@@ -2,7 +2,7 @@
 #define clupatra_new_h
 
 #include "RuntimeMap.h"
-#include "TrackingHelper.h"
+#include "Tracking/TrackingHelper.h"
 
 #include <cmath>
 #include <algorithm>
@@ -81,9 +81,9 @@ namespace clupatra_new{
 	typedef std::list<Hit*>        HitList ;
 	typedef std::vector< HitList > HitListVector ;
 
-	struct ClupaPlcioConstTrack {
-		edm4hep::ConstTrack edm4hepTrack ;
-                ClupaPlcioConstTrack(edm4hep::ConstTrack edm4hepTrack) : edm4hepTrack(edm4hepTrack) {}
+	struct ClupaPlcioTrack {
+		edm4hep::Track edm4hepTrack ;
+                ClupaPlcioTrack(edm4hep::Track edm4hepTrack) : edm4hepTrack(edm4hepTrack) {}
 	};
 
 	// typedef GenericHitVec<ClupaHit>      GHitVec ;
@@ -138,7 +138,7 @@ namespace clupatra_new{
 	//------------------------------------------------------------------------------------------
 
 	struct PtSort {  // sort tracks wtr to pt - largest first
-		inline bool operator()( const edm4hep::ConstTrack l, const edm4hep::ConstTrack r) {
+		inline bool operator()( const edm4hep::Track l, const edm4hep::Track r) {
 			return ( std::abs( getOmega(l) ) < std::abs( getOmega(r) )  );  // pt ~ 1./omega
 		}
 	};
@@ -222,7 +222,7 @@ namespace clupatra_new{
 		bool UsePropagate ;
 		PLCIOTrackConverter() : UsePropagate(false ) {}
 
-		edm4hep::ConstTrack operator() (CluTrack* c) ;
+		edm4hep::Track operator() (CluTrack* c) ;
 
 	} ;
 
@@ -354,7 +354,7 @@ namespace clupatra_new{
 	/** Helper class to compute track segment properties.
 	*/
 	struct ComputeTrackerInfo{
-		void operator()( edm4hep::ConstTrack o );
+		void operator()( edm4hep::Track o );
 	};
 
 	//=======================================================================================
@@ -372,10 +372,10 @@ namespace clupatra_new{
 			float _b ;
 
 			/** Merge condition: ... */
-			inline bool operator()( nnclu::Element<ClupaPlcioConstTrack>* h0, nnclu::Element<ClupaPlcioConstTrack>* h1){
+			inline bool operator()( nnclu::Element<ClupaPlcioTrack>* h0, nnclu::Element<ClupaPlcioTrack>* h1){
 
-				edm4hep::ConstTrack trk0 = h0->first->edm4hepTrack ;
-				edm4hep::ConstTrack trk1 = h1->first->edm4hepTrack ;
+				edm4hep::Track trk0 = h0->first->edm4hepTrack ;
+				edm4hep::Track trk1 = h1->first->edm4hepTrack ;
 
 
 				// protect against merging multiple segments (and thus complete tracks)
@@ -423,8 +423,8 @@ namespace clupatra_new{
 
 				// now we take the larger segment and see if we can add the three hits from the other segment...
 
-				edm4hep::ConstTrack trk = ( nhit0 > nhit1 ? trk0 :  trk1 ) ;
-				edm4hep::ConstTrack oth = ( nhit0 > nhit1 ? trk1 :  trk0 ) ;
+				edm4hep::Track trk = ( nhit0 > nhit1 ? trk0 :  trk1 ) ;
+				edm4hep::Track oth = ( nhit0 > nhit1 ? trk1 :  trk0 ) ;
 
 				bool  outward = ( nhit0 > nhit1  ?  lthl0 <= lthf1 + overlapRows :  lthl1 <= lthf0 + overlapRows ) ;
 
@@ -529,7 +529,7 @@ namespace clupatra_new{
 			TrackCircleDistance(float dCut) : _dCutSquared( dCut*dCut ) , _dCut(dCut){}
 
 			/** Merge condition: ... */
-			bool operator() ( nnclu::Element<ClupaPlcioConstTrack>* h0, nnclu::Element<ClupaPlcioConstTrack>* h1);
+			bool operator() ( nnclu::Element<ClupaPlcioTrack>* h0, nnclu::Element<ClupaPlcioTrack>* h1);
   protected:
     float _dCutSquared ;
     float _dCut ;
@@ -537,7 +537,7 @@ namespace clupatra_new{
 	};
 
 	struct TrackZSort {  // sort tracks wtr to abs(z_average )
-		bool operator()( edm4hep::ConstTrack l, edm4hep::ConstTrack r);
+		bool operator()( edm4hep::Track l, edm4hep::Track r);
 	};
 
 

@@ -29,18 +29,18 @@ namespace lcio{
 
 extern gear::GearMgr* gearMgr; // = _gear->getGearMgr();
 extern RuntimeMap<clupatra_new::CluTrack*, MarlinTrk::IMarlinTrack*> MarTrkof;
-extern RuntimeMap<edm4hep::ConstTrack, MarlinTrk::IMarlinTrack*> MarTrk_of_edm4hepTrack;
-extern RuntimeMap<edm4hep::ConstTrack, clupatra_new::TrackInfoStruct*> TrackInfo_of_edm4hepTrack;
+extern RuntimeMap<edm4hep::Track, MarlinTrk::IMarlinTrack*> MarTrk_of_edm4hepTrack;
+extern RuntimeMap<edm4hep::Track, clupatra_new::TrackInfoStruct*> TrackInfo_of_edm4hepTrack;
 
 namespace clupatra_new{
 
-	bool TrackZSort::operator()( edm4hep::ConstTrack l, edm4hep::ConstTrack r){
+	bool TrackZSort::operator()( edm4hep::Track l, edm4hep::Track r){
 		return (  std::abs( TrackInfo_of_edm4hepTrack(l)->zAvg )   <   std::abs( TrackInfo_of_edm4hepTrack(r)->zAvg )  ) ;
 	}
 
-	void ComputeTrackerInfo::operator()( edm4hep::ConstTrack o )
+	void ComputeTrackerInfo::operator()( edm4hep::Track o )
 	{
-		edm4hep::ConstTrack lTrk  = o ;
+		edm4hep::Track lTrk  = o ;
 
 		// compute z-extend of this track segment
 		// const edm4hep::TrackerHitVec& hv = lTrk->getTrackerHits() ;
@@ -69,10 +69,10 @@ namespace clupatra_new{
 		TrackInfo_of_edm4hepTrack(lTrk)->zAvg = zAvg ;
 
 	}
-	bool TrackCircleDistance:: operator()( nnclu::Element<ClupaPlcioConstTrack>* h0, nnclu::Element<ClupaPlcioConstTrack>* h1){
+	bool TrackCircleDistance:: operator()( nnclu::Element<ClupaPlcioTrack>* h0, nnclu::Element<ClupaPlcioTrack>* h1){
 
-		edm4hep::ConstTrack trk0 = h0->first->edm4hepTrack ;
-		edm4hep::ConstTrack trk1 = h1->first->edm4hepTrack ;
+		edm4hep::Track trk0 = h0->first->edm4hepTrack ;
+		edm4hep::Track trk1 = h1->first->edm4hepTrack ;
 
 		const TrackInfoStruct* ti0 =  TrackInfo_of_edm4hepTrack(trk0);
 		const TrackInfoStruct* ti1 =  TrackInfo_of_edm4hepTrack(trk1);
@@ -1300,8 +1300,8 @@ start:
 
 	//---------------------------------------------------------------------------------------------------------------------------
 
-	edm4hep::ConstTrack PLCIOTrackConverter::operator() (CluTrack* c) {
-
+	edm4hep::Track PLCIOTrackConverter::operator() (CluTrack* c) {
+	  
 		static lcio::BitField64 encoder( lcio::ILDCellID0::encoder_string ) ;
 
 		edm4hep::Track trk;
@@ -1315,8 +1315,8 @@ start:
 			// reset outliers (not used in fit)  bit
 			//      IMPL::TrackerHitImpl* thi = dynamic_cast<IMPL::TrackerHitImpl*> (  (*hi)->first->edm4hepHit )  ;
 			//      thi->setQualityBit( UTIL::ILDTrkHitQualityBit::USED_IN_FIT , 0 )  ;
-
-			trk.addToTrackerHits(  (*hi)->first->edm4hepHit ) ;
+		  
+		        trk.addToTrackerHits(  (*hi)->first->edm4hepHit ) ;
 			e += (*hi)->first->edm4hepHit.getEDep() ;
 			nHit++ ;
 		}
@@ -1379,8 +1379,6 @@ start:
 				edm4hep::ConstTrackerHit fHit = (hitsInFit.back().first);
 				edm4hep::ConstTrackerHit lHit = (hitsInFit.front().first);
 
-
-
 				//order of hits in fit is reversed wrt time  (we fit inwards)
 
 				// ======= get TrackState at first hit  ========================
@@ -1402,11 +1400,16 @@ start:
 				code = mtrk->getTrackState( lHit, tsLH, chi2, ndf ) ;
 #else     // get the track state at the last hit by propagating from the last(first) constrained fit position (a la MarlinTrkUtils)
 				edm4hep::ConstTrackerHit last_constrained_hit;
-				mtrk->getTrackerHitAtPositiveNDF( last_constrained_hit );
+				code = mtrk->getTrackerHitAtPositiveNDF( last_constrained_hit );
+				mtrk->smooth() ;
+				if( code != MarlinTrk::IMarlinTrack::success ){
+				  std::cout << "last_constrained_hit is unavaibale" << std::endl;
+				}
+				else{
 // std::cout << "the hit" << std::endl;
 // std::cout << lHit.getCellID0() << std::endl;
 // std::cout << last_constrained_hit << std::endl;
-				code = mtrk->smooth() ;
+				//code = mtrk->smooth() ;
 // std::cout << "Smooth success" << std::endl;
 				// gear::Vector3D last_hit_pos( lHit->getPosition()[0], lHit->getPosition()[1], lHit->getPosition()[2] );
 // std::cout << "lHit = " << lHit << std::endl;
@@ -1415,13 +1418,11 @@ start:
 // std::cout << "Position" << lHit.getPosition() << std::endl;
 // std::cout << "----------------------------------------------------------" << std::endl;
 
-
-				edm4hep::Vector3d last_hit_pos( lHit.getPosition() );
+				  edm4hep::Vector3d last_hit_pos( lHit.getPosition() );
 // std::cout << "lHit = " << lHit << std::endl;
-				code = mtrk->propagate( last_hit_pos, last_constrained_hit, tsLH, chi2, ndf);
-
+				  code = mtrk->propagate( last_hit_pos, last_constrained_hit, tsLH, chi2, ndf);
+                                } 
 // std::cout << "Propagate success" << std::endl;
-
 #endif
 
 // std::cout << "We are here" << std::endl; 
