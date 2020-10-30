@@ -119,7 +119,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         double layer_Phi = 2*M_PI / ncell_layer;
 
         if(layer_id %2 ==0){ offset = 0.; }
-        else { offset = 0.;}//0.5 * layer_Phi; }
+        else { offset = 0.5 * layer_Phi; }
 
         DCHseg->setGeomParams(layer_id, layer_Phi, rmid, epsilon, offset);
         DCHseg->setWiresInLayer(layer_id, numWire);

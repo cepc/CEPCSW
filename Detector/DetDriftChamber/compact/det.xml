@@ -59,7 +59,7 @@
 
   <readouts>
     <readout name="DriftChamberHitsCollection">
-      <segmentation type="GridDriftChamber" cell_size="10*mm" offset_phi="0." epsilon0="Epsilon" detector_length="SDT_length" identifier_phi="cellID" />
+      <segmentation type="GridDriftChamber" cell_size="10*mm" epsilon0="Epsilon" detector_length="SDT_length" identifier_phi="cellID" />
 
       <id>system:8,chamber:1,layer:8,cellID:16</id>
     </readout>
