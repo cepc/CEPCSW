@@ -23,7 +23,7 @@ typedef struct Layer
    double eps;
    double offset;
    Layer(){};
-   Layer(double x, double y, double z, double k):layerphi(x),R(y),eps(z),offset(k){};
+   Layer(double x, double y, double z, double k):layerphi(x),R(y),eps(z),offset(k){}
    bool operator < (const Layer &a) const
    {
       return layerphi < a.layerphi;
@@ -46,7 +46,7 @@ public:
                         const VolumeID& aVolumeID) const;
   virtual double distanceTrackWire(const CellID& cID, const TVector3& hit_start/*, const TVector3& hit_end*/) const;
 
-  double phi(const CellID& cID) const;
+//  double phi(const CellID& cID) const;
   inline double cell_Size() const { return m_cellSize; }
   inline double epsilon0() const { return m_epsilon0; }
   inline double detectorLength() const { return m_detectorLength; }
@@ -122,6 +122,7 @@ public:
 
 protected:
 
+  double phi(const CellID& cID) const;
   std::map<int,LAYER> layer_params; // <layer, {layerphi, R, eps, offset}>
   std::map<int, std::vector<std::pair<TVector3, TVector3> >> m_wiresPositions; // < layer, vec<WireMidpoint, WireDirection> >
 

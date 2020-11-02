@@ -81,8 +81,8 @@ double GridDriftChamber::distanceTrackWire(const CellID& cID, const TVector3& hi
   double phi_start = phi(cID);
   double phi_end = phi_start + returnAlpha();
 
-  TVector3 Wstart = 10*returnWirePosition(phi_start, -1); // Convert from cm to mm
-  TVector3 Wend = 10*returnWirePosition(phi_end, 1);   // Convert from cm to mm
+  TVector3 Wstart = returnWirePosition(phi_start, -1); // The default centimeter unit in DD4hep
+  TVector3 Wend = returnWirePosition(phi_end, 1);   // The default centimeter unit in DD4hep
 
 //  TVector3 a = hit_end - hit_start;
   TVector3 b = Wend - Wstart;
