@@ -114,9 +114,10 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         double rmid = delta_a_func(rmin,rmax);
         double ilayer_cir = 2 * M_PI * rmid;
         double ncell = ilayer_cir / chamber_layer_width;
-        int ncell_layer = ceil(ncell);
+        int ncell_layer = floor(ncell);
         int numWire = ncell_layer;
         double layer_Phi = 2*M_PI / ncell_layer;
+
         if(layer_id %2 ==0){ offset = 0.; }
         else { offset = 0.5 * layer_Phi; }
 
