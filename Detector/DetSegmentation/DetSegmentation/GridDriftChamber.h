@@ -45,6 +45,7 @@ public:
   virtual CellID cellID(const Vector3D& aLocalPosition, const Vector3D& aGlobalPosition,
                         const VolumeID& aVolumeID) const;
   virtual double distanceTrackWire(const CellID& cID, const TVector3& hit_start, const TVector3& hit_end) const;
+  virtual void cellposition(const CellID& cID, TVector3& Wstart, TVector3& Wend) const;
 
 //  double phi(const CellID& cID) const;
   inline double cell_Size() const { return m_cellSize; }
@@ -86,13 +87,13 @@ public:
 
   inline auto returnAllWires() const { return m_wiresPositions; }
 
-  inline TVector3 returnWirePosition(double angle, int sign) const {
-    TVector3 w(0, 0, 0);
-    w.SetX(_currentRadius * std::cos(angle));
-    w.SetY(_currentRadius * std::sin(angle));
-    w.SetZ(sign * m_detectorLength / 2.0);
-    return w;
-  }
+//  inline TVector3 returnWirePosition(double angle, int sign) const {
+//    TVector3 w(0, 0, 0);
+//    w.SetX(_currentRadius * std::cos(angle));
+//    w.SetY(_currentRadius * std::sin(angle));
+//    w.SetZ(sign * m_detectorLength / 2.0);
+//    return w;
+//  }
 
   void updateParams(int layer)  const{
     auto it_end = layer_params.cend();
@@ -115,16 +116,29 @@ public:
     m_offset = offset;
  }
 
- inline double returnAlpha() const {
-   double alpha = 2 * std::asin(m_detectorLength * std::tan(m_epsilon0)/(2 * _currentRadius));
-   return alpha;
- }
+// inline double returnAlpha() const {
+//   double alpha = 2 * std::asin(m_detectorLength * std::tan(m_epsilon0)/(2 * _currentRadius));
+//   return alpha;
+// }
 
 protected:
 
   double phi(const CellID& cID) const;
   std::map<int,LAYER> layer_params; // <layer, {layerphi, R, eps, offset}>
   std::map<int, std::vector<std::pair<TVector3, TVector3> >> m_wiresPositions; // < layer, vec<WireMidpoint, WireDirection> >
+
+  inline TVector3 returnWirePosition(double angle, int sign) const {
+    TVector3 w(0, 0, 0);
+    w.SetX(_currentRadius * std::cos(angle));
+    w.SetY(_currentRadius * std::sin(angle));
+    w.SetZ(sign * m_detectorLength / 2.0);
+    return w;
+  }
+
+  inline double returnAlpha() const {
+    double alpha = 2 * std::asin(m_detectorLength * std::tan(m_epsilon0)/(2 * _currentRadius));
+    return alpha;
+ }
 
   double m_cellSize;
   double m_epsilon0;

@@ -72,8 +72,8 @@ double GridDriftChamber::phi(const CellID& cID) const {
   return binToPosition(phiValue, _currentLayerphi, m_offset);
 }
 
-double GridDriftChamber::distanceTrackWire(const CellID& cID, const TVector3& hit_start,
-                                           const TVector3& hit_end) const {
+void GridDriftChamber::cellposition(const CellID& cID, TVector3& Wstart,
+                                    TVector3& Wend) const {
 
   auto layerIndex = _decoder->get(cID, "layer");
   updateParams(layerIndex);
@@ -81,8 +81,26 @@ double GridDriftChamber::distanceTrackWire(const CellID& cID, const TVector3& hi
   double phi_start = phi(cID);
   double phi_end = phi_start + returnAlpha();
 
-  TVector3 Wstart = returnWirePosition(phi_start, -1); // The default centimeter unit in DD4hep
-  TVector3 Wend = returnWirePosition(phi_end, 1);   // The default centimeter unit in DD4hep
+  Wstart = returnWirePosition(phi_start, -1);
+  Wend = returnWirePosition(phi_end, 1);
+}
+
+
+
+double GridDriftChamber::distanceTrackWire(const CellID& cID, const TVector3& hit_start,
+                                           const TVector3& hit_end) const {
+
+//  auto layerIndex = _decoder->get(cID, "layer");
+//  updateParams(layerIndex);
+//
+//  double phi_start = phi(cID);
+//  double phi_end = phi_start + returnAlpha();
+
+//  TVector3 Wstart = returnWirePosition(phi_start, -1); // The default centimeter unit in DD4hep
+//  TVector3 Wend = returnWirePosition(phi_end, 1);   // The default centimeter unit in DD4hep
+  TVector3 Wstart = {0,0,0};
+  TVector3 Wend = {0,0,0};
+  cellposition(cID,Wstart,Wend);
 
   TVector3 a = hit_end - hit_start;
   TVector3 b = Wend - Wstart;
