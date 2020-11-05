@@ -10,7 +10,13 @@
 #include <DDRec/DetectorData.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include "DetInterface/IGeomSvc.h"
+#include "DDSegmentation/Segmentation.h"
+#include "DetSegmentation/GridDriftChamber.h"
 
+#include "TVector3.h"
+#include "TROOT.h"
+#include "TTree.h"
+#include "TFile.h"
 
 
 
@@ -33,6 +39,7 @@ public:
   /** Called after data processing for clean up.
    */
   virtual StatusCode finalize() ;
+  void Reset();
  
 protected:
 
@@ -40,13 +47,39 @@ protected:
   typedef std::vector<float> FloatVec;
   int _nEvt ;
 
-  //float m_length;
+  TFile* m_fout;
+  TTree* m_tree;
+  std::vector<int  > m_chamber   ;
+  std::vector<int  > m_layer     ;
+  std::vector<int  > m_cell      ;
+  std::vector<float> m_cell_x    ;
+  std::vector<float> m_cell_y    ;
+  std::vector<float> m_simhit_x  ;
+  std::vector<float> m_simhit_y  ;
+  std::vector<float> m_simhit_z  ;
+  std::vector<float> m_hit_x     ;
+  std::vector<float> m_hit_y     ;
+  std::vector<float> m_hit_z     ;
+  std::vector<float> m_dca       ;
+  std::vector<float> m_hit_dE    ;
+  std::vector<float> m_hit_dE_dx ;
+
+
+
   dd4hep::rec::CellIDPositionConverter* m_cellIDConverter;
+  dd4hep::DDSegmentation::GridDriftChamber* m_segmentation;
+  dd4hep::DDSegmentation::BitFieldCoder* m_decoder;
+  
+  Gaudi::Property<std::string> m_readout_name{ this, "readout", "DriftChamberHitsCollection"};//readout for getting segmentation
  
   Gaudi::Property<float> m_res_x     { this, "res_x", 0.11};//mm
   Gaudi::Property<float> m_res_y     { this, "res_y", 0.11};//mm
   Gaudi::Property<float> m_res_z     { this, "res_z", 1   };//mm
   Gaudi::Property<float> m_velocity  { this, "drift_velocity", 40};// um/ns
+  Gaudi::Property<float> m_mom_threshold { this, "mom_threshold", 0};// GeV
+  Gaudi::Property<bool>  m_WriteAna { this, "WriteAna", false};
+
+  Gaudi::Property<std::string> m_Output { this, "output", "ana_DCH_digi.root"};
 
   // Input collections
   DataHandle<edm4hep::SimTrackerHitCollection> r_SimDCHCol{"DriftChamberHitsCollection", Gaudi::DataHandle::Reader, this};
