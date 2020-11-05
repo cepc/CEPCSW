@@ -79,9 +79,10 @@ void GridDriftChamber::cellposition(const CellID& cID, TVector3& Wstart,
   updateParams(layerIndex);
 
   double phi_start = phi(cID);
-  double phi_end = phi_start + returnAlpha();
+  double phi_mid = phi_start + _currentLayerphi/2.;
+  double phi_end = phi_mid + returnAlpha();
 
-  Wstart = returnWirePosition(phi_start, -1);
+  Wstart = returnWirePosition(phi_mid, -1);
   Wend = returnWirePosition(phi_end, 1);
 }
 
