@@ -10,6 +10,9 @@
 #include <DD4hep/Objects.h>
 #include "DDRec/Vector3D.h"
 
+#include "GaudiKernel/INTupleSvc.h"
+#include "GaudiKernel/MsgStream.h"
+
 
 #include <array>
 #include <math.h>
@@ -29,39 +32,74 @@ DCHDigiAlg::DCHDigiAlg(const std::string& name, ISvcLocator* svcLoc)
   // Output collections
   declareProperty("DigiDCHitCollection", w_DigiDCHCol, "Handle of Digi DCHit collection");
   
-  declareProperty("CaloAssociationCollection", w_AssociationCol, "Handle of Association collection");
+  declareProperty("AssociationCollection", w_AssociationCol, "Handle of Association collection");
    
 }
 
 StatusCode DCHDigiAlg::initialize()
 {
-  /*
   m_geosvc = service<IGeomSvc>("GeomSvc");
   if ( !m_geosvc )  throw "DCHDigiAlg :Failed to find GeomSvc ...";
   dd4hep::Detector* m_dd4hep = m_geosvc->lcdd();
   if ( !m_dd4hep )  throw "DCHDigiAlg :Failed to get dd4hep::Detector ...";
-  m_cellIDConverter = new dd4hep::rec::CellIDPositionConverter(*m_dd4hep);
-  */
+  dd4hep::Readout readout = m_dd4hep->readout(m_readout_name);
+  m_segmentation = dynamic_cast<dd4hep::DDSegmentation::GridDriftChamber*>(readout.segmentation().segmentation());
+  m_decoder = m_geosvc->getDecoder(m_readout_name);
+  if (!m_decoder) {
+      error() << "Failed to get the decoder. " << endmsg;
+      return StatusCode::FAILURE;
+  }
+
+  if(m_WriteAna){
+
+      NTuplePtr nt( ntupleSvc(), "MyTuples/DCH_digi_evt" );
+      if ( nt ) m_tuple = nt;
+      else {
+          m_tuple = ntupleSvc()->book( "MyTuples/DCH_digi_evt", CLID_ColumnWiseTuple, "DCH_digi_evt" );
+          if ( m_tuple ) {
+            m_tuple->addItem( "N_sim" , m_n_sim , 0, 100000 ).ignore();
+            m_tuple->addItem( "N_digi", m_n_digi, 0, 100000 ).ignore();
+            m_tuple->addItem( "simhit_x", m_n_sim, m_simhit_x).ignore();
+            m_tuple->addItem( "simhit_y", m_n_sim, m_simhit_y).ignore();
+            m_tuple->addItem( "simhit_z", m_n_sim, m_simhit_z).ignore();
+            m_tuple->addItem( "chamber" , m_n_digi, m_chamber  ).ignore();
+            m_tuple->addItem( "layer"   , m_n_digi, m_layer    ).ignore();
+            m_tuple->addItem( "cell"    , m_n_digi, m_cell     ).ignore();
+            m_tuple->addItem( "cell_x"  , m_n_digi, m_cell_x   ).ignore();
+            m_tuple->addItem( "cell_y"  , m_n_digi, m_cell_y   ).ignore();
+            m_tuple->addItem( "hit_x"    , m_n_digi,m_hit_x     ).ignore();
+            m_tuple->addItem( "hit_y"    , m_n_digi,m_hit_y     ).ignore();
+            m_tuple->addItem( "hit_z"    , m_n_digi,m_hit_z     ).ignore();
+            m_tuple->addItem( "dca"      , m_n_digi,m_dca       ).ignore();
+            m_tuple->addItem( "hit_dE"   , m_n_digi,m_hit_dE    ).ignore();
+            m_tuple->addItem( "hit_dE_dx", m_n_digi,m_hit_dE_dx ).ignore();
+          } 
+          else { // did not manage to book the N tuple....
+            error() << "    Cannot book N-tuple:" << long( m_tuple ) << endmsg;
+            return StatusCode::FAILURE;
+          }
+      }
+  }
   std::cout<<"DCHDigiAlg::initialized"<< std::endl;
   return GaudiAlgorithm::initialize();
 }
 
+
 StatusCode DCHDigiAlg::execute()
 {
+  info() << "Processing " << _nEvt << " events " << endmsg;
   std::map<unsigned long long, std::vector<edm4hep::SimTrackerHit> > id_hits_map;
   edm4hep::TrackerHitCollection* Vec   = w_DigiDCHCol.createAndPut();
   edm4hep::MCRecoTrackerAssociationCollection* AssoVec   = w_AssociationCol.createAndPut();
   const edm4hep::SimTrackerHitCollection* SimHitCol =  r_SimDCHCol.get();
-  if(SimHitCol == 0) 
-  {
-     std::cout<<"not found SimCalorimeterHitCollection"<< std::endl;
-     return StatusCode::SUCCESS;
-  }
   std::cout<<"input sim hit size="<< SimHitCol->size() <<std::endl;
   for( int i = 0; i < SimHitCol->size(); i++ ) 
   {
       edm4hep::SimTrackerHit SimHit = SimHitCol->at(i);
       unsigned long long id = SimHit.getCellID();
+      float sim_hit_mom = sqrt( SimHit.getMomentum()[0]*SimHit.getMomentum()[0] + SimHit.getMomentum()[1]*SimHit.getMomentum()[1] + SimHit.getMomentum()[2]*SimHit.getMomentum()[2] );//GeV
+      if(sim_hit_mom < m_mom_threshold) continue; 
+      if(SimHit.getEDep() <= 0) continue; 
       
       if ( id_hits_map.find(id) != id_hits_map.end()) id_hits_map[id].push_back(SimHit);
       else 
@@ -72,13 +110,15 @@ StatusCode DCHDigiAlg::execute()
       }
   }
 
+  m_n_sim = 0;
+  m_n_digi = 0 ;
   for(std::map<unsigned long long, std::vector<edm4hep::SimTrackerHit> >::iterator iter = id_hits_map.begin(); iter != id_hits_map.end(); iter++)
   {
+    unsigned long long wcellid = iter->first;
     auto trkHit = Vec->create();
-    trkHit.setCellID(iter->first);
+    trkHit.setCellID(wcellid);
     double tot_edep   = 0 ;
     double tot_length = 0 ;
-    double tot_time = 0 ;
     double pos_x = 0 ;
     double pos_y = 0 ;
     double pos_z = 0 ;
@@ -87,45 +127,80 @@ StatusCode DCHDigiAlg::execute()
     {
         tot_edep += iter->second.at(i).getEDep();//GeV
     }
+    int chamber = m_decoder->get(wcellid, "chamber");
+    int layer   = m_decoder->get(wcellid, "layer"  );
+    int cellID  = m_decoder->get(wcellid, "cellID" );
+    TVector3 Wstart(0,0,0);
+    TVector3 Wend  (0,0,0);
+    m_segmentation->cellposition(wcellid, Wstart, Wend);
+    Wstart = 10*Wstart;// from DD4HEP cm to mm
+    Wend   = 10*Wend  ;
+    //std::cout<<"wcellid="<<wcellid<<",chamber="<<chamber<<",layer="<<layer<<",cellID="<<cellID<<",s_x="<<Wstart.x()<<",s_y="<<Wstart.y()<<",s_z="<<Wstart.z()<<",E_x="<<Wend.x()<<",E_y="<<Wend.y()<<",E_z="<<Wend.z()<<std::endl;
+
+    TVector3  denominator = (Wend-Wstart) ;
     float min_distance = 999 ;
     for(unsigned int i=0; i< simhit_size; i++)
     {
-        dd4hep::rec::Vector3D  west(0,0,0);
-        dd4hep::rec::Vector3D  east(0,0,0);
-        dd4hep::rec::Vector3D  pos(iter->second.at(i).getPosition()[0], iter->second.at(i).getPosition()[1], iter->second.at(i).getPosition()[2]);
-        dd4hep::rec::Vector3D  numerator = (east-west).cross(west-pos) ;
-        dd4hep::rec::Vector3D  denominator = (east-west) ;
-        float distance = numerator.r()/denominator.r() ;
-        std::cout<<"distance="<<distance<<std::endl;
-        if(distance < min_distance){
-            min_distance = distance;
+        float sim_hit_mom = sqrt( iter->second.at(i).getMomentum()[0]*iter->second.at(i).getMomentum()[0] + iter->second.at(i).getMomentum()[1]*iter->second.at(i).getMomentum()[1] + iter->second.at(i).getMomentum()[2]*iter->second.at(i).getMomentum()[2] );//GeV
+        float sim_hit_pt = sqrt( iter->second.at(i).getMomentum()[0]*iter->second.at(i).getMomentum()[0] + iter->second.at(i).getMomentum()[1]*iter->second.at(i).getMomentum()[1] );//GeV
+        TVector3  pos(iter->second.at(i).getPosition()[0], iter->second.at(i).getPosition()[1], iter->second.at(i).getPosition()[2]);
+        TVector3  numerator = denominator.Cross(Wstart-pos) ;
+        float tmp_distance = numerator.Mag()/denominator.Mag() ;
+        //std::cout<<"tmp_distance="<<tmp_distance<<",x="<<pos.x()<<",y="<<pos.y()<<",z="<<pos.z()<<",mom="<<sim_hit_mom<<",pt="<<sim_hit_pt<<std::endl;
+        if(tmp_distance < min_distance){
+            min_distance = tmp_distance;
             pos_x = pos.x();
             pos_y = pos.y();
             pos_z = pos.z();
         }
         tot_length += iter->second.at(i).getPathLength();//mm
-        /*
-        tot_x    += iter->second.at(i).getEDep()*iter->second.at(i).getPosition()[0];
-        tot_y    += iter->second.at(i).getEDep()*iter->second.at(i).getPosition()[1];
-        tot_z    += iter->second.at(i).getEDep()*iter->second.at(i).getPosition()[2];
-        */
  
         auto asso = AssoVec->create();
         asso.setRec(trkHit);
         asso.setSim(iter->second.at(i));
         asso.setWeight(iter->second.at(i).getEDep()/tot_edep);
+
+        if(m_WriteAna){
+            m_simhit_x[m_n_sim] = pos.x();
+            m_simhit_y[m_n_sim] = pos.y();
+            m_simhit_z[m_n_sim] = pos.z();
+            m_n_sim ++ ;
+        }
     }
     
     trkHit.setTime(min_distance*1e3/m_velocity);//m_velocity is um/ns, drift time in ns
     trkHit.setEDep(tot_edep);// GeV
-    trkHit.setEdx (tot_edep*1000/(tot_length/10) ); // MeV/cm, need check!
-    //trkHit.setPosition (edm4hep::Vector3d(tot_x/tot_edep, tot_y/tot_edep, tot_z/tot_edep));//center mass
+    trkHit.setEdx (tot_edep/tot_length); // GeV/mm
     trkHit.setPosition (edm4hep::Vector3d(pos_x, pos_y, pos_z));//position of closest sim hit
     trkHit.setCovMatrix(std::array<float, 6>{m_res_x, 0, m_res_y, 0, 0, m_res_z});//cov(x,x) , cov(y,x) , cov(y,y) , cov(z,x) , cov(z,y) , cov(z,z) in mm
+
+    if(m_WriteAna){
+        m_chamber  [m_n_digi] = chamber;
+        m_layer    [m_n_digi] = layer  ;
+        m_cell     [m_n_digi] = cellID;
+        m_cell_x   [m_n_digi] = Wstart.x();
+        m_cell_y   [m_n_digi] = Wstart.y();
+        m_hit_x    [m_n_digi] = pos_x;
+        m_hit_y    [m_n_digi] = pos_y;
+        m_hit_z    [m_n_digi] = pos_z;
+        m_dca      [m_n_digi] = min_distance;
+        m_hit_dE   [m_n_digi] = trkHit.getEDep();
+        m_hit_dE_dx[m_n_digi] = trkHit.getEdx() ;
+        m_n_digi ++ ;
+    }
   }
+
+
   std::cout<<"output digi DCHhit size="<< Vec->size() <<std::endl;
   _nEvt ++ ;
 
+  if(m_WriteAna){
+      StatusCode status = m_tuple->write();
+      if ( status.isFailure() ) {
+        error() << "    Cannot fill N-tuple:" << long( m_tuple ) << endmsg;
+        return StatusCode::FAILURE;
+      }
+  }
   return StatusCode::SUCCESS;
 }
 
