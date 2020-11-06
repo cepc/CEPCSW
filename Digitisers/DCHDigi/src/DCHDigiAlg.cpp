@@ -10,6 +10,9 @@
 #include <DD4hep/Objects.h>
 #include "DDRec/Vector3D.h"
 
+#include "GaudiKernel/INTupleSvc.h"
+#include "GaudiKernel/MsgStream.h"
+
 
 #include <array>
 #include <math.h>
@@ -47,53 +50,44 @@ StatusCode DCHDigiAlg::initialize()
       return StatusCode::FAILURE;
   }
 
-  std::string s_output=m_Output; 
   if(m_WriteAna){
-      m_fout = new TFile(s_output.c_str(),"RECREATE"); 
-      m_tree = new TTree("evt","tree");
-      m_tree->Branch("chamber"  , &m_chamber  );
-      m_tree->Branch("layer"    , &m_layer    );
-      m_tree->Branch("cell"     , &m_cell     );
-      m_tree->Branch("cell_x"   , &m_cell_x   );
-      m_tree->Branch("cell_y"   , &m_cell_y   );
-      m_tree->Branch("simhit_x" , &m_simhit_x );
-      m_tree->Branch("simhit_y" , &m_simhit_y );
-      m_tree->Branch("simhit_z" , &m_simhit_z );
-      m_tree->Branch("hit_x"    , &m_hit_x    );
-      m_tree->Branch("hit_y"    , &m_hit_y    );
-      m_tree->Branch("hit_z"    , &m_hit_z    );
-      m_tree->Branch("dca"      , &m_dca      );
-      m_tree->Branch("hit_dE"   , &m_hit_dE   );
-      m_tree->Branch("hit_dE_dx", &m_hit_dE_dx);
+
+      NTuplePtr nt( ntupleSvc(), "MyTuples/DCH_digi_evt" );
+      if ( nt ) m_tuple = nt;
+      else {
+          m_tuple = ntupleSvc()->book( "MyTuples/DCH_digi_evt", CLID_ColumnWiseTuple, "DCH_digi_evt" );
+          if ( m_tuple ) {
+            m_tuple->addItem( "N_sim" , m_n_sim , 0, 100000 ).ignore();
+            m_tuple->addItem( "N_digi", m_n_digi, 0, 100000 ).ignore();
+            m_tuple->addItem( "simhit_x", m_n_sim, m_simhit_x).ignore();
+            m_tuple->addItem( "simhit_y", m_n_sim, m_simhit_y).ignore();
+            m_tuple->addItem( "simhit_z", m_n_sim, m_simhit_z).ignore();
+            m_tuple->addItem( "chamber" , m_n_digi, m_chamber  ).ignore();
+            m_tuple->addItem( "layer"   , m_n_digi, m_layer    ).ignore();
+            m_tuple->addItem( "cell"    , m_n_digi, m_cell     ).ignore();
+            m_tuple->addItem( "cell_x"  , m_n_digi, m_cell_x   ).ignore();
+            m_tuple->addItem( "cell_y"  , m_n_digi, m_cell_y   ).ignore();
+            m_tuple->addItem( "hit_x"    , m_n_digi,m_hit_x     ).ignore();
+            m_tuple->addItem( "hit_y"    , m_n_digi,m_hit_y     ).ignore();
+            m_tuple->addItem( "hit_z"    , m_n_digi,m_hit_z     ).ignore();
+            m_tuple->addItem( "dca"      , m_n_digi,m_dca       ).ignore();
+            m_tuple->addItem( "hit_dE"   , m_n_digi,m_hit_dE    ).ignore();
+            m_tuple->addItem( "hit_dE_dx", m_n_digi,m_hit_dE_dx ).ignore();
+          } 
+          else { // did not manage to book the N tuple....
+            error() << "    Cannot book N-tuple:" << long( m_tuple ) << endmsg;
+            return StatusCode::FAILURE;
+          }
+      }
   }
   std::cout<<"DCHDigiAlg::initialized"<< std::endl;
   return GaudiAlgorithm::initialize();
 }
 
-void DCHDigiAlg::Reset()
-{
-
-  std::vector<int  >().swap( m_chamber   );
-  std::vector<int  >().swap( m_layer     );
-  std::vector<int  >().swap( m_cell      );
-  std::vector<float>().swap( m_cell_x    );
-  std::vector<float>().swap( m_cell_y    );
-  std::vector<float>().swap( m_simhit_x  );
-  std::vector<float>().swap( m_simhit_y  );
-  std::vector<float>().swap( m_simhit_z  );
-  std::vector<float>().swap( m_hit_x     );
-  std::vector<float>().swap( m_hit_y     );
-  std::vector<float>().swap( m_hit_z     );
-  std::vector<float>().swap( m_dca       );
-  std::vector<float>().swap( m_hit_dE    );
-  std::vector<float>().swap( m_hit_dE_dx );
-
-}
 
 StatusCode DCHDigiAlg::execute()
 {
   info() << "Processing " << _nEvt << " events " << endmsg;
-  Reset();
   std::map<unsigned long long, std::vector<edm4hep::SimTrackerHit> > id_hits_map;
   edm4hep::TrackerHitCollection* Vec   = w_DigiDCHCol.createAndPut();
   edm4hep::MCRecoTrackerAssociationCollection* AssoVec   = w_AssociationCol.createAndPut();
@@ -116,6 +110,8 @@ StatusCode DCHDigiAlg::execute()
       }
   }
 
+  m_n_sim = 0;
+  m_n_digi = 0 ;
   for(std::map<unsigned long long, std::vector<edm4hep::SimTrackerHit> >::iterator iter = id_hits_map.begin(); iter != id_hits_map.end(); iter++)
   {
     unsigned long long wcellid = iter->first;
@@ -165,9 +161,10 @@ StatusCode DCHDigiAlg::execute()
         asso.setWeight(iter->second.at(i).getEDep()/tot_edep);
 
         if(m_WriteAna){
-            m_simhit_x.push_back(pos.x());
-            m_simhit_y.push_back(pos.y());
-            m_simhit_z.push_back(pos.z());
+            m_simhit_x[m_n_sim] = pos.x();
+            m_simhit_y[m_n_sim] = pos.y();
+            m_simhit_z[m_n_sim] = pos.z();
+            m_n_sim ++ ;
         }
     }
     
@@ -178,34 +175,37 @@ StatusCode DCHDigiAlg::execute()
     trkHit.setCovMatrix(std::array<float, 6>{m_res_x, 0, m_res_y, 0, 0, m_res_z});//cov(x,x) , cov(y,x) , cov(y,y) , cov(z,x) , cov(z,y) , cov(z,z) in mm
 
     if(m_WriteAna){
-        m_chamber.push_back(chamber);
-        m_layer  .push_back(layer  );
-        m_cell      .push_back(cellID);
-        m_cell_x    .push_back(Wstart.x());
-        m_cell_y    .push_back(Wstart.y());
-        m_hit_x     .push_back(pos_x);
-        m_hit_y     .push_back(pos_y);
-        m_hit_z     .push_back(pos_z);
-        m_dca       .push_back(min_distance);
-        m_hit_dE    .push_back(trkHit.getEDep());
-        m_hit_dE_dx .push_back(trkHit.getEdx() );
+        m_chamber  [m_n_digi] = chamber;
+        m_layer    [m_n_digi] = layer  ;
+        m_cell     [m_n_digi] = cellID;
+        m_cell_x   [m_n_digi] = Wstart.x();
+        m_cell_y   [m_n_digi] = Wstart.y();
+        m_hit_x    [m_n_digi] = pos_x;
+        m_hit_y    [m_n_digi] = pos_y;
+        m_hit_z    [m_n_digi] = pos_z;
+        m_dca      [m_n_digi] = min_distance;
+        m_hit_dE   [m_n_digi] = trkHit.getEDep();
+        m_hit_dE_dx[m_n_digi] = trkHit.getEdx() ;
+        m_n_digi ++ ;
     }
   }
+
+
   std::cout<<"output digi DCHhit size="<< Vec->size() <<std::endl;
   _nEvt ++ ;
 
-  if(m_WriteAna) m_tree->Fill();
-
+  if(m_WriteAna){
+      StatusCode status = m_tuple->write();
+      if ( status.isFailure() ) {
+        error() << "    Cannot fill N-tuple:" << long( m_tuple ) << endmsg;
+        return StatusCode::FAILURE;
+      }
+  }
   return StatusCode::SUCCESS;
 }
 
 StatusCode DCHDigiAlg::finalize()
 {
   info() << "Processed " << _nEvt << " events " << endmsg;
-  if(m_WriteAna){
-      m_fout->cd();
-      m_tree->Write();
-      m_fout->Close();
-  }
   return GaudiAlgorithm::finalize();
 }

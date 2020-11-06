@@ -79,7 +79,7 @@ gun.ThetaMaxs = [90] # rad; 45deg
 gun.PhiMins = [90] # rad; 0deg
 gun.PhiMaxs = [90] # rad; 360deg
 #gun.PhiMins = [0] # rad; 0deg
-#gun.PhiMaxs = [0] # rad; 360deg
+#gun.PhiMaxs = [360] # rad; 360deg
 
 # stdheprdr = StdHepRdr("StdHepRdr")
 # stdheprdr.Input = "/cefs/data/stdhep/CEPC250/2fermions/E250.Pbhabha.e0.p0.whizard195/bhabha.e0.p0.00001.stdhep"
@@ -153,6 +153,10 @@ elif dedxoption == "BetheBlochEquationDedxSimTool":
     dedx_simtool.resolution = 0.0001
 
 ##############################################################################
+from Configurables import NTupleSvc
+ntsvc = NTupleSvc("NTupleSvc")
+ntsvc.Output = ["MyTuples DATAFILE='DCH_digi_ana.root' OPT='NEW' TYP='ROOT'"]
+##############################################################################
 from Configurables import DCHDigiAlg
 dCHDigiAlg = DCHDigiAlg("DCHDigiAlg")
 dCHDigiAlg.readout = "DriftChamberHitsCollection"
@@ -162,14 +166,13 @@ dCHDigiAlg.SimDCHitCollection = "DriftChamberHitsCollection"
 dCHDigiAlg.DigiDCHitCollection = "DigiDCHitsCollection"
 dCHDigiAlg.AssociationCollection = "DCHAssociationCollectio"
 dCHDigiAlg.WriteAna  = True
-dCHDigiAlg.output  = "ana_DCH_digi_v1.root"
 
 ##############################################################################
 # POD I/O
 ##############################################################################
 from Configurables import PodioOutput
 out = PodioOutput("outputalg")
-out.filename = "detsim_digi_DCH.root"
+out.filename = "digi_DCH.root"
 out.outputCommands = ["keep *"]
 
 ##############################################################################
@@ -177,9 +180,10 @@ out.outputCommands = ["keep *"]
 ##############################################################################
 
 from Configurables import ApplicationMgr
-#ApplicationMgr( TopAlg = [genalg, detsimalg, dCHDigiAlg, out],
-ApplicationMgr( TopAlg = [genalg, detsimalg, dCHDigiAlg],
+ApplicationMgr( TopAlg = [genalg, detsimalg, dCHDigiAlg, out],
                 EvtSel = 'NONE',
                 EvtMax = 10,
                 ExtSvc = [rndmengine, dsvc, geosvc],
+                HistogramPersistency = "ROOT",
+                OutputLevel=INFO
 )

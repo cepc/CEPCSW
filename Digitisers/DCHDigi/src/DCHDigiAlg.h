@@ -2,6 +2,7 @@
 #define DCH_DIGI_ALG_H
 
 #include "FWCore/DataHandle.h"
+#include "GaudiKernel/NTuple.h"
 #include "GaudiAlg/GaudiAlgorithm.h"
 #include "edm4hep/SimTrackerHitCollection.h"
 #include "edm4hep/TrackerHitCollection.h"
@@ -14,9 +15,6 @@
 #include "DetSegmentation/GridDriftChamber.h"
 
 #include "TVector3.h"
-#include "TROOT.h"
-#include "TTree.h"
-#include "TFile.h"
 
 
 
@@ -39,7 +37,6 @@ public:
   /** Called after data processing for clean up.
    */
   virtual StatusCode finalize() ;
-  void Reset();
  
 protected:
 
@@ -47,22 +44,23 @@ protected:
   typedef std::vector<float> FloatVec;
   int _nEvt ;
 
-  TFile* m_fout;
-  TTree* m_tree;
-  std::vector<int  > m_chamber   ;
-  std::vector<int  > m_layer     ;
-  std::vector<int  > m_cell      ;
-  std::vector<float> m_cell_x    ;
-  std::vector<float> m_cell_y    ;
-  std::vector<float> m_simhit_x  ;
-  std::vector<float> m_simhit_y  ;
-  std::vector<float> m_simhit_z  ;
-  std::vector<float> m_hit_x     ;
-  std::vector<float> m_hit_y     ;
-  std::vector<float> m_hit_z     ;
-  std::vector<float> m_dca       ;
-  std::vector<float> m_hit_dE    ;
-  std::vector<float> m_hit_dE_dx ;
+  NTuple::Tuple* m_tuple = nullptr ;
+  NTuple::Item<long>   m_n_sim;
+  NTuple::Item<long>   m_n_digi;
+  NTuple::Array<int  > m_chamber   ;
+  NTuple::Array<int  > m_layer     ;
+  NTuple::Array<int  > m_cell      ;
+  NTuple::Array<float> m_cell_x    ;
+  NTuple::Array<float> m_cell_y    ;
+  NTuple::Array<float> m_simhit_x  ;
+  NTuple::Array<float> m_simhit_y  ;
+  NTuple::Array<float> m_simhit_z  ;
+  NTuple::Array<float> m_hit_x     ;
+  NTuple::Array<float> m_hit_y     ;
+  NTuple::Array<float> m_hit_z     ;
+  NTuple::Array<float> m_dca       ;
+  NTuple::Array<float> m_hit_dE    ;
+  NTuple::Array<float> m_hit_dE_dx ;
 
 
 
@@ -79,7 +77,6 @@ protected:
   Gaudi::Property<float> m_mom_threshold { this, "mom_threshold", 0};// GeV
   Gaudi::Property<bool>  m_WriteAna { this, "WriteAna", false};
 
-  Gaudi::Property<std::string> m_Output { this, "output", "ana_DCH_digi.root"};
 
   // Input collections
   DataHandle<edm4hep::SimTrackerHitCollection> r_SimDCHCol{"DriftChamberHitsCollection", Gaudi::DataHandle::Reader, this};
