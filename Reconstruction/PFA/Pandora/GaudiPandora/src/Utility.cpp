@@ -1,11 +1,11 @@
 #include "Utility.h"
 
-std::string Convert (float number){
+std::string PanUtil::Convert (float number){
     std::ostringstream buff;
     buff<<number;
     return buff.str();   
 }
-dd4hep::rec::LayeredCalorimeterData * getExtension(unsigned int includeFlag, unsigned int excludeFlag=0) {
+dd4hep::rec::LayeredCalorimeterData * PanUtil::getExtension(unsigned int includeFlag, unsigned int excludeFlag=0) {
   
   
   dd4hep::rec::LayeredCalorimeterData * theExtension = 0;
@@ -34,7 +34,7 @@ dd4hep::rec::LayeredCalorimeterData * getExtension(unsigned int includeFlag, uns
 }
 
 
-int partition(float x, float y)
+int PanUtil::partition(float x, float y)
 {
     float a1, b1, a2, b2 ;
     if (x>1850 && x < 2020){
@@ -80,13 +80,13 @@ int partition(float x, float y)
     return -1;
 }
 
-void line_a_b(float x1, float y1, float x2, float y2, float& a, float& b)
+void PanUtil::line_a_b(float x1, float y1, float x2, float y2, float& a, float& b)
 {
     a = (y2-y1)/(x1*y2-x2*y1);
     b = (x1-x2)/(x1*y2-x2*y1);
 }
 
-float getPhi(float x, float y)
+float PanUtil::getPhi(float x, float y)
 {
     if     (x==0 && y>0) return 90;
     else if(x==0 && y<0) return 270;
@@ -97,14 +97,14 @@ float getPhi(float x, float y)
     return phi;
 }
 
-int getStave(float x, float y){
+int PanUtil::getStave(float x, float y){
 
 int part = partition(x, y);
 int Stave = part>=3 ? (part-2) : (part+6);// correct S is from 1 to 8, S-1 is from 0-7 
 return Stave-1;
 }
 
-int getLayer(float x, float y, float z, std::vector<float>& layers){
+int PanUtil::getLayer(float x, float y, float z, std::vector<float>& layers){
 if(abs(z) < 2400){
     float phi = getPhi(x, y);
     int part = partition(x, y);
@@ -130,7 +130,7 @@ else{
 return -1;
 }
 
-int getLayer_v1(float x, float y, float z, std::vector<float>& layers){
+int PanUtil::getLayer_v1(float x, float y, float z, std::vector<float>& layers){
 if(abs(z) < 2400){
     float phi = getPhi(x, y);
     int part = partition(x, y);

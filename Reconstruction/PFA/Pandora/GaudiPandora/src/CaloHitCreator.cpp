@@ -52,7 +52,7 @@ CaloHitCreator::CaloHitCreator(const Settings &settings, const pandora::Pandora 
     if(m_settings.m_use_dd4hep_geo){
         sc = svcloc->service("GeomSvc", m_geosvc, false);
         if (!sc) throw "Failed to find GeomSvc.";
-        const dd4hep::rec::LayeredCalorimeterData * eCalBarrelExtension= getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::BARREL),
+        const dd4hep::rec::LayeredCalorimeterData * eCalBarrelExtension= PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::BARREL),
 										     ( dd4hep::DetType::AUXILIARY  |  dd4hep::DetType::FORWARD ) );
         m_eCalBarrelOuterZ        = eCalBarrelExtension->extent[3]/dd4hep::mm;
         m_eCalBarrelInnerPhi0     = eCalBarrelExtension->inner_phi0/dd4hep::rad;
@@ -211,7 +211,7 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
                     if (std::fabs(pCaloHit->getPosition()[2]) < m_eCalBarrelOuterZ)
                     {
                         if(m_settings.m_use_dd4hep_geo){
-                            const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer>& barrelLayers= getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::BARREL), ( dd4hep::DetType::AUXILIARY  |  dd4hep::DetType::FORWARD ) )->layers;
+                            const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer>& barrelLayers= PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::BARREL), ( dd4hep::DetType::AUXILIARY  |  dd4hep::DetType::FORWARD ) )->layers;
                             this->GetBarrelCaloHitProperties(pCaloHit, barrelLayers, m_eCalBarrelInnerSymmetry, m_eCalBarrelInnerPhi0,
                             Stave, caloHitParameters, absorberCorrection);
                         }
@@ -225,7 +225,7 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
                     else
                     {
                         if(m_settings.m_use_dd4hep_geo){
-                            const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer>& endcapLayers= getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::ENDCAP), ( dd4hep::DetType::AUXILIARY  |  dd4hep::DetType::FORWARD ) )->layers;
+                            const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer>& endcapLayers= PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::ENDCAP), ( dd4hep::DetType::AUXILIARY  |  dd4hep::DetType::FORWARD ) )->layers;
                             this->GetEndCapCaloHitProperties(pCaloHit, endcapLayers, caloHitParameters, absorberCorrection);
                         }
                         else{

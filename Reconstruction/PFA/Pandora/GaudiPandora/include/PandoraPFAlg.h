@@ -276,7 +276,7 @@ protected:
   Gaudi::Property<bool> m_use_dd4hep_geo{this, "use_dd4hep_geo", false,"choose if use geo info from dd4hep"};
   Gaudi::Property<bool> m_use_dd4hep_decoder {this, "use_dd4hep_decoder", true,"if use decoder from dd4hep"};
   Gaudi::Property<bool> m_use_preshower {this, "use_preshower", false,"if use preshower layer for calorimeter"};
-  Gaudi::Property< std::string >              m_AnaOutput{ this, "AnaOutput", "/junofs/users/wxfang/MyGit/CEPCSW/Reconstruction/PFA/Pandora/GaudiPandora/Ana.root" };
+  Gaudi::Property< std::string >              m_AnaOutput{ this, "AnaOutput", "Pan_Ana.root" };
   //######################
   std::map< std::string, std::string > m_collections;
   Gaudi::Property<std::vector<std::string>> m_readCols{this, "collections", {}, "Places of collections to read"};

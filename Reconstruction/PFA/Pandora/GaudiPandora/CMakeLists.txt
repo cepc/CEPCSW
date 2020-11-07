@@ -3,6 +3,7 @@ gaudi_subdir(GaudiPandora v0r0)
 find_package(LCIO REQUIRED ) 
 find_package(DD4hep COMPONENTS DDG4 REQUIRED)
 find_package(GEAR REQUIRED)
+find_package(CLHEP REQUIRED;CONFIG)
 message("ENV GEAR: $ENV{GEAR}")
 
 find_package(EDM4HEP REQUIRED )
