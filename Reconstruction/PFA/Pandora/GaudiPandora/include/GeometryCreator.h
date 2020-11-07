@@ -11,6 +11,11 @@
 #include "Api/PandoraApi.h"
 
 #include "GaudiKernel/ISvcLocator.h"
+#include "DD4hep/Detector.h"
+#include "DD4hep/DD4hepUnits.h"
+#include "DDRec/DetectorData.h"
+#include "DD4hep/DetType.h"
+#include "DD4hep/DetectorSelector.h"
 namespace gear { class CalorimeterParameters; class GearMgr; }
 
 //------------------------------------------------------------------------------------------------------------------------------------------
@@ -53,6 +58,7 @@ public:
         float           m_hCalRingInnerPhiCoordinate;           ///< HCal ring inner phi coordinate (missing from ILD gear files)
         int             m_hCalRingOuterSymmetryOrder;           ///< HCal ring outer symmetry order (missing from ILD gear files)
         float           m_hCalRingOuterPhiCoordinate;           ///< HCal ring outer phi coordinate (missing from ILD gear files)
+        bool            m_use_dd4hep_geo;           ///true to use dd4hep geo info
     };
 
     /**
@@ -102,6 +108,8 @@ private:
     void SetDefaultSubDetectorParameters(const gear::CalorimeterParameters &inputParameters, const std::string &subDetectorName,
         const pandora::SubDetectorType subDetectorType, PandoraApi::Geometry::SubDetector::Parameters &parameters) const;
 
+    void SetDefaultSubDetectorParameters(const dd4hep::rec::LayeredCalorimeterData &inputParameters, const std::string &subDetectorName,
+    const pandora::SubDetectorType subDetectorType, PandoraApi::Geometry::SubDetector::Parameters &parameters) const;
     /**
      *  @brief  Set positions of gaps in ILD detector and add information missing from GEAR parameters file
      * 

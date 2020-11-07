@@ -52,6 +52,9 @@ gearSvc.GearXMLFile = "../Detector/DetCEPCv4/compact/FullDetGear.xml"
 from Configurables import PandoraPFAlg
 
 pandoralg = PandoraPFAlg("PandoraPFAlg")
+pandoralg.use_dd4hep_geo     = False
+pandoralg.use_dd4hep_decoder = False
+pandoralg.use_preshower      = False
 pandoralg.collections = [
         "MCParticle:MCParticle",
         "CalorimeterHit:ECALBarrel",

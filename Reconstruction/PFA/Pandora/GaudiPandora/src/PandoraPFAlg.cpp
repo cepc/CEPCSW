@@ -156,12 +156,16 @@ StatusCode PandoraPFAlg::initialize()
   m_trackCreatorSettings.m_prongVertexCollections = m_ProngVertexCollections;
   m_trackCreatorSettings.m_splitVertexCollections = m_SplitVertexCollections;
   m_trackCreatorSettings.m_v0VertexCollections = m_V0VertexCollections; 
+  m_trackCreatorSettings.m_use_dd4hep_geo      = m_use_dd4hep_geo; 
   
   m_caloHitCreatorSettings.m_eCalCaloHitCollections = m_ECalCaloHitCollections;
   m_caloHitCreatorSettings.m_hCalCaloHitCollections = m_HCalCaloHitCollections;
   m_caloHitCreatorSettings.m_lCalCaloHitCollections = m_LCalCaloHitCollections;
   m_caloHitCreatorSettings.m_lHCalCaloHitCollections = m_LHCalCaloHitCollections;
   m_caloHitCreatorSettings.m_muonCaloHitCollections = m_MuonCaloHitCollections; 
+  m_caloHitCreatorSettings.m_use_dd4hep_geo         = m_use_dd4hep_geo; 
+  m_caloHitCreatorSettings.m_use_dd4hep_decoder     = m_use_dd4hep_decoder ; 
+  m_caloHitCreatorSettings.m_use_preshower          = m_use_preshower  ; 
   m_mcParticleCreatorSettings.m_mcParticleCollections = m_MCParticleCollections;
   m_mcParticleCreatorSettings.m_CaloHitRelationCollections = m_RelCaloHitCollections; 
   m_mcParticleCreatorSettings.m_TrackRelationCollections = m_RelTrackCollections;
@@ -252,6 +256,7 @@ StatusCode PandoraPFAlg::initialize()
   m_geometryCreatorSettings.m_hCalRingInnerPhiCoordinate = m_HCalRingInnerPhiCoordinate;
   m_geometryCreatorSettings.m_hCalRingOuterSymmetryOrder = m_HCalRingOuterSymmetryOrder; 
   m_geometryCreatorSettings.m_hCalRingOuterPhiCoordinate = m_HCalRingOuterPhiCoordinate;
+  m_geometryCreatorSettings.m_use_dd4hep_geo             = m_use_dd4hep_geo;
   
   // For Strip Splitting method and also for hybrid ECAL
   m_caloHitCreatorSettings.m_stripSplittingOn = m_StripSplittingOn;

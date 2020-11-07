@@ -11,6 +11,14 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "edm4hep/CalorimeterHit.h"
 
+#include "DetInterface/IGeomSvc.h"
+#include "gear/LayerLayout.h"
+#include <DD4hep/DD4hepUnits.h>
+#include <DD4hep/DetType.h>
+#include <DD4hep/DetectorSelector.h>
+#include <DD4hep/Detector.h>
+
+#include "Utility.h"
 #include "gear/LayerLayout.h"
 
 #include "Api/PandoraApi.h"
@@ -89,6 +97,9 @@ public:
         float           m_eCalScToHadGeVBarrel;                 ///< The calibration from deposited Sc-layer energy on the endcaps to hadronic energy
         float           m_eCalSiToHadGeVEndCap;                 ///< The calibration from deposited Si-layer energy on the enecaps to hadronic energy
         float           m_eCalScToHadGeVEndCap;                 ///< The calibration from deposited Sc-layer energy on the endcaps to hadronic energy
+        bool            m_use_dd4hep_geo;                       /// 
+        bool            m_use_dd4hep_decoder;                       /// 
+        bool            m_use_preshower;                       /// 
     };
 
     /**
@@ -165,12 +176,17 @@ private:
      */
     void GetEndCapCaloHitProperties(const edm4hep::CalorimeterHit *const pCaloHit, const gear::LayerLayout &layerLayout,
         PandoraApi::CaloHit::Parameters &caloHitParameters, float &absorberCorrection) const;
+    void GetEndCapCaloHitProperties(const edm4hep::CalorimeterHit *const pCaloHit, const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer> &layers,
+    PandoraApi::CaloHit::Parameters &caloHitParameters, float &absorberCorrection) const;
 
     /**
      *  @brief  Get barrel specific calo hit properties: cell size, absorber radiation and interaction lengths, normal vector
      * 
      */
     void GetBarrelCaloHitProperties(const edm4hep::CalorimeterHit *const pCaloHit, const gear::LayerLayout &layerLayout,
+        unsigned int barrelSymmetryOrder, float barrelPhi0, unsigned int staveNumber, PandoraApi::CaloHit::Parameters &caloHitParameters,
+        float &absorberCorrection) const;
+    void GetBarrelCaloHitProperties(const edm4hep::CalorimeterHit *const pCaloHit, const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer> &layers,
         unsigned int barrelSymmetryOrder, float barrelPhi0, unsigned int staveNumber, PandoraApi::CaloHit::Parameters &caloHitParameters,
         float &absorberCorrection) const;
 
@@ -235,6 +251,8 @@ private:
     std::string                         m_encoder_str_LCal ; 
     std::string                         m_encoder_str_LHCal; 
     gear::GearMgr* _GEAR;
+    IGeomSvc* m_geosvc;
+    dd4hep::DDSegmentation::BitFieldCoder* m_decoder;
 };
 
 //------------------------------------------------------------------------------------------------------------------------------------------

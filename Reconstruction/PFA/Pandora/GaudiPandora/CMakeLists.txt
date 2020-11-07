@@ -1,10 +1,10 @@
 gaudi_subdir(GaudiPandora v0r0)
 
 find_package(LCIO REQUIRED ) 
+find_package(DD4hep COMPONENTS DDG4 REQUIRED)
 find_package(GEAR REQUIRED)
 message("ENV GEAR: $ENV{GEAR}")
 
-find_package(CLHEP REQUIRED;CONFIG)
 find_package(EDM4HEP REQUIRED )
 include_directories(${EDM4HEP_INCLUDE_DIR})
 
@@ -16,14 +16,14 @@ include_directories(${LCContent_INCLUDE_DIRS})
 link_libraries(${LCContent_LIBRARIES})
 
 
-list(APPEND CMAKE_MODULE_PATH "$ENV{ROOTSYS}/etc/cmake/")
-find_package(ROOT 5.26.00 REQUIRED COMPONENTS Eve Geom RGL EG)
+find_package(ROOT COMPONENTS MathCore Physics GenVector Geom REQUIRED)
 
 
 gaudi_depends_on_subdirs(
     Service/EventSeeder
     Service/GearSvc
     Utilities/DataHelper
+    Detector/DetInterface
 )
 
 set(dir_srcs
@@ -33,12 +33,13 @@ set(dir_srcs
     src/CaloHitCreator.cpp
     src/TrackCreator.cpp
     src/PfoCreator.cpp
+    src/Utility.cpp
 )
 set(dir_include include)
 # Modules
 gaudi_add_module(GaudiPandora ${dir_srcs}
-    INCLUDE_DIRS ${dir_include} GaudiKernel FWCore ${CLHEP_INCLUDE_DIR}  ${LCIO_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} gear  
-    LINK_LIBRARIES GaudiKernel FWCore ${CLHEP_LIBRARIES} ROOT ${LCIO_LIBRARIES} ${GEAR_LIBRARIES} DataHelperLib 
+    INCLUDE_DIRS ${dir_include} GaudiKernel FWCore CLHEP  ${LCIO_INCLUDE_DIRS} ROOT gear DD4hep 
+    LINK_LIBRARIES GaudiKernel FWCore CLHEP ROOT ${LCIO_LIBRARIES} ${GEAR_LIBRARIES} DataHelperLib DD4hep ${DD4hep_COMPONENT_LIBRARIES} DDRec 
       -Wl,--no-as-needed 
       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
       -Wl,--as-needed 
