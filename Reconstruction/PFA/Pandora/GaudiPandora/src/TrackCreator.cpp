@@ -18,6 +18,13 @@
 #include "gear/FTDParameters.h"
 #include "gear/FTDLayerLayout.h"
 
+#include "DD4hep/Detector.h"
+#include "DD4hep/DD4hepUnits.h"
+#include "DD4hep/DetType.h"
+#include "DDRec/DetectorData.h"
+#include "DD4hep/DetectorSelector.h"
+#include "Utility.h"
+
 #include "GaudiKernel/IService.h"
 #include "GearSvc/IGearSvc.h"
 #include "PandoraPFAlg.h"
@@ -48,11 +55,23 @@ TrackCreator::TrackCreator(const Settings &settings, const pandora::Pandora *con
     m_tpcOuterR               = (_GEAR->getTPCParameters().getPadLayout().getPlaneExtent()[1]);
     m_tpcMaxRow               = (_GEAR->getTPCParameters().getPadLayout().getNRows());
     m_tpcZmax                 = (_GEAR->getTPCParameters().getMaxDriftLength());
-    m_eCalBarrelInnerSymmetry = (_GEAR->getEcalBarrelParameters().getSymmetryOrder());
-    m_eCalBarrelInnerPhi0     = (_GEAR->getEcalBarrelParameters().getPhi0());
-    m_eCalBarrelInnerR        = (_GEAR->getEcalBarrelParameters().getExtent()[0]);
-    m_eCalEndCapInnerZ        = (_GEAR->getEcalEndcapParameters().getExtent()[2]);
     // fg: FTD description in GEAR has changed ...
+    if(m_settings.m_use_dd4hep_geo){
+        const dd4hep::rec::LayeredCalorimeterData * eCalBarrelExtension= PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::BARREL),
+            									     ( dd4hep::DetType::AUXILIARY  |  dd4hep::DetType::FORWARD ) );
+        const dd4hep::rec::LayeredCalorimeterData * eCalEndcapExtension= PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::ENDCAP),
+            									     ( dd4hep::DetType::AUXILIARY |  dd4hep::DetType::FORWARD  ) );
+        m_eCalBarrelInnerPhi0     = eCalBarrelExtension->inner_phi0/dd4hep::rad;
+        m_eCalBarrelInnerSymmetry = eCalBarrelExtension->inner_symmetry;
+        m_eCalBarrelInnerR        = eCalBarrelExtension->extent[0]/dd4hep::mm;
+        m_eCalEndCapInnerZ        = eCalEndcapExtension->extent[2]/dd4hep::mm;
+    }
+    else{
+        m_eCalBarrelInnerSymmetry = (_GEAR->getEcalBarrelParameters().getSymmetryOrder());
+        m_eCalBarrelInnerPhi0     = (_GEAR->getEcalBarrelParameters().getPhi0());
+        m_eCalBarrelInnerR        = (_GEAR->getEcalBarrelParameters().getExtent()[0]);
+        m_eCalEndCapInnerZ        = (_GEAR->getEcalEndcapParameters().getExtent()[2]);
+    }
     try
     {
         m_ftdInnerRadii = _GEAR->getGearParameters("FTD").getDoubleVals("FTDInnerRadius");

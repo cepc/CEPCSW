@@ -114,11 +114,14 @@ example_CaloDigiAlg.CaloAssociationCollection    = "RecoCaloAssociation_ECALBarr
 ##############################################################################
 from Configurables import GearSvc
 gearSvc  = GearSvc("GearSvc")
-gearSvc.GearXMLFile = "../Detector/DetCEPCv4/compact/FullDetGear.xml"
+gearSvc.GearXMLFile = "Detector/DetCEPCv4/compact/FullDetGear.xml"
 ##############################################################################
 from Configurables import PandoraPFAlg
 
 pandoralg = PandoraPFAlg("PandoraPFAlg")
+pandoralg.use_dd4hep_geo     = True
+pandoralg.use_dd4hep_decoder = True
+pandoralg.use_preshower      = False
 pandoralg.collections = [
         "MCParticle:MCParticle",
         "CalorimeterHit:ECALBarrel",
@@ -143,7 +146,7 @@ pandoralg.WriteReconstructedParticleCollection = "PandoraPFOs"
 pandoralg.WriteVertexCollection                = "PandoraPFANewStartVertices"               
 pandoralg.AnaOutput = "Ana.root"
 
-pandoralg.PandoraSettingsDefault_xml = "../Reconstruction/PFA/Pandora/PandoraSettingsDefault.xml"
+pandoralg.PandoraSettingsDefault_xml = "Reconstruction/PFA/Pandora/PandoraSettingsDefault.xml"
 #### Do not chage the collection name, only add or remove ###############
 pandoralg.TrackCollections      =  ["MarlinTrkTracks"]
 pandoralg.ECalCaloHitCollections=  ["ECALBarrel", "ECALEndcap", "ECALOther"]

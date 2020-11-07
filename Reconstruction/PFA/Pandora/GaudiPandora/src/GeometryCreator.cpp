@@ -14,6 +14,7 @@
 #include "gear/PadRowLayout2D.h"
 #include "gear/LayerLayout.h"
 #include "GeometryCreator.h"
+#include "Utility.h"
 
 GeometryCreator::GeometryCreator(const Settings &settings, const pandora::Pandora *const pPandora) :
     m_settings(settings),
@@ -73,9 +74,16 @@ void GeometryCreator::SetMandatorySubDetectorParameters(SubDetectorTypeMap &subD
     std::cout << "Begin SetMandatorySubDetectorParameters:" << std::endl;
     PandoraApi::Geometry::SubDetector::Parameters eCalBarrelParameters, eCalEndCapParameters, hCalBarrelParameters, hCalEndCapParameters,
         muonBarrelParameters, muonEndCapParameters;
+    if(m_settings.m_use_dd4hep_geo){
+        std::cout << "Use dd4hep geo info for ECAL" << std::endl;
+        this->SetDefaultSubDetectorParameters(*const_cast<dd4hep::rec::LayeredCalorimeterData*>(PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::BARREL), ( dd4hep::DetType::AUXILIARY  |  dd4hep::DetType::FORWARD ) )), "ECalBarrel", pandora::ECAL_BARREL, eCalBarrelParameters);
+        this->SetDefaultSubDetectorParameters(*const_cast<dd4hep::rec::LayeredCalorimeterData*>(PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::ENDCAP), ( dd4hep::DetType::AUXILIARY  |  dd4hep::DetType::FORWARD ) )), "ECalEndCap", pandora::ECAL_ENDCAP, eCalEndCapParameters);
+    }
+    else{
+        this->SetDefaultSubDetectorParameters(_GEAR->getEcalBarrelParameters(), "ECalBarrel", pandora::ECAL_BARREL, eCalBarrelParameters);
+        this->SetDefaultSubDetectorParameters(_GEAR->getEcalEndcapParameters(), "ECalEndCap", pandora::ECAL_ENDCAP, eCalEndCapParameters);
+    }
 
-    this->SetDefaultSubDetectorParameters(_GEAR->getEcalBarrelParameters(), "ECalBarrel", pandora::ECAL_BARREL, eCalBarrelParameters);
-    this->SetDefaultSubDetectorParameters(_GEAR->getEcalEndcapParameters(), "ECalEndCap", pandora::ECAL_ENDCAP, eCalEndCapParameters);
     this->SetDefaultSubDetectorParameters(_GEAR->getHcalBarrelParameters(), "HCalBarrel", pandora::HCAL_BARREL, hCalBarrelParameters);
     this->SetDefaultSubDetectorParameters(_GEAR->getHcalEndcapParameters(), "HCalEndCap", pandora::HCAL_ENDCAP, hCalEndCapParameters);
     this->SetDefaultSubDetectorParameters(_GEAR->getYokeBarrelParameters(), "MuonBarrel", pandora::MUON_BARREL, muonBarrelParameters);
@@ -209,6 +217,48 @@ void GeometryCreator::SetDefaultSubDetectorParameters(const gear::CalorimeterPar
     }
 }
 
+void GeometryCreator::SetDefaultSubDetectorParameters(const dd4hep::rec::LayeredCalorimeterData &inputParameters, const std::string &subDetectorName,
+    const pandora::SubDetectorType subDetectorType, PandoraApi::Geometry::SubDetector::Parameters &parameters) const
+{
+  const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer>& layers= inputParameters.layers;
+    parameters.m_subDetectorName = subDetectorName;
+    parameters.m_subDetectorType = subDetectorType;
+    parameters.m_innerRCoordinate = inputParameters.extent[0]/dd4hep::mm;
+    parameters.m_innerZCoordinate = inputParameters.extent[2]/dd4hep::mm;
+    parameters.m_innerPhiCoordinate = inputParameters.inner_phi0/dd4hep::rad;
+    parameters.m_innerSymmetryOrder = inputParameters.inner_symmetry;
+    parameters.m_outerRCoordinate = inputParameters.extent[1]/dd4hep::mm;
+    parameters.m_outerZCoordinate = inputParameters.extent[3]/dd4hep::mm;
+    parameters.m_outerPhiCoordinate = inputParameters.outer_phi0/dd4hep::rad;
+    parameters.m_outerSymmetryOrder = inputParameters.outer_symmetry;
+    parameters.m_isMirroredInZ = true;
+    parameters.m_nLayers = layers.size();
+
+    std::cout<<"DD m_subDetectorName="<<subDetectorName<<",m_subDetectorType="<<subDetectorType<<",m_innerRCoordinate="<<parameters.m_innerRCoordinate.Get()<<",m_innerZCoordinate="<<parameters.m_innerZCoordinate.Get()<<",m_innerPhiCoordinate="<<parameters.m_innerPhiCoordinate.Get()<<",m_innerSymmetryOrder="<<parameters.m_innerSymmetryOrder.Get()<<",m_outerRCoordinate="<<parameters.m_outerRCoordinate.Get()<<",m_outerZCoordinate="<<parameters.m_outerZCoordinate.Get()<<",m_outerPhiCoordinate="<<parameters.m_outerPhiCoordinate.Get()<<",m_outerSymmetryOrder="<<parameters.m_outerSymmetryOrder.Get()<<",m_nLayers="<<parameters.m_nLayers.Get()<<std::endl;
+    for (size_t i = 0; i< layers.size(); i++)
+    {
+        const dd4hep::rec::LayeredCalorimeterStruct::Layer & theLayer = layers.at(i);
+        
+        PandoraApi::Geometry::LayerParameters layerParameters;
+        
+        double totalNumberOfRadLengths = theLayer.inner_nRadiationLengths;
+        double totalNumberOfIntLengths = theLayer.inner_nInteractionLengths;
+        
+        if(i>0){
+           //Add the numbers from previous layer's outer side
+           totalNumberOfRadLengths += layers.at(i-1).outer_nRadiationLengths;
+            totalNumberOfIntLengths += layers.at(i-1).outer_nInteractionLengths;
+            
+        }
+        
+        layerParameters.m_closestDistanceToIp = (theLayer.distance+theLayer.inner_thickness)/dd4hep::mm; //Distance to center of sensitive element
+        layerParameters.m_nRadiationLengths = totalNumberOfRadLengths;
+        layerParameters.m_nInteractionLengths = totalNumberOfIntLengths;
+
+        parameters.m_layerParametersVector.push_back(layerParameters);
+        std::cout<<"layer="<<i<<",m_closestDistanceToIp="<<layerParameters.m_closestDistanceToIp.Get()<<",m_nRadiationLengths="<<layerParameters.m_nRadiationLengths.Get()<<",m_nInteractionLengths="<<layerParameters.m_nInteractionLengths.Get()<<",outer_thickness="<<theLayer.outer_thickness<<",inner_thickness="<<theLayer.inner_thickness<<",sensitive_thickness="<<theLayer.sensitive_thickness<<std::endl;
+    }
+}
 //------------------------------------------------------------------------------------------------------------------------------------------
 
 pandora::StatusCode GeometryCreator::SetILDSpecificGeometry(SubDetectorTypeMap &subDetectorTypeMap, SubDetectorNameMap &subDetectorNameMap) const
