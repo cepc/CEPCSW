@@ -6,7 +6,6 @@
 #include "edm4hep/SimCalorimeterHit.h"
 #include "edm4hep/CaloHitContribution.h"
 #include "edm4hep/ClusterConst.h"
-//#include "UTIL/ILDConf.h"
 #include <cmath>
 #include <algorithm>
 #include "gear/BField.h"
@@ -115,27 +114,6 @@ StatusCode PandoraPFAlg::initialize()
           }
       }
   }
-  /*
-  std::string s_output =m_AnaOutput; 
-  m_fout = new TFile(s_output.c_str(),"RECREATE"); 
-  m_tree = new TTree("evt","tree");
-  m_tree->Branch("m_pReco_PID"   , &m_pReco_PID   );
-  m_tree->Branch("m_pReco_mass"  , &m_pReco_mass  );
-  m_tree->Branch("m_pReco_energy", &m_pReco_energy);
-  m_tree->Branch("m_pReco_px"    , &m_pReco_px    );
-  m_tree->Branch("m_pReco_py"    , &m_pReco_py    );
-  m_tree->Branch("m_pReco_pz"    , &m_pReco_pz    );
-  m_tree->Branch("m_pReco_charge", &m_pReco_charge);
-
-  m_tree->Branch("m_mc_p_size", &m_mc_p_size);
-  m_tree->Branch("m_mc_pid"   , &m_mc_pid   );
-  m_tree->Branch("m_mc_mass"  , &m_mc_mass  );
-  m_tree->Branch("m_mc_px"    , &m_mc_px    );
-  m_tree->Branch("m_mc_py"    , &m_mc_py    );
-  m_tree->Branch("m_mc_pz"    , &m_mc_pz    );
-  m_tree->Branch("m_mc_charge", &m_mc_charge);
-  m_tree->Branch("m_hasConversion", &m_hasConversion);
-  */
   for ( const auto& col : m_readCols ) {
       auto seperater = col.find(':');
       std::string colType = col.substr(0, seperater);
@@ -391,9 +369,6 @@ StatusCode PandoraPFAlg::execute()
 StatusCode PandoraPFAlg::finalize()
 {
   info() << "Finalized. Processed " << _nEvt << " events " << endmsg;
-  //m_fout->cd();
-  //m_tree->Write();
-  //m_fout->Close();
   delete m_pPandora;
   delete m_pGeometryCreator;
   delete m_pCaloHitCreator;
@@ -427,24 +402,6 @@ void PandoraPFAlg::Reset()
     m_pCaloHitCreator->Reset();
     m_pTrackCreator->Reset();
     m_pMCParticleCreator->Reset();
-    /*
-    std::vector<int>()  .swap(m_pReco_PID   );
-    std::vector<float>().swap(m_pReco_mass);
-    std::vector<float>().swap(m_pReco_energy);
-    std::vector<float>().swap(m_pReco_px);
-    std::vector<float>().swap(m_pReco_py);
-    std::vector<float>().swap(m_pReco_pz);
-    std::vector<float>().swap(m_pReco_charge);
-
-    std::vector<int>()  .swap(m_mc_p_size);
-    std::vector<int>()  .swap(m_mc_pid   );
-    std::vector<float>().swap(m_mc_mass  );
-    std::vector<float>().swap(m_mc_px    );
-    std::vector<float>().swap(m_mc_py    );
-    std::vector<float>().swap(m_mc_pz    );
-    std::vector<float>().swap(m_mc_charge);
-    m_hasConversion = 0;
-    */
     m_CollectionMaps->clear();
 }
 
@@ -627,7 +584,6 @@ StatusCode PandoraPFAlg::Ana()
             if(hasEm && hasEp) m_hasConversion=1;
         }
     }
-    //m_tree->Fill();
     StatusCode status = m_tuple->write();
     if ( status.isFailure() ) {
         error() << "    Cannot fill N-tuple:" << long( m_tuple ) << endmsg;
