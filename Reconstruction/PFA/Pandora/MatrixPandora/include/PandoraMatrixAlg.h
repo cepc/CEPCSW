@@ -1,7 +1,7 @@
 #ifndef PandoraMatrixAlg_H
 #define PandoraMatrixAlg_H
 
-#include "FWCore/DataHandle.h"
+#include "k4FWCore/DataHandle.h"
 #include "GaudiAlg/GaudiAlgorithm.h"
 #include <gsl/gsl_rng.h>
 #include "edm4hep/ClusterCollection.h"

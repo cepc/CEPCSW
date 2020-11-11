@@ -1,7 +1,7 @@
 #ifndef TrackSubsetAlg_h
 #define TrackSubsetAlg_h 1
 
-#include "FWCore/DataHandle.h"
+#include "k4FWCore/DataHandle.h"
 #include "GaudiAlg/GaudiAlgorithm.h"
 
 #include "edm4hep/TrackCollection.h"

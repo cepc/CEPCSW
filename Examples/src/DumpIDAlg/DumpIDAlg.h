@@ -1,7 +1,7 @@
 #ifndef DumpIDAlg_h
 #define DumpIDAlg_h
 
-#include "FWCore/DataHandle.h"
+#include "k4FWCore/DataHandle.h"
 #include "GaudiAlg/GaudiAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
 

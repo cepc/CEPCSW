@@ -7,7 +7,7 @@
 #ifndef PFO_CREATOR_H
 #define PFO_CREATOR_H 1
 
-#include "FWCore/DataHandle.h"
+#include "k4FWCore/DataHandle.h"
 #include "edm4hep/Vector3f.h"
 #include "edm4hep/ClusterCollection.h"
 #include "edm4hep/Cluster.h"

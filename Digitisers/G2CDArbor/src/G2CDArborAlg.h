@@ -1,7 +1,7 @@
 #ifndef G2CDARBORALG_H
 #define G2CDARBORALG_H
 
-#include "FWCore/DataHandle.h"
+#include "k4FWCore/DataHandle.h"
 #include "GaudiAlg/GaudiAlgorithm.h"
 #include "GaudiKernel/Property.h"
 #include "edm4hep/EventHeader.h"

@@ -2,7 +2,7 @@
 #define ExampleAnaElemTool_h
 
 #include "GaudiKernel/AlgTool.h"
-#include "FWCore/DataHandle.h"
+#include "k4FWCore/DataHandle.h"
 #include "DetSimInterface/IAnaElemTool.h"
 
 #include "plcio/MCParticleCollection.h"

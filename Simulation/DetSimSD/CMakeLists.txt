@@ -2,7 +2,7 @@
 gaudi_subdir(DetSimSD v0r0)
 
 gaudi_depends_on_subdirs(
-    FWCore
+    k4FWCore
     Detector/DetInterface
     Simulation/DetSimInterface
 )
@@ -24,13 +24,13 @@ set(DetSimSD_srcs
 gaudi_add_module(DetSimSD ${DetSimSD_srcs}
     INCLUDE_DIRS
       # DetSimInterface
-      # FWCore
+      # k4FWCore
       # DD4hep
       # GaudiKernel
       # Geant4 
     LINK_LIBRARIES
       # DetSimInterface
-      # FWCore
+      # k4FWCore
       DD4hep
       ${DD4hep_COMPONENT_LIBRARIES} 
       GaudiKernel

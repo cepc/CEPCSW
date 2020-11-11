@@ -1,7 +1,7 @@
 #ifndef PLANAR_DIGI_ALG_H
 #define PLANAR_DIGI_ALG_H
 
-#include "FWCore/DataHandle.h"
+#include "k4FWCore/DataHandle.h"
 #include "GaudiAlg/GaudiAlgorithm.h"
 #include <gsl/gsl_rng.h>
 #include "edm4hep/EventHeaderCollection.h"

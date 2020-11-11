@@ -7,7 +7,7 @@
 #include <GaudiKernel/ToolHandle.h>
 
 #include "GaudiAlg/GaudiAlgorithm.h"
-#include "FWCore/DataHandle.h"
+#include "k4FWCore/DataHandle.h"
 
 #include "GenEvent.h"
 

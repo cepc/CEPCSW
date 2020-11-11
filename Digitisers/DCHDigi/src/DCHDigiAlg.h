@@ -1,7 +1,7 @@
 #ifndef DCH_DIGI_ALG_H
 #define DCH_DIGI_ALG_H
 
-#include "FWCore/DataHandle.h"
+#include "k4FWCore/DataHandle.h"
 #include "GaudiKernel/NTuple.h"
 #include "GaudiAlg/GaudiAlgorithm.h"
 #include "edm4hep/SimTrackerHitCollection.h"

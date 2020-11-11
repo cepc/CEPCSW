@@ -4,7 +4,7 @@
 #include <map>
 
 #include "GaudiKernel/AlgTool.h"
-#include "FWCore/DataHandle.h"
+#include "k4FWCore/DataHandle.h"
 #include "DetSimInterface/IAnaElemTool.h"
 
 #include "edm4hep/MCParticleCollection.h"
