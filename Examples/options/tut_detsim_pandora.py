@@ -108,7 +108,7 @@ example_dettool = AnExampleDetElemTool("AnExampleDetElemTool")
 from Configurables import CaloDigiAlg
 example_CaloDigiAlg = CaloDigiAlg("CaloDigiAlg")
 example_CaloDigiAlg.Scale = 1
-example_CaloDigiAlg.SimCaloHitCollection = "SimCalorimeterCol"
+example_CaloDigiAlg.SimCaloHitCollection = "EcalBarrelCollection"
 example_CaloDigiAlg.CaloHitCollection    = "ECALBarrel"
 example_CaloDigiAlg.CaloAssociationCollection    = "RecoCaloAssociation_ECALBarrel"
 ##############################################################################
@@ -116,12 +116,17 @@ from Configurables import GearSvc
 gearSvc  = GearSvc("GearSvc")
 gearSvc.GearXMLFile = "Detector/DetCEPCv4/compact/FullDetGear.xml"
 ##############################################################################
+from Configurables import NTupleSvc
+ntsvc = NTupleSvc("NTupleSvc")
+ntsvc.Output = ["MyTuples DATAFILE='detsim_Pan_ana.root' OPT='NEW' TYP='ROOT'"]
+##############################################################################
 from Configurables import PandoraPFAlg
 
 pandoralg = PandoraPFAlg("PandoraPFAlg")
 pandoralg.use_dd4hep_geo     = True
 pandoralg.use_dd4hep_decoder = True
 pandoralg.use_preshower      = False
+pandoralg.WriteAna           = True
 pandoralg.collections = [
         "MCParticle:MCParticle",
         "CalorimeterHit:ECALBarrel",
@@ -144,7 +149,6 @@ pandoralg.collections = [
 pandoralg.WriteClusterCollection               = "PandoraClusters"              
 pandoralg.WriteReconstructedParticleCollection = "PandoraPFOs" 
 pandoralg.WriteVertexCollection                = "PandoraPFANewStartVertices"               
-pandoralg.AnaOutput = "Ana.root"
 
 pandoralg.PandoraSettingsDefault_xml = "Reconstruction/PFA/Pandora/PandoraSettingsDefault.xml"
 #### Do not chage the collection name, only add or remove ###############
@@ -192,9 +196,10 @@ write.outputCommands = ["keep *"]
 # ApplicationMgr
 from Configurables import ApplicationMgr
 ApplicationMgr(
-        TopAlg = [genalg, detsimalg, example_CaloDigiAlg, pandoralg],
+        TopAlg = [genalg, detsimalg, example_CaloDigiAlg, pandoralg, write],
         EvtSel = 'NONE',
         EvtMax = 10,
         ExtSvc = [rndmengine, dsvc, geosvc, gearSvc,detsimsvc],
+        HistogramPersistency = "ROOT",
         OutputLevel=INFO
 )

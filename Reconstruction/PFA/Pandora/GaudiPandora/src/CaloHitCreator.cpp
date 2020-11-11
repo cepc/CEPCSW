@@ -789,7 +789,7 @@ void CaloHitCreator::GetBarrelCaloHitProperties(const edm4hep::CalorimeterHit *c
     const int physicalLayer(std::min(static_cast<int>(caloHitParameters.m_layer.Get()), static_cast<int>(layers.size()-1)));
     caloHitParameters.m_cellSize0 = layers[physicalLayer].cellSize0/dd4hep::mm;
     caloHitParameters.m_cellSize1 = layers[physicalLayer].cellSize1/dd4hep::mm;
-    std::cout<<"DD m_cellSize0="<<caloHitParameters.m_cellSize0.Get()<<",m_cellSize1="<<caloHitParameters.m_cellSize1.Get()<<std::endl;
+    //std::cout<<"DD m_cellSize0="<<caloHitParameters.m_cellSize0.Get()<<",m_cellSize1="<<caloHitParameters.m_cellSize1.Get()<<std::endl;
     double thickness = (layers[physicalLayer].inner_thickness+layers[physicalLayer].sensitive_thickness/2.0)/dd4hep::mm;
     double nRadLengths = layers[physicalLayer].inner_nRadiationLengths;
     double nIntLengths = layers[physicalLayer].inner_nInteractionLengths;

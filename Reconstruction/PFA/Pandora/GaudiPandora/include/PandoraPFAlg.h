@@ -3,7 +3,6 @@
 
 #include "FWCore/DataHandle.h"
 #include "GaudiAlg/GaudiAlgorithm.h"
-//#include <gsl/gsl_rng.h>
 #include "edm4hep/ClusterCollection.h"
 #include "edm4hep/ReconstructedParticleCollection.h"
 #include "edm4hep/EventHeaderCollection.h"
@@ -39,10 +38,10 @@
 #include "PfoCreator.h"
 #include "TrackCreator.h"
 
-#include "TROOT.h"
-#include "TTree.h"
-#include "TFile.h"
 
+#include "GaudiKernel/INTupleSvc.h"
+#include "GaudiKernel/NTuple.h"
+#include "GaudiKernel/MsgStream.h"
 
 /* PandoraPFAlg ========== <br>
  * 
@@ -254,29 +253,32 @@ protected:
   unsigned int                    m_nRun;                         ///< The run number
   unsigned int                    m_nEvent;                       ///< The event number
   //### For Ana #################
-  TFile* m_fout;
-  TTree* m_tree;
-  std::vector<int  > m_pReco_PID;    
-  std::vector<float> m_pReco_mass;
-  std::vector<float> m_pReco_energy;
-  std::vector<float> m_pReco_px;
-  std::vector<float> m_pReco_py;
-  std::vector<float> m_pReco_pz;
-  std::vector<float> m_pReco_charge;
+  NTuple::Tuple* m_tuple = nullptr ;
+  NTuple::Item<long>   m_n_mc;
+  NTuple::Item<long>   m_n_rec;
+  NTuple::Item<int>   m_hasConversion;
+  NTuple::Array<int  > m_pReco_PID;    
+  NTuple::Array<float> m_pReco_mass;
+  NTuple::Array<float> m_pReco_energy;
+  NTuple::Array<float> m_pReco_px;
+  NTuple::Array<float> m_pReco_py;
+  NTuple::Array<float> m_pReco_pz;
+  NTuple::Array<float> m_pReco_charge;
+  NTuple::Array<int>   m_mc_p_size;
+  NTuple::Array<int>   m_mc_pid   ;
+  NTuple::Array<float> m_mc_mass  ;
+  NTuple::Array<float> m_mc_px    ;
+  NTuple::Array<float> m_mc_py    ;
+  NTuple::Array<float> m_mc_pz    ;
+  NTuple::Array<float> m_mc_charge;
 
-  std::vector<int>   m_mc_p_size;
-  std::vector<int>   m_mc_pid   ;
-  std::vector<float> m_mc_mass  ;
-  std::vector<float> m_mc_px    ;
-  std::vector<float> m_mc_py    ;
-  std::vector<float> m_mc_pz    ;
-  std::vector<float> m_mc_charge;
-  int m_hasConversion;
 
+
+  
+  Gaudi::Property<bool> m_WriteAna {this, "WriteAna", false,"if do ana"};
   Gaudi::Property<bool> m_use_dd4hep_geo{this, "use_dd4hep_geo", false,"choose if use geo info from dd4hep"};
   Gaudi::Property<bool> m_use_dd4hep_decoder {this, "use_dd4hep_decoder", true,"if use decoder from dd4hep"};
   Gaudi::Property<bool> m_use_preshower {this, "use_preshower", false,"if use preshower layer for calorimeter"};
-  Gaudi::Property< std::string >              m_AnaOutput{ this, "AnaOutput", "Pan_Ana.root" };
   //######################
   std::map< std::string, std::string > m_collections;
   Gaudi::Property<std::vector<std::string>> m_readCols{this, "collections", {}, "Places of collections to read"};

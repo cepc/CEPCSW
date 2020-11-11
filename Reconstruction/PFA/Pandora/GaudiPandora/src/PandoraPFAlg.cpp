@@ -6,7 +6,6 @@
 #include "edm4hep/SimCalorimeterHit.h"
 #include "edm4hep/CaloHitContribution.h"
 #include "edm4hep/ClusterConst.h"
-//#include "UTIL/ILDConf.h"
 #include <cmath>
 #include <algorithm>
 #include "gear/BField.h"
@@ -84,27 +83,37 @@ StatusCode PandoraPFAlg::initialize()
 {
 
   std::cout<<"init PandoraPFAlg"<<std::endl;
+  if(m_WriteAna){
 
-  std::string s_output =m_AnaOutput; 
-  m_fout = new TFile(s_output.c_str(),"RECREATE"); 
-  m_tree = new TTree("evt","tree");
-  m_tree->Branch("m_pReco_PID"   , &m_pReco_PID);
-  m_tree->Branch("m_pReco_mass"  , &m_pReco_mass);
-  m_tree->Branch("m_pReco_energy", &m_pReco_energy);
-  m_tree->Branch("m_pReco_px"    , &m_pReco_px);
-  m_tree->Branch("m_pReco_py"    , &m_pReco_py);
-  m_tree->Branch("m_pReco_pz"    , &m_pReco_pz);
-  m_tree->Branch("m_pReco_charge", &m_pReco_charge);
-
-  m_tree->Branch("m_mc_p_size", &m_mc_p_size);
-  m_tree->Branch("m_mc_pid"   , &m_mc_pid   );
-  m_tree->Branch("m_mc_mass"  , &m_mc_mass  );
-  m_tree->Branch("m_mc_px"    , &m_mc_px    );
-  m_tree->Branch("m_mc_py"    , &m_mc_py    );
-  m_tree->Branch("m_mc_pz"    , &m_mc_pz    );
-  m_tree->Branch("m_mc_charge", &m_mc_charge);
-  m_tree->Branch("m_hasConversion", &m_hasConversion);
-
+      NTuplePtr nt( ntupleSvc(), "MyTuples/Pan_reco_evt" );
+      if ( nt ) m_tuple = nt;
+      else {
+          m_tuple = ntupleSvc()->book( "MyTuples/Pan_reco_evt", CLID_ColumnWiseTuple, "Pan_reco_evt" );
+          if ( m_tuple ) {
+            m_tuple->addItem( "N_mc" , m_n_mc , 0, 1000 ).ignore();
+            m_tuple->addItem( "N_rec", m_n_rec, 0, 1000 ).ignore();
+            m_tuple->addItem( "m_pReco_PID"   , m_n_rec, m_pReco_PID    ).ignore();
+            m_tuple->addItem( "m_pReco_mass"  , m_n_rec, m_pReco_mass   ).ignore();
+            m_tuple->addItem( "m_pReco_energy", m_n_rec, m_pReco_energy ).ignore();
+            m_tuple->addItem( "m_pReco_px"    , m_n_rec, m_pReco_px     ).ignore();
+            m_tuple->addItem( "m_pReco_py"    , m_n_rec, m_pReco_py     ).ignore();
+            m_tuple->addItem( "m_pReco_pz"    , m_n_rec, m_pReco_pz     ).ignore();
+            m_tuple->addItem( "m_pReco_charge", m_n_rec, m_pReco_charge ).ignore();
+            m_tuple->addItem( "m_mc_p_size", m_n_mc  ,m_mc_p_size ).ignore();
+            m_tuple->addItem( "m_mc_pid"   , m_n_mc  ,m_mc_pid    ).ignore();
+            m_tuple->addItem( "m_mc_mass"  , m_n_mc  ,m_mc_mass   ).ignore();
+            m_tuple->addItem( "m_mc_px"    , m_n_mc  ,m_mc_px     ).ignore();
+            m_tuple->addItem( "m_mc_py"    , m_n_mc  ,m_mc_py     ).ignore();
+            m_tuple->addItem( "m_mc_pz"    , m_n_mc  ,m_mc_pz     ).ignore();
+            m_tuple->addItem( "m_mc_charge", m_n_mc  ,m_mc_charge ).ignore();
+            m_tuple->addItem( "m_hasConversion", m_hasConversion  ).ignore();
+          } 
+          else { // did not manage to book the N tuple....
+            error() << "    Cannot book N-tuple:" << long( m_tuple ) << endmsg;
+            return StatusCode::FAILURE;
+          }
+      }
+  }
   for ( const auto& col : m_readCols ) {
       auto seperater = col.find(':');
       std::string colType = col.substr(0, seperater);
@@ -334,8 +343,9 @@ StatusCode PandoraPFAlg::execute()
         PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pPfoCreator->CreateParticleFlowObjects(*m_CollectionMaps, m_ClusterCollection_w, m_ReconstructedParticleCollection_w, m_VertexCollection_w));
         
         StatusCode sc0 = CreateMCRecoParticleAssociation();
-        StatusCode sc = Ana();
-
+        if(m_WriteAna){
+            StatusCode sc = Ana();
+        }
         PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::Reset(*m_pPandora));
         this->Reset();
     }
@@ -358,10 +368,7 @@ StatusCode PandoraPFAlg::execute()
 
 StatusCode PandoraPFAlg::finalize()
 {
-  info() << "Finalized. Processed " << _nEvt << " events " <<",saved tree with entries="<<m_tree->GetEntries()<< endmsg;
-  m_fout->cd();
-  m_tree->Write();
-  m_fout->Close();
+  info() << "Finalized. Processed " << _nEvt << " events " << endmsg;
   delete m_pPandora;
   delete m_pGeometryCreator;
   delete m_pCaloHitCreator;
@@ -395,24 +402,6 @@ void PandoraPFAlg::Reset()
     m_pCaloHitCreator->Reset();
     m_pTrackCreator->Reset();
     m_pMCParticleCreator->Reset();
-
-    std::vector<int>()  .swap(m_pReco_PID   );
-    std::vector<float>().swap(m_pReco_mass);
-    std::vector<float>().swap(m_pReco_energy);
-    std::vector<float>().swap(m_pReco_px);
-    std::vector<float>().swap(m_pReco_py);
-    std::vector<float>().swap(m_pReco_pz);
-    std::vector<float>().swap(m_pReco_charge);
-
-    std::vector<int>()  .swap(m_mc_p_size);
-    std::vector<int>()  .swap(m_mc_pid   );
-    std::vector<float>().swap(m_mc_mass  );
-    std::vector<float>().swap(m_mc_px    );
-    std::vector<float>().swap(m_mc_py    );
-    std::vector<float>().swap(m_mc_pz    );
-    std::vector<float>().swap(m_mc_charge);
-    m_hasConversion = 0;
-
     m_CollectionMaps->clear();
 }
 
@@ -541,7 +530,9 @@ StatusCode PandoraPFAlg::updateMap()
 
 StatusCode PandoraPFAlg::Ana()
 {
-    int n_current = m_tree->GetEntries()+1;
+    m_n_mc = 0;
+    m_n_rec = 0;
+    m_hasConversion = 0;
     const edm4hep::ReconstructedParticleCollection* reco_col = m_ReconstructedParticleCollection_w.get();
     const edm4hep::MCRecoParticleAssociationCollection* reco_associa_col = m_MCRecoParticleAssociation_w.get();
     for(int i=0; i<reco_col->size();i++)
@@ -554,13 +545,14 @@ StatusCode PandoraPFAlg::Ana()
         const float mass = pReco.getMass();
         const float charge = pReco.getCharge();
         const int type = pReco.getType();
-        m_pReco_PID.push_back(type);
-        m_pReco_mass.push_back(mass);
-        m_pReco_charge.push_back(charge);
-        m_pReco_energy.push_back(energy);
-        m_pReco_px.push_back(px);
-        m_pReco_py.push_back(py);
-        m_pReco_pz.push_back(pz);
+        m_pReco_PID   [m_n_rec]=type;
+        m_pReco_mass  [m_n_rec]=mass;
+        m_pReco_charge[m_n_rec]=charge;
+        m_pReco_energy[m_n_rec]=energy;
+        m_pReco_px    [m_n_rec]=px;
+        m_pReco_py    [m_n_rec]=py;
+        m_pReco_pz    [m_n_rec]=pz;
+        m_n_rec ++ ;
         for(int j=0; j < reco_associa_col->size(); j++)
         {
             if(reco_associa_col->at(j).getRec().id() != pReco.id() ) continue;
@@ -568,20 +560,19 @@ StatusCode PandoraPFAlg::Ana()
         }
     }
     const edm4hep::MCParticleCollection*     MCParticle = nullptr;
-    StatusCode sc = StatusCode::SUCCESS;
-    sc =  getCol(m_mcParCol_r  , MCParticle );
-    if (NULL != MCParticle   )  
+    StatusCode sc =  getCol(m_mcParCol_r  , MCParticle );
+    if (NULL != MCParticle   )
     { 
         for(unsigned int i=0 ; i< MCParticle->size(); i++)
         {
-            m_mc_p_size.push_back(MCParticle->at(i).parents_size());
-            m_mc_pid   .push_back(MCParticle->at(i).getPDG());
-            m_mc_mass  .push_back(MCParticle->at(i).getMass());
-            m_mc_px    .push_back(MCParticle->at(i).getMomentum()[0]);
-            m_mc_py    .push_back(MCParticle->at(i).getMomentum()[1]);
-            m_mc_pz    .push_back(MCParticle->at(i).getMomentum()[2]);
-            m_mc_charge.push_back(MCParticle->at(i).getCharge());
-            //if(MCParticle->at(i).parents_size()==0) std::cout<<"MYDBUG evt="<<n_current<<", mc i="<<i<<",px="<<MCParticle->at(i).getMomentum()[0]<<",py="<<MCParticle->at(i).getMomentum()[1]<<",pz="<<MCParticle->at(i).getMomentum()[2]<<std::endl;
+            m_mc_p_size[m_n_mc] = MCParticle->at(i).parents_size();
+            m_mc_pid   [m_n_mc] = MCParticle->at(i).getPDG();
+            m_mc_mass  [m_n_mc] = MCParticle->at(i).getMass();
+            m_mc_px    [m_n_mc] = MCParticle->at(i).getMomentum()[0];
+            m_mc_py    [m_n_mc] = MCParticle->at(i).getMomentum()[1];
+            m_mc_pz    [m_n_mc] = MCParticle->at(i).getMomentum()[2];
+            m_mc_charge[m_n_mc] = MCParticle->at(i).getCharge();
+            m_n_mc ++ ;
             if (MCParticle->at(i).getPDG() != 22) continue;
             int hasEm = 0;
             int hasEp = 0;
@@ -593,7 +584,12 @@ StatusCode PandoraPFAlg::Ana()
             if(hasEm && hasEp) m_hasConversion=1;
         }
     }
-    m_tree->Fill();
+    StatusCode status = m_tuple->write();
+    if ( status.isFailure() ) {
+        error() << "    Cannot fill N-tuple:" << long( m_tuple ) << endmsg;
+        return StatusCode::FAILURE;
+    }
+
     return StatusCode::SUCCESS;
 }
 

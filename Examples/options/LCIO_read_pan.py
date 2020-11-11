@@ -8,9 +8,7 @@ dsvc = K4DataSvc("EventDataSvc")
 from Configurables import LCIOInput
 read = LCIOInput("read")
 read.inputs = [
-#"/cefs/data/FullSim/CEPC240/CEPC_v4/higgs/smart_final_states/E240.Pffh_invi.e0.p0.whizard195//ffh_inv.e0.p0.00001_1000_sim.slcio"
-#"/junofs/users/wxfang/CEPC/CEPCOFF/doReco/reco_output/nnh_aa.e0.p0.00010_000000_rec.slcio"
-"/junofs/users/wxfang/MyGit/tmp/fork_update_pandora/CEPCSW/Digi_sim_0.slcio"
+"/cefs/higgs/wxfang/cepc/Pandora/CaloDigi/gamma/Digi_sim_1.slcio"
 ]
 read.collections = [
         "MCParticle:MCParticle",
@@ -47,7 +45,11 @@ read.collections = [
 ##############################################################################
 from Configurables import GearSvc
 gearSvc  = GearSvc("GearSvc")
-gearSvc.GearXMLFile = "../Detector/DetCEPCv4/compact/FullDetGear.xml"
+gearSvc.GearXMLFile = "Detector/DetCEPCv4/compact/FullDetGear.xml"
+##############################################################################
+from Configurables import NTupleSvc
+ntsvc = NTupleSvc("NTupleSvc")
+ntsvc.Output = ["MyTuples DATAFILE='LCIO_Pan_ana.root' OPT='NEW' TYP='ROOT'"]
 ##############################################################################
 from Configurables import PandoraPFAlg
 
@@ -55,6 +57,7 @@ pandoralg = PandoraPFAlg("PandoraPFAlg")
 pandoralg.use_dd4hep_geo     = False
 pandoralg.use_dd4hep_decoder = False
 pandoralg.use_preshower      = False
+pandoralg.WriteAna           = True
 pandoralg.collections = [
         "MCParticle:MCParticle",
         "CalorimeterHit:ECALBarrel",
@@ -77,9 +80,8 @@ pandoralg.collections = [
 pandoralg.WriteClusterCollection               = "PandoraClusters"              
 pandoralg.WriteReconstructedParticleCollection = "PandoraPFOs" 
 pandoralg.WriteVertexCollection                = "PandoraPFANewStartVertices"               
-pandoralg.AnaOutput = "Pandora_Ana.root"
 
-pandoralg.PandoraSettingsDefault_xml = "../Reconstruction/PFA/Pandora/PandoraSettingsDefault.xml"
+pandoralg.PandoraSettingsDefault_xml = "Reconstruction/PFA/Pandora/PandoraSettingsDefault.xml"
 #### Do not chage the collection name, only add or delete ###############
 pandoralg.TrackCollections      =  ["MarlinTrkTracks"]
 pandoralg.ECalCaloHitCollections=  ["ECALBarrel", "ECALEndcap", "ECALOther"]
@@ -119,16 +121,16 @@ pandoralg.AbsorberIntLengthOther= 0.006
 # write PODIO file
 from Configurables import PodioOutput
 write = PodioOutput("write")
-write.filename = "test.root"
+write.filename = "pan_test.root"
 write.outputCommands = ["keep *"]
 
 # ApplicationMgr
 from Configurables import ApplicationMgr
 ApplicationMgr(
-        #TopAlg = [read, pandoralg, write],
-        TopAlg = [read, pandoralg],
+        TopAlg = [read, pandoralg, write],
         EvtSel = 'NONE',
-        EvtMax = 1,
+        EvtMax = 10,
         ExtSvc = [dsvc, gearSvc],
+        HistogramPersistency = "ROOT",
         OutputLevel=INFO
 )
