@@ -20,7 +20,7 @@ Steve Aplin 26 June 2009 (DESY)
 #define TPCDigiAlg_h 1
 
 #include "GaudiAlg/GaudiAlgorithm.h"
-#include "FWCore/DataHandle.h"
+#include "k4FWCore/DataHandle.h"
 #include "edm4hep/EventHeaderCollection.h"
 #include "edm4hep/SimTrackerHitCollection.h"
 #include "edm4hep/TrackerHitCollection.h"

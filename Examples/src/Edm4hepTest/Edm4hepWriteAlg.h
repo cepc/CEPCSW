@@ -1,7 +1,7 @@
 #ifndef TEST_EDM4HEP_WRITE_ALG_H
 #define TEST_EDM4HEP_WRITE_ALG_H
 
-#include "FWCore/DataHandle.h"
+#include "k4FWCore/DataHandle.h"
 #include "GaudiAlg/GaudiAlgorithm.h"
 
 namespace edm4hep {

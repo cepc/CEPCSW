@@ -1,7 +1,7 @@
 #ifndef Calo_DIGI_ALG_H
 #define Calo_DIGI_ALG_H
 
-#include "FWCore/DataHandle.h"
+#include "k4FWCore/DataHandle.h"
 #include "GaudiAlg/GaudiAlgorithm.h"
 #include "edm4hep/SimCalorimeterHitConst.h"
 #include "edm4hep/SimCalorimeterHit.h"

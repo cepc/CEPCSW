@@ -7,7 +7,7 @@
 gaudi_subdir(GeomSvc v0r0)
 
 gaudi_depends_on_subdirs(
-    FWCore
+    k4FWCore
     Detector/DetInterface
 )
 

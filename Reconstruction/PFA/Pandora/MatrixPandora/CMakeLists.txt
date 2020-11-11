@@ -37,8 +37,8 @@ set(dir_srcs
 set(dir_include include)
 # Modules
 gaudi_add_module(MatrixPandora ${dir_srcs}
-    INCLUDE_DIRS ${dir_include} GaudiKernel FWCore ${CLHEP_INCLUDE_DIR}  ${LCIO_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} gear DD4hep  
-    LINK_LIBRARIES GaudiKernel FWCore ${CLHEP_LIBRARIES} ROOT ${LCIO_LIBRARIES} ${GEAR_LIBRARIES} DD4hep ${DD4hep_COMPONENT_LIBRARIES} DDRec DataHelperLib
+    INCLUDE_DIRS ${dir_include} GaudiKernel k4FWCore ${CLHEP_INCLUDE_DIR}  ${LCIO_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} gear DD4hep  
+    LINK_LIBRARIES GaudiKernel k4FWCore ${CLHEP_LIBRARIES} ROOT ${LCIO_LIBRARIES} ${GEAR_LIBRARIES} DD4hep ${DD4hep_COMPONENT_LIBRARIES} DDRec DataHelperLib
       -Wl,--no-as-needed 
       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
       -Wl,--as-needed 

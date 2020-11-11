@@ -7,7 +7,7 @@ find_package(GEAR REQUIRED)
 find_package(GSL REQUIRED ) 
 find_package(LCIO REQUIRED ) 
 find_package(podio REQUIRED ) 
-find_package(K4FWCore REQUIRED)
+find_package(k4FWCore REQUIRED)
 
 message("EDM4HEP_INCLUDE_DIRS: ${EDM4HEP_INCLUDE_DIR}")
 message("EDM4HEP_LIB: ${EDM4HEP_LIBRARIES}")
@@ -22,7 +22,7 @@ set(G2CDArbor_srcs src/*.cpp)
 
 # Modules
 gaudi_add_module(G2CDArbor ${G2CDArbor_srcs}
-    INCLUDE_DIRS K4FWCore GaudiKernel GaudiAlgLib ${CLHEP_INCLUDE_DIR} DD4hep gear ${GSL_INCLUDE_DIRS} ${LCIO_INCLUDE_DIRS}
-    LINK_LIBRARIES K4FWCore GaudiKernel GaudiAlgLib ${CLHEP_LIBRARIES} DD4hep ${GEAR_LIBRARIES} ${GSL_LIBRARIES} ${LCIO_LIBRARIES}
+    INCLUDE_DIRS k4FWCore GaudiKernel GaudiAlgLib ${CLHEP_INCLUDE_DIR} DD4hep gear ${GSL_INCLUDE_DIRS} ${LCIO_INCLUDE_DIRS}
+    LINK_LIBRARIES k4FWCore GaudiKernel GaudiAlgLib ${CLHEP_LIBRARIES} DD4hep ${GEAR_LIBRARIES} ${GSL_LIBRARIES} ${LCIO_LIBRARIES}
     EDM4HEP::edm4hep EDM4HEP::edm4hepDict
 )

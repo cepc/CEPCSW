@@ -2,7 +2,7 @@
 #define ClupatraProcessor_h 1
 
 #include "assert.h"
-#include "FWCore/DataHandle.h"
+#include "k4FWCore/DataHandle.h"
 #include "GearSvc/IGearSvc.h"
 #include "TrackSystemSvc/ITrackSystemSvc.h"
 

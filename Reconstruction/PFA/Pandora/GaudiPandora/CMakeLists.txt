@@ -39,8 +39,8 @@ set(dir_srcs
 set(dir_include include)
 # Modules
 gaudi_add_module(GaudiPandora ${dir_srcs}
-    INCLUDE_DIRS ${dir_include} GaudiKernel FWCore CLHEP  ${LCIO_INCLUDE_DIRS} ROOT gear DD4hep 
-    LINK_LIBRARIES GaudiKernel FWCore CLHEP ROOT ${LCIO_LIBRARIES} ${GEAR_LIBRARIES} DataHelperLib DD4hep ${DD4hep_COMPONENT_LIBRARIES} DDRec 
+    INCLUDE_DIRS ${dir_include} GaudiKernel k4FWCore CLHEP  ${LCIO_INCLUDE_DIRS} ROOT gear DD4hep 
+    LINK_LIBRARIES GaudiKernel k4FWCore CLHEP ROOT ${LCIO_LIBRARIES} ${GEAR_LIBRARIES} DataHelperLib DD4hep ${DD4hep_COMPONENT_LIBRARIES} DDRec 
       -Wl,--no-as-needed 
       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
       -Wl,--as-needed 

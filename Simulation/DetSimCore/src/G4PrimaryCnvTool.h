@@ -3,7 +3,7 @@
 
 #include "GaudiKernel/AlgTool.h"
 #include "DetSimInterface/IG4PrimaryCnvTool.h"
-#include "FWCore/DataHandle.h"
+#include "k4FWCore/DataHandle.h"
 
 #include "edm4hep/EventHeaderCollection.h"
 #include "edm4hep/MCParticleCollection.h"

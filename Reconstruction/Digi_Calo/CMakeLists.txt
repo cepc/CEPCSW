@@ -19,8 +19,8 @@ gaudi_depends_on_subdirs(
 )
 ## Modules
 gaudi_add_module(Digi_Calo ${srcs}
-    INCLUDE_DIRS FWCore GaudiKernel GaudiAlgLib ${CLHEP_INCLUDE_DIR} DD4hep 
-    LINK_LIBRARIES FWCore GaudiKernel GaudiAlgLib ${CLHEP_LIBRARIES} DD4hep ${DD4hep_COMPONENT_LIBRARIES} DDRec
+    INCLUDE_DIRS k4FWCore GaudiKernel GaudiAlgLib ${CLHEP_INCLUDE_DIR} DD4hep 
+    LINK_LIBRARIES k4FWCore GaudiKernel GaudiAlgLib ${CLHEP_LIBRARIES} DD4hep ${DD4hep_COMPONENT_LIBRARIES} DDRec
     -Wl,--no-as-needed 
     EDM4HEP::edm4hep EDM4HEP::edm4hepDict
 )

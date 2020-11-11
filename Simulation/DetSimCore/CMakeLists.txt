@@ -2,7 +2,7 @@
 gaudi_subdir(DetSimCore v0r0)
 
 gaudi_depends_on_subdirs(
-    FWCore
+    k4FWCore
     Simulation/DetSimInterface
 )
 

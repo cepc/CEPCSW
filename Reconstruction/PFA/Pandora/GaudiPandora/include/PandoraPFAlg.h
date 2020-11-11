@@ -1,7 +1,7 @@
 #ifndef PandoraPFAlg_H
 #define PandoraPFAlg_H
 
-#include "FWCore/DataHandle.h"
+#include "k4FWCore/DataHandle.h"
 #include "GaudiAlg/GaudiAlgorithm.h"
 //#include <gsl/gsl_rng.h>
 #include "edm4hep/ClusterCollection.h"

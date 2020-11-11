@@ -5,7 +5,7 @@ find_package(podio REQUIRED)
 #find_package(plcio REQUIRED)
 find_package(LCIO REQUIRED)
 find_package(EDM4HEP REQUIRED)
-find_package(K4FWCore REQUIRED)
+find_package(k4FWCore REQUIRED)
 find_package(DD4hep COMPONENTS DDRec DDParsers REQUIRED)
 
 gaudi_depends_on_subdirs(
@@ -27,8 +27,8 @@ gaudi_install_headers(Examples)
 
 # Modules
 gaudi_add_module(Examples ${Examples_srcs}
-    INCLUDE_DIRS K4FWCore GaudiAlgLib GaudiKernel ${podio_INCLUDE_DIRS} ${LCIO_INCLUDE_DIRS}
-    LINK_LIBRARIES K4FWCore GaudiAlgLib GaudiKernel ${LCIO_LIBRARIES} 
+    INCLUDE_DIRS k4FWCore GaudiAlgLib GaudiKernel ${podio_INCLUDE_DIRS} ${LCIO_INCLUDE_DIRS}
+    LINK_LIBRARIES k4FWCore GaudiAlgLib GaudiKernel ${LCIO_LIBRARIES} 
       DD4hep ${DD4hep_COMPONENT_LIBRARIES}
       # Force loading the libraries.
       -Wl,--no-as-needed EDM4HEP::edm4hep EDM4HEP::edm4hepDict ${podio_LIBRARIES} podio::podioRootIO -Wl,--as-needed
