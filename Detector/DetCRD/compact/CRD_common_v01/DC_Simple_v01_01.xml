@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lccdd>
+
+  <info name="DriftChamber"
+    title="Test with Drift Chamber"
+    author="Tao Lin"
+    url="http://github.com/cepc/CEPCSW"
+    status="development"
+    version="v0">
+    <comment>Test with Drift Chamber</comment>
+  </info>
+
+  <define>
+    <constant name="SDT_radius_min" value="InnerTracker_inner_radius"/>
+    <constant name="SDT_radius_max" value="OuterTracker_outer_radius"/>
+    <constant name="SDT_half_length" value="MainTracker_half_length"/>
+    <constant name="SDT_length" value="SDT_half_length*2"/>
+
+    <constant name="SDT_inner_chamber_radius_min" value="SDT_radius_min"/>
+    <constant name="SDT_inner_chamber_radius_max" value="InnerTracker_outer_radius"/>
+    <constant name="SDT_inner_chamber_length" value="SDT_length"/>
+
+    <constant name="SDT_outer_chamber_radius_min" value="OuterTracker_inner_radius"/>
+    <constant name="SDT_outer_chamber_radius_max" value="SDT_radius_max"/>
+    <constant name="SDT_outer_chamber_length" value="SDT_length"/>
+
+    <constant name="SDT_inner_chamber_layer_number" value="67"/>
+    <constant name="SDT_outer_chamber_layer_number" value="63"/>
+    <constant name="SDT_chamber_layer_width" value="10*mm"/>
+    <constant name="Epsilon" value="0*deg"/>
+  </define>
+
+  <detectors>
+    <detector id="DetID_DC" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="BlueVis" sensitive="true" insideTrackingVolume="true">
+      <envelope vis="SeeThrough">
+        <shape type="BooleanShape" operation="Union" material="Air">
+	  <shape type="Tube" rmin="SDT_inner_chamber_radius_min" rmax="SDT_inner_chamber_radius_max" dz="SDT_half_length" />
+          <shape type="Tube" rmin="SDT_outer_chamber_radius_min" rmax="SDT_outer_chamber_radius_max" dz="SDT_half_length" />
+        </shape>
+      </envelope>
+
+      <type_flags type="DetType_TRACKER + DetType_BARREL + DetType_GASEOUS + DetType_WIRE"/>
+
+      <!-- Use cm as unit if you want to use Pandora for reconstruction -->
+     <sensitive type="SimpleDriftChamber"/>
+     </detector>
+  </detectors>
+
+  <readouts>
+    <readout name="DriftChamberHitsCollection">
+      <segmentation type="GridDriftChamber" cell_size="10*mm" epsilon0="Epsilon" detector_length="SDT_length" identifier_phi="cellID" />
+
+      <id>system:8,chamber:1,layer:8,cellID:16</id>
+    </readout>
+  </readouts>
+
+</lccdd>
