@@ -52,6 +52,14 @@
 
   <detectors>
     <detector id="1" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="VisibleBlue" sensitive="true">
+      <envelope vis="SeeThrough">
+        <shape type="BooleanShape" operation="Union" material="Air">
+          <shape type="Tube" rmin="SDT_inner_chamber_radius_min" rmax="SDT_inner_chamber_radius_max" dz="SDT_half_length" />
+          <shape type="Tube" rmin="SDT_outer_chamber_radius_min" rmax="SDT_outer_chamber_radius_max" dz="SDT_half_length" />
+        </shape>
+      </envelope>
+
+      <type_flags type="DetType_TRACKER + DetType_BARREL + DetType_GASEOUS + DetType_WIRE"/>
       <!-- Use cm as unit if you want to use Pandora for reconstruction -->
      <sensitive type="SimpleDriftChamber"/>
      </detector>
