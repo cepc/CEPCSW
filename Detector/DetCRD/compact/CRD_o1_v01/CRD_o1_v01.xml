@@ -39,4 +39,13 @@
   <!--include ref="../CRD_common_v01/Yoke_v01_01.xml"/-->
   <!--include ref="../CRD_common_v01/Lcal_v01_01.xml"/-->
 
+  <fields>
+    <field name="GlobalSolenoid" type="solenoid"
+           inner_field="Field_nominal_value"
+           outer_field="Field_outer_nominal_value"
+           zmax="SolenoidCoil_half_length"
+           outer_radius="SolenoidCoil_center_radius">
+    </field>
+  </fields>
+
 </lccdd>

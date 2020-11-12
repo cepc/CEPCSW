@@ -20,7 +20,8 @@
     <constant name="GlobalTrackerReadoutID_DCH" type="string" value="system:8,chamber:1,layer:7,phi:16"/>
     <constant name="GlobalTrackerReadoutID" type="string" value="system:5,side:-2,layer:9,module:8,sensor:8,barrelside:-2"/>
 
-    <constant name="SolenoidField" value="3*tesla"/>
+    <constant name="Field_nominal_value" value="3*tesla"/>
+    <constant name="Field_outer_nominal_value" value="-1.3*tesla"/>
 
     <constant name="env_safety" value="0.1*mm"/>
 
@@ -128,6 +129,7 @@
     <constant name="Solenoid_half_length" value="3000*mm"/>
     <constant name="SolenoidCoil_half_length" value="2900*mm"/>
     <constant name="SolenoidCoil_radius" value="2300*mm"/>
+    <constant name="SolenoidCoil_center_radius" value="(Solenoid_inner_radius+Solenoid_outer_radius)/2"/>
 
     <constant name="Hcal_barrel_inner_radius" value="2600*mm"/>
     <constant name="Hcal_barrel_outer_radius" value="3700*mm"/>
