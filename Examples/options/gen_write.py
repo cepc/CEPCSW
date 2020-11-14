@@ -2,8 +2,8 @@
 
 from Gaudi.Configuration import *
 
-from Configurables import CEPCDataSvc
-dsvc = CEPCDataSvc("EventDataSvc")
+from Configurables import k4DataSvc
+dsvc = k4DataSvc("EventDataSvc")
 
 from Configurables import GenAlgo
 

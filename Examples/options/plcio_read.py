@@ -2,8 +2,8 @@
 
 from Gaudi.Configuration import *
 
-from Configurables import K4DataSvc
-dsvc = K4DataSvc("EventDataSvc", input="test.root")
+from Configurables import k4DataSvc
+dsvc = k4DataSvc("EventDataSvc", input="test.root")
 
 from Configurables import PlcioReadAlg
 alg = PlcioReadAlg("PlcioReadAlg")

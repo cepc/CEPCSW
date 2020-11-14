@@ -2,8 +2,8 @@
 
 from Gaudi.Configuration import *
 
-from Configurables import K4DataSvc
-dsvc = K4DataSvc("EventDataSvc")
+from Configurables import k4DataSvc
+dsvc = k4DataSvc("EventDataSvc")
 
 from Configurables import Edm4hepWriteAlg
 alg = Edm4hepWriteAlg("Edm4hepWriteAlg")

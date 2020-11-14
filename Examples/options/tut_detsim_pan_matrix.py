@@ -18,8 +18,8 @@ rndmengine.Seeds = [42]
 ##############################################################################
 # Event Data Svc
 ##############################################################################
-from Configurables import K4DataSvc
-dsvc = K4DataSvc("EventDataSvc")
+from Configurables import k4DataSvc
+dsvc = k4DataSvc("EventDataSvc")
 
 
 ##############################################################################
