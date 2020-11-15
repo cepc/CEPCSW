@@ -211,26 +211,16 @@ StatusCode G2CDArborAlg::initialize() {
        error() << "failed to retrieve dd4hep_geo: " << m_dd4hep_geo << endmsg;
        return StatusCode::FAILURE;
      }
-     /*
-     // get the DD4hep readout
-     const std::string name_readout = "EcalBarrelCollection";
-     m_decoder = m_geosvc->getDecoder(name_readout);
-     if (!m_decoder) {
-       error() << "Failed to get the decoder. " << endmsg;
-       return StatusCode::FAILURE;
-     }
-     */
 
      m_encoder_str = "M:3,S-1:3,I:9,J:9,K-1:6";
 
-     // printParameters();
-     // WeightVector.clear();
-     for(unsigned int i = 0; i < m_ecalReadoutNames.value().size(); i++){
-         m_col_readout_map[m_ecalColNames.value().at(i)] = m_ecalReadoutNames.value().at(i);
-         //std::cout<<"name="<<m_ecalColNames.value().at(i)<<",readout="<<m_ecalReadoutNames.value().at(i)<<std::endl;
-     }
-     for(unsigned int i = 0; i < m_hcalReadoutNames.value().size(); i++){
-         m_col_readout_map[m_hcalColNames.value().at(i)] = m_hcalReadoutNames.value().at(i);
+     if(m_readLCIO==false){
+         for(unsigned int i = 0; i < m_ecalReadoutNames.value().size(); i++){
+             m_col_readout_map[m_ecalColNames.value().at(i)] = m_ecalReadoutNames.value().at(i);
+         }
+         for(unsigned int i = 0; i < m_hcalReadoutNames.value().size(); i++){
+             m_col_readout_map[m_hcalColNames.value().at(i)] = m_hcalReadoutNames.value().at(i);
+         }
      }
 
      for (auto& ecal : m_ecalColNames) {
@@ -499,12 +489,14 @@ StatusCode G2CDArborAlg::execute()
 
 	  // for(int k1 = 0; k1 < NumEcalhit; k1++)
 	  // {	
-	  std::string tmp_readout = m_col_readout_map[m_ecalColNames.value().at(k0)];
-          // get the DD4hep readout
-          m_decoder = m_geosvc->getDecoder(tmp_readout);
-          if (!m_decoder) {
-            error() << "Failed to get the decoder. " << endmsg;
-            return StatusCode::FAILURE;
+	  if(m_readLCIO==false){
+	      std::string tmp_readout = m_col_readout_map[m_ecalColNames.value().at(k0)];
+              // get the DD4hep readout
+              m_decoder = m_geosvc->getDecoder(tmp_readout);
+              if (!m_decoder) {
+                error() << "Failed to get the decoder. " << endmsg;
+                return StatusCode::FAILURE;
+              }
           }
 
 	  edm4hep::CalorimeterHitCollection* ecalcol = _outputEcalCollections[k0]->createAndPut();
