@@ -9,18 +9,6 @@
 #include "DD4hep/IDDescriptor.h"
 #include "DD4hep/Plugins.h"
 
-// #include <EVENT/LCCollection.h>
-// #include <EVENT/MCParticle.h>
-// #include <EVENT/SimCalorimeterHit.h>
-// #include <EVENT/CalorimeterHit.h>
-// #include <EVENT/LCFloatVec.h>
-// #include <EVENT/LCParameters.h>
-// #include <IMPL/CalorimeterHitImpl.h>
-// #include <IMPL/LCCollectionVec.h>
-// #include <IMPL/LCFlagImpl.h>
-// #include <IMPL/LCRelationImpl.h>
-// #include "UTIL/CellIDDecoder.h"
-// #include "DetectorPos.hh"
 
 #include <values.h>
 #include <string>
@@ -39,8 +27,6 @@
 #include <TVector3.h>
 
 using namespace std;
-// using namespace lcio ;
-// using namespace marlin ;
 
 DECLARE_COMPONENT( G2CDArborAlg )
 
@@ -225,7 +211,7 @@ StatusCode G2CDArborAlg::initialize() {
        error() << "failed to retrieve dd4hep_geo: " << m_dd4hep_geo << endmsg;
        return StatusCode::FAILURE;
      }
-
+     /*
      // get the DD4hep readout
      const std::string name_readout = "EcalBarrelCollection";
      m_decoder = m_geosvc->getDecoder(name_readout);
@@ -233,11 +219,19 @@ StatusCode G2CDArborAlg::initialize() {
        error() << "Failed to get the decoder. " << endmsg;
        return StatusCode::FAILURE;
      }
+     */
 
      m_encoder_str = "M:3,S-1:3,I:9,J:9,K-1:6";
 
      // printParameters();
      // WeightVector.clear();
+     for(unsigned int i = 0; i < m_ecalReadoutNames.value().size(); i++){
+         m_col_readout_map[m_ecalColNames.value().at(i)] = m_ecalReadoutNames.value().at(i);
+         //std::cout<<"name="<<m_ecalColNames.value().at(i)<<",readout="<<m_ecalReadoutNames.value().at(i)<<std::endl;
+     }
+     for(unsigned int i = 0; i < m_hcalReadoutNames.value().size(); i++){
+         m_col_readout_map[m_hcalColNames.value().at(i)] = m_hcalReadoutNames.value().at(i);
+     }
 
      for (auto& ecal : m_ecalColNames) {
 	  _ecalCollections.push_back( new SimCaloType(ecal, Gaudi::DataHandle::Reader, this) );
@@ -505,6 +499,13 @@ StatusCode G2CDArborAlg::execute()
 
 	  // for(int k1 = 0; k1 < NumEcalhit; k1++)
 	  // {	
+	  std::string tmp_readout = m_col_readout_map[m_ecalColNames.value().at(k0)];
+          // get the DD4hep readout
+          m_decoder = m_geosvc->getDecoder(tmp_readout);
+          if (!m_decoder) {
+            error() << "Failed to get the decoder. " << endmsg;
+            return StatusCode::FAILURE;
+          }
 
 	  edm4hep::CalorimeterHitCollection* ecalcol = _outputEcalCollections[k0]->createAndPut();
 	  auto Ecalcol = _ecalCollections[k0]->get();
@@ -518,9 +519,9 @@ StatusCode G2CDArborAlg::execute()
 	       ID_UTIL::CellIDDecoder<edm4hep::SimCalorimeterHit> cellIdDecoder(m_encoder_str);
 	       const std::string layerCodingString(m_encoder_str);
 	       const std::string layerCoding(this->GetLayerCoding(layerCodingString));
-	       if(m_readLCIO) LayerNum = m_decoder->get(cellid, "layer");
-	       else LayerNum = cellIdDecoder(&SimEcalhit)[layerCoding.c_str()];
-	       // cout << "LayerNum = " << LayerNum << endl;
+	       if(m_readLCIO==false) LayerNum = m_decoder->get(cellid, "layer");//from 0 - 29, 0 is preshower
+	       else LayerNum = cellIdDecoder(&SimEcalhit)[layerCoding.c_str()] + 1 ;//now it is 0 - 29, 0 is preshower
+	       //cout << "LayerNum = " << LayerNum << endl;
 
 	       HitEn = SimEcalhit.getEnergy();
 	       unsigned long long cellID = SimEcalhit.getCellID();
@@ -544,10 +545,12 @@ StatusCode G2CDArborAlg::execute()
 
 	       // _calibCoeffEcal[0] = 48.16;
 	       // _calibCoeffEcal[1] = 96.32;
-	       if(LayerNum < _NEcalThinLayer)
+	       //if(LayerNum < _NEcalThinLayer) 
+	       if(LayerNum <= _NEcalThinLayer) //layer from 0 - 20 should be thin, total 21 thin layers, _NEcalThinLayer should be 20
 	  	    DigiHitEn = HitEn * _calibCoeffEcal[0];
 	       else 	
 	  	    DigiHitEn = HitEn * _calibCoeffEcal[1];
+	       if( LayerNum==0) DigiHitEn = HitEn; // 0 is preshower layer
 
 	       totalEnergy += DigiHitEn;
 	       if(HitEn > _thresholdEcal)
