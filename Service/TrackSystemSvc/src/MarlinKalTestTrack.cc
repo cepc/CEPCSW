@@ -1015,10 +1015,13 @@ namespace MarlinTrk {
   }
   
   int MarlinKalTestTrack::getTrackerHitAtPositiveNDF( edm4hep::ConstTrackerHit& trkhit ) {
-
+    if(_trackHitAtPositiveNDF.isAvailable()){
       trkhit = _trackHitAtPositiveNDF;
       return success;    
-
+    }
+    else{
+      return error;
+    }
   }
   
   
