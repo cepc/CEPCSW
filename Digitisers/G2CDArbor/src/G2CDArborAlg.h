@@ -71,6 +71,9 @@ protected:
      Gaudi::Property<std::vector<std::string>> m_hcalColNames{this, "HCALCollections", {"HcalBarrelRegCollection", "HcalEndcapsCollection", "HcalEndcapRingsCollection"}, "HCAL Collection Names"};
      std::vector<SimCaloType*> _hcalCollections;
 
+     Gaudi::Property<std::vector<std::string>> m_ecalReadoutNames{this, "ECALReadOutNames", {"EcalBarrelCollection", "EcalEndcapsCollection","EcalEndcapRingCollection"}, "Name of readouts"};
+     Gaudi::Property<std::vector<std::string>> m_hcalReadoutNames{this, "HCALReadOutNames", {"HcalBarrelCollection", "HcalEndcapsCollection","HcalEndcapRingCollection"}, "Name of readouts"};
+     std::map<std::string, std::string> m_col_readout_map;
 
      // Output collections
      typedef DataHandle<edm4hep::CalorimeterHitCollection>  CaloHitType;
