@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 from Gaudi.Configuration import *
-from Configurables import K4DataSvc
-dsvc = K4DataSvc("EventDataSvc")
+from Configurables import k4DataSvc
+dsvc = k4DataSvc("EventDataSvc")
 
 # read LCIO files
 from Configurables import LCIOInput
