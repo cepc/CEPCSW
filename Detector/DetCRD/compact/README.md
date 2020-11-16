@@ -19,7 +19,7 @@ The following CRD detector models are available in CEPCSW
          - Detector/DetCEPCv4/src/tracker/VXD04_geo.cpp
          - Detector/DetCEPCv4/src/tracker/SIT_Simple_Planar_geo.cpp
  - MainTracker
-         - with Dirft Chamber + silicon layer between inner and outer chambers (DC + SIT34)
+         - with Dirft Chamber + silicon layer between inner and outer chambers (DC + SIT34 + SET)
          - DC_outer_radius = 1716*mm
          - Detector/DetDriftChamber/src/driftchamber/DriftChamber.cpp
          - Detector/DetCEPCv4/src/tracker/SET_Simple_Planar_geo.cpp  
