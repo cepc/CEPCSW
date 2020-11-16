@@ -6,7 +6,7 @@ The following CRD detector models are available in CEPCSW
 | ------------- | -----------------------------|------------ |---------|------|----------------|
 | CRD_o1_v01    | coil inside simulation model | DC          | crystal | RPC  | developing     |
 | ------------- | -----------------------------|-------------|---------|------|----------------|
-
+ 
 ## Details
 
 ### CRD_o1_v01 (first preliminary import, to update)
