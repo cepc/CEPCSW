@@ -120,6 +120,16 @@ AnExampleDetElemTool::ConstructSDandField() {
                         warning() << "DriftChamberSensDetTool is not found. " << endmsg;
                     }
                 }
+		else if (nam == "TPC") {
+		  m_tpc_sdtool = ToolHandle<ISensDetTool>("TimeProjectionChamberSensDetTool");
+		  if (m_tpc_sdtool) {
+		    info() << "Find the TimeProjectionChamberSensDetTool" << endmsg;
+		    g4sd = m_tpc_sdtool->createSD(nam);
+		  }
+		  else {
+		    warning() << "TimeProjectionChamberSensDetTool is not found, and default tracker SD will be used" << endmsg;
+		  }
+		}
 
             }
         }
@@ -199,6 +209,7 @@ AnExampleDetElemTool::initialize() {
 
     m_calo_sdtool = ToolHandle<ISensDetTool>("CalorimeterSensDetTool");
     m_driftchamber_sdtool = ToolHandle<ISensDetTool>("DriftChamberSensDetTool");
+    m_tpc_sdtool = ToolHandle<ISensDetTool>("TimeProjectionChamberSensDetTool");
 
     return sc;
 }
