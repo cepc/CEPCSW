@@ -68,13 +68,17 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 
     dd4hep::DetElement sdet(det_name, x_det.id());
 
-    dd4hep::Volume motherVol = theDetector.pickMotherVolume(sdet);
+    Volume envelope = dd4hep::xml::createPlacedEnvelope( theDetector,  e , sdet ) ;
+
+    dd4hep::xml::setDetectorTypeFlag( e, sdet ) ;
+
+    if( theDetector.buildType() == BUILD_ENVELOPE ) return sdet ;
+
 
     dd4hep::Material det_mat(theDetector.material("Air"));
 
     // - global
-    dd4hep::Tube det_solid(chamber_radius_min, chamber_radius_max, chamber_length*0.5);
-    dd4hep::Volume det_vol(det_name+"_vol", det_solid, det_mat);
+    Assembly det_vol( det_name+"_assembly" ) ;
 
     // - inner
     dd4hep::Tube det_inner_chamber_solid(inner_chamber_radius_min, inner_chamber_radius_max, inner_chamber_length*0.5);
@@ -141,6 +145,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
             dd4hep::Position(0,0,0));
      dd4hep::PlacedVolume det_inner_chamber_phy = det_vol.placeVolume(det_inner_chamber_vol,
             transform_inner_chamber);
+     
      det_inner_chamber_phy.addPhysVolID("chamber", 0);
 
     // outer
@@ -148,19 +153,19 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
             dd4hep::Position(0,0,0));
     dd4hep::PlacedVolume det_outer_chamber_phy = det_vol.placeVolume(det_outer_chamber_vol,
             transform_inner_chamber);
+    
     det_outer_chamber_phy.addPhysVolID("chamber", 1);
 
     // - place in world
     dd4hep::Transform3D transform(dd4hep::Rotation3D(),
             dd4hep::Position(0,0,0));
-    dd4hep::PlacedVolume phv = motherVol.placeVolume(det_vol,transform);
-
+    dd4hep::PlacedVolume phv = envelope.placeVolume(det_vol,transform); 
 
     if ( x_det.hasAttr(_U(id)) )  {
         phv.addPhysVolID("system",x_det.id());
     }
-
-    sdet.setPlacement(phv);
+    DetElement assDE( sdet , det_name+"_assembly" , x_det.id() )  ;
+    assDE.setPlacement(phv);
 
     MYDEBUG("Build Detector Drift Chamber successfully.");
     return sdet;

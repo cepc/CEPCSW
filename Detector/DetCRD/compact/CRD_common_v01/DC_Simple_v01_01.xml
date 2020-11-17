@@ -10,28 +10,17 @@
     <comment>Test with Drift Chamber</comment>
   </info>
 
-  <includes>
-    <gdmlFile  ref="elements.xml"/>
-    <gdmlFile  ref="materials.xml"/>
-  </includes>
-
   <define>
-    <constant name="world_size" value="30*m"/>
-    <constant name="world_x" value="world_size"/>
-    <constant name="world_y" value="world_size"/>
-    <constant name="world_z" value="world_size"/>
-
-    <!-- SDT -->
-    <constant name="SDT_radius_min" value="235*mm"/>
-    <constant name="SDT_radius_max" value="1716*mm"/>
-    <constant name="SDT_half_length" value="2225*mm"/>
+    <constant name="SDT_radius_min" value="InnerTracker_inner_radius"/>
+    <constant name="SDT_radius_max" value="OuterTracker_outer_radius"/>
+    <constant name="SDT_half_length" value="MainTracker_half_length"/>
     <constant name="SDT_length" value="SDT_half_length*2"/>
 
     <constant name="SDT_inner_chamber_radius_min" value="SDT_radius_min"/>
-    <constant name="SDT_inner_chamber_radius_max" value="909*mm"/>
+    <constant name="SDT_inner_chamber_radius_max" value="InnerTracker_outer_radius"/>
     <constant name="SDT_inner_chamber_length" value="SDT_length"/>
 
-    <constant name="SDT_outer_chamber_radius_min" value="1085*mm"/>
+    <constant name="SDT_outer_chamber_radius_min" value="OuterTracker_inner_radius"/>
     <constant name="SDT_outer_chamber_radius_max" value="SDT_radius_max"/>
     <constant name="SDT_outer_chamber_length" value="SDT_length"/>
 
@@ -39,27 +28,19 @@
     <constant name="SDT_outer_chamber_layer_number" value="63"/>
     <constant name="SDT_chamber_layer_width" value="10*mm"/>
     <constant name="Epsilon" value="0*deg"/>
-
   </define>
 
-  <display>
-    <vis name="Invisible" showDaughters="false" visible="false"/>
-    <vis name="InvisibleWithChildren" showDaughters="true" visible="false"/>
-    <vis name="VisibleRed"  r="1.0" g="0.0" b="0.0" showDaughters="true" visible="true"/>
-    <vis name="VisibleBlue" r="0.0" g="0.0" b="1.0" showDaughters="false" visible="true"/>
-    <vis name="VisibleGreen" alpha="1.0" r="0.0" g="1.0" b="0.0" drawingStyle="solid" lineStyle="solid" showDaughters="true" visible="true"/>
-  </display>
-
   <detectors>
-    <detector id="1" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="VisibleBlue" sensitive="true">
+    <detector id="DetID_DC" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="BlueVis" sensitive="true" insideTrackingVolume="true">
       <envelope vis="SeeThrough">
         <shape type="BooleanShape" operation="Union" material="Air">
-          <shape type="Tube" rmin="SDT_inner_chamber_radius_min" rmax="SDT_inner_chamber_radius_max" dz="SDT_half_length" />
+	  <shape type="Tube" rmin="SDT_inner_chamber_radius_min" rmax="SDT_inner_chamber_radius_max" dz="SDT_half_length" />
           <shape type="Tube" rmin="SDT_outer_chamber_radius_min" rmax="SDT_outer_chamber_radius_max" dz="SDT_half_length" />
         </shape>
       </envelope>
 
       <type_flags type="DetType_TRACKER + DetType_BARREL + DetType_GASEOUS + DetType_WIRE"/>
+
       <!-- Use cm as unit if you want to use Pandora for reconstruction -->
      <sensitive type="SimpleDriftChamber"/>
      </detector>
@@ -72,13 +53,5 @@
       <id>system:8,chamber:1,layer:8,cellID:16</id>
     </readout>
   </readouts>
-
-  <fields>
-
-    <field name="MagnetFields_Constant" type="ConstantField" field="magnetic">
-      <strength x="0" y="0" z="3.0*tesla"/>
-    </field>
-
-  </fields>
 
 </lccdd>

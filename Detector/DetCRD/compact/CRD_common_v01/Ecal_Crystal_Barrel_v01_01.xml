@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lccdd>
+  <define>
+    <constant name="ecalbarrel_inner_radius" value="Ecal_barrel_inner_radius"/>
+    <constant name="ecalbarrel_thickness"    value="Ecal_barrel_thickness"/>    <!--Must be n*10*mm! -->
+    <constant name="ecalbarrel_zlength"      value="Ecal_barrel_half_length*2"/>   <!--Must be n*10*mm! -->
+  </define>
+
+  <detectors>
+    <detector id="DetID_ECAL" name="CaloDetector" type="CRDEcalBarrel" readout="EcalBarrelCollection" vis="Invisible" sensitive="true">
+      <!-- Use cm as unit if you want to use Pandora for reconstruction -->
+    </detector>
+  </detectors>
+  
+  <readouts>
+    <readout name="EcalBarrelCollection">
+      <!-- <segmentation type="NoSegmentation"/> -->
+
+      <!--segmentation type="CartesianGridXYZ"
+                    grid_size_x="1*cm"
+                    grid_size_y="1*cm"
+                    grid_size_z="1*cm"/-->
+      <id>system:4,layer:6,block:8,bar:10</id>
+    </readout>
+  </readouts>
+
+</lccdd>
