@@ -31,7 +31,7 @@ StatusCode TimeProjectionChamberSensDetTool::finalize() {
 }
 
 G4VSensitiveDetector* TimeProjectionChamberSensDetTool::createSD(const std::string& name) {
-  debug() << "createSD" << endmsg;
+  debug() << "createSD for TPC" << endmsg;
   
   dd4hep::Detector* dd4hep_geo = m_geosvc->lcdd();
 
