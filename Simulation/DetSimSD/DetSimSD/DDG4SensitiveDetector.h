@@ -45,12 +45,12 @@ public:
     /// Returns the volumeID of the sensitive volume corresponding to the step -
     /// combining the VolIDS of the complete geometry path (Geant4TouchableHistory)
     //  from the current sensitive volume to the world volume
-    virtual long long getVolumeID(G4Step* step);
+    virtual long long getVolumeID(const G4Step* step);
 
     /// Returns the volumeID of the sensitive volume corresponding to the step -
     /// combining the VolIDS of the complete geometry path (Geant4TouchableHistory)
     //  from the current sensitive volume to the world volume
-    virtual long long getCellID(G4Step* step);
+    virtual long long getCellID(const G4Step* step);
 
 
 protected:

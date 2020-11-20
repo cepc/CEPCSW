@@ -48,7 +48,7 @@ DDG4SensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE) {
 }
 
 long long
-DDG4SensitiveDetector::getVolumeID(G4Step* aStep) {
+DDG4SensitiveDetector::getVolumeID(const G4Step* aStep) {
 
     dd4hep::sim::Geant4StepHandler step(aStep);
     dd4hep::sim::Geant4VolumeManager volMgr = dd4hep::sim::Geant4Mapping::instance().volumeManager();
@@ -58,7 +58,7 @@ DDG4SensitiveDetector::getVolumeID(G4Step* aStep) {
 }
 
 long long
-DDG4SensitiveDetector::getCellID(G4Step* step) {
+DDG4SensitiveDetector::getCellID(const G4Step* step) {
     dd4hep::sim::Geant4StepHandler h(step);
     dd4hep::sim::Geant4VolumeManager volMgr = dd4hep::sim::Geant4Mapping::instance().volumeManager();
     dd4hep::VolumeID volID  = volMgr.volumeID(h.preTouchable());

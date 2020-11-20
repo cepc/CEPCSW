@@ -19,6 +19,9 @@ set(DetSimSD_srcs
 
     src/DriftChamberSensDetTool.cpp
     src/DriftChamberSensitiveDetector.cpp
+
+    src/TimeProjectionChamberSensDetTool.cpp
+    src/TimeProjectionChamberSensitiveDetector.cpp
 )
 
 gaudi_add_module(DetSimSD ${DetSimSD_srcs}
