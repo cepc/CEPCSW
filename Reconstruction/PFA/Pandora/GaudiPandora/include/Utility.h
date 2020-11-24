@@ -16,5 +16,7 @@ namespace PanUtil{
     int getLayer(float x, float y, float z, std::vector<float>& layers);
     int getLayer_v1(float x, float y, float z, std::vector<float>& layers);
     int getStave(float x, float y);
+    double getFieldFromCompact();
+    std::vector<double> getTrackingRegionExtent();
 }
 #endif

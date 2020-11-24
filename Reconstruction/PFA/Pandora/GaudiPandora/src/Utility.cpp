@@ -5,6 +5,36 @@ std::string PanUtil::Convert (float number){
     buff<<number;
     return buff.str();   
 }
+
+double PanUtil::getFieldFromCompact(){
+    dd4hep::Detector& mainDetector = dd4hep::Detector::getInstance();
+    const double position[3]={0,0,0}; // position to calculate magnetic field at (the origin in this case)
+    double magneticFieldVector[3]={0,0,0}; // initialise object to hold magnetic field
+    mainDetector.field().magneticField(position,magneticFieldVector); // get the magnetic field vector from DD4hep
+    return magneticFieldVector[2]/dd4hep::tesla; // z component at (0,0,0)
+}
+
+std::vector<double> PanUtil::getTrackingRegionExtent(){
+  
+  ///Rmin, Rmax, Zmax
+  std::vector<double> extent;
+  
+  extent.reserve(3);
+  try{ 
+      dd4hep::Detector & mainDetector = dd4hep::Detector::getInstance();
+      extent[0]=0.1; ///FIXME! CLIC-specific: Inner radius was set to 0 for SiD-type detectors
+      extent[1]=mainDetector.constantAsDouble("tracker_region_rmax")/dd4hep::mm;
+      extent[2]=mainDetector.constantAsDouble("tracker_region_zmax")/dd4hep::mm;
+  }
+  catch(std::runtime_error &exception){
+      std::cout<<"WARNING, does not find TrackingRegion info from dd4hep, set it to dummy value:"<<exception.what()<<std::endl;
+      extent[0]=0.1;
+      extent[1]=1000;
+      extent[2]=2000;
+  }
+  return extent;
+}
+
 dd4hep::rec::LayeredCalorimeterData * PanUtil::getExtension(unsigned int includeFlag, unsigned int excludeFlag=0) {
   
   

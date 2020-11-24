@@ -100,12 +100,21 @@ void GeometryCreator::SetMandatorySubDetectorParameters(SubDetectorTypeMap &subD
     const gear::TPCParameters &tpcParameters(_GEAR->getTPCParameters());
     trackerParameters.m_subDetectorName = "Tracker";
     trackerParameters.m_subDetectorType = pandora::INNER_TRACKER;
-    trackerParameters.m_innerRCoordinate = tpcParameters.getPadLayout().getPlaneExtent()[0];
+    if(m_settings.m_use_dd4hep_geo){
+        std::vector<double> tmp_extent = PanUtil::getTrackingRegionExtent();
+        trackerParameters.m_innerRCoordinate = tmp_extent[0];
+        trackerParameters.m_outerRCoordinate = tmp_extent[1];
+        trackerParameters.m_outerZCoordinate = tmp_extent[2];
+        std::cout<<"DD m_innerRCoordinate="<<trackerParameters.m_innerRCoordinate.Get()<<",m_outerRCoordinate="<<trackerParameters.m_outerRCoordinate.Get()<<",m_outerZCoordinate="<<trackerParameters.m_outerZCoordinate.Get()<<std::endl;
+    }
+    else{
+        trackerParameters.m_innerRCoordinate = tpcParameters.getPadLayout().getPlaneExtent()[0];
+        trackerParameters.m_outerRCoordinate = tpcParameters.getPadLayout().getPlaneExtent()[1];
+        trackerParameters.m_outerZCoordinate = tpcParameters.getMaxDriftLength();
+    }
     trackerParameters.m_innerZCoordinate = 0.f;
     trackerParameters.m_innerPhiCoordinate = 0.f;
     trackerParameters.m_innerSymmetryOrder = 0;
-    trackerParameters.m_outerRCoordinate = tpcParameters.getPadLayout().getPlaneExtent()[1];
-    trackerParameters.m_outerZCoordinate = tpcParameters.getMaxDriftLength();
     trackerParameters.m_outerPhiCoordinate = 0.f;
     trackerParameters.m_outerSymmetryOrder = 0;
     trackerParameters.m_isMirroredInZ = true;
