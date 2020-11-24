@@ -83,11 +83,13 @@ GtGunTool::mutate(MyHepMC::GenEvent& event) {
         const std::string& particle_name = m_particles.value()[i];
         int pdgcode = 0;
         double mass = 0;
+        double charge = 0;
 
         TParticlePDG* particle = db_pdg->GetParticle(particle_name.c_str());
         if (particle) {
             pdgcode = particle->PdgCode();
             mass = particle->Mass(); // GeV
+            charge = particle->Charge()/3; // in ROOT, it is in units of |e|/3
         } else {
             // guess it is pdg code
             pdgcode = atol(particle_name.c_str());
@@ -104,7 +106,7 @@ GtGunTool::mutate(MyHepMC::GenEvent& event) {
         mcp.setPDG(pdgcode);
         mcp.setGeneratorStatus(1);
         mcp.setSimulatorStatus(1);
-        // mcp.setCharge();
+        mcp.setCharge(static_cast<float>(charge));
         mcp.setTime(0.0);
         mcp.setMass(mass);
 
