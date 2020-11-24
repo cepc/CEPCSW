@@ -74,8 +74,8 @@ TrackCreator::TrackCreator(const Settings &settings, const pandora::Pandora *con
                   std::cout<<"TrackCreator WARNING:Does not find TPC parameter from dd4hep and set it to dummy value"<<std::endl;
               }
            }
-        catch (...){
-            std::cout<<"TrackCreator WARNING:exception during TPC parameter construction."<<std::endl;
+        catch (std::runtime_error &exception){
+            std::cout<<"TrackCreator WARNING:exception during TPC parameter construction:"<<exception.what()<<std::endl;
         }
         //Instead of gear, loop over a provided list of forward (read: endcap) tracking detectors.
         const std::vector< dd4hep::DetElement>& endcapDets = dd4hep::DetectorSelector(mainDetector).detectors(  ( dd4hep::DetType::TRACKER | dd4hep::DetType::ENDCAP )) ;
@@ -106,8 +106,8 @@ TrackCreator::TrackCreator(const Settings &settings, const pandora::Pandora *con
                 }
                 m_nFtdLayers = m_ftdZPositions.size() ;
             }
-            catch (...){
-            std::cout<<"TrackCreator WARNING: exception during Forward Tracking Disk parameter construction for detector "<<std::endl;
+            catch (std::runtime_error &exception){
+            std::cout<<"TrackCreator WARNING: exception during Forward Tracking Disk parameter construction for detector: "<<exception.what()<<std::endl;
             }
         }
         // Calculate etd and set parameters

@@ -26,8 +26,8 @@ std::vector<double> PanUtil::getTrackingRegionExtent(){
       extent[1]=mainDetector.constantAsDouble("tracker_region_rmax")/dd4hep::mm;
       extent[2]=mainDetector.constantAsDouble("tracker_region_zmax")/dd4hep::mm;
   }
-  catch(...){
-      std::cout<<"WARNING, does not find TrackingRegion info from dd4hep, set it to dummy value"<<std::endl;
+  catch(std::runtime_error &exception){
+      std::cout<<"WARNING, does not find TrackingRegion info from dd4hep, set it to dummy value:"<<exception.what()<<std::endl;
       extent[0]=0.1;
       extent[1]=1000;
       extent[2]=2000;
