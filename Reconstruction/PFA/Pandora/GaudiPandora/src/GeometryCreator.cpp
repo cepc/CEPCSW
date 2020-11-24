@@ -100,12 +100,29 @@ void GeometryCreator::SetMandatorySubDetectorParameters(SubDetectorTypeMap &subD
     const gear::TPCParameters &tpcParameters(_GEAR->getTPCParameters());
     trackerParameters.m_subDetectorName = "Tracker";
     trackerParameters.m_subDetectorType = pandora::INNER_TRACKER;
-    trackerParameters.m_innerRCoordinate = tpcParameters.getPadLayout().getPlaneExtent()[0];
+    if(m_settings.m_use_dd4hep_geo){
+        try{
+            trackerParameters.m_innerRCoordinate = PanUtil::getTrackingRegionExtent()[0];
+            trackerParameters.m_outerRCoordinate = PanUtil::getTrackingRegionExtent()[1];
+            trackerParameters.m_outerZCoordinate = PanUtil::getTrackingRegionExtent()[2];
+            std::cout<<"DD m_innerRCoordinate="<<trackerParameters.m_innerRCoordinate.Get()<<",m_outerRCoordinate="<<trackerParameters.m_outerRCoordinate.Get()<<",m_outerZCoordinate="<<trackerParameters.m_outerZCoordinate.Get()<<std::endl;
+        }
+        catch(...){
+            trackerParameters.m_innerRCoordinate = 0.1;
+            trackerParameters.m_outerRCoordinate = 2000;
+            trackerParameters.m_outerZCoordinate = 2000;
+            std::cout<<"GeometryCreator WARNING: does not find TrackingRegion information from dd4hep and set the arbitral value to m_innerRCoordinate="<<trackerParameters.m_innerRCoordinate.Get()<<",m_outerRCoordinate="<<trackerParameters.m_outerRCoordinate.Get()<<",m_outerZCoordinate="<<trackerParameters.m_outerZCoordinate.Get()<<std::endl;
+        }
+        
+    }
+    else{
+        trackerParameters.m_innerRCoordinate = tpcParameters.getPadLayout().getPlaneExtent()[0];
+        trackerParameters.m_outerRCoordinate = tpcParameters.getPadLayout().getPlaneExtent()[1];
+        trackerParameters.m_outerZCoordinate = tpcParameters.getMaxDriftLength();
+    }
     trackerParameters.m_innerZCoordinate = 0.f;
     trackerParameters.m_innerPhiCoordinate = 0.f;
     trackerParameters.m_innerSymmetryOrder = 0;
-    trackerParameters.m_outerRCoordinate = tpcParameters.getPadLayout().getPlaneExtent()[1];
-    trackerParameters.m_outerZCoordinate = tpcParameters.getMaxDriftLength();
     trackerParameters.m_outerPhiCoordinate = 0.f;
     trackerParameters.m_outerSymmetryOrder = 0;
     trackerParameters.m_isMirroredInZ = true;

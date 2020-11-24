@@ -10,6 +10,7 @@
 #include <algorithm>
 #include "gear/BField.h"
 #include <gear/GEAR.h>
+#include "Utility.h"
 
 #include "LCContent.h"
 
@@ -41,6 +42,7 @@ PandoraPFAlg::PandoraPFAlg(const std::string& name, ISvcLocator* svcLoc)
  declareProperty("WriteClusterCollection"              , m_ClusterCollection_w,               "Handle of the ClusterCollection               output collection" );
  declareProperty("WriteReconstructedParticleCollection", m_ReconstructedParticleCollection_w, "Handle of the ReconstructedParticleCollection output collection" );
  declareProperty("WriteVertexCollection"               , m_VertexCollection_w,                "Handle of the VertexCollection                output collection" );
+ declareProperty("WriteMCRecoParticleAssociation"      , m_MCRecoParticleAssociation_w,       "Handle of the MCRecoParticleAssociation       output collection" );
 
 }
 
@@ -70,10 +72,17 @@ void PandoraPFAlg::FinaliseSteeringParameters(ISvcLocator* svcloc)
     {
         throw "Failed to find GearSvc ...";
     }
-    gear::GearMgr* _GEAR = iSvc->getGearMgr();
-    m_settings.m_innerBField = _GEAR->getBField().at(gear::Vector3D(0., 0., 0.)).z();
-    std::cout<<"m_innerBField="<<m_settings.m_innerBField<<std::endl;    
-    m_mcParticleCreatorSettings.m_bField = m_settings.m_innerBField;
+    if(m_use_dd4hep_geo){
+        std::cout<<"DD m_innerBField="<<PanUtil::getFieldFromCompact()<<std::endl;    
+        m_settings.m_innerBField = PanUtil::getFieldFromCompact();
+        m_mcParticleCreatorSettings.m_bField = PanUtil::getFieldFromCompact();
+    }
+    else{
+        gear::GearMgr* _GEAR = iSvc->getGearMgr();
+        m_settings.m_innerBField = _GEAR->getBField().at(gear::Vector3D(0., 0., 0.)).z();
+        std::cout<<"m_innerBField="<<m_settings.m_innerBField<<std::endl;    
+        m_mcParticleCreatorSettings.m_bField = m_settings.m_innerBField;
+    }
 }
 
 
