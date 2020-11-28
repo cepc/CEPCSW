@@ -407,177 +407,144 @@ StatusCode TotalInvMass::execute()
             }catch(lcio::DataNotAvailableException err) { }
 
             try{
-                EVENT::LCCollection* col_RecoNeP = evtP->getCollection( "AncientPFOs" );
+                auto col_RecoNeP = m_reconep.get();
+                for(int i0 = 0; i0 < col_RecoNeP->size(); i0++) {
+                    auto a_RecoP = (*col_RecoNeP)[i0];
+                    TLorentzVector currP( a_RecoP.getMomentum()[0], a_RecoP.getMomentum()[1], a_RecoP.getMomentum()[2], a_RecoP.getEnergy());
+                    ArborTotalP += currP;
+                    auto currMom0 = a_RecoP.getMomentum();
+                    TVector3 currMom(currMom0.x, currMom0.y, currMom0.z);
+                    //				if(a_RecoP->getType() == 22 && a_RecoP->getEnergy() > 2)	//Compensate...
+                    //					ArborTotalP += 0.98*currP;
+                    //				else 
+                    //					ArborTotalP += currP;
 
-                for(int i0 = 0; i0 < col_RecoNeP->getNumberOfElements(); i0++)
-                    {
-                        EVENT::ReconstructedParticle *a_RecoP = dynamic_cast<EVENT::ReconstructedParticle *>(col_RecoNeP->getElementAt(i0));	
-                        TLorentzVector currP( a_RecoP->getMomentum()[0], a_RecoP->getMomentum()[1], a_RecoP->getMomentum()[2], a_RecoP->getEnergy());
-                        ArborTotalP += currP;	
-                        TVector3 currMom = a_RecoP->getMomentum();
-                        //				if(a_RecoP->getType() == 22 && a_RecoP->getEnergy() > 2)	//Compensate...
-                        //					ArborTotalP += 0.98*currP;
-                        //				else 
-                        //					ArborTotalP += currP;
-
-                        if(a_RecoP->getCharge() != 0)
-                            {
-                                ArborChP += currP;
-                            }
-                        else if(a_RecoP->getType() == 310)
-                            {
-                                ArborKPF += currP; 
-                            }
-                        else if(a_RecoP->getType() == 22)
-                            {
-                                if(a_RecoP->getEnergy() < 3.0)
-                                    ArborFrPh += currP;
-                                else
-                                    ArborPhP += currP;
-                            }
-                        else if(a_RecoP->getType() == 2112)
-                            {
-                                if(a_RecoP->getEnergy() < 3.0)
-                                    ArborFrNe += currP;
-                                else
-                                    ArborNeP += currP;
-                            }
-                        else if(a_RecoP->getEnergy() < 3.0)
-                            {
-                                ArborFrP += currP;
-                                cout<<"Undef "<<a_RecoP->getType()<<endl;  
-                            }
+                    if(a_RecoP.getCharge() != 0) {
+                        ArborChP += currP;
+                    } else if(a_RecoP.getType() == 310) {
+                        ArborKPF += currP; 
+                    } else if(a_RecoP.getType() == 22) {
+                        if(a_RecoP.getEnergy() < 3.0)
+                            ArborFrPh += currP;
                         else
-                            {
-                                ArborUdP += currP;
-                                cout<<"Undef "<<a_RecoP->getType() << "En "<<a_RecoP->getEnergy()<<endl;
-                            }
-
-                        if(a_RecoP->getClusters().size() > 0)
-                            {
-                                EVENT::Cluster * a_clu = a_RecoP->getClusters()[0];
-                                TVector3 CluPos = a_clu->getPosition();
-                                if( CluPos.Perp() < 300 && abs(CluPos.Z()) < 1300 && a_RecoP->getCharge() == 0 )	// 1150-1300
-                                    ArborLCAL += currP; 
-
-                                float MinAngleToCH = 1.0E6;
-                                float MinAngleToNE = 1.0E6;  
-
-                                if(a_RecoP->getEnergy() > 5 && a_RecoP->getCharge() == 0)
-                                    {
-                                        for(int i1 = 0; i1 < col_RecoNeP->getNumberOfElements(); i1++)
-                                            {
-                                                if(i1 != i0)
-                                                    {
-                                                        EVENT::ReconstructedParticle *b_RecoP = dynamic_cast<EVENT::ReconstructedParticle *>(col_RecoNeP->getElementAt(i1));
-                                                        TVector3 tmpMom = b_RecoP->getMomentum();
-                                                        float tmpAngle = currMom.Angle(tmpMom);
-                                                        if( b_RecoP->getEnergy() > 3.0 )
-                                                            {
-                                                                if(b_RecoP->getCharge() != 0)
-                                                                    {
-                                                                        if(tmpAngle < MinAngleToCH)
-                                                                            {
-                                                                                MinAngleToCH = tmpAngle;
-                                                                            }
-                                                                    }
-                                                                else 
-                                                                    {	
-                                                                        if(tmpAngle < MinAngleToNE)
-                                                                            {
-                                                                                MinAngleToNE = tmpAngle;
-                                                                            }
-                                                                    }
-                                                            }
-                                                    }
-                                            }
-
-                                        if( MinAngleToNE > 0.5 || MinAngleToCH > 0.5 )
-                                            {
-                                                ArborISR += currP; 
-                                            }
-                                    }
-                            }
-
-                        TrackHit = 0; 
-                        for(int k = 0; k < 3; k++)	
-                            {
-                                StartPos[k] = 0;
-                                EndPos[k] = 0;
-                            }		
-
-                        Charge = int(a_RecoP->getCharge());
-                        CluEn = 0; 
-                        CluEnCom[0] = 0;
-                        CluEnCom[1] = 0;
-
-                        if(Charge)
-                            {
-                                Type = 1;
-                                nCHPFO_a ++;
-                            }
+                            ArborPhP += currP;
+                    } else if(a_RecoP.getType() == 2112) {
+                        if(a_RecoP.getEnergy() < 3.0)
+                            ArborFrNe += currP;
                         else
-                            {
-                                Type = 0;
-                                nNEPFO_a ++;
-                            }
-
-                        Energy = a_RecoP->getEnergy();
-                        P[0] = a_RecoP->getMomentum()[0];
-                        P[1] = a_RecoP->getMomentum()[1];
-                        P[2] = a_RecoP->getMomentum()[2];
-
-                        if(a_RecoP->getClusters().size() > 0)
-                            {
-                                EVENT::Cluster * currClu = a_RecoP->getClusters()[0];
-                                CluEn = currClu->getEnergy();
-
-                                if(!Charge)
-                                    {
-                                        CluEnCom[0] = currClu->getSubdetectorEnergies()[0];
-                                        CluEnCom[1] = currClu->getSubdetectorEnergies()[1];	
-                                        NeCaloE_a[0] += currClu->getSubdetectorEnergies()[0];
-                                        NeCaloE_a[1] += currClu->getSubdetectorEnergies()[1];
-                                    }
-
-                                _EcalCluE += currClu->getSubdetectorEnergies()[0];
-                                _HcalCluE += currClu->getSubdetectorEnergies()[1];
-
-                                if(Charge)
-                                    {
-                                        TrkSumEn += Energy; 
-
-                                        EVENT::Track * a_Trk = a_RecoP->getTracks()[0];
-                                        TrackHit = a_Trk->getTrackerHits().size();
-                                        StartPos[0] = (a_Trk->getTrackerHits()[0])->getPosition()[0];
-                                        StartPos[1] = (a_Trk->getTrackerHits()[0])->getPosition()[1];
-                                        StartPos[2] = (a_Trk->getTrackerHits()[0])->getPosition()[2];
-
-                                        EndPos[0] = (a_Trk->getTrackerHits()[TrackHit - 1])->getPosition()[0];
-                                        EndPos[1] = (a_Trk->getTrackerHits()[TrackHit - 1])->getPosition()[1];
-                                        EndPos[2] = (a_Trk->getTrackerHits()[TrackHit - 1])->getPosition()[2];	
-
-                                        if( Energy > CluEn + sqrt(Energy))
-                                            {
-                                                ElargeP[0] += Energy; 
-                                                ElargeP[1] += CluEn; 
-                                            }
-                                        else if( fabs(Energy - CluEn) < sqrt(Energy) )
-                                            {
-                                                EequP[0] += Energy;
-                                                EequP[1] += CluEn; 
-                                            }
-                                        else
-                                            {
-                                                EsmallP[0] += Energy;
-                                                EsmallP[1] += CluEn; 
-                                            }
-                                    }
-                            }
-
-                        _outputPFO->Fill();
-
+                            ArborNeP += currP;
+                    } else if(a_RecoP.getEnergy() < 3.0) {
+                        ArborFrP += currP;
+                        cout<<"Undef "<<a_RecoP.getType()<<endl;  
+                    } else {
+                        ArborUdP += currP;
+                        cout<<"Undef "<<a_RecoP.getType() << "En "<<a_RecoP.getEnergy()<<endl;
                     }
+
+                    if(a_RecoP.clusters_size() > 0) {
+                        auto a_clu = a_RecoP.getClusters(0);
+                        auto CluPos0 = a_clu.getPosition();
+                        TVector3 CluPos(CluPos0.x, CluPos0.y, CluPos0.z);
+                        if( CluPos.Perp() < 300 && abs(CluPos.Z()) < 1300 && a_RecoP.getCharge() == 0 )	// 1150-1300
+                            ArborLCAL += currP; 
+
+                        float MinAngleToCH = 1.0E6;
+                        float MinAngleToNE = 1.0E6;  
+
+                        if(a_RecoP.getEnergy() > 5 && a_RecoP.getCharge() == 0) {
+                            for(int i1 = 0; i1 < col_RecoNeP->size(); i1++) {
+                                if(i1 != i0) {
+                                    auto b_RecoP = (*col_RecoNeP)[i1];
+                                    auto tmpMom0 = b_RecoP.getMomentum();
+                                    TVector3 tmpMom(tmpMom0.x, tmpMom0.y, tmpMom0.z);
+                                    float tmpAngle = currMom.Angle(tmpMom);
+                                    if( b_RecoP.getEnergy() > 3.0 ) {
+                                        if(b_RecoP.getCharge() != 0) {
+                                            if(tmpAngle < MinAngleToCH) {
+                                                MinAngleToCH = tmpAngle;
+                                            }
+                                        } else {	
+                                            if(tmpAngle < MinAngleToNE) {
+                                                MinAngleToNE = tmpAngle;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            if( MinAngleToNE > 0.5 || MinAngleToCH > 0.5 ) {
+                                ArborISR += currP; 
+                            }
+                        }
+                    }
+
+                    TrackHit = 0; 
+                    for(int k = 0; k < 3; k++) {
+                        StartPos[k] = 0;
+                        EndPos[k] = 0;
+                    }		
+
+                    Charge = int(a_RecoP.getCharge());
+                    CluEn = 0; 
+                    CluEnCom[0] = 0;
+                    CluEnCom[1] = 0;
+
+                    if(Charge) {
+                        Type = 1;
+                        nCHPFO_a ++;
+                    } else {
+                        Type = 0;
+                        nNEPFO_a ++;
+                    }
+
+                    Energy = a_RecoP.getEnergy();
+                    P[0] = a_RecoP.getMomentum()[0];
+                    P[1] = a_RecoP.getMomentum()[1];
+                    P[2] = a_RecoP.getMomentum()[2];
+
+                    if(a_RecoP.clusters_size() > 0) {
+                        auto currClu = a_RecoP.getClusters(0);
+                        CluEn = currClu.getEnergy();
+
+                        if(!Charge) {
+                            CluEnCom[0] = currClu.getSubdetectorEnergies(0);
+                            CluEnCom[1] = currClu.getSubdetectorEnergies(1);	
+                            NeCaloE_a[0] += currClu.getSubdetectorEnergies(0);
+                            NeCaloE_a[1] += currClu.getSubdetectorEnergies(1);
+                        }
+
+                        _EcalCluE += currClu.getSubdetectorEnergies(0);
+                        _HcalCluE += currClu.getSubdetectorEnergies(1);
+
+                        if(Charge) {
+                            TrkSumEn += Energy; 
+                                
+                            auto a_Trk = a_RecoP.getTracks(0);
+                            TrackHit = a_Trk.trackerHits_size();
+                            StartPos[0] = (a_Trk.getTrackerHits(0)).getPosition()[0];
+                            StartPos[1] = (a_Trk.getTrackerHits(0)).getPosition()[1];
+                            StartPos[2] = (a_Trk.getTrackerHits(0)).getPosition()[2];
+
+                            EndPos[0] = (a_Trk.getTrackerHits(TrackHit - 1)).getPosition()[0];
+                            EndPos[1] = (a_Trk.getTrackerHits(TrackHit - 1)).getPosition()[1];
+                            EndPos[2] = (a_Trk.getTrackerHits(TrackHit - 1)).getPosition()[2];	
+
+                            if( Energy > CluEn + sqrt(Energy)) {
+                                ElargeP[0] += Energy; 
+                                ElargeP[1] += CluEn; 
+                            } else if( fabs(Energy - CluEn) < sqrt(Energy) ) {
+                                EequP[0] += Energy;
+                                EequP[1] += CluEn; 
+                            } else {
+                                EsmallP[0] += Energy;
+                                EsmallP[1] += CluEn; 
+                            }
+                        }
+                    }
+
+                    _outputPFO->Fill();
+
+                }
             }catch (lcio::DataNotAvailableException err) { }
 
 
