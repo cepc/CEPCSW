@@ -191,34 +191,32 @@ StatusCode TotalInvMass::execute()
     TLorentzVector ArborISR(0, 0, 0, 0);
     TLorentzVector PandoraISR(0, 0, 0, 0);
 
-    _eventNr = evtP->getEventNumber();
+    // TODO: using the event header
+    // _eventNr = evtP->getEventNumber();
 
-    for(int i0 = 0; i0 < 4; i0++)
-        {
-            TotalP_a[i0] = 0;
-            TotalP_p[i0] = 0;
-            ChP[i0] = 0;
-            PhP[i0] = 0;
-            NeP[i0] = 0;
-            FrP[i0] = 0;
-            UdP[i0] = 0;
-            FrPh[i0] = 0;
-            FrNe[i0] = 0;
-            KPF[i0] = 0;
-            if(i0 < 2)
-                {
-                    NeCaloE_a[i0] = 0;
-                    NeCaloE_p[i0] = 0;
-                    CluEnCom[i0] = 0;
-                    ElargeP[i0] = 0;
-                    EequP[i0] = 0;
-                    EsmallP[i0] = 0;
-                }
-            if(i0 < 3)
-                {
-                    P[i0] = 0;
-                }
+    for(int i0 = 0; i0 < 4; i0++) {
+        TotalP_a[i0] = 0;
+        TotalP_p[i0] = 0;
+        ChP[i0] = 0;
+        PhP[i0] = 0;
+        NeP[i0] = 0;
+        FrP[i0] = 0;
+        UdP[i0] = 0;
+        FrPh[i0] = 0;
+        FrNe[i0] = 0;
+        KPF[i0] = 0;
+        if(i0 < 2) {
+            NeCaloE_a[i0] = 0;
+            NeCaloE_p[i0] = 0;
+            CluEnCom[i0] = 0;
+            ElargeP[i0] = 0;
+            EequP[i0] = 0;
+            EsmallP[i0] = 0;
         }
+        if(i0 < 3) {
+            P[i0] = 0;
+        }
+    }
 
     nCHPFO_a = 0; 
     nCHPFO_p = 0;
