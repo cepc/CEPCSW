@@ -320,7 +320,8 @@ StatusCode TotalInvMass::execute()
             }catch(lcio::DataNotAvailableException err) { }
 
             try{
-                EVENT::LCCollection * MCP = evtP->getCollection("MCParticle");
+                auto MCPCol = m_mcParticle.get();
+
                 TVector3 tmpP; 
                 TVector3 ISRP(0, 0, 0);
                 _N3En = 0;
@@ -328,78 +329,74 @@ StatusCode TotalInvMass::execute()
  
                 int NNeutrinoCount = 0; 
 
-                for(int s0 = 0; s0 < MCP->getNumberOfElements(); s0++)
-                    {
-                        EVENT::MCParticle *a1_MCP = dynamic_cast<EVENT::MCParticle *>(MCP->getElementAt(s0));
-                        int tmpPID = a1_MCP->getPDG();
-                        int NParent = a1_MCP->getParents().size();
-                        int NDaughter = a1_MCP->getDaughters().size();
-                        TVector3 VTX = a1_MCP->getVertex();
-                        TVector3 EndP = a1_MCP->getEndpoint();
+                for (int s0 = 0; s0 < MCPCol->size(); ++s0) {
+                    auto MCP = (*MCPCol)[s0];
+                    int tmpPID = MCP.getPDG();
+                    int NParent = MCP.parents_size();
+                    int NDaughter = MCP.daughters_size();
+                    auto VTX0 = MCP.getVertex();
+                    auto EndP0 = MCP.getEndpoint();
+                    TVector3 VTX(VTX0.x, VTX0.y, VTX0.z);
+                    TVector3 EndP(EndP0.x, EndP0.y, EndP0.z);
 
-                        if(tmpPID == 22 && NParent == 0 && s0 < 4)
-                            {
-                                tmpP = a1_MCP->getMomentum();
-                                ISRP += tmpP; 
-                            }
+                    if(tmpPID == 22 && NParent == 0 && s0 < 4) {
+                        auto tmpP0 = MCP.getMomentum();
+                        tmpP = TVector3(tmpP0.x, tmpP0.y, tmpP0.z);
+                        ISRP += tmpP; 
+                    }
 
-                        if( (abs(tmpPID) == 12 || abs(tmpPID) == 14 || abs(tmpPID) == 16) && NParent != 0 && NDaughter == 0 && VTX.Mag() < 100 && EndP.Mag() > 100)
-                            {
-                                _NEn += tmpP.Mag();
-                                _NPt += tmpP.Perp();
-                                NNeutrinoCount++;
-                                if(NNeutrinoCount > 2)
-                                    {
-                                        tmpP = a1_MCP->getMomentum();
-                                        _N3En += tmpP.Mag();
-                                        _N3Pt += tmpP.Perp();
-                                        cout<<"Found Neutrino: "<<NNeutrinoCount<<" En "<<_N3En<<" Pt "<<_N3Pt<<endl;
-                                    }
-                            }
-
-                        if(tmpPID == 25 && NDaughter > 1 && NParent !=0 ) //Higgs
-                            {
-                                // cout<<"tmpPID:HDPID"<<tmpPID<<" "<<NDaughter<<" "<<NParent<<endl;
-                                _HDPID = abs((a1_MCP->getDaughters()[0])->getPDG());
-                                _HDir = a1_MCP->getMomentum()[2]/a1_MCP->getEnergy();
-
-                                if(NDaughter == 2)
-                                    {
-                                        EVENT::MCParticle *D1 = a1_MCP->getDaughters()[0];
-                                        _J1CosTheta = D1->getMomentum()[2]/D1->getEnergy();
-                                        EVENT::MCParticle *D2 = a1_MCP->getDaughters()[1];
-                                        _J2CosTheta = D2->getMomentum()[2]/D2->getEnergy();
-                                    }
-                            }
-                        if(abs(tmpPID)<7 && NParent == 0)
-                            {
-                                if(tmpPID>0)
-                                    _OriJ1CosTheta =a1_MCP->getMomentum()[2]/a1_MCP->getEnergy();
-                                else
-                                    _OriJ2CosTheta = a1_MCP->getMomentum()[2]/a1_MCP->getEnergy();
-                            }
-
-                        if(abs(tmpPID)<7 && NParent == 0)
-                            {
-                                _OriQuarkID = abs(tmpPID); 
-                                _OQDir = a1_MCP->getMomentum()[2]/a1_MCP->getEnergy();
-                            }	
-
-
-                        if(abs(_J1CosTheta) > abs(_J2CosTheta))
-                            _MaxJetCosTheta = _J1CosTheta;
-                        else
-                            _MaxJetCosTheta = _J2CosTheta;
-
-                        if(abs(_OriJ1CosTheta) > abs(_OriJ2CosTheta))
-                            _MaxOriJetCosTheta = _OriJ1CosTheta;
-                        else
-                            _MaxOriJetCosTheta = _OriJ2CosTheta;
-
-                        if( (fabs(VTX.Z()) < 1000 && fabs(VTX.Perp()) < 1600 ) && ( fabs(EndP.Z()) > 2000 || fabs(EndP.Perp()) > 1600  )&&abs(tmpPID)!=12&&abs(tmpPID)!=14&&abs(tmpPID)!=16 ){
-                            _visE+=a1_MCP->getEnergy();
+                    if( (abs(tmpPID) == 12 || abs(tmpPID) == 14 || abs(tmpPID) == 16) && NParent != 0 && NDaughter == 0 && VTX.Mag() < 100 && EndP.Mag() > 100) {
+                        _NEn += tmpP.Mag();
+                        _NPt += tmpP.Perp();
+                        NNeutrinoCount++;
+                        if(NNeutrinoCount > 2) {
+                            auto tmpP0 = MCP.getMomentum();
+                            tmpP = TVector3(tmpP0.x, tmpP0.y, tmpP0.z);
+                            _N3En += tmpP.Mag();
+                            _N3Pt += tmpP.Perp();
+                            cout<<"Found Neutrino: "<<NNeutrinoCount<<" En "<<_N3En<<" Pt "<<_N3Pt<<endl;
                         }
                     }
+
+                    if(tmpPID == 25 && NDaughter > 1 && NParent !=0 ) { //Higgs
+                        // cout<<"tmpPID:HDPID"<<tmpPID<<" "<<NDaughter<<" "<<NParent<<endl;
+                        _HDPID = abs(MCP.getDaughters(0).getPDG());
+                        _HDir = MCP.getMomentum()[2]/MCP.getEnergy();
+
+                        if(NDaughter == 2) {
+                            auto D1 = MCP.getDaughters(0);
+                            _J1CosTheta = D1.getMomentum()[2]/D1.getEnergy();
+                            auto D2 = MCP.getDaughters(1);
+                            _J2CosTheta = D2.getMomentum()[2]/D2.getEnergy();
+                        }
+                    }
+                    if(abs(tmpPID)<7 && NParent == 0) {
+                        if(tmpPID>0)
+                            _OriJ1CosTheta =MCP.getMomentum()[2]/MCP.getEnergy();
+                        else
+                            _OriJ2CosTheta = MCP.getMomentum()[2]/MCP.getEnergy();
+                    }
+
+                    if(abs(tmpPID)<7 && NParent == 0) {
+                        _OriQuarkID = abs(tmpPID); 
+                        _OQDir = MCP.getMomentum()[2]/MCP.getEnergy();
+                    }	
+
+
+                    if(abs(_J1CosTheta) > abs(_J2CosTheta))
+                        _MaxJetCosTheta = _J1CosTheta;
+                    else
+                        _MaxJetCosTheta = _J2CosTheta;
+
+                    if(abs(_OriJ1CosTheta) > abs(_OriJ2CosTheta))
+                        _MaxOriJetCosTheta = _OriJ1CosTheta;
+                    else
+                        _MaxOriJetCosTheta = _OriJ2CosTheta;
+
+                    if( (fabs(VTX.Z()) < 1000 && fabs(VTX.Perp()) < 1600 ) && ( fabs(EndP.Z()) > 2000 || fabs(EndP.Perp()) > 1600  )&&abs(tmpPID)!=12&&abs(tmpPID)!=14&&abs(tmpPID)!=16 ){
+                        _visE+=MCP.getEnergy();
+                    }
+                }
 
                 _ISRPt = ISRP.Perp();
                 _ISREn = ISRP.Mag();
