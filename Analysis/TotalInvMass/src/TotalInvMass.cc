@@ -551,80 +551,68 @@ StatusCode TotalInvMass::execute()
             try{
                 //LCCollection* col_RecoPandora = evtP->getCollection( "PandoraPFOs" );			
                 //for(int i2 = 0; i2 < col_RecoPandora->getNumberOfElements(); i2++)
-                for(int s = 0; s < 1; s++)
-                    {
-                        EVENT::LCCollection * col_PFO_iter = evtP->getCollection("ArborLICHPFOs");
-                        /* 
-                           if(s==0)
-                           col_PFO_iter = evtP->getCollection( "ArborChargedCore" );
-                           else
-                           col_PFO_iter = evtP->getCollection( "ArborNeutralCore" );	
-                        */
+                for(int s = 0; s < 1; s++) {
+                    auto col_PFO_iter = m_arbopfo.get();
+                    /* 
+                       if(s==0)
+                       col_PFO_iter = evtP->getCollection( "ArborChargedCore" );
+                       else
+                       col_PFO_iter = evtP->getCollection( "ArborNeutralCore" );	
+                    */
 
-                        for(int i2 = 0; i2 < col_PFO_iter->getNumberOfElements(); i2++)
-                            {         
-                                EVENT::ReconstructedParticle *a_RecoP = dynamic_cast<EVENT::ReconstructedParticle *>(col_PFO_iter->getElementAt(i2));
-                                TLorentzVector currP( a_RecoP->getMomentum()[0], a_RecoP->getMomentum()[1], a_RecoP->getMomentum()[2], a_RecoP->getEnergy());
-                                PandoraTotalP += currP;
+                    for(int i2 = 0; i2 < col_PFO_iter->size(); i2++) {         
+                        auto a_RecoP = (*col_PFO_iter)[i2];
+                        TLorentzVector currP( a_RecoP.getMomentum()[0], a_RecoP.getMomentum()[1], a_RecoP.getMomentum()[2], a_RecoP.getEnergy());
+                        PandoraTotalP += currP;
 
-                                if(a_RecoP->getCharge())
-                                    {
-                                        nCHPFO_p++;
-                                    }
-                                else
-                                    nNEPFO_p++;
+                        if(a_RecoP.getCharge()) {
+                            nCHPFO_p++;
+                        } else {
+                            nNEPFO_p++;
+                        }
+                        
+                        auto currMom0 = a_RecoP.getMomentum();
+                        TVector3 currMom(currMom0.x, currMom0.y, currMom0.z);
 
-                                TVector3 currMom = a_RecoP->getMomentum();
+                        if(a_RecoP.clusters_size() > 0) {
 
-                                if(a_RecoP->getClusters().size() > 0)
-                                    {
+                            float MinAngleToCH = 1.0E6;
+                            float MinAngleToNE = 1.0E6;
 
-                                        float MinAngleToCH = 1.0E6;
-                                        float MinAngleToNE = 1.0E6;
+                            auto currClu = a_RecoP.getClusters(0);
+                            CluEn = currClu.getEnergy();
 
-                                        EVENT::Cluster * currClu = a_RecoP->getClusters()[0];
-                                        CluEn = currClu->getEnergy();
+                            _EcalCluE_p += CluEn;	
+                            _HcalCluE_p += currClu.getSubdetectorEnergies(1);
 
-                                        _EcalCluE_p += CluEn;	
-                                        _HcalCluE_p += currClu->getSubdetectorEnergies()[1];
-
-                                        if(a_RecoP->getEnergy() > 5 && a_RecoP->getCharge() == 0)
-                                            {
-                                                for(int i3 = 0; i3 < col_PFO_iter->getNumberOfElements(); i3++)
-                                                    {
-                                                        if(i3 != i2)
-                                                            {
-                                                                EVENT::ReconstructedParticle *b_RecoP = dynamic_cast<EVENT::ReconstructedParticle *>(col_PFO_iter->getElementAt(i3));
-                                                                TVector3 tmpMom = b_RecoP->getMomentum();
-                                                                float tmpAngle = currMom.Angle(tmpMom);
-                                                                if( b_RecoP->getEnergy() > 3.0 )
-                                                                    {
-                                                                        if(b_RecoP->getCharge() != 0)
-                                                                            {
-                                                                                if(tmpAngle < MinAngleToCH)
-                                                                                    {
-                                                                                        MinAngleToCH = tmpAngle;
-                                                                                    }
-                                                                            }
-                                                                        else
-                                                                            {
-                                                                                if(tmpAngle < MinAngleToNE)
-                                                                                    {
-                                                                                        MinAngleToNE = tmpAngle;
-                                                                                    }
-                                                                            }
-                                                                    }
-                                                            }
-                                                    }
-
-                                                if( MinAngleToNE > 0.5 || MinAngleToCH > 0.5 )
-                                                    {
-                                                        PandoraISR += currP;
-                                                    }
+                            if(a_RecoP.getEnergy() > 5 && a_RecoP.getCharge() == 0) {
+                                for(int i3 = 0; i3 < col_PFO_iter->size(); i3++) {
+                                    if(i3 != i2) {
+                                        auto b_RecoP = (*col_PFO_iter)[i3];
+                                        auto tmpMom0 = b_RecoP.getMomentum();
+                                        TVector3 tmpMom(tmpMom0.x, tmpMom0.y, tmpMom0.z);
+                                        float tmpAngle = currMom.Angle(tmpMom);
+                                        if( b_RecoP.getEnergy() > 3.0 ) {
+                                            if(b_RecoP.getCharge() != 0) {
+                                                if(tmpAngle < MinAngleToCH) {
+                                                    MinAngleToCH = tmpAngle;
+                                                }
+                                            } else {
+                                                if(tmpAngle < MinAngleToNE) {
+                                                    MinAngleToNE = tmpAngle;
+                                                }
                                             }
+                                        }
                                     }
+                                }
+
+                                if( MinAngleToNE > 0.5 || MinAngleToCH > 0.5 ) {
+                                    PandoraISR += currP;
+                                }
                             }
+                        }
                     }
+                }
             }catch (lcio::DataNotAvailableException err) { }
 
             _Mass_a = 0; 
