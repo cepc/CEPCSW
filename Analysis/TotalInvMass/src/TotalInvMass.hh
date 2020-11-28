@@ -14,6 +14,10 @@
 #include <TTree.h>
 #include <TFile.h>
 
+#include "edm4hep/MCParticleCollection.h"
+#include "edm4hep/CalorimeterHitCollection.h"
+#include "edm4hep/ReconstructedParticleCollection.h"
+
 class TotalInvMass  : public GaudiAlgorithm
 {
 public:
@@ -29,6 +33,21 @@ public:
     StatusCode finalize() override;
 
 protected:
+    typedef DataHandle<edm4hep::MCParticleCollection> MCParticleColHandler;
+    MCParticleColHandler m_mcParticle{"MCParticle", Gaudi::DataHandle::Reader, this};
+
+    typedef DataHandle<edm4hep::CalorimeterHitCollection> CaloHitColHandler;
+    CaloHitColHandler m_ecalbarrelhitcol{"ECALBarrel", Gaudi::DataHandle::Reader, this};
+    CaloHitColHandler m_ecalendcaphitcol{"ECALEndcap", Gaudi::DataHandle::Reader, this};
+
+    CaloHitColHandler m_hcalbarrelhitcol{"HCALBarrel", Gaudi::DataHandle::Reader, this};
+    CaloHitColHandler m_hcalendcaphitcol{"HCALEndcap", Gaudi::DataHandle::Reader, this};
+    CaloHitColHandler m_hcalotherhitcol {"HCALOther", Gaudi::DataHandle::Reader, this};
+
+    typedef DataHandle<edm4hep::ReconstructedParticleCollection> RecParticleColHandler;
+    RecParticleColHandler m_reconep{"AncientPFOs", Gaudi::DataHandle::Reader, this};
+    RecParticleColHandler m_arbopfo{"ArborLICHPFOs", Gaudi::DataHandle::Reader, this};
+
     Gaudi::Property<std::string> _treeFileName{this,
             "TreeOutputFile", "MCTruth.root",
             "The name of the file to which the ROOT tree will be written"};
