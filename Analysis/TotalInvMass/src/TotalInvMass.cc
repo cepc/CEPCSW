@@ -244,6 +244,16 @@ StatusCode TotalInvMass::execute()
             _J1CosTheta = -2;
             _J2CosTheta = -2;
 
+            std::vector<CaloHitColHandler*> hdl_EcalHitColl{
+                &m_ecalbarrelhitcol,
+                &m_ecalendcaphitcol
+            };
+            std::vector<CaloHitColHandler*> hdl_HcalHitColl{
+                &m_hcalbarrelhitcol,
+                &m_hcalendcaphitcol,
+                &m_hcalotherhitcol
+            };
+
             std::vector<std::string> EcalHitColl;
             std::vector<std::string> HcalHitColl;
             EcalHitColl.push_back("ECALBarrel");
@@ -257,71 +267,54 @@ StatusCode TotalInvMass::execute()
 	
             try{
 
-                for(int t = 0; t< int(EcalHitColl.size()); t++)
-                    {
-                        EVENT::LCCollection * aecalcoll = evtP->getCollection(EcalHitColl[t].c_str());
-                        for(int s = 0; s < aecalcoll->getNumberOfElements();s++)
-                            {
-                                EVENT::CalorimeterHit * a_hit = dynamic_cast<EVENT::CalorimeterHit*>(aecalcoll->getElementAt(s));
-                                _EcalTotalE += a_hit->getEnergy();
+                for(int t = 0; t< int(hdl_EcalHitColl.size()); t++) {
+                    const edm4hep::CalorimeterHitCollection* ecalcoll = hdl_EcalHitColl[t]->get();
+                    for(auto hit: *ecalcoll) {
+                        // TODO
+                        int NLayer = 0;
+                        _EcalTotalE += hit.getEnergy();
 
-                                UTIL::CellIDDecoder<EVENT::CalorimeterHit> idDecoder(ECALCellIDDecoder);
-                                int NLayer = idDecoder(a_hit)["K-1"];
-                                //h_hit->Fill(NLayer,a_hit->getEnergy());
-                                if(NLayer < 6)
-                                    {
-                                        _EcalEn1 += a_hit->getEnergy();
-                                    }
-                                else if(NLayer < 12)
-                                    {
-                                        _EcalEn2 += a_hit->getEnergy();
-                                    }
-                                else if(NLayer < 18)
-                                    {
-                                        _EcalEn3 += a_hit->getEnergy();
-                                    }
-                                else if(NLayer < 24)
-                                    {
-                                        _EcalEn4 += a_hit->getEnergy();
-                                    }
-                                else{
-                                    _EcalEn5 += a_hit->getEnergy();
-                                }
-                            }
+                        // UTIL::CellIDDecoder<EVENT::CalorimeterHit> idDecoder(ECALCellIDDecoder);
+                        // int NLayer = idDecoder(a_hit)["K-1"];
+                        //h_hit->Fill(NLayer,a_hit->getEnergy());
+                        if(NLayer < 6) {
+                            _EcalEn1 += hit.getEnergy();
+                        } else if(NLayer < 12) {
+                            _EcalEn2 += hit.getEnergy();
+                        } else if(NLayer < 18) {
+                            _EcalEn3 += hit.getEnergy();
+                        } else if(NLayer < 24) {
+                            _EcalEn4 += hit.getEnergy();
+                        } else{
+                            _EcalEn5 += hit.getEnergy();
+                        }
                     }
+                }
 
-                for(int t2 = 0; t2< int(HcalHitColl.size()); t2++)
-                    {
-                        EVENT::LCCollection * ahcalcoll = evtP->getCollection(HcalHitColl[t2].c_str());
-                        for(int s = 0; s < ahcalcoll->getNumberOfElements();s++)
-                            {
-                                EVENT::CalorimeterHit * a_hit = dynamic_cast<EVENT::CalorimeterHit*>(ahcalcoll->getElementAt(s));
-                                UTIL::CellIDDecoder<EVENT::CalorimeterHit> idDecoder(ECALCellIDDecoder);
-                                int NLayer = idDecoder(a_hit)["K-1"];
-                                int HLayer=NLayer+30;
-                                //h_hit->Fill(HLayer,a_hit->getEnergy());
-                                _HcalTotalE += a_hit->getEnergy();
-                                if(NLayer < 10)
-                                    {
-                                        _HcalEn1 += a_hit->getEnergy();
-                                    }
-                                else if(NLayer < 20)
-                                    {
-                                        _HcalEn2 += a_hit->getEnergy();
-                                    }
-                                else if(NLayer < 30)
-                                    {
-                                        _HcalEn3 += a_hit->getEnergy();
-                                    }
-                                else if(NLayer < 40)
-                                    {
-                                        _HcalEn4 += a_hit->getEnergy();
-                                    }
-                                else{
-                                    _HcalEn5 += a_hit->getEnergy();
-                                }
-                            }
+                for(int t2 = 0; t2< int(hdl_HcalHitColl.size()); t2++) {
+                    const edm4hep::CalorimeterHitCollection* hcalcoll = hdl_HcalHitColl[t2]->get();
+                    for (auto hit: *hcalcoll) {
+                        // TODO
+                        int NLayer = 0;
+                        int HLayer = NLayer+30;
+                        // UTIL::CellIDDecoder<EVENT::CalorimeterHit> idDecoder(ECALCellIDDecoder);
+                        // int NLayer = idDecoder(a_hit)["K-1"];
+
+                        //h_hit->Fill(HLayer,a_hit->getEnergy());
+                        _HcalTotalE += hit.getEnergy();
+                        if(NLayer < 10) {
+                            _HcalEn1 += hit.getEnergy();
+                        } else if(NLayer < 20) {
+                            _HcalEn2 += hit.getEnergy();
+                        } else if(NLayer < 30) {
+                            _HcalEn3 += hit.getEnergy();
+                        } else if(NLayer < 40) {
+                            _HcalEn4 += hit.getEnergy();
+                        } else {
+                            _HcalEn5 += hit.getEnergy();
+                        }
                     }
+                }
 
 
             }catch(lcio::DataNotAvailableException err) { }
