@@ -175,514 +175,514 @@ StatusCode TotalInvMass::execute()
 
     EVENT::LCEvent* evtP = nullptr;
 
-    if (evtP) 								
-	{		
-            TLorentzVector ArborTotalP(0, 0, 0, 0);
-            TLorentzVector ArborChP(0, 0, 0, 0);
-            TLorentzVector ArborPhP(0, 0, 0, 0);
-            TLorentzVector ArborNeP(0, 0, 0, 0);
-            TLorentzVector ArborFrP(0, 0, 0, 0);
-            TLorentzVector ArborUdP(0, 0, 0, 0);
-            TLorentzVector ArborFrPh(0, 0, 0, 0);
-            TLorentzVector ArborFrNe(0, 0, 0, 0);
-            TLorentzVector ArborKPF(0, 0, 0, 0);
-            TLorentzVector PandoraTotalP(0, 0, 0, 0);
-            TLorentzVector ArborLCAL(0, 0, 0, 0);
-            TLorentzVector ArborISR(0, 0, 0, 0);
-            TLorentzVector PandoraISR(0, 0, 0, 0);
+    // if (evtP) {		
 
-            _eventNr = evtP->getEventNumber();
+    TLorentzVector ArborTotalP(0, 0, 0, 0);
+    TLorentzVector ArborChP(0, 0, 0, 0);
+    TLorentzVector ArborPhP(0, 0, 0, 0);
+    TLorentzVector ArborNeP(0, 0, 0, 0);
+    TLorentzVector ArborFrP(0, 0, 0, 0);
+    TLorentzVector ArborUdP(0, 0, 0, 0);
+    TLorentzVector ArborFrPh(0, 0, 0, 0);
+    TLorentzVector ArborFrNe(0, 0, 0, 0);
+    TLorentzVector ArborKPF(0, 0, 0, 0);
+    TLorentzVector PandoraTotalP(0, 0, 0, 0);
+    TLorentzVector ArborLCAL(0, 0, 0, 0);
+    TLorentzVector ArborISR(0, 0, 0, 0);
+    TLorentzVector PandoraISR(0, 0, 0, 0);
 
-            for(int i0 = 0; i0 < 4; i0++)
-		{
-                    TotalP_a[i0] = 0;
-                    TotalP_p[i0] = 0;
-                    ChP[i0] = 0;
-                    PhP[i0] = 0;
-                    NeP[i0] = 0;
-                    FrP[i0] = 0;
-                    UdP[i0] = 0;
-                    FrPh[i0] = 0;
-                    FrNe[i0] = 0;
-                    KPF[i0] = 0;
-                    if(i0 < 2)
-			{
-                            NeCaloE_a[i0] = 0;
-                            NeCaloE_p[i0] = 0;
-                            CluEnCom[i0] = 0;
-                            ElargeP[i0] = 0;
-                            EequP[i0] = 0;
-                            EsmallP[i0] = 0;
-			}
-                    if(i0 < 3)
-			{
-                            P[i0] = 0;
-			}
-		}
+    _eventNr = evtP->getEventNumber();
 
-            nCHPFO_a = 0; 
-            nCHPFO_p = 0;
-            nNEPFO_a = 0; 
-            nNEPFO_p = 0;
-            Type = -100;
-            Charge = -100; 
-            Energy = 0;
-            CluEn = 0; 
-            TrkSumEn = 0; 
+    for(int i0 = 0; i0 < 4; i0++)
+        {
+            TotalP_a[i0] = 0;
+            TotalP_p[i0] = 0;
+            ChP[i0] = 0;
+            PhP[i0] = 0;
+            NeP[i0] = 0;
+            FrP[i0] = 0;
+            UdP[i0] = 0;
+            FrPh[i0] = 0;
+            FrNe[i0] = 0;
+            KPF[i0] = 0;
+            if(i0 < 2)
+                {
+                    NeCaloE_a[i0] = 0;
+                    NeCaloE_p[i0] = 0;
+                    CluEnCom[i0] = 0;
+                    ElargeP[i0] = 0;
+                    EequP[i0] = 0;
+                    EsmallP[i0] = 0;
+                }
+            if(i0 < 3)
+                {
+                    P[i0] = 0;
+                }
+        }
 
-            _EcalTotalE = 0; _HcalTotalE = 0; _EcalCluE = 0; _HcalCluE = 0; 
-            _EcalCluE_p = 0; _HcalCluE_p = 0;
-            _HcalEn1=0;_HcalEn2=0;_HcalEn3=0;_HcalEn4=0;_HcalEn5=0;
-            _EcalEn1=0;_EcalEn2=0;_EcalEn3=0;_EcalEn4=0;_EcalEn5=0;
+    nCHPFO_a = 0; 
+    nCHPFO_p = 0;
+    nNEPFO_a = 0; 
+    nNEPFO_p = 0;
+    Type = -100;
+    Charge = -100; 
+    Energy = 0;
+    CluEn = 0; 
+    TrkSumEn = 0; 
 
-            _HDPID = -1; 
-            _OriQuarkID = 0; 
-            _OQDir = -10;
-            _HDir = -10;
-            _visE=0;
+    _EcalTotalE = 0; _HcalTotalE = 0; _EcalCluE = 0; _HcalCluE = 0; 
+    _EcalCluE_p = 0; _HcalCluE_p = 0;
+    _HcalEn1=0;_HcalEn2=0;_HcalEn3=0;_HcalEn4=0;_HcalEn5=0;
+    _EcalEn1=0;_EcalEn2=0;_EcalEn3=0;_EcalEn4=0;_EcalEn5=0;
 
-            _J1CosTheta = -2;
-            _J2CosTheta = -2;
+    _HDPID = -1; 
+    _OriQuarkID = 0; 
+    _OQDir = -10;
+    _HDir = -10;
+    _visE=0;
 
-            std::vector<CaloHitColHandler*> hdl_EcalHitColl{
-                &m_ecalbarrelhitcol,
-                &m_ecalendcaphitcol
+    _J1CosTheta = -2;
+    _J2CosTheta = -2;
+
+    std::vector<CaloHitColHandler*> hdl_EcalHitColl{
+        &m_ecalbarrelhitcol,
+            &m_ecalendcaphitcol
             };
-            std::vector<CaloHitColHandler*> hdl_HcalHitColl{
-                &m_hcalbarrelhitcol,
-                &m_hcalendcaphitcol,
-                &m_hcalotherhitcol
+    std::vector<CaloHitColHandler*> hdl_HcalHitColl{
+        &m_hcalbarrelhitcol,
+            &m_hcalendcaphitcol,
+            &m_hcalotherhitcol
             };
 
-            std::vector<std::string> EcalHitColl;
-            std::vector<std::string> HcalHitColl;
-            EcalHitColl.push_back("ECALBarrel");
-            EcalHitColl.push_back("ECALEndcap");
-            //EcalHitColl.push_back("ECALOther");
-            //EcalHitColl.push_back("LCAL");
-            //EcalHitColl.push_back("LHCAL");
-            HcalHitColl.push_back("HCALBarrel");
-            HcalHitColl.push_back("HCALEndcap");
-            HcalHitColl.push_back("HCALOther");
+    std::vector<std::string> EcalHitColl;
+    std::vector<std::string> HcalHitColl;
+    EcalHitColl.push_back("ECALBarrel");
+    EcalHitColl.push_back("ECALEndcap");
+    //EcalHitColl.push_back("ECALOther");
+    //EcalHitColl.push_back("LCAL");
+    //EcalHitColl.push_back("LHCAL");
+    HcalHitColl.push_back("HCALBarrel");
+    HcalHitColl.push_back("HCALEndcap");
+    HcalHitColl.push_back("HCALOther");
 	
-            try{
+    try{
 
-                for(int t = 0; t< int(hdl_EcalHitColl.size()); t++) {
-                    const edm4hep::CalorimeterHitCollection* ecalcoll = hdl_EcalHitColl[t]->get();
-                    for(auto hit: *ecalcoll) {
-                        // TODO
-                        int NLayer = 0;
-                        _EcalTotalE += hit.getEnergy();
+        for(int t = 0; t< int(hdl_EcalHitColl.size()); t++) {
+            const edm4hep::CalorimeterHitCollection* ecalcoll = hdl_EcalHitColl[t]->get();
+            for(auto hit: *ecalcoll) {
+                // TODO
+                int NLayer = 0;
+                _EcalTotalE += hit.getEnergy();
 
-                        // UTIL::CellIDDecoder<EVENT::CalorimeterHit> idDecoder(ECALCellIDDecoder);
-                        // int NLayer = idDecoder(a_hit)["K-1"];
-                        //h_hit->Fill(NLayer,a_hit->getEnergy());
-                        if(NLayer < 6) {
-                            _EcalEn1 += hit.getEnergy();
-                        } else if(NLayer < 12) {
-                            _EcalEn2 += hit.getEnergy();
-                        } else if(NLayer < 18) {
-                            _EcalEn3 += hit.getEnergy();
-                        } else if(NLayer < 24) {
-                            _EcalEn4 += hit.getEnergy();
-                        } else{
-                            _EcalEn5 += hit.getEnergy();
-                        }
-                    }
+                // UTIL::CellIDDecoder<EVENT::CalorimeterHit> idDecoder(ECALCellIDDecoder);
+                // int NLayer = idDecoder(a_hit)["K-1"];
+                //h_hit->Fill(NLayer,a_hit->getEnergy());
+                if(NLayer < 6) {
+                    _EcalEn1 += hit.getEnergy();
+                } else if(NLayer < 12) {
+                    _EcalEn2 += hit.getEnergy();
+                } else if(NLayer < 18) {
+                    _EcalEn3 += hit.getEnergy();
+                } else if(NLayer < 24) {
+                    _EcalEn4 += hit.getEnergy();
+                } else{
+                    _EcalEn5 += hit.getEnergy();
                 }
+            }
+        }
 
-                for(int t2 = 0; t2< int(hdl_HcalHitColl.size()); t2++) {
-                    const edm4hep::CalorimeterHitCollection* hcalcoll = hdl_HcalHitColl[t2]->get();
-                    for (auto hit: *hcalcoll) {
-                        // TODO
-                        int NLayer = 0;
-                        int HLayer = NLayer+30;
-                        // UTIL::CellIDDecoder<EVENT::CalorimeterHit> idDecoder(ECALCellIDDecoder);
-                        // int NLayer = idDecoder(a_hit)["K-1"];
+        for(int t2 = 0; t2< int(hdl_HcalHitColl.size()); t2++) {
+            const edm4hep::CalorimeterHitCollection* hcalcoll = hdl_HcalHitColl[t2]->get();
+            for (auto hit: *hcalcoll) {
+                // TODO
+                int NLayer = 0;
+                int HLayer = NLayer+30;
+                // UTIL::CellIDDecoder<EVENT::CalorimeterHit> idDecoder(ECALCellIDDecoder);
+                // int NLayer = idDecoder(a_hit)["K-1"];
 
-                        //h_hit->Fill(HLayer,a_hit->getEnergy());
-                        _HcalTotalE += hit.getEnergy();
-                        if(NLayer < 10) {
-                            _HcalEn1 += hit.getEnergy();
-                        } else if(NLayer < 20) {
-                            _HcalEn2 += hit.getEnergy();
-                        } else if(NLayer < 30) {
-                            _HcalEn3 += hit.getEnergy();
-                        } else if(NLayer < 40) {
-                            _HcalEn4 += hit.getEnergy();
-                        } else {
-                            _HcalEn5 += hit.getEnergy();
-                        }
-                    }
+                //h_hit->Fill(HLayer,a_hit->getEnergy());
+                _HcalTotalE += hit.getEnergy();
+                if(NLayer < 10) {
+                    _HcalEn1 += hit.getEnergy();
+                } else if(NLayer < 20) {
+                    _HcalEn2 += hit.getEnergy();
+                } else if(NLayer < 30) {
+                    _HcalEn3 += hit.getEnergy();
+                } else if(NLayer < 40) {
+                    _HcalEn4 += hit.getEnergy();
+                } else {
+                    _HcalEn5 += hit.getEnergy();
                 }
+            }
+        }
 
 
-            }catch(lcio::DataNotAvailableException err) { }
+    }catch(lcio::DataNotAvailableException err) { }
 
-            try{
-                auto MCPCol = m_mcParticle.get();
+    try{
+        auto MCPCol = m_mcParticle.get();
 
-                TVector3 tmpP; 
-                TVector3 ISRP(0, 0, 0);
-                _N3En = 0;
-                _N3Pt = 0;
+        TVector3 tmpP; 
+        TVector3 ISRP(0, 0, 0);
+        _N3En = 0;
+        _N3Pt = 0;
  
-                int NNeutrinoCount = 0; 
+        int NNeutrinoCount = 0; 
 
-                for (int s0 = 0; s0 < MCPCol->size(); ++s0) {
-                    auto MCP = (*MCPCol)[s0];
-                    int tmpPID = MCP.getPDG();
-                    int NParent = MCP.parents_size();
-                    int NDaughter = MCP.daughters_size();
-                    auto VTX0 = MCP.getVertex();
-                    auto EndP0 = MCP.getEndpoint();
-                    TVector3 VTX(VTX0.x, VTX0.y, VTX0.z);
-                    TVector3 EndP(EndP0.x, EndP0.y, EndP0.z);
+        for (int s0 = 0; s0 < MCPCol->size(); ++s0) {
+            auto MCP = (*MCPCol)[s0];
+            int tmpPID = MCP.getPDG();
+            int NParent = MCP.parents_size();
+            int NDaughter = MCP.daughters_size();
+            auto VTX0 = MCP.getVertex();
+            auto EndP0 = MCP.getEndpoint();
+            TVector3 VTX(VTX0.x, VTX0.y, VTX0.z);
+            TVector3 EndP(EndP0.x, EndP0.y, EndP0.z);
 
-                    if(tmpPID == 22 && NParent == 0 && s0 < 4) {
-                        auto tmpP0 = MCP.getMomentum();
-                        tmpP = TVector3(tmpP0.x, tmpP0.y, tmpP0.z);
-                        ISRP += tmpP; 
-                    }
+            if(tmpPID == 22 && NParent == 0 && s0 < 4) {
+                auto tmpP0 = MCP.getMomentum();
+                tmpP = TVector3(tmpP0.x, tmpP0.y, tmpP0.z);
+                ISRP += tmpP; 
+            }
 
-                    if( (abs(tmpPID) == 12 || abs(tmpPID) == 14 || abs(tmpPID) == 16) && NParent != 0 && NDaughter == 0 && VTX.Mag() < 100 && EndP.Mag() > 100) {
-                        _NEn += tmpP.Mag();
-                        _NPt += tmpP.Perp();
-                        NNeutrinoCount++;
-                        if(NNeutrinoCount > 2) {
-                            auto tmpP0 = MCP.getMomentum();
-                            tmpP = TVector3(tmpP0.x, tmpP0.y, tmpP0.z);
-                            _N3En += tmpP.Mag();
-                            _N3Pt += tmpP.Perp();
-                            cout<<"Found Neutrino: "<<NNeutrinoCount<<" En "<<_N3En<<" Pt "<<_N3Pt<<endl;
-                        }
-                    }
-
-                    if(tmpPID == 25 && NDaughter > 1 && NParent !=0 ) { //Higgs
-                        // cout<<"tmpPID:HDPID"<<tmpPID<<" "<<NDaughter<<" "<<NParent<<endl;
-                        _HDPID = abs(MCP.getDaughters(0).getPDG());
-                        _HDir = MCP.getMomentum()[2]/MCP.getEnergy();
-
-                        if(NDaughter == 2) {
-                            auto D1 = MCP.getDaughters(0);
-                            _J1CosTheta = D1.getMomentum()[2]/D1.getEnergy();
-                            auto D2 = MCP.getDaughters(1);
-                            _J2CosTheta = D2.getMomentum()[2]/D2.getEnergy();
-                        }
-                    }
-                    if(abs(tmpPID)<7 && NParent == 0) {
-                        if(tmpPID>0)
-                            _OriJ1CosTheta =MCP.getMomentum()[2]/MCP.getEnergy();
-                        else
-                            _OriJ2CosTheta = MCP.getMomentum()[2]/MCP.getEnergy();
-                    }
-
-                    if(abs(tmpPID)<7 && NParent == 0) {
-                        _OriQuarkID = abs(tmpPID); 
-                        _OQDir = MCP.getMomentum()[2]/MCP.getEnergy();
-                    }	
-
-
-                    if(abs(_J1CosTheta) > abs(_J2CosTheta))
-                        _MaxJetCosTheta = _J1CosTheta;
-                    else
-                        _MaxJetCosTheta = _J2CosTheta;
-
-                    if(abs(_OriJ1CosTheta) > abs(_OriJ2CosTheta))
-                        _MaxOriJetCosTheta = _OriJ1CosTheta;
-                    else
-                        _MaxOriJetCosTheta = _OriJ2CosTheta;
-
-                    if( (fabs(VTX.Z()) < 1000 && fabs(VTX.Perp()) < 1600 ) && ( fabs(EndP.Z()) > 2000 || fabs(EndP.Perp()) > 1600  )&&abs(tmpPID)!=12&&abs(tmpPID)!=14&&abs(tmpPID)!=16 ){
-                        _visE+=MCP.getEnergy();
-                    }
+            if( (abs(tmpPID) == 12 || abs(tmpPID) == 14 || abs(tmpPID) == 16) && NParent != 0 && NDaughter == 0 && VTX.Mag() < 100 && EndP.Mag() > 100) {
+                _NEn += tmpP.Mag();
+                _NPt += tmpP.Perp();
+                NNeutrinoCount++;
+                if(NNeutrinoCount > 2) {
+                    auto tmpP0 = MCP.getMomentum();
+                    tmpP = TVector3(tmpP0.x, tmpP0.y, tmpP0.z);
+                    _N3En += tmpP.Mag();
+                    _N3Pt += tmpP.Perp();
+                    cout<<"Found Neutrino: "<<NNeutrinoCount<<" En "<<_N3En<<" Pt "<<_N3Pt<<endl;
                 }
+            }
 
-                _ISRPt = ISRP.Perp();
-                _ISREn = ISRP.Mag();
-                _ISRP[0] = ISRP.X();
-                _ISRP[1] = ISRP.Y();
-                _ISRP[2] = ISRP.Z();
+            if(tmpPID == 25 && NDaughter > 1 && NParent !=0 ) { //Higgs
+                // cout<<"tmpPID:HDPID"<<tmpPID<<" "<<NDaughter<<" "<<NParent<<endl;
+                _HDPID = abs(MCP.getDaughters(0).getPDG());
+                _HDir = MCP.getMomentum()[2]/MCP.getEnergy();
 
-            }catch(lcio::DataNotAvailableException err) { }
+                if(NDaughter == 2) {
+                    auto D1 = MCP.getDaughters(0);
+                    _J1CosTheta = D1.getMomentum()[2]/D1.getEnergy();
+                    auto D2 = MCP.getDaughters(1);
+                    _J2CosTheta = D2.getMomentum()[2]/D2.getEnergy();
+                }
+            }
+            if(abs(tmpPID)<7 && NParent == 0) {
+                if(tmpPID>0)
+                    _OriJ1CosTheta =MCP.getMomentum()[2]/MCP.getEnergy();
+                else
+                    _OriJ2CosTheta = MCP.getMomentum()[2]/MCP.getEnergy();
+            }
 
-            try{
-                auto col_RecoNeP = m_reconep.get();
-                for(int i0 = 0; i0 < col_RecoNeP->size(); i0++) {
-                    auto a_RecoP = (*col_RecoNeP)[i0];
-                    TLorentzVector currP( a_RecoP.getMomentum()[0], a_RecoP.getMomentum()[1], a_RecoP.getMomentum()[2], a_RecoP.getEnergy());
-                    ArborTotalP += currP;
-                    auto currMom0 = a_RecoP.getMomentum();
-                    TVector3 currMom(currMom0.x, currMom0.y, currMom0.z);
-                    //				if(a_RecoP->getType() == 22 && a_RecoP->getEnergy() > 2)	//Compensate...
-                    //					ArborTotalP += 0.98*currP;
-                    //				else 
-                    //					ArborTotalP += currP;
+            if(abs(tmpPID)<7 && NParent == 0) {
+                _OriQuarkID = abs(tmpPID); 
+                _OQDir = MCP.getMomentum()[2]/MCP.getEnergy();
+            }	
 
-                    if(a_RecoP.getCharge() != 0) {
-                        ArborChP += currP;
-                    } else if(a_RecoP.getType() == 310) {
-                        ArborKPF += currP; 
-                    } else if(a_RecoP.getType() == 22) {
-                        if(a_RecoP.getEnergy() < 3.0)
-                            ArborFrPh += currP;
-                        else
-                            ArborPhP += currP;
-                    } else if(a_RecoP.getType() == 2112) {
-                        if(a_RecoP.getEnergy() < 3.0)
-                            ArborFrNe += currP;
-                        else
-                            ArborNeP += currP;
-                    } else if(a_RecoP.getEnergy() < 3.0) {
-                        ArborFrP += currP;
-                        cout<<"Undef "<<a_RecoP.getType()<<endl;  
-                    } else {
-                        ArborUdP += currP;
-                        cout<<"Undef "<<a_RecoP.getType() << "En "<<a_RecoP.getEnergy()<<endl;
-                    }
 
-                    if(a_RecoP.clusters_size() > 0) {
-                        auto a_clu = a_RecoP.getClusters(0);
-                        auto CluPos0 = a_clu.getPosition();
-                        TVector3 CluPos(CluPos0.x, CluPos0.y, CluPos0.z);
-                        if( CluPos.Perp() < 300 && abs(CluPos.Z()) < 1300 && a_RecoP.getCharge() == 0 )	// 1150-1300
-                            ArborLCAL += currP; 
+            if(abs(_J1CosTheta) > abs(_J2CosTheta))
+                _MaxJetCosTheta = _J1CosTheta;
+            else
+                _MaxJetCosTheta = _J2CosTheta;
 
-                        float MinAngleToCH = 1.0E6;
-                        float MinAngleToNE = 1.0E6;  
+            if(abs(_OriJ1CosTheta) > abs(_OriJ2CosTheta))
+                _MaxOriJetCosTheta = _OriJ1CosTheta;
+            else
+                _MaxOriJetCosTheta = _OriJ2CosTheta;
 
-                        if(a_RecoP.getEnergy() > 5 && a_RecoP.getCharge() == 0) {
-                            for(int i1 = 0; i1 < col_RecoNeP->size(); i1++) {
-                                if(i1 != i0) {
-                                    auto b_RecoP = (*col_RecoNeP)[i1];
-                                    auto tmpMom0 = b_RecoP.getMomentum();
-                                    TVector3 tmpMom(tmpMom0.x, tmpMom0.y, tmpMom0.z);
-                                    float tmpAngle = currMom.Angle(tmpMom);
-                                    if( b_RecoP.getEnergy() > 3.0 ) {
-                                        if(b_RecoP.getCharge() != 0) {
-                                            if(tmpAngle < MinAngleToCH) {
-                                                MinAngleToCH = tmpAngle;
-                                            }
-                                        } else {	
-                                            if(tmpAngle < MinAngleToNE) {
-                                                MinAngleToNE = tmpAngle;
-                                            }
-                                        }
+            if( (fabs(VTX.Z()) < 1000 && fabs(VTX.Perp()) < 1600 ) && ( fabs(EndP.Z()) > 2000 || fabs(EndP.Perp()) > 1600  )&&abs(tmpPID)!=12&&abs(tmpPID)!=14&&abs(tmpPID)!=16 ){
+                _visE+=MCP.getEnergy();
+            }
+        }
+
+        _ISRPt = ISRP.Perp();
+        _ISREn = ISRP.Mag();
+        _ISRP[0] = ISRP.X();
+        _ISRP[1] = ISRP.Y();
+        _ISRP[2] = ISRP.Z();
+
+    }catch(lcio::DataNotAvailableException err) { }
+
+    try{
+        auto col_RecoNeP = m_reconep.get();
+        for(int i0 = 0; i0 < col_RecoNeP->size(); i0++) {
+            auto a_RecoP = (*col_RecoNeP)[i0];
+            TLorentzVector currP( a_RecoP.getMomentum()[0], a_RecoP.getMomentum()[1], a_RecoP.getMomentum()[2], a_RecoP.getEnergy());
+            ArborTotalP += currP;
+            auto currMom0 = a_RecoP.getMomentum();
+            TVector3 currMom(currMom0.x, currMom0.y, currMom0.z);
+            //				if(a_RecoP->getType() == 22 && a_RecoP->getEnergy() > 2)	//Compensate...
+            //					ArborTotalP += 0.98*currP;
+            //				else 
+            //					ArborTotalP += currP;
+
+            if(a_RecoP.getCharge() != 0) {
+                ArborChP += currP;
+            } else if(a_RecoP.getType() == 310) {
+                ArborKPF += currP; 
+            } else if(a_RecoP.getType() == 22) {
+                if(a_RecoP.getEnergy() < 3.0)
+                    ArborFrPh += currP;
+                else
+                    ArborPhP += currP;
+            } else if(a_RecoP.getType() == 2112) {
+                if(a_RecoP.getEnergy() < 3.0)
+                    ArborFrNe += currP;
+                else
+                    ArborNeP += currP;
+            } else if(a_RecoP.getEnergy() < 3.0) {
+                ArborFrP += currP;
+                cout<<"Undef "<<a_RecoP.getType()<<endl;  
+            } else {
+                ArborUdP += currP;
+                cout<<"Undef "<<a_RecoP.getType() << "En "<<a_RecoP.getEnergy()<<endl;
+            }
+
+            if(a_RecoP.clusters_size() > 0) {
+                auto a_clu = a_RecoP.getClusters(0);
+                auto CluPos0 = a_clu.getPosition();
+                TVector3 CluPos(CluPos0.x, CluPos0.y, CluPos0.z);
+                if( CluPos.Perp() < 300 && abs(CluPos.Z()) < 1300 && a_RecoP.getCharge() == 0 )	// 1150-1300
+                    ArborLCAL += currP; 
+
+                float MinAngleToCH = 1.0E6;
+                float MinAngleToNE = 1.0E6;  
+
+                if(a_RecoP.getEnergy() > 5 && a_RecoP.getCharge() == 0) {
+                    for(int i1 = 0; i1 < col_RecoNeP->size(); i1++) {
+                        if(i1 != i0) {
+                            auto b_RecoP = (*col_RecoNeP)[i1];
+                            auto tmpMom0 = b_RecoP.getMomentum();
+                            TVector3 tmpMom(tmpMom0.x, tmpMom0.y, tmpMom0.z);
+                            float tmpAngle = currMom.Angle(tmpMom);
+                            if( b_RecoP.getEnergy() > 3.0 ) {
+                                if(b_RecoP.getCharge() != 0) {
+                                    if(tmpAngle < MinAngleToCH) {
+                                        MinAngleToCH = tmpAngle;
+                                    }
+                                } else {	
+                                    if(tmpAngle < MinAngleToNE) {
+                                        MinAngleToNE = tmpAngle;
                                     }
                                 }
                             }
-
-                            if( MinAngleToNE > 0.5 || MinAngleToCH > 0.5 ) {
-                                ArborISR += currP; 
-                            }
                         }
                     }
 
-                    TrackHit = 0; 
-                    for(int k = 0; k < 3; k++) {
-                        StartPos[k] = 0;
-                        EndPos[k] = 0;
-                    }		
-
-                    Charge = int(a_RecoP.getCharge());
-                    CluEn = 0; 
-                    CluEnCom[0] = 0;
-                    CluEnCom[1] = 0;
-
-                    if(Charge) {
-                        Type = 1;
-                        nCHPFO_a ++;
-                    } else {
-                        Type = 0;
-                        nNEPFO_a ++;
+                    if( MinAngleToNE > 0.5 || MinAngleToCH > 0.5 ) {
+                        ArborISR += currP; 
                     }
+                }
+            }
 
-                    Energy = a_RecoP.getEnergy();
-                    P[0] = a_RecoP.getMomentum()[0];
-                    P[1] = a_RecoP.getMomentum()[1];
-                    P[2] = a_RecoP.getMomentum()[2];
+            TrackHit = 0; 
+            for(int k = 0; k < 3; k++) {
+                StartPos[k] = 0;
+                EndPos[k] = 0;
+            }		
 
-                    if(a_RecoP.clusters_size() > 0) {
-                        auto currClu = a_RecoP.getClusters(0);
-                        CluEn = currClu.getEnergy();
+            Charge = int(a_RecoP.getCharge());
+            CluEn = 0; 
+            CluEnCom[0] = 0;
+            CluEnCom[1] = 0;
 
-                        if(!Charge) {
-                            CluEnCom[0] = currClu.getSubdetectorEnergies(0);
-                            CluEnCom[1] = currClu.getSubdetectorEnergies(1);	
-                            NeCaloE_a[0] += currClu.getSubdetectorEnergies(0);
-                            NeCaloE_a[1] += currClu.getSubdetectorEnergies(1);
-                        }
+            if(Charge) {
+                Type = 1;
+                nCHPFO_a ++;
+            } else {
+                Type = 0;
+                nNEPFO_a ++;
+            }
 
-                        _EcalCluE += currClu.getSubdetectorEnergies(0);
-                        _HcalCluE += currClu.getSubdetectorEnergies(1);
+            Energy = a_RecoP.getEnergy();
+            P[0] = a_RecoP.getMomentum()[0];
+            P[1] = a_RecoP.getMomentum()[1];
+            P[2] = a_RecoP.getMomentum()[2];
 
-                        if(Charge) {
-                            TrkSumEn += Energy; 
+            if(a_RecoP.clusters_size() > 0) {
+                auto currClu = a_RecoP.getClusters(0);
+                CluEn = currClu.getEnergy();
+
+                if(!Charge) {
+                    CluEnCom[0] = currClu.getSubdetectorEnergies(0);
+                    CluEnCom[1] = currClu.getSubdetectorEnergies(1);	
+                    NeCaloE_a[0] += currClu.getSubdetectorEnergies(0);
+                    NeCaloE_a[1] += currClu.getSubdetectorEnergies(1);
+                }
+
+                _EcalCluE += currClu.getSubdetectorEnergies(0);
+                _HcalCluE += currClu.getSubdetectorEnergies(1);
+
+                if(Charge) {
+                    TrkSumEn += Energy; 
                                 
-                            auto a_Trk = a_RecoP.getTracks(0);
-                            TrackHit = a_Trk.trackerHits_size();
-                            StartPos[0] = (a_Trk.getTrackerHits(0)).getPosition()[0];
-                            StartPos[1] = (a_Trk.getTrackerHits(0)).getPosition()[1];
-                            StartPos[2] = (a_Trk.getTrackerHits(0)).getPosition()[2];
+                    auto a_Trk = a_RecoP.getTracks(0);
+                    TrackHit = a_Trk.trackerHits_size();
+                    StartPos[0] = (a_Trk.getTrackerHits(0)).getPosition()[0];
+                    StartPos[1] = (a_Trk.getTrackerHits(0)).getPosition()[1];
+                    StartPos[2] = (a_Trk.getTrackerHits(0)).getPosition()[2];
 
-                            EndPos[0] = (a_Trk.getTrackerHits(TrackHit - 1)).getPosition()[0];
-                            EndPos[1] = (a_Trk.getTrackerHits(TrackHit - 1)).getPosition()[1];
-                            EndPos[2] = (a_Trk.getTrackerHits(TrackHit - 1)).getPosition()[2];	
+                    EndPos[0] = (a_Trk.getTrackerHits(TrackHit - 1)).getPosition()[0];
+                    EndPos[1] = (a_Trk.getTrackerHits(TrackHit - 1)).getPosition()[1];
+                    EndPos[2] = (a_Trk.getTrackerHits(TrackHit - 1)).getPosition()[2];	
 
-                            if( Energy > CluEn + sqrt(Energy)) {
-                                ElargeP[0] += Energy; 
-                                ElargeP[1] += CluEn; 
-                            } else if( fabs(Energy - CluEn) < sqrt(Energy) ) {
-                                EequP[0] += Energy;
-                                EequP[1] += CluEn; 
-                            } else {
-                                EsmallP[0] += Energy;
-                                EsmallP[1] += CluEn; 
-                            }
-                        }
+                    if( Energy > CluEn + sqrt(Energy)) {
+                        ElargeP[0] += Energy; 
+                        ElargeP[1] += CluEn; 
+                    } else if( fabs(Energy - CluEn) < sqrt(Energy) ) {
+                        EequP[0] += Energy;
+                        EequP[1] += CluEn; 
+                    } else {
+                        EsmallP[0] += Energy;
+                        EsmallP[1] += CluEn; 
                     }
-
-                    _outputPFO->Fill();
-
                 }
-            }catch (lcio::DataNotAvailableException err) { }
+            }
+
+            _outputPFO->Fill();
+
+        }
+    }catch (lcio::DataNotAvailableException err) { }
 
 
-            try{
-                //LCCollection* col_RecoPandora = evtP->getCollection( "PandoraPFOs" );			
-                //for(int i2 = 0; i2 < col_RecoPandora->getNumberOfElements(); i2++)
-                for(int s = 0; s < 1; s++) {
-                    auto col_PFO_iter = m_arbopfo.get();
-                    /* 
-                       if(s==0)
-                       col_PFO_iter = evtP->getCollection( "ArborChargedCore" );
-                       else
-                       col_PFO_iter = evtP->getCollection( "ArborNeutralCore" );	
-                    */
+    try{
+        //LCCollection* col_RecoPandora = evtP->getCollection( "PandoraPFOs" );			
+        //for(int i2 = 0; i2 < col_RecoPandora->getNumberOfElements(); i2++)
+        for(int s = 0; s < 1; s++) {
+            auto col_PFO_iter = m_arbopfo.get();
+            /* 
+               if(s==0)
+               col_PFO_iter = evtP->getCollection( "ArborChargedCore" );
+               else
+               col_PFO_iter = evtP->getCollection( "ArborNeutralCore" );	
+            */
 
-                    for(int i2 = 0; i2 < col_PFO_iter->size(); i2++) {         
-                        auto a_RecoP = (*col_PFO_iter)[i2];
-                        TLorentzVector currP( a_RecoP.getMomentum()[0], a_RecoP.getMomentum()[1], a_RecoP.getMomentum()[2], a_RecoP.getEnergy());
-                        PandoraTotalP += currP;
+            for(int i2 = 0; i2 < col_PFO_iter->size(); i2++) {         
+                auto a_RecoP = (*col_PFO_iter)[i2];
+                TLorentzVector currP( a_RecoP.getMomentum()[0], a_RecoP.getMomentum()[1], a_RecoP.getMomentum()[2], a_RecoP.getEnergy());
+                PandoraTotalP += currP;
 
-                        if(a_RecoP.getCharge()) {
-                            nCHPFO_p++;
-                        } else {
-                            nNEPFO_p++;
-                        }
+                if(a_RecoP.getCharge()) {
+                    nCHPFO_p++;
+                } else {
+                    nNEPFO_p++;
+                }
                         
-                        auto currMom0 = a_RecoP.getMomentum();
-                        TVector3 currMom(currMom0.x, currMom0.y, currMom0.z);
+                auto currMom0 = a_RecoP.getMomentum();
+                TVector3 currMom(currMom0.x, currMom0.y, currMom0.z);
 
-                        if(a_RecoP.clusters_size() > 0) {
+                if(a_RecoP.clusters_size() > 0) {
 
-                            float MinAngleToCH = 1.0E6;
-                            float MinAngleToNE = 1.0E6;
+                    float MinAngleToCH = 1.0E6;
+                    float MinAngleToNE = 1.0E6;
 
-                            auto currClu = a_RecoP.getClusters(0);
-                            CluEn = currClu.getEnergy();
+                    auto currClu = a_RecoP.getClusters(0);
+                    CluEn = currClu.getEnergy();
 
-                            _EcalCluE_p += CluEn;	
-                            _HcalCluE_p += currClu.getSubdetectorEnergies(1);
+                    _EcalCluE_p += CluEn;	
+                    _HcalCluE_p += currClu.getSubdetectorEnergies(1);
 
-                            if(a_RecoP.getEnergy() > 5 && a_RecoP.getCharge() == 0) {
-                                for(int i3 = 0; i3 < col_PFO_iter->size(); i3++) {
-                                    if(i3 != i2) {
-                                        auto b_RecoP = (*col_PFO_iter)[i3];
-                                        auto tmpMom0 = b_RecoP.getMomentum();
-                                        TVector3 tmpMom(tmpMom0.x, tmpMom0.y, tmpMom0.z);
-                                        float tmpAngle = currMom.Angle(tmpMom);
-                                        if( b_RecoP.getEnergy() > 3.0 ) {
-                                            if(b_RecoP.getCharge() != 0) {
-                                                if(tmpAngle < MinAngleToCH) {
-                                                    MinAngleToCH = tmpAngle;
-                                                }
-                                            } else {
-                                                if(tmpAngle < MinAngleToNE) {
-                                                    MinAngleToNE = tmpAngle;
-                                                }
-                                            }
+                    if(a_RecoP.getEnergy() > 5 && a_RecoP.getCharge() == 0) {
+                        for(int i3 = 0; i3 < col_PFO_iter->size(); i3++) {
+                            if(i3 != i2) {
+                                auto b_RecoP = (*col_PFO_iter)[i3];
+                                auto tmpMom0 = b_RecoP.getMomentum();
+                                TVector3 tmpMom(tmpMom0.x, tmpMom0.y, tmpMom0.z);
+                                float tmpAngle = currMom.Angle(tmpMom);
+                                if( b_RecoP.getEnergy() > 3.0 ) {
+                                    if(b_RecoP.getCharge() != 0) {
+                                        if(tmpAngle < MinAngleToCH) {
+                                            MinAngleToCH = tmpAngle;
+                                        }
+                                    } else {
+                                        if(tmpAngle < MinAngleToNE) {
+                                            MinAngleToNE = tmpAngle;
                                         }
                                     }
                                 }
-
-                                if( MinAngleToNE > 0.5 || MinAngleToCH > 0.5 ) {
-                                    PandoraISR += currP;
-                                }
                             }
+                        }
+
+                        if( MinAngleToNE > 0.5 || MinAngleToCH > 0.5 ) {
+                            PandoraISR += currP;
                         }
                     }
                 }
-            }catch (lcio::DataNotAvailableException err) { }
+            }
+        }
+    }catch (lcio::DataNotAvailableException err) { }
 
-            _Mass_a = 0; 
-            _Mass_p = 0; 
-            _Mass_a_Pisr = 0;
-            _Mass_a_Plcal = 0; 
-            _Mass_p_Pisr = 0; 
+    _Mass_a = 0; 
+    _Mass_p = 0; 
+    _Mass_a_Pisr = 0;
+    _Mass_a_Plcal = 0; 
+    _Mass_p_Pisr = 0; 
 
-            _Mass_a = ArborTotalP.M();
-            _Mass_p = PandoraTotalP.M();
+    _Mass_a = ArborTotalP.M();
+    _Mass_p = PandoraTotalP.M();
 
-            _Mass_a_Pisr = (ArborTotalP - ArborISR).M();
-            _Mass_a_Plcal = (ArborTotalP - ArborLCAL).M();
-            _Mass_p_Pisr = (PandoraTotalP - PandoraISR).M();
+    _Mass_a_Pisr = (ArborTotalP - ArborISR).M();
+    _Mass_a_Plcal = (ArborTotalP - ArborLCAL).M();
+    _Mass_p_Pisr = (PandoraTotalP - PandoraISR).M();
 
-            TotalP_a[0] = ArborTotalP.X();
-            TotalP_a[1] = ArborTotalP.Y();
-            TotalP_a[2] = ArborTotalP.Z();
-            TotalP_a[3] = ArborTotalP.T();
+    TotalP_a[0] = ArborTotalP.X();
+    TotalP_a[1] = ArborTotalP.Y();
+    TotalP_a[2] = ArborTotalP.Z();
+    TotalP_a[3] = ArborTotalP.T();
 
-            TotalP_p[0] = PandoraTotalP.X();
-            TotalP_p[1] = PandoraTotalP.Y();
-            TotalP_p[2] = PandoraTotalP.Z();
-            TotalP_p[3] = PandoraTotalP.T();
+    TotalP_p[0] = PandoraTotalP.X();
+    TotalP_p[1] = PandoraTotalP.Y();
+    TotalP_p[2] = PandoraTotalP.Z();
+    TotalP_p[3] = PandoraTotalP.T();
 
-            ChP[0] = ArborChP.X();
-            ChP[1] = ArborChP.Y();
-            ChP[2] = ArborChP.Z();
-            ChP[3] = ArborChP.T();
+    ChP[0] = ArborChP.X();
+    ChP[1] = ArborChP.Y();
+    ChP[2] = ArborChP.Z();
+    ChP[3] = ArborChP.T();
 
-            PhP[0] = ArborPhP.X();
-            PhP[1] = ArborPhP.Y();
-            PhP[2] = ArborPhP.Z();
-            PhP[3] = ArborPhP.T();	
+    PhP[0] = ArborPhP.X();
+    PhP[1] = ArborPhP.Y();
+    PhP[2] = ArborPhP.Z();
+    PhP[3] = ArborPhP.T();	
 
-            NeP[0] = ArborNeP.X();
-            NeP[1] = ArborNeP.Y();
-            NeP[2] = ArborNeP.Z();
-            NeP[3] = ArborNeP.T();
+    NeP[0] = ArborNeP.X();
+    NeP[1] = ArborNeP.Y();
+    NeP[2] = ArborNeP.Z();
+    NeP[3] = ArborNeP.T();
 
-            FrP[0] = ArborFrP.X();
-            FrP[1] = ArborFrP.Y();
-            FrP[2] = ArborFrP.Z();
-            FrP[3] = ArborFrP.T();
+    FrP[0] = ArborFrP.X();
+    FrP[1] = ArborFrP.Y();
+    FrP[2] = ArborFrP.Z();
+    FrP[3] = ArborFrP.T();
 
-            UdP[0] = ArborUdP.X();
-            UdP[1] = ArborUdP.Y();
-            UdP[2] = ArborUdP.Z();
-            UdP[3] = ArborUdP.T();
+    UdP[0] = ArborUdP.X();
+    UdP[1] = ArborUdP.Y();
+    UdP[2] = ArborUdP.Z();
+    UdP[3] = ArborUdP.T();
 
-            FrPh[0] = ArborFrPh.X();
-            FrPh[1] = ArborFrPh.Y();
-            FrPh[2] = ArborFrPh.Z();
-            FrPh[3] = ArborFrPh.T();
+    FrPh[0] = ArborFrPh.X();
+    FrPh[1] = ArborFrPh.Y();
+    FrPh[2] = ArborFrPh.Z();
+    FrPh[3] = ArborFrPh.T();
 
-            FrNe[0] = ArborFrNe.X();
-            FrNe[1] = ArborFrNe.Y();
-            FrNe[2] = ArborFrNe.Z();
-            FrNe[3] = ArborFrNe.T();
+    FrNe[0] = ArborFrNe.X();
+    FrNe[1] = ArborFrNe.Y();
+    FrNe[2] = ArborFrNe.Z();
+    FrNe[3] = ArborFrNe.T();
 
-            KPF[0] = ArborKPF.X();
-            KPF[1] = ArborKPF.Y();
-            KPF[2] = ArborKPF.Z();
-            KPF[3] = ArborKPF.T();
+    KPF[0] = ArborKPF.X();
+    KPF[1] = ArborKPF.Y();
+    KPF[2] = ArborKPF.Z();
+    KPF[3] = ArborKPF.T();
 
-            cout<<_Mass_a<<" : "<<_Mass_p<<endl;		
+    cout<<_Mass_a<<" : "<<_Mass_p<<endl;		
 
-            _outputTree->Fill();
-            _Num++;
-	}  	  
+    _outputTree->Fill();
+    _Num++;
+    // }  	  
     return StatusCode::SUCCESS;
 
 }	
