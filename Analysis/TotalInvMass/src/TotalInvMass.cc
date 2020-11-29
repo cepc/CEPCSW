@@ -59,7 +59,7 @@ TotalInvMass::TotalInvMass(const std::string& name, ISvcLocator* svcLoc)
 }
 
 StatusCode TotalInvMass::initialize() {
-
+    info() << "TotalInvMass::initializing..." << endmsg;
     // printParameters();
 
     TFile *tree_file=new TFile(_treeFileName.value().c_str(),(_overwrite ? "RECREATE" : "UPDATE"));
@@ -166,12 +166,15 @@ StatusCode TotalInvMass::initialize() {
 
     _Num = 0;
 
+    info() << "TotalInvMass::initializd" << endmsg;
+
      return GaudiAlgorithm::initialize();
 
 }
 
 StatusCode TotalInvMass::execute() 
 {		
+    info() << "TotalInvMass::executing..." << endmsg;
 
     EVENT::LCEvent* evtP = nullptr;
 
@@ -262,7 +265,7 @@ StatusCode TotalInvMass::execute()
     HcalHitColl.push_back("HCALBarrel");
     HcalHitColl.push_back("HCALEndcap");
     HcalHitColl.push_back("HCALOther");
-	
+
     try{
 
         for(int t = 0; t< int(hdl_EcalHitColl.size()); t++) {
@@ -501,31 +504,40 @@ StatusCode TotalInvMass::execute()
             P[2] = a_RecoP.getMomentum()[2];
 
             if(a_RecoP.clusters_size() > 0) {
+
                 auto currClu = a_RecoP.getClusters(0);
                 CluEn = currClu.getEnergy();
 
-                if(!Charge) {
+                if((!Charge) and (currClu.subdetectorEnergies_size() > 2)) {
                     CluEnCom[0] = currClu.getSubdetectorEnergies(0);
                     CluEnCom[1] = currClu.getSubdetectorEnergies(1);	
                     NeCaloE_a[0] += currClu.getSubdetectorEnergies(0);
                     NeCaloE_a[1] += currClu.getSubdetectorEnergies(1);
                 }
 
-                _EcalCluE += currClu.getSubdetectorEnergies(0);
-                _HcalCluE += currClu.getSubdetectorEnergies(1);
+                if (currClu.subdetectorEnergies_size() > 2) {
+                    _EcalCluE += currClu.getSubdetectorEnergies(0);
+                    _HcalCluE += currClu.getSubdetectorEnergies(1);
+                }
+
 
                 if(Charge) {
                     TrkSumEn += Energy; 
-                                
-                    auto a_Trk = a_RecoP.getTracks(0);
-                    TrackHit = a_Trk.trackerHits_size();
-                    StartPos[0] = (a_Trk.getTrackerHits(0)).getPosition()[0];
-                    StartPos[1] = (a_Trk.getTrackerHits(0)).getPosition()[1];
-                    StartPos[2] = (a_Trk.getTrackerHits(0)).getPosition()[2];
 
-                    EndPos[0] = (a_Trk.getTrackerHits(TrackHit - 1)).getPosition()[0];
-                    EndPos[1] = (a_Trk.getTrackerHits(TrackHit - 1)).getPosition()[1];
-                    EndPos[2] = (a_Trk.getTrackerHits(TrackHit - 1)).getPosition()[2];	
+                    if (a_RecoP.tracks_size()>0) {
+                        auto a_Trk = a_RecoP.getTracks(0);
+                        TrackHit = a_Trk.trackerHits_size();
+
+                        if (TrackHit>2) {
+                            StartPos[0] = (a_Trk.getTrackerHits(0)).getPosition()[0];
+                            StartPos[1] = (a_Trk.getTrackerHits(0)).getPosition()[1];
+                            StartPos[2] = (a_Trk.getTrackerHits(0)).getPosition()[2];
+
+                            EndPos[0] = (a_Trk.getTrackerHits(TrackHit - 1)).getPosition()[0];
+                            EndPos[1] = (a_Trk.getTrackerHits(TrackHit - 1)).getPosition()[1];
+                            EndPos[2] = (a_Trk.getTrackerHits(TrackHit - 1)).getPosition()[2];	
+                        }
+                    }
 
                     if( Energy > CluEn + sqrt(Energy)) {
                         ElargeP[0] += Energy; 
@@ -537,6 +549,7 @@ StatusCode TotalInvMass::execute()
                         EsmallP[0] += Energy;
                         EsmallP[1] += CluEn; 
                     }
+
                 }
             }
 
@@ -544,7 +557,6 @@ StatusCode TotalInvMass::execute()
 
         }
     }catch (lcio::DataNotAvailableException err) { }
-
 
     try{
         //LCCollection* col_RecoPandora = evtP->getCollection( "PandoraPFOs" );			
@@ -681,6 +693,10 @@ StatusCode TotalInvMass::execute()
     _outputTree->Fill();
     _Num++;
     // }  	  
+
+
+    info() << "TotalInvMass::execute done" << endmsg;
+
     return StatusCode::SUCCESS;
 
 }	
