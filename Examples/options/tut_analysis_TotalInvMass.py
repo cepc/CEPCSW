@@ -8,9 +8,14 @@ dsvc = k4DataSvc("EventDataSvc")
 # read LCIO files
 from Configurables import k4LCIOInput
 lcioinput = k4LCIOInput("k4LCIOInput")
-lcioinput.inputs = [
-"/cefs/higgs/yudan/CEPC240/Reco_tpc_1800/qqh/Reco_qqh__00001.slcio"
-]
+
+import glob
+
+# inputlists = ["/cefs/higgs/yudan/CEPC240/Reco_tpc_1800/qqh/Reco_qqh__00001.slcio"]
+inputlists = ["/cefs/higgs/yudan/CEPC240/Reco_tpc_1800/qqh/Reco_qqh__00003.slcio"]
+# inputlists = glob.glob("/cefs/higgs/yudan/CEPC240/Reco_tpc_1800/qqh/Reco_qqh__*.slcio")
+
+lcioinput.inputs = inputlists
 lcioinput.collections = [
     "MCParticle:MCParticle",
     "CalorimeterHit:ECALBarrel",
@@ -36,7 +41,7 @@ from Configurables import ApplicationMgr
 ApplicationMgr(
         TopAlg = [lcioinput, total_inv_mass],
         EvtSel = 'NONE',
-        EvtMax = 10,
+        EvtMax = -1,
         ExtSvc = [dsvc],
         OutputLevel=INFO #DEBUG
 )
