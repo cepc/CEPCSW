@@ -37,25 +37,25 @@
       <!-- SQL command: "SELECT * FROM `innerWall`;"  -->
       <innerWall>
 	<!-- updates from Dimitra 4/7/17 -->
-	<row dr="0.07*mm" material="G4_Cu"  />
+	<row dr="0.01*mm" material="G4_Al"  />
 	<row dr="0.05*mm" material="G4_KAPTON"  />
 	<row dr="0.3*mm" material="g10"  />
 	<row dr="24.22*mm" material="G4_AIR"  />
 	<row dr="0.3*mm" material="g10"  />
 	<row dr="0.05*mm" material="G4_KAPTON"  />
-	<row dr="0.01*mm" material="G4_Al"  />
+	<row dr="0.07*mm" material="G4_Cu"  />
       </innerWall>
       <!-- SQL command: "SELECT * FROM `outerWall`;"  -->
       <outerWall>
 	<!-- updates from Dimitra 4/7/17 --> <!--recover to tpc10_01 matching CEPC_v4, by fucd-->
-	<row dr="0.01*mm" material="G4_Al"  />
+	<row dr="0.07*mm" material="G4_Cu"  />
 	<row dr="0.05*mm" material="G4_KAPTON"  />
 	<row dr="0.3*mm" material="g10"  />
 	<!-- row dr="57.66*mm" material="G4_AIR"  / -->
 	<row dr="59.22*mm" material="G4_AIR"  /> <!-- removed 5 mm to accomadate fat ecal: to be finalised when numbers available -->
 	<row dr="0.3*mm" material="g10"  />
 	<row dr="0.05*mm" material="G4_KAPTON"  />
-	<row dr="0.07*mm" material="G4_Cu"  />
+	<row dr="0.01*mm" material="G4_Al"  />
       </outerWall>
       <!-- SQL command: "SELECT * FROM `readout`;"  -->
       <readout>
@@ -86,8 +86,7 @@
 
  <readouts>
     <readout name="TPCCollection">
-      <!-- fixme: for now DD4hep cannot handle signed values - side should actually be "-2" -->
-      <id>system:5,side:2,layer:9,module:8,sensor:8</id>
+      <id>system:5,side:-2,layer:9,module:8,sensor:8</id>
     </readout>
  </readouts>
 
