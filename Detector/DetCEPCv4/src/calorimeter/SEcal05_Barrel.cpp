@@ -395,7 +395,7 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   //   end of slabs aligned to inner face of support plate in next stave (not the outer surface)
   // double Y = (module_thickness/2.) / sin(M_PI/4.);
   // double Y = (module_thickness_noSupport/2.) / sin(2.*M_PI/nsides);
-  double Y = (module_thickness/2.) / sin(2.*M_PI/nsides);
+  double Y = -(module_thickness/2.) / sin(2.*M_PI/nsides);
 
   // stave numbering from 1->8
   //   stave = 1 is in +ve x direction
@@ -422,7 +422,7 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
 
     for (int imodule = 0; imodule < Ecal_barrel_z_modules; imodule++) {
       int module_id = imodule+1;
-      Transform3D tr( RotationZYX( 0 , phirot, M_PI/2.),  // magic rotation!
+      Transform3D tr( RotationZYX( M_PI , phirot, M_PI/2.),  // magic rotation!
                       Translation3D(
                                     ( X*cos(phirot2)-Y*sin(phirot2) ) ,
                                     ( X*sin(phirot2)+Y*cos(phirot2) ) ,
