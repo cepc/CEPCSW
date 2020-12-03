@@ -232,12 +232,6 @@ StatusCode ClupatraAlg::initialize() {
 
 StatusCode ClupatraAlg::execute() {
 
-	TrackInfo_of_edm4hepTrack.init();
-	MarTrk_of_edm4hepTrack.init();
-	CluTrk_of_MarTrack.init();
-	MarTrkof.init();
-	GHitof.init();
-
 
 	debug() << "Clupatra Algorithm started" << endmsg;
 
@@ -1266,6 +1260,12 @@ StatusCode ClupatraAlg::execute() {
         }
 
 	_nEvt++ ;
+
+	TrackInfo_of_edm4hepTrack.clear();
+	MarTrk_of_edm4hepTrack.clear();
+	CluTrk_of_MarTrack.clear();
+	MarTrkof.clear();
+	GHitof.clear();
 
 	return StatusCode::SUCCESS;
 }
