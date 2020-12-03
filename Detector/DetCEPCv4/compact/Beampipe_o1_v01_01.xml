@@ -103,17 +103,17 @@
            rMax1="TUBE_incoming_beamcalToQD0_InnerRadius+TUBE_upstream_thickness"  rMax2="TUBE_incoming_QD0andBeyond_InnerRadius+TUBE_upstream_thickness"
            material="stainless_steel" name="BeamCalToQD0UpstreamTrans" />
 
-  <section type ="Upstream"
+  <!--section type ="Upstream"
            start="TUBE_QD0_Lstar"                    end="TUBE_QD0_Lstar+TUBE_QD0_length"
            rMin1="TUBE_incoming_QD0andBeyond_InnerRadius"          rMin2="TUBE_incoming_QD0andBeyond_InnerRadius"
            rMax1="TUBE_incoming_QD0andBeyond_InnerRadius+20*mm"    rMax2="TUBE_incoming_QD0andBeyond_InnerRadius+20*mm"
-           material="stainless_steel" name="QD0CryoUpstream" />
+           material="stainless_steel" name="QD0CryoUpstream" /-->
 
-  <section type ="Upstream"
+  <!--section type ="Upstream"
            start="TUBE_QD0_Lstar+TUBE_QD0_length"    end="10*m"
            rMin1="TUBE_incoming_QD0andBeyond_InnerRadius"          rMin2="TUBE_incoming_QD0andBeyond_InnerRadius"
            rMax1="TUBE_incoming_QD0andBeyond_InnerRadius+TUBE_upstream_thickness"    rMax2="TUBE_incoming_QD0andBeyond_InnerRadius+TUBE_upstream_thickness"
-           material="stainless_steel" name="BeyondQD0Upstream" />
+           material="stainless_steel" name="BeyondQD0Upstream" /-->
 
 
 
@@ -137,17 +137,17 @@
            rMax1="TUBE_outgoing_beamcalToQD0_InnerRadius+TUBE_upstream_thickness"  rMax2="TUBE_outgoing_beamcalToQD0_InnerRadius+TUBE_upstream_thickness"
            material="stainless_steel" name="BeamCalToQDEX1ADnstream" />
 
-  <section type ="Dnstream"
+  <!--section type ="Dnstream"
            start="TUBE_QDEX1A_Lstar"                    end="TUBE_QD0_Lstar+TUBE_QD0_cryostat_length"
            rMin1="TUBE_outgoing_QD0andBeyond_InnerRadius"          rMin2="TUBE_outgoing_QD0andBeyond_InnerRadius"
            rMax1="TUBE_outgoing_QD0andBeyond_InnerRadius+20*mm"    rMax2="TUBE_outgoing_QD0andBeyond_InnerRadius+20*mm"
-           material="stainless_steel" name="QDEX1A" />
+           material="stainless_steel" name="QDEX1A" /-->
 
-  <section type ="Dnstream"
+  <!--section type ="Dnstream"
            start="TUBE_QD0_Lstar+TUBE_QD0_cryostat_length"         end="10*m"
            rMin1="TUBE_outgoing_QD0andBeyond_InnerRadius"          rMin2="TUBE_outgoing_QD0andBeyond_InnerRadius"
            rMax1="TUBE_outgoing_QD0andBeyond_InnerRadius+TUBE_upstream_thickness"    rMax2="TUBE_outgoing_QD0andBeyond_InnerRadius+TUBE_upstream_thickness"
-           material="stainless_steel" name="BeyondQD0Dnstream" />
+           material="stainless_steel" name="BeyondQD0Dnstream" /-->
 
 </detector>
 

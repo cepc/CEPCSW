@@ -10,11 +10,11 @@
   <constant name="CepC_Main_Crossing_Angle" value="33*mrad"/>
 
   <!-- the field inside and outside the solenoid -->
-  <constant name="outerField_nominal_value" value="-1.5*tesla"/>
+  <constant name="outerField_nominal_value" value="-1.33716*tesla"/>
 
 
   <!-- VXD -->
-  <constant name="top_VXD_inner_radius"   value="15.95*mm "/>
+  <constant name="top_VXD_inner_radius"   value="15*mm "/>
   <constant name="top_VXD_outer_radius"   value="101*mm "/>
   <constant name="top_VXD_half_length"    value="200*mm "/>
 

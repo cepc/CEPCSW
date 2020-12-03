@@ -50,12 +50,13 @@
   <constant name="VXD_inner_radius"   value="top_VXD_inner_radius"/>
   <constant name="VXD_outer_radius"   value="top_VXD_outer_radius"/>
   <constant name="VXD_half_length"    value="top_VXD_half_length"/>
-  <constant name="VXD_cone_min_z"     value="TUBE_IPInnerTube_end_z"/>
+  <!--constant name="VXD_cone_min_z"     value="TUBE_IPInnerTube_end_z"/-->
+  <constant name="VXD_cone_min_z"     value="135*mm"/>
   <!--constant name="VXD_cone_max_z"     value="TUBE_IPInnerBulge_end_z"/-->
-  <constant name="VXD_cone_max_z"     value="VXD_half_length"/>
+  <constant name="VXD_cone_max_z"     value="VXD_half_length-10*mm"/>
   <!--constant name="VXD_cone_max_z"     value="125.1*mm "/-->
   <constant name="VXD_inner_radius_1" value="TUBE_IPInnerBulge_end_envradius + env_safety "/>
-
+  <!--constant name="VXD_inner_radius_1" value="TUBE_central_inner_radius + TUBE_central_thickness + env_safety"/-->
 
   <constant name="SIT_inner_radius"    value="SIT1_Radius - env_safety"/>
   <constant name="SIT_outer_radius_1"  value="SIT2_Radius - env_safety"/>
