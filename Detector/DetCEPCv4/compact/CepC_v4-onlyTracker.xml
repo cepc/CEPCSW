@@ -75,12 +75,13 @@
   <include ref="Field_AntiDID_Map_s.xml"/>
   <include ref="Field_FwdMagnets_Ideal_1000GeV.xml"/-->
 
-
   <fields>
-
-    <field name="MagnetFields_Constant" type="ConstantField" field="magnetic">
-      <strength x="0" y="0" z="3.0*tesla"/>
+    <field name="GlobalSolenoid" type="solenoid"
+           inner_field="Field_nominal_value"
+           outer_field="outerField_nominal_value"
+           zmax="TPC_Ecal_Hcal_barrel_halfZ + Coil_extra_size"
+           outer_radius="Hcal_outer_radius + Coil_thickness/2">
     </field>
-
   </fields>
+
 </lccdd>
