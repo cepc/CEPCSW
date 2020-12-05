@@ -66,11 +66,8 @@ public:
 
   inline void setWiresInLayer(int layer, int numWires)
   {
-    double phi0;
     updateParams(layer);
     for (int i = 0; i<numWires; ++i) {
-
-      phi0 = m_offset;
 
       auto phi_start = _currentLayerphi * (i+0.5) + phi0;
       auto phi_end = phi_start + _currentLayerphi;
