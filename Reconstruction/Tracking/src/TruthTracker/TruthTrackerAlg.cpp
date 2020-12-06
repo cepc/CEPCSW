@@ -22,7 +22,8 @@
 DECLARE_COMPONENT(TruthTrackerAlg)
 
 TruthTrackerAlg::TruthTrackerAlg(const std::string& name, ISvcLocator* svcLoc)
-: GaudiAlgorithm(name, svcLoc), m_dd4hep(nullptr), m_gridDriftChamber(nullptr),m_decoder(nullptr)
+: GaudiAlgorithm(name, svcLoc),m_dd4hep(nullptr),m_gridDriftChamber(nullptr),
+    m_decoder(nullptr)
 {
     declareProperty("MCParticle", m_mcParticleCol,
             "Handle of the input MCParticle collection");
@@ -34,9 +35,9 @@ TruthTrackerAlg::TruthTrackerAlg(const std::string& name, ISvcLocator* svcLoc)
         "Handle of association collection");
     declareProperty("DCRecParticleCollection", m_dcRecParticleCol,
             "Handle of drift chamber reconstructed particle collection");
-    declareProperty("DCRecParticleAssociationCollection", m_dcRecParticleAssociationCol,
+    declareProperty("DCRecParticleAssociationCollection",
+            m_dcRecParticleAssociationCol,
             "Handle of drift chamber reconstructed particle collection");
-    declareProperty("debug", m_debug=false);
 }
 
 StatusCode TruthTrackerAlg::initialize()
@@ -93,8 +94,10 @@ StatusCode TruthTrackerAlg::execute()
 
     ///Output Track collection
     edm4hep::TrackCollection* dcTrackCol=m_dcTrackCol.createAndPut();
-    edm4hep::ReconstructedParticleCollection* dcRecParticleCol=
-        m_dcRecParticleCol.createAndPut();
+    edm4hep::ReconstructedParticleCollection* dcRecParticleCol(nullptr);
+    if(m_writeRecParticle){
+        dcRecParticleCol=m_dcRecParticleCol.createAndPut();
+    }
     ////TODO
     //Output MCRecoTrackerAssociationCollection collection
     //const edm4hep::MCRecoTrackerAssociationCollection*
@@ -175,25 +178,28 @@ StatusCode TruthTrackerAlg::execute()
         }
         track.setRadiusOfInnermostHit(radiusOfInnermostHit);//TODO
 
-        ///new ReconstructedParticle
-        edm4hep::ReconstructedParticle dcRecParticle=dcRecParticleCol->create();
-        //dcRecParticle.setType();//TODO
-        double mass=mcParticle.getMass();
-        double p=sqrt(mcParticleMomSmeared.x*mcParticleMomSmeared.x+
-                mcParticleMomSmeared.y*mcParticleMomSmeared.y+
-                mcParticleMomSmeared.z*mcParticleMomSmeared.z);
-        dcRecParticle.setEnergy(sqrt(mass*mass+p*p));
-        dcRecParticle.setMomentum(mcParticleMomSmeared);
-        dcRecParticle.setReferencePoint(mcParticleVertexSmeared);
-        dcRecParticle.setCharge(mcParticle.getCharge());
-        dcRecParticle.setMass(mass);
-        //dcRecParticle.setGoodnessOfPID();//TODO
-        //std::array<float>,10> covMat=?;//TODO
-        //dcRecParticle.setCovMatrix(covMat);//TODO
-        //dcRecParticle.setStartVertex();//TODO
-        edm4hep::ParticleID particleID(0,mcParticle.getPDG(),0,1);//FIXME
-        dcRecParticle.setParticleIDUsed(particleID);
-        dcRecParticle.addToTracks(track);
+        edm4hep::ReconstructedParticle dcRecParticle;
+        if(m_writeRecParticle){
+            dcRecParticle=dcRecParticleCol->create();
+            ///new ReconstructedParticle
+            //dcRecParticle.setType();//TODO
+            double mass=mcParticle.getMass();
+            double p=sqrt(mcParticleMomSmeared.x*mcParticleMomSmeared.x+
+                    mcParticleMomSmeared.y*mcParticleMomSmeared.y+
+                    mcParticleMomSmeared.z*mcParticleMomSmeared.z);
+            dcRecParticle.setEnergy(sqrt(mass*mass+p*p));
+            dcRecParticle.setMomentum(mcParticleMomSmeared);
+            dcRecParticle.setReferencePoint(mcParticleVertexSmeared);
+            dcRecParticle.setCharge(mcParticle.getCharge());
+            dcRecParticle.setMass(mass);
+            //dcRecParticle.setGoodnessOfPID();//TODO
+            //std::array<float>,10> covMat=?;//TODO
+            //dcRecParticle.setCovMatrix(covMat);//TODO
+            //dcRecParticle.setStartVertex();//TODO
+            edm4hep::ParticleID particleID(0,mcParticle.getPDG(),0,1);//FIXME
+            dcRecParticle.setParticleIDUsed(particleID);
+            dcRecParticle.addToTracks(track);
+        }//end of write RecParticle
 
         if(m_debug){
             std::cout<<"mcParticle "<<mcParticle
@@ -207,7 +213,9 @@ StatusCode TruthTrackerAlg::execute()
             std::cout<<"trackState:location,D0,phi,omega,Z0,tanLambda"
                 <<",referencePoint,cov"<<std::endl<<trackState<<std::endl;
             std::cout<<"track"<<track<<std::endl;
-            std::cout<<"dcRecParticle"<<dcRecParticle<<std::endl;
+            if(m_writeRecParticle){
+                std::cout<<"dcRecParticle"<<dcRecParticle<<std::endl;
+            }
         }
 
     }//end loop over MCParticleCol
