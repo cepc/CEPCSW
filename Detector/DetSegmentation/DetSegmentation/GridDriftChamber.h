@@ -69,7 +69,7 @@ public:
     updateParams(layer);
     for (int i = 0; i<numWires; ++i) {
 
-      auto phi_start = _currentLayerphi * (i+0.5) + phi0;
+      auto phi_start = _currentLayerphi * (i+0.5) + m_offset;
       auto phi_end = phi_start + _currentLayerphi;
 
       TVector3 Wstart = returnWirePosition(phi_start, 1);
