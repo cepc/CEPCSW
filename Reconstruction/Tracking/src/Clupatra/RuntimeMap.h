@@ -9,7 +9,7 @@ class RuntimeMap {
     V& operator()(const U& u) {
         return data[u];
     }
-    void init() {
+    void clear() {
         data.clear();
     }
 };
