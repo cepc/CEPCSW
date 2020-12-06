@@ -1,5 +1,15 @@
 #include "TruthTrackerAlg.h"
 #include "DataHelper/HelixClass.h"
+#include "DDSegmentation/Segmentation.h"
+#include "DetSegmentation/GridDriftChamber.h"
+#include "DetInterface/IGeomSvc.h"
+#include "DD4hep/Detector.h"
+#include "DD4hep/IDDescriptor.h"
+#include "DD4hep/Plugins.h"
+#include "DD4hep/DD4hepUnits.h"
+
+//external
+#include "CLHEP/Random/RandGauss.h"
 #include "edm4hep/EventHeaderCollection.h"
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4hep/SimTrackerHitCollection.h"
@@ -8,16 +18,6 @@
 #include "edm4hep/MCRecoTrackerAssociationCollection.h"
 #include "edm4hep/MCRecoParticleAssociationCollection.h"
 #include "edm4hep/ReconstructedParticleCollection.h"
-#include "DDSegmentation/Segmentation.h"
-#include "DetSegmentation/GridDriftChamber.h"
-#include "DetInterface/IGeomSvc.h"
-//#include "edm4hep/SimCalorimeterHitCollection.h"
-//#include "edm4hep/CaloHitContributionCollection.h"
-
-#include "DD4hep/Detector.h"
-#include "DD4hep/IDDescriptor.h"
-#include "DD4hep/Plugins.h"
-#include "DD4hep/DD4hepUnits.h"
 
 DECLARE_COMPONENT(TruthTrackerAlg)
 
@@ -88,13 +88,15 @@ StatusCode TruthTrackerAlg::execute()
     digiDCHitsCol=m_digiDCHitsCol.get();//FIXME DEBUG
     if(nullptr==digiDCHitsCol){
         debug()<<"TrackerHitCollection not found"<<endmsg;
-        //return StatusCode::SUCCESS;
+        return StatusCode::SUCCESS;//FIXME return when no hits in DC + silicon
     }
 
     ///Output Track collection
     edm4hep::TrackCollection* dcTrackCol=m_dcTrackCol.createAndPut();
+    edm4hep::ReconstructedParticleCollection* dcRecParticleCol=
+        m_dcRecParticleCol.createAndPut();
     ////TODO
-    /////Output MCRecoTrackerAssociationCollection collection
+    //Output MCRecoTrackerAssociationCollection collection
     //const edm4hep::MCRecoTrackerAssociationCollection*
     //    mcRecoTrackerAssociationCol=nullptr;
     //if(nullptr==mcRecoTrackerAssociationCol){
@@ -109,24 +111,44 @@ StatusCode TruthTrackerAlg::execute()
         debug()<<"MCParticleCol size="<<mcParticleCol->size()<<endmsg;
     }
     for(auto mcParticle : *mcParticleCol){
-        //if(fabs(mcParticle.getCharge()<1e-6) continue;//Skip neutral particles
-        edm4hep::Vector3d posV= mcParticle.getVertex();
-        edm4hep::Vector3f momV= mcParticle.getMomentum();//GeV
-        float pos[3]={posV.x, posV.y, posV.z};
-        float mom[3]={momV.x, momV.y, momV.z};
-        //FIXME
-        //pivotToFirstLayer(mcPocaPos,mcPocaMom,firstLayerPos,firstLayerMom);
+        /// skip mcParticleVertex do not have enough associated hits TODO
+
+        ///Vertex
+        const edm4hep::Vector3d mcParticleVertex=mcParticle.getVertex();//mm
+        edm4hep::Vector3f mcParticleVertexSmeared;//mm
+        mcParticleVertexSmeared.x=
+            CLHEP::RandGauss::shoot(mcParticleVertex.x,m_resVertexX);
+        mcParticleVertexSmeared.y=
+            CLHEP::RandGauss::shoot(mcParticleVertex.y,m_resVertexY);
+        mcParticleVertexSmeared.z=
+            CLHEP::RandGauss::shoot(mcParticleVertex.z,m_resVertexZ);
+        ///Momentum
+        edm4hep::Vector3f mcParticleMom=mcParticle.getMomentum();//GeV
+        double mcParticlePt=sqrt(mcParticleMom.x*mcParticleMom.x+
+                mcParticleMom.y*mcParticleMom.y);
+        double mcParticlePtSmeared=
+            CLHEP::RandGauss::shoot(mcParticlePt,m_resPT);
+        double mcParticleMomPhi=atan2(mcParticleMom.y,mcParticleMom.x);
+        double mcParticleMomPhiSmeared=
+            CLHEP::RandGauss::shoot(mcParticleMomPhi,m_resMomPhi);
+        edm4hep::Vector3f mcParticleMomSmeared;
+        mcParticleMomSmeared.x=mcParticlePt*cos(mcParticleMomPhiSmeared);
+        mcParticleMomSmeared.y=mcParticlePt*sin(mcParticleMomPhiSmeared);
+        mcParticleMomSmeared.z=
+            CLHEP::RandGauss::shoot(mcParticleMom.z,m_resPz);
+
+        ///Converted to Helix
         double B[3]={1e9,1e9,1e9};
         m_dd4hepField.magneticField({0.,0.,0.},B);
-        if(m_debug)std::cout<<" PDG "<<mcParticle.getPDG()<<" charge "
-            << mcParticle.getCharge()
-            <<" pos "<<pos[0]<<" "<<pos[1]<<" "<<pos[2]
-            <<" mom "<<mom[0]<<" "<<mom[1]<<" "<<mom[2]
-            <<" Bxyz "<<B[0]/dd4hep::tesla<<" "<<B[1]/dd4hep::tesla
-            <<" "<<B[2]/dd4hep::tesla<<" tesla"<<std::endl;
-
         HelixClass helix;
-        helix.Initialize_VP(pos,mom,(int) mcParticle.getCharge(),B[2]/dd4hep::tesla);
+        float pos[3]={mcParticleVertexSmeared.x,
+            mcParticleVertexSmeared.y,mcParticleVertexSmeared.z};
+        float mom[3]={mcParticleMomSmeared.x,mcParticleMomSmeared.y,
+            mcParticleMomSmeared.z};
+        helix.Initialize_VP(pos,mom,mcParticle.getCharge(),B[2]/dd4hep::tesla);
+
+        ///new Track
+        edm4hep::Track track = dcTrackCol->create();
         edm4hep::TrackState trackState;
         trackState.D0=helix.getD0();
         trackState.phi=helix.getPhi0();
@@ -137,38 +159,58 @@ StatusCode TruthTrackerAlg::execute()
         std::array<float,15> covMatrix;
         for(int i=0;i<15;i++){covMatrix[i]=999.;}//FIXME
         trackState.covMatrix=covMatrix;
+        track.addToTrackStates(trackState);
+        //track.setType();//TODO
+        //track.setChi2(gauss(digiDCHitsCol->size-5(),1));//FIXME
+        track.setNdf(digiDCHitsCol->size()-5);
+        //track.setDEdx();//TODO
+        //set hits
+        double radiusOfInnermostHit=1e9;
+        for(auto digiDC : *digiDCHitsCol){
+            //if(Sim->MCParti!=current) continue;//TODO
+            edm4hep::Vector3d digiPos=digiDC.getPosition();
+            double r=sqrt(digiPos.x*digiPos.x+digiPos.y*digiPos.y);
+            if(r<radiusOfInnermostHit) radiusOfInnermostHit=r;
+            track.addToTrackerHits(digiDC);
+        }
+        track.setRadiusOfInnermostHit(radiusOfInnermostHit);//TODO
+
+        ///new ReconstructedParticle
+        edm4hep::ReconstructedParticle dcRecParticle=dcRecParticleCol->create();
+        //dcRecParticle.setType();//TODO
+        double mass=mcParticle.getMass();
+        double p=sqrt(mcParticleMomSmeared.x*mcParticleMomSmeared.x+
+                mcParticleMomSmeared.y*mcParticleMomSmeared.y+
+                mcParticleMomSmeared.z*mcParticleMomSmeared.z);
+        dcRecParticle.setEnergy(sqrt(mass*mass+p*p));
+        dcRecParticle.setMomentum(mcParticleMomSmeared);
+        dcRecParticle.setReferencePoint(mcParticleVertexSmeared);
+        dcRecParticle.setCharge(mcParticle.getCharge());
+        dcRecParticle.setMass(mass);
+        //dcRecParticle.setGoodnessOfPID();//TODO
+        //std::array<float>,10> covMat=?;//TODO
+        //dcRecParticle.setCovMatrix(covMat);//TODO
+        //dcRecParticle.setStartVertex();//TODO
+        edm4hep::ParticleID particleID(0,mcParticle.getPDG(),0,1);//FIXME
+        dcRecParticle.setParticleIDUsed(particleID);
+        dcRecParticle.addToTracks(track);
 
         if(m_debug){
-            std::cout<<" helix  d0 "<<trackState.D0<<
-                " phi "<<trackState.phi<<
-                " omega "<<trackState.omega<<
-                " z0 "<<trackState.Z0<<
-                " tanLambda "<<trackState.tanLambda<<
-                " referencePoint "<<trackState.referencePoint<< std::endl;
+            std::cout<<"mcParticle "<<mcParticle
+                <<" momPhi "<<mcParticleMomPhi
+                <<" mcParticleVertex("<<mcParticleVertex<<")mm "
+                <<" mcParticleVertexSmeared("<<mcParticleVertexSmeared<<")mm "
+                <<" mcParticleMom("<<mcParticleMom<<")GeV "
+                <<" mcParticleMomSmeared("<<mcParticleMomSmeared<<")GeV "
+                <<" Bxyz "<<B[0]/dd4hep::tesla<<" "<<B[1]/dd4hep::tesla
+                <<" "<<B[2]/dd4hep::tesla<<" tesla"<<std::endl;
+            std::cout<<"trackState:location,D0,phi,omega,Z0,tanLambda"
+                <<",referencePoint,cov"<<std::endl<<trackState<<std::endl;
+            std::cout<<"track"<<track<<std::endl;
+            std::cout<<"dcRecParticle"<<dcRecParticle<<std::endl;
         }
-        //new Track
-        edm4hep::Track track = dcTrackCol->create();
-        track.addToTrackStates(trackState);
-        if(nullptr!=digiDCHitsCol) {
-            //track.setType();//TODO
-            //track.setChi2(trackState->getChi2());
-            track.setNdf(digiDCHitsCol->size()-5);
-            //track.setDEdx();//TODO
-            //track.setRadiusOfInnermostHit();//TODO
-            for(int i=0; i<digiDCHitsCol->size(); i++ ){
-                edm4hep::TrackerHit digiDC=digiDCHitsCol->at(i);
-                //if(Sim->MCParti!=current) continue;//TODO
-                track.addToTrackerHits(digiDC);
-            }
-        }
-        //TODO
-        //new ReconstructedParticle
-        //recParticle->setType();
-        //dcRecParticle->setEnergy();
-        //edm4hep::Vector3f momVec3(helix.getMomentum()[0],
-        //        helix.getMomentum()[1],helix.getMomentum()[2]);
-        //recParticle->setMomentum(momVec3);
-    }
+
+    }//end loop over MCParticleCol
 
     if(m_debug) std::cout<<"Output DCTrack size="<<dcTrackCol->size()<<std::endl;
     return StatusCode::SUCCESS;
