@@ -110,9 +110,7 @@ StatusCode TruthTrackerAlg::execute()
     //mcRecoTrackerAssociationCol=m_mcRecoParticleAssociation.get();
 
     ///Convert MCParticle to Track and ReconstructedParticle
-    if(m_debug){
-        debug()<<"MCParticleCol size="<<mcParticleCol->size()<<endmsg;
-    }
+    debug()<<"MCParticleCol size="<<mcParticleCol->size()<<endmsg;
     for(auto mcParticle : *mcParticleCol){
         /// skip mcParticleVertex do not have enough associated hits TODO
 
@@ -201,26 +199,21 @@ StatusCode TruthTrackerAlg::execute()
             dcRecParticle.addToTracks(track);
         }//end of write RecParticle
 
-        if(m_debug){
-            std::cout<<"mcParticle "<<mcParticle
-                <<" momPhi "<<mcParticleMomPhi
-                <<" mcParticleVertex("<<mcParticleVertex<<")mm "
-                <<" mcParticleVertexSmeared("<<mcParticleVertexSmeared<<")mm "
-                <<" mcParticleMom("<<mcParticleMom<<")GeV "
-                <<" mcParticleMomSmeared("<<mcParticleMomSmeared<<")GeV "
-                <<" Bxyz "<<B[0]/dd4hep::tesla<<" "<<B[1]/dd4hep::tesla
-                <<" "<<B[2]/dd4hep::tesla<<" tesla"<<std::endl;
-            std::cout<<"trackState:location,D0,phi,omega,Z0,tanLambda"
-                <<",referencePoint,cov"<<std::endl<<trackState<<std::endl;
-            std::cout<<"track"<<track<<std::endl;
-            if(m_writeRecParticle){
-                std::cout<<"dcRecParticle"<<dcRecParticle<<std::endl;
-            }
-        }
-
+        debug()<<"mcParticle "<<mcParticle
+            <<" momPhi "<<mcParticleMomPhi
+            <<" mcParticleVertex("<<mcParticleVertex<<")mm "
+            <<" mcParticleVertexSmeared("<<mcParticleVertexSmeared<<")mm "
+            <<" mcParticleMom("<<mcParticleMom<<")GeV "
+            <<" mcParticleMomSmeared("<<mcParticleMomSmeared<<")GeV "
+            <<" Bxyz "<<B[0]/dd4hep::tesla<<" "<<B[1]/dd4hep::tesla
+            <<" "<<B[2]/dd4hep::tesla<<" tesla"<<endmsg;
+        debug()<<"trackState:location,D0,phi,omega,Z0,tanLambda"
+            <<",referencePoint,cov"<<std::endl<<trackState<<std::endl;
+        debug()<<"track"<<track<<endmsg;
+        if(m_writeRecParticle) debug()<<"dcRecParticle"<<dcRecParticle<<endmsg;
     }//end loop over MCParticleCol
 
-    if(m_debug) std::cout<<"Output DCTrack size="<<dcTrackCol->size()<<std::endl;
+    debug()<<"Output DCTrack size="<<dcTrackCol->size()<<endmsg;
     return StatusCode::SUCCESS;
 }
 

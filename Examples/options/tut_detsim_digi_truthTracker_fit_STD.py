@@ -153,13 +153,6 @@ elif dedxoption == "BetheBlochEquationDedxSimTool":
     dedx_simtool.resolution = 0.0001
 
 ##############################################################################
-from Configurables import NTupleSvc
-ntsvc = NTupleSvc("NTupleSvc")
-ntsvc.Output = ["MyTuples DATAFILE='DCH_digi_ana.root' OPT='NEW' TYP='ROOT'"]
-
-##############################################################################
-# DCHDigiAlg
-##############################################################################
 from Configurables import DCHDigiAlg
 dCHDigiAlg = DCHDigiAlg("DCHDigiAlg")
 dCHDigiAlg.readout = "DriftChamberHitsCollection"
@@ -171,30 +164,46 @@ dCHDigiAlg.AssociationCollection = "DCHAssociationCollection"
 dCHDigiAlg.WriteAna  = True
 
 ##############################################################################
+# POD I/O
+##############################################################################
+from Configurables import PodioOutput
+out = PodioOutput("outputalg")
+out.filename = "fit_DCH.root"
+out.outputCommands = ["keep *"]
+
+##############################################################################
 # TruthTrackerAlg
 ##############################################################################
 from Configurables import TruthTrackerAlg
 truthTrackerAlg = TruthTrackerAlg("TruthTrackerAlg")
 truthTrackerAlg.DCHitAssociationCollection="DCHAssociationCollection"
-truthTrackerAlg.debug = 1
+#truthTrackerAlg.writeRecParticle = False
 
 ##############################################################################
-# POD I/O
+# GenfitAlg
 ##############################################################################
-from Configurables import PodioOutput
-out = PodioOutput("outputalg")
-out.filename = "truthRec_DCH.root"
-out.outputCommands = ["keep *"]
+from Configurables import RecGenfitAlgDC
+recGenfitAlgDC = RecGenfitAlgDC("RecGenfitAlgDC")
+recGenfitAlgDC.debug = 0
+
+##############################################################################
+# NTupleSvc
+##############################################################################
+from Configurables import NTupleSvc
+ntsvc = NTupleSvc("NTupleSvc")
+ntsvc.Output = ["MyTuples DATAFILE='DCH_digi_ana.root' OPT='NEW' TYP='ROOT'",
+                "RecGenfitAlgDC DATAFILE='fit_SDT.root' OPT='NEW' TYP='ROOT'"]
 
 ##############################################################################
 # ApplicationMgr
 ##############################################################################
 
 from Configurables import ApplicationMgr
-ApplicationMgr( TopAlg = [genalg, detsimalg, dCHDigiAlg, truthTrackerAlg, out],
+ApplicationMgr( TopAlg = [genalg, detsimalg, dCHDigiAlg, truthTrackerAlg,
+                          recGenfitAlgDC, out],
                 EvtSel = 'NONE',
-                EvtMax = 1,
-                ExtSvc = [rndmengine, dsvc, geosvc],
+                EvtMax = 100,
+                ExtSvc = [rndmengine, dsvc, geosvc, ntsvc],
                 HistogramPersistency = "ROOT",
-                OutputLevel=INFO
+                OutputLevel=DEBUG
 )

@@ -58,7 +58,6 @@ class TruthTrackerAlg: public GaudiAlgorithm
         //readout for getting segmentation
         Gaudi::Property<std::string> m_readout_name{this, "readout",
             "DriftChamberHitsCollection"};
-        Gaudi::Property<int> m_debug{this,"debug",false};
         Gaudi::Property<bool> m_writeRecParticle{this,"writeRecParticle",false};
         Gaudi::Property<float> m_resPT{this,"resPT",0};//ratio
         Gaudi::Property<float> m_resPz{this,"resPz",0};//ratio
