@@ -65,6 +65,8 @@ DetectorConstruction::Construct() {
     // Associate Fast Simulation Model and Regions
     // =======================================================================
     for (auto fastsimtool: m_fast_simtools) {
+        G4cout << "Invoke CreateFastSimulationModel of fastsimtool instance "
+               << m_fast_simtools << G4endl;
         fastsimtool->CreateFastSimulationModel();
     }
 

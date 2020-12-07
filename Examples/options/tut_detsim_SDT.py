@@ -117,6 +117,13 @@ if int(os.environ.get("VIS", 0)):
 detsimalg.RunCmds = [
 #    "/tracking/verbose 1",
 ]
+
+from Configurables import DummyFastSimG4Tool
+dummy_fastsim_tool = DummyFastSimG4Tool("DummyFastSimG4Tool")
+
+detsimalg.FastSimG4Tools = [
+    "DummyFastSimG4Tool"
+]
 detsimalg.AnaElems = [
     # example_anatool.name()
     # "ExampleAnaElemTool"

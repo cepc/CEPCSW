@@ -43,7 +43,8 @@ DetSimAlg::initialize() {
     // Detector Construction
     m_root_detelem = ToolHandle<IDetElemTool>(m_root_det_elem.value());
 
-    for (auto fastsimname: m_fast_simtools) {
+    for (auto fastsimname: m_fast_simnames) {
+        info() << "Fast Sim Tool: " << fastsimname << endmsg;
         m_fast_simtools.push_back(fastsimname);
     }
 
