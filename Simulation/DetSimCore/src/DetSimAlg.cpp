@@ -10,6 +10,8 @@
 
 #include "DetectorConstruction.h"
 #include "G4PhysListFactory.hh"
+#include "G4StepLimiterPhysics.hh"
+#include "G4FastSimulationPhysics.hh"
 #include "PrimaryGeneratorAction.h"
 
 #include "ActionInitialization.h"
@@ -55,7 +57,20 @@ DetSimAlg::initialize() {
 
     } else {
         G4PhysListFactory *physListFactory = new G4PhysListFactory();
-        physicsList = physListFactory->GetReferencePhysList(m_physics_lists_name.value());
+        G4VModularPhysicsList* modularPhysicsList = physListFactory->GetReferencePhysList(m_physics_lists_name.value());
+
+        // register addition physics list
+        modularPhysicsList->RegisterPhysics(new G4StepLimiterPhysics());
+
+        // register fastsim physics
+        G4FastSimulationPhysics* fastsim_physics = new G4FastSimulationPhysics();
+        fastsim_physics->BeVerbose();
+        fastsim_physics->ActivateFastSimulation("e-");
+        fastsim_physics->ActivateFastSimulation("e+");
+        fastsim_physics->ActivateFastSimulation("gamma");
+        modularPhysicsList->RegisterPhysics(fastsim_physics);
+
+        physicsList = modularPhysicsList;
     }
     assert(physicsList);
     runmgr->SetUserInitialization(physicsList);
