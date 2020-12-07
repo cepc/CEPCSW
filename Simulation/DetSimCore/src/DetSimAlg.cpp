@@ -42,7 +42,12 @@ DetSimAlg::initialize() {
 
     // Detector Construction
     m_root_detelem = ToolHandle<IDetElemTool>(m_root_det_elem.value());
-    runmgr->SetUserInitialization(new DetectorConstruction(m_root_detelem));
+
+    for (auto fastsimname: m_fast_simtools) {
+        m_fast_simtools.push_back(fastsimname);
+    }
+
+    runmgr->SetUserInitialization(new DetectorConstruction(m_root_detelem, m_fast_simtools));
     // Physics List
     G4VUserPhysicsList *physicsList = nullptr;
     if (m_physics_lists_name.value() == "CEPC") {
