@@ -10,6 +10,7 @@
 
 #include "DetectorConstruction.h"
 #include "G4PhysListFactory.hh"
+#include "G4EmParameters.hh"
 #include "G4StepLimiterPhysics.hh"
 #include "G4FastSimulationPhysics.hh"
 #include "PrimaryGeneratorAction.h"
@@ -58,6 +59,10 @@ DetSimAlg::initialize() {
     } else {
         G4PhysListFactory *physListFactory = new G4PhysListFactory();
         G4VModularPhysicsList* modularPhysicsList = physListFactory->GetReferencePhysList(m_physics_lists_name.value());
+
+        // PAI model
+        G4EmParameters::Instance()->AddPAIModel("all","DriftChamberRegion","pai");
+        // G4EmParameters::Instance()->AddPAIModel("all","DriftChamberRegion","pai_photon");
 
         // register addition physics list
         modularPhysicsList->RegisterPhysics(new G4StepLimiterPhysics());

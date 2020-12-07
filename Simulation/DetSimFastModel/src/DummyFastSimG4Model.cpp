@@ -17,7 +17,7 @@ G4bool DummyFastSimG4Model::IsApplicable(const G4ParticleDefinition& aParticle) 
 }
 
 G4bool DummyFastSimG4Model::ModelTrigger(const G4FastTrack& aFastTrack) {
-    G4cout << __FILE__ << __LINE__ << ": ModelTrigger." << G4endl;
+    // G4cout << __FILE__ << __LINE__ << ": ModelTrigger." << G4endl;
 
     bool istrigged = false;
 
@@ -31,7 +31,7 @@ G4bool DummyFastSimG4Model::ModelTrigger(const G4FastTrack& aFastTrack) {
 }
 
 void DummyFastSimG4Model::DoIt(const G4FastTrack& aFastTrack, G4FastStep& aFastStep) {
-    G4cout << __FILE__ << __LINE__ << ": DoIt." << G4endl;
+    // G4cout << __FILE__ << __LINE__ << ": DoIt." << G4endl;
 
     aFastStep.ProposeTrackStatus(fStopAndKill);
 }
