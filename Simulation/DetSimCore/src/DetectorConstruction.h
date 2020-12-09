@@ -3,6 +3,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "DetSimInterface/IDetElemTool.h"
+#include "DetSimInterface/IFastSimG4Tool.h"
 
 #include "globals.hh"
 #include "G4VUserDetectorConstruction.hh"
@@ -16,7 +17,8 @@
 class DetectorConstruction: public G4VUserDetectorConstruction {
 
 public:
-    DetectorConstruction(ToolHandle<IDetElemTool>& root_elem);
+    DetectorConstruction(ToolHandle<IDetElemTool>& root_elem,
+                         ToolHandleArray<IFastSimG4Tool>& fast_simtools);
     ~DetectorConstruction();
 public:
     G4VPhysicalVolume* Construct() override;
@@ -24,6 +26,7 @@ public:
 
 private:
     ToolHandle<IDetElemTool>& m_root_detelem;
+    ToolHandleArray<IFastSimG4Tool>& m_fast_simtools;
 };
 
 #endif
