@@ -22,7 +22,7 @@ std::vector<double> PanUtil::getTrackingRegionExtent(){
   extent.reserve(3);
   try{ 
       dd4hep::Detector & mainDetector = dd4hep::Detector::getInstance();
-      extent[0]=0.1; ///FIXME! CLIC-specific: Inner radius was set to 0 for SiD-type detectors
+      extent[0]=329; ///FIXME! CEPCv4-specific
       extent[1]=mainDetector.constantAsDouble("tracker_region_rmax")/dd4hep::mm;
       extent[2]=mainDetector.constantAsDouble("tracker_region_zmax")/dd4hep::mm;
   }

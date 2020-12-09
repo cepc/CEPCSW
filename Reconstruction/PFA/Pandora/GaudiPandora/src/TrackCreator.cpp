@@ -8,6 +8,7 @@
 
 
 #include "edm4hep/Vertex.h"
+#include "edm4hep/Vector3f.h"
 #include "edm4hep/ReconstructedParticle.h"
 
 #include "gear/BField.h"
@@ -61,10 +62,11 @@ TrackCreator::TrackCreator(const Settings &settings, const pandora::Pandora *con
               //There should only be one TPC
               if(tpcDets.size()==1) {
                   theExtension = tpcDets[0].extension<dd4hep::rec::FixedPadSizeTPCData>();
-                  m_tpcInnerR = theExtension->rMin/dd4hep::mm ;
-                  m_tpcOuterR = theExtension->rMax/dd4hep::mm ;
+                  m_tpcInnerR = theExtension->rMinReadout/dd4hep::mm ;// keep same as Gear
+                  m_tpcOuterR = theExtension->rMaxReadout/dd4hep::mm ;
+                  m_tpcZmax   = theExtension->driftLength/dd4hep::mm ;
                   m_tpcMaxRow = theExtension->maxRow;
-                  m_tpcZmax   = theExtension->zHalf/dd4hep::mm ;
+                  std::cout<<"DD4HEP m_tpcInnerR="<<m_tpcInnerR<<",m_tpcOuterR="<<m_tpcOuterR<<",m_tpcMaxRow="<<m_tpcMaxRow<<",m_tpcZmax="<<m_tpcZmax<<std::endl;
               }
               else{ 
                   m_tpcInnerR = 100 ;
@@ -102,7 +104,7 @@ TrackCreator::TrackCreator(const Settings &settings, const pandora::Pandora *con
                   // Take the mean z position of the staggered petals
                   const double zpos(thisLayer.zPosition/dd4hep::mm);
                   m_ftdZPositions.push_back(zpos);
-                  std::cout << "     layer " << i << " - mean z position = " << zpos << std::endl;
+                  std::cout << "DD:   layer " << i << " - mean z position = " << zpos << std::endl;
                 }
                 m_nFtdLayers = m_ftdZPositions.size() ;
             }
@@ -132,6 +134,7 @@ TrackCreator::TrackCreator(const Settings &settings, const pandora::Pandora *con
         m_tpcOuterR               = (_GEAR->getTPCParameters().getPadLayout().getPlaneExtent()[1]);
         m_tpcMaxRow               = (_GEAR->getTPCParameters().getPadLayout().getNRows());
         m_tpcZmax                 = (_GEAR->getTPCParameters().getMaxDriftLength());
+        std::cout<<"Gear: m_tpcInnerR="<<m_tpcInnerR<<",m_tpcOuterR="<<m_tpcOuterR<<",m_tpcMaxRow="<<m_tpcMaxRow<<",m_tpcZmax="<<m_tpcZmax<<std::endl;
         try{
             m_ftdInnerRadii = _GEAR->getGearParameters("FTD").getDoubleVals("FTDInnerRadius");
             m_ftdOuterRadii = _GEAR->getGearParameters("FTD").getDoubleVals("FTDOuterRadius");
@@ -149,7 +152,7 @@ TrackCreator::TrackCreator(const Settings &settings, const pandora::Pandora *con
                 // Take the mean z position of the staggered petals
                 const double zpos(ftdLayerLayout.getZposition(i));
                 m_ftdZPositions.push_back(zpos);
-                std::cout << "     layer " << i << " - mean z position = " << zpos << std::endl;
+                std::cout << "Gear: layer " << i << " - mean z position = " << zpos << std::endl;
             }
             m_nFtdLayers = m_ftdZPositions.size() ;
         }
@@ -502,7 +505,7 @@ const edm4hep::Track* TrackCreator::GetTrackAddress(const CollectionMaps& collec
 
 pandora::StatusCode TrackCreator::CreateTracks(const CollectionMaps& collectionMaps)
 {
-    std::cout<<"start TrackCreator::CreateTracks:"<<std::endl;
+    if(m_settings.m_debug) std::cout<<"start TrackCreator::CreateTracks:"<<std::endl;
     for (StringVector::const_iterator iter = m_settings.m_trackCollections.begin(), iterEnd = m_settings.m_trackCollections.end();
         iter != iterEnd; ++iter)
     {
@@ -511,6 +514,7 @@ pandora::StatusCode TrackCreator::CreateTracks(const CollectionMaps& collectionM
         {
             const std::vector<edm4hep::Track>& pTrackCollection = (collectionMaps.collectionMap_Track.find(*iter))->second;
 
+            if(m_settings.m_debug) std::cout<<"TrackSize:"<<pTrackCollection.size()<<std::endl;
             for (int i = 0, iMax = pTrackCollection.size(); i < iMax; ++i)
             {
                 try
@@ -519,7 +523,14 @@ pandora::StatusCode TrackCreator::CreateTracks(const CollectionMaps& collectionM
                     const edm4hep::Track* pTrack  = (const edm4hep::Track*)(&pTrack0);
 
                     if (NULL == pTrack) throw ("Collection type mismatch");
-
+                    if(m_settings.m_debug){
+                        for(int ip=0; ip<pTrack->trackStates_size(); ip++){
+                            edm4hep::TrackState tmp_pTrackState = pTrack->getTrackStates(ip);
+                            const double tmp_pt(m_bField * 2.99792e-4 / std::fabs(tmp_pTrackState.omega));
+                            edm4hep::Vector3f pref = tmp_pTrackState.referencePoint;
+                            std::cout<<"ip="<<ip<<",pt=" << tmp_pt <<",refx="<<pref[0]<<",refy="<<pref[1]<<",refz="<<pref[2]<<",tanLambda=" << tmp_pTrackState.tanLambda<<",D0="<<tmp_pTrackState.D0<<",Z0="<<tmp_pTrackState.Z0<<",phi="<<tmp_pTrackState.phi<< std::endl;
+                        }
+                    }
                     int minTrackHits = m_settings.m_minTrackHits;
                     const float tanLambda(std::fabs(pTrack->getTrackStates(0).tanLambda));
 
@@ -569,6 +580,7 @@ pandora::StatusCode TrackCreator::CreateTracks(const CollectionMaps& collectionM
                     this->TrackReachesECAL(pTrack, trackParameters);
                     this->DefineTrackPfoUsage(pTrack, trackParameters);
 
+                    if(m_settings.m_debug) std::cout<<"i="<<i<<",canFormPfo=" << trackParameters.m_canFormPfo.Get()<<", m_canFormClusterlessPfo="<<trackParameters.m_canFormClusterlessPfo.Get()<<",m_reachesCalorimeter="<< trackParameters.m_reachesCalorimeter.Get()<<"," << std::endl;
                     PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::Track::Create(*m_pPandora, trackParameters));
                     m_trackVector.push_back(pTrack);
                 }
@@ -595,18 +607,17 @@ pandora::StatusCode TrackCreator::CreateTracks(const CollectionMaps& collectionM
 
 void TrackCreator::GetTrackStates(const edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const
 {
-    edm4hep::TrackState pTrackState = pTrack->getTrackStates(1); // ref  /cvmfs/cepcsw.ihep.ac.cn/prototype/LCIO/include/EVENT/TrackState.h 
+    // for DD4HEP, 0 is IP, 1 is AtFirstHit, 2 is AtLastHit, 3 is AtCalo
+    edm4hep::TrackState pTrackState = pTrack->getTrackStates(0); 
 
     const double pt(m_bField * 2.99792e-4 / std::fabs(pTrackState.omega));
     trackParameters.m_momentumAtDca = pandora::CartesianVector(std::cos(pTrackState.phi), std::sin(pTrackState.phi), pTrackState.tanLambda) * pt;
-    this->CopyTrackState(pTrack->getTrackStates(2), trackParameters.m_trackStateAtStart);
+    this->CopyTrackState(pTrack->getTrackStates(1), trackParameters.m_trackStateAtStart);//m_trackStateAtStart is AtFirstHit
 
     auto pEndTrack = (pTrack->tracks_size() ==0 ) ?  *pTrack  :  pTrack->getTracks(pTrack->tracks_size()-1);
 
-    this->CopyTrackState(pEndTrack.getTrackStates(3), trackParameters.m_trackStateAtEnd);
-    //FIXME ? LCIO input only has 4 states, so 4 can't be used.
-    if( pEndTrack.trackStates_size()<5) this->CopyTrackState(pEndTrack.getTrackStates(3), trackParameters.m_trackStateAtCalorimeter);
-    else  this->CopyTrackState(pEndTrack.getTrackStates(4), trackParameters.m_trackStateAtCalorimeter);
+    this->CopyTrackState(pEndTrack.getTrackStates(2), trackParameters.m_trackStateAtEnd);// m_trackStateAtEnd is AtLastHit
+    this->CopyTrackState(pEndTrack.getTrackStates(3), trackParameters.m_trackStateAtCalorimeter);
     
     
     trackParameters.m_isProjectedToEndCap = ((std::fabs(trackParameters.m_trackStateAtCalorimeter.Get().GetPosition().GetZ()) < m_eCalEndCapInnerZ) ? false : true);
@@ -802,6 +813,7 @@ void TrackCreator::DefineTrackPfoUsage(const edm4hep::Track *const pTrack, Pando
 
         if (this->PassesQualityCuts(pTrack, trackParameters))
         {
+            if(m_settings.m_debug) std::cout<<"passed PassesQualityCuts"<<std::endl;
             const pandora::CartesianVector &momentumAtDca(trackParameters.m_momentumAtDca.Get());
             const float pX(momentumAtDca.GetX()), pY(momentumAtDca.GetY()), pZ(momentumAtDca.GetZ());
             const float pT(std::sqrt(pX * pX + pY * pY));
@@ -949,7 +961,7 @@ int TrackCreator::GetNTpcHits(const edm4hep::Track *const pTrack) const
         //According to FG: [ 2 * lcio::ILDDetID::TPC - 2 ] is the first number and it is supposed to
         //be the number of hits in the fit and this is what should be used !
         // at least for DD4hep/DDSim
-        return pTrack->getSubDetectorHitNumbers(2 * 4 - 2 );//FIXME
+        return pTrack->getSubDetectorHitNumbers(3);//FIXME https://github.com/wenxingfang/CEPCSW/blob/master/Reconstruction/Tracking/src/FullLDCTracking/FullLDCTrackingAlg.cpp#L483
     }
     else return pTrack->getSubDetectorHitNumbers(2 * 4 - 1);// lcio::ILDDetID::TPC=4, still use LCIO code now
 }
@@ -965,7 +977,7 @@ int TrackCreator::GetNFtdHits(const edm4hep::Track *const pTrack) const
     // ---- use hitsInFit :
     //return pTrack->getSubdetectorHitNumbers()[ 2 * lcio::ILDDetID::FTD - 1 ];
     if(m_settings.m_use_dd4hep_geo){
-        return pTrack->getSubDetectorHitNumbers(2 * 3 - 1);//FIXME
+        return pTrack->getSubDetectorHitNumbers(1);//FIXME https://github.com/wenxingfang/CEPCSW/blob/master/Reconstruction/Tracking/src/FullLDCTracking/FullLDCTrackingAlg.cpp#L481
     }
     else return pTrack->getSubDetectorHitNumbers( 2 * 3 - 1 );// lcio::ILDDetID::FTD=3
 }
