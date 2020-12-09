@@ -49,9 +49,11 @@ CaloHitCreator::CaloHitCreator(const Settings &settings, const pandora::Pandora 
         throw "Failed to find GearSvc ...";
     }
     _GEAR = iSvc->getGearMgr();
-    if(m_settings.m_use_dd4hep_geo){
+    if(m_settings.m_use_dd4hep_decoder){
         sc = svcloc->service("GeomSvc", m_geosvc, false);
         if (!sc) throw "Failed to find GeomSvc.";
+    }
+    if(m_settings.m_use_dd4hep_geo){
         const dd4hep::rec::LayeredCalorimeterData * eCalBarrelExtension= PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::BARREL),
 										     ( dd4hep::DetType::AUXILIARY  |  dd4hep::DetType::FORWARD ) );
         m_eCalBarrelOuterZ        = eCalBarrelExtension->extent[3]/dd4hep::mm;
@@ -121,13 +123,14 @@ pandora::StatusCode CaloHitCreator::CreateCaloHits(const CollectionMaps& collect
 
 pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& collectionMaps)
 {
-    for (StringVector::const_iterator iter = m_settings.m_eCalCaloHitCollections.begin(), iterEnd = m_settings.m_eCalCaloHitCollections.end();
-        iter != iterEnd; ++iter)
+    for (unsigned int k = 0; k < m_settings.m_eCalCaloHitCollections.size(); k++)
     {
-        if(collectionMaps.collectionMap_CaloHit.find(*iter) == collectionMaps.collectionMap_CaloHit.end()) { std::cout<<"not find "<<(*iter)<<std::endl; continue;}
+        std::string tmp_col_name = m_settings.m_eCalCaloHitCollections.at(k);
+        if(collectionMaps.collectionMap_CaloHit.find(tmp_col_name) == collectionMaps.collectionMap_CaloHit.end()) { std::cout<<"not find "<<tmp_col_name<<std::endl; continue;}
         try
         {
-            const std::vector<edm4hep::CalorimeterHit>& pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(*iter))->second;
+            if(m_settings.m_debug) std::cout<<"CaloHitCreator for "<<tmp_col_name<<std::endl;
+            const std::vector<edm4hep::CalorimeterHit>& pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(tmp_col_name))->second;
             const int nElements(pCaloHitCollection.size());
 
             if (0 == nElements)
@@ -141,8 +144,9 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
             const std::string layerCoding(this->GetLayerCoding(layerCodingString));
             const std::string staveCoding(this->GetStaveCoding(layerCodingString));
             // get the DD4hep readout
-            const std::string name_readout = "EcalBarrelCollection";
-            if(m_settings.m_use_dd4hep_geo && m_settings.m_use_dd4hep_decoder ){
+            const std::string name_readout = m_settings.m_eCalCaloReadOuts.at(k);
+            if(m_settings.m_debug) std::cout<<"readout= "<<name_readout<<std::endl;
+            if( m_settings.m_use_dd4hep_decoder ){
                 m_decoder = m_geosvc->getDecoder(name_readout);
                 if (!m_decoder) throw "Failed to get the decoder. ";
             }
@@ -163,7 +167,7 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
                     // Hybrid ECAL including pure ScECAL.
                     if (m_settings.m_useEcalScLayers)
                     {
-                        std::string collectionName(*iter);
+                        std::string collectionName(tmp_col_name);
                         std::transform(collectionName.begin(), collectionName.end(), collectionName.begin(), ::tolower);
 
                         if (collectionName.find("ecal", 0) == std::string::npos)
@@ -265,7 +269,7 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
         }
         catch (...)
         {
-            std::cout<< "Failed to extract ecal calo hit collection: " << *iter << std::endl;
+            std::cout<< "Failed to extract ecal calo hit collection: " << tmp_col_name << std::endl;
         }
     }
 

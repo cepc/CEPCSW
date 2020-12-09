@@ -53,13 +53,13 @@ from Configurables import HepMCRdr
 from Configurables import GenPrinter
 
 gun = GtGunTool("GtGunTool")
-gun.Particles = ["gamma","gamma"]
-gun.EnergyMins= [10, 10] # GeV
-gun.EnergyMaxs= [10, 10] # GeV
-gun.ThetaMins = [90, 90] # degree
-gun.ThetaMaxs = [90, 90] # degree
-gun.PhiMins   = [0,  1 ] # degree
-gun.PhiMaxs   = [0,  1 ] # degree
+gun.Particles = ["gamma"]
+gun.EnergyMins= [10] # GeV
+gun.EnergyMaxs= [10] # GeV
+gun.ThetaMins = [80] # degree
+gun.ThetaMaxs = [80] # degree
+gun.PhiMins   = [0 ] # degree
+gun.PhiMaxs   = [0 ] # degree
 
 
 #stdheprdr = StdHepRdr("StdHepRdr")
@@ -104,13 +104,25 @@ detsimalg.RootDetElem = "WorldDetElemTool"
 from Configurables import AnExampleDetElemTool
 example_dettool = AnExampleDetElemTool("AnExampleDetElemTool")
 
-##############################################################################
-from Configurables import CaloDigiAlg
-example_CaloDigiAlg = CaloDigiAlg("CaloDigiAlg")
-example_CaloDigiAlg.Scale = 1
-example_CaloDigiAlg.SimCaloHitCollection = "EcalBarrelCollection"
-example_CaloDigiAlg.CaloHitCollection    = "ECALBarrel"
-example_CaloDigiAlg.CaloAssociationCollection    = "RecoCaloAssociation_ECALBarrel"
+############################################################
+from Configurables import SimHitMergeAlg
+simHitMerge = SimHitMergeAlg("SimHitMergeAlg")
+simHitMerge.InputCollections=["EcalBarrelCollection", "EcalEndcapsCollection"]
+simHitMerge.OutputCollections=["EcalBarrelCollectionMerged", "EcalEndcapsCollectionMerged"]
+############################################################
+
+from Configurables import G2CDArborAlg
+caloDigi = G2CDArborAlg("G2CDArborAlg")
+caloDigi.ReadLCIO = False 
+#caloDigi.CalibrECAL = [48.16, 96.32]
+caloDigi.CalibrECAL = [46.538, 93.0769]
+caloDigi.ECALCollections = ["EcalBarrelCollectionMerged", "EcalEndcapsCollectionMerged"]
+caloDigi.ECALReadOutNames= ["EcalBarrelCollection", "EcalEndcapsCollection"]
+caloDigi.DigiECALCollection = ["ECALBarrel", "ECALEndcap"]
+caloDigi.HCALCollections = []
+caloDigi.HCALReadOutNames= []
+caloDigi.DigiHCALCollection = []
+caloDigi.EventReportEvery = 100
 ##############################################################################
 from Configurables import GearSvc
 gearSvc  = GearSvc("GearSvc")
@@ -123,6 +135,7 @@ ntsvc.Output = ["MyTuples DATAFILE='detsim_Pan_ana.root' OPT='NEW' TYP='ROOT'"]
 from Configurables import PandoraPFAlg
 
 pandoralg = PandoraPFAlg("PandoraPFAlg")
+pandoralg.debug              = False
 pandoralg.use_dd4hep_geo     = True
 pandoralg.use_dd4hep_decoder = True
 pandoralg.use_preshower      = False
@@ -144,7 +157,7 @@ pandoralg.collections = [
         "Vertex:SplitVertices", 
         "Vertex:V0Vertices", 
         "Track:MarlinTrkTracks", 
-        "MCRecoCaloAssociation:RecoCaloAssociation_ECALBarrel" 
+        "MCRecoCaloAssociation:MCRecoCaloAssociationCollection" 
         ]
 pandoralg.WriteClusterCollection               = "PandoraClusters"              
 pandoralg.WriteReconstructedParticleCollection = "PandoraPFOs" 
@@ -154,12 +167,17 @@ pandoralg.PandoraSettingsDefault_xml = "Reconstruction/PFA/Pandora/PandoraSettin
 #### Do not chage the collection name, only add or remove ###############
 pandoralg.TrackCollections      =  ["MarlinTrkTracks"]
 pandoralg.ECalCaloHitCollections=  ["ECALBarrel", "ECALEndcap", "ECALOther"]
+pandoralg.ECalReadOutNames      =  ["EcalBarrelCollection", "EcalEndcapsCollection", "ECALOther"]
 pandoralg.HCalCaloHitCollections=  ["HCALBarrel", "HCALEndcap", "HCALOther"]
+pandoralg.HCalReadOutNames      =  ["HcalBarrelCollection", "HcalEndcapsCollection", "HCALOther"]
 pandoralg.LCalCaloHitCollections=  ["LCAL"]
+pandoralg.LCalReadOutNames      =  ["LcalCollection"]
 pandoralg.LHCalCaloHitCollections= ["LHCAL"]
+pandoralg.LHCalReadOutNames      = ["LHcalCollection"]
 pandoralg.MuonCaloHitCollections=  ["MUON"]
+pandoralg.MuonCalReadOutNames    = ["MuoncalCollection"]
 pandoralg.MCParticleCollections =  ["MCParticle"]
-pandoralg.RelCaloHitCollections =  ["RecoCaloAssociation_ECALBarrel", "RecoCaloAssociation_ECALEndcap", "RecoCaloAssociation_ECALOther", "RecoCaloAssociation_HCALBarrel", "RecoCaloAssociation_HCALEndcap", "RecoCaloAssociation_HCALOther", "RecoCaloAssociation_LCAL", "RecoCaloAssociation_LHCAL", "RecoCaloAssociation_MUON"]
+pandoralg.RelCaloHitCollections =  ["MCRecoCaloAssociationCollection"]
 pandoralg.RelTrackCollections   =  ["MarlinTrkTracksMCTruthLink"]
 pandoralg.KinkVertexCollections =  ["KinkVertices"]
 pandoralg.ProngVertexCollections=  ["ProngVertices"]
@@ -196,7 +214,7 @@ write.outputCommands = ["keep *"]
 # ApplicationMgr
 from Configurables import ApplicationMgr
 ApplicationMgr(
-        TopAlg = [genalg, detsimalg, example_CaloDigiAlg, pandoralg, write],
+        TopAlg = [genalg, detsimalg, simHitMerge, caloDigi, pandoralg, write],
         EvtSel = 'NONE',
         EvtMax = 10,
         ExtSvc = [rndmengine, dsvc, geosvc, gearSvc,detsimsvc],

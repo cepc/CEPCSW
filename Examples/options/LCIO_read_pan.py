@@ -8,7 +8,8 @@ dsvc = k4DataSvc("EventDataSvc")
 from Configurables import LCIOInput
 read = LCIOInput("read")
 read.inputs = [
-"/cefs/higgs/wxfang/cepc/Pandora/CaloDigi/gamma/Digi_sim_1.slcio"
+#"/cefs/higgs/wxfang/cepc/Pandora/ele_lcio_full_det_rec/reco_sim_0.slcio"
+"/cefs/higgs/wxfang/cepc/Pandora/ele_lcio_full_det_rec/reco_sim_34.slcio"
 ]
 read.collections = [
         "MCParticle:MCParticle",
@@ -54,6 +55,7 @@ ntsvc.Output = ["MyTuples DATAFILE='LCIO_Pan_ana.root' OPT='NEW' TYP='ROOT'"]
 from Configurables import PandoraPFAlg
 
 pandoralg = PandoraPFAlg("PandoraPFAlg")
+pandoralg.debug              = False
 pandoralg.use_dd4hep_geo     = False
 pandoralg.use_dd4hep_decoder = False
 pandoralg.use_preshower      = False
@@ -127,7 +129,7 @@ write.outputCommands = ["keep *"]
 # ApplicationMgr
 from Configurables import ApplicationMgr
 ApplicationMgr(
-        TopAlg = [read, pandoralg, write],
+        TopAlg = [read, pandoralg],
         EvtSel = 'NONE',
         EvtMax = 10,
         ExtSvc = [dsvc, gearSvc],

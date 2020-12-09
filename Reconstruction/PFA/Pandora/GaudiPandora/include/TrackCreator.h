@@ -105,6 +105,7 @@ public:
         float           m_minTpcHitFractionOfExpected;          ///< Minimum fraction of TPC hits compared to expected
         int             m_minFtdHitsForTpcHitFraction;          ///< Minimum number of FTD hits to ignore TPC hit fraction
         bool            m_use_dd4hep_geo;          ///
+        bool            m_debug;
     };
 
     /**
