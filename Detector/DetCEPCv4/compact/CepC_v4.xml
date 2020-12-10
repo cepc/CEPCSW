@@ -34,6 +34,15 @@
     <!-- Readout slice in hcal for reconstruction -->
     <constant name="Hcal_readout_segmentation_slice" value="3"/>
   </define>
+  <materials>
+    <material name="RPC2ECRMix" state="solid">
+      <D unit="g/cm3" value="Hcal_mix_density"/>
+      <composite n="Hcal_airgap_fraction" ref="Air"/>
+      <composite n="Hcal_graphite_fraction" ref="graphite"/>
+      <composite n="Hcal_mylar_fraction" ref="mylar"/>
+      <composite n="Hcal_g10_fraction" ref="g10"/>
+    </material>
+  </materials>
   <limits>
     <limitset name="cal_limits">
       <limit name="step_length_max" particles="*" value="cal_steplimit_val" unit="cal_steplimit_unit" />
@@ -46,19 +55,19 @@
     </limitset>
   </limits>
   <include ref="display.xml"/>
-  <include ref="Beampipe_o1_v01_01.xml"/>
-  <!--include ref="vxd07.xml"/>
-  <include ref="ftd_simple_staggered_02.xml"/>
-  <include ref="sit_simple_pixel_sensors_01.xml"/>
+  <!--include ref="Beampipe_o1_v01_01.xml"/>
+  <include ref="vxd07.xml"/>
+  <include ref="ftd_cepc.xml"/>
+  <include ref="sit_simple_planar_sensors_01.xml"/>
   <include ref="tpc10_01.xml"/>
-  <include ref="set_simple_planar_sensors_01.xml"/-->
+  <include ref="set_simple_planar_sensors_01.xml"/>
   <include ref="SEcal05_siw_Barrel.xml"/>
   <include ref="SEcal05_siw_Endcaps.xml"/>
-  <include ref="SEcal05_siw_ECRing.xml"/>
-  <!--include ref="Hcal_Barrel_SD_v01.xml"/>
-  <include ref="Hcal_Endcaps_SD_v01.xml"/>
-  <include ref="Hcal_EndcapRing_SD_v01.xml"/>
-  <include ref="Yoke05_Barrel.xml"/>
+  <include ref="SEcal05_siw_ECRing.xml"/-->
+  <include ref="SHcalRpc01_Barrel_01.xml"/>
+  <include ref="SHcalRpc01_Endcaps_01.xml"/>
+  <include ref="SHcalRpc01_EndcapRing_01.xml"/>
+  <!--include ref="Yoke05_Barrel.xml"/>
   <include ref="Yoke05_Endcaps.xml"/>
   <include ref="LumiCal.xml"/-->
 

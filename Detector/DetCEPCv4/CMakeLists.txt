@@ -32,6 +32,9 @@ set(DetCEPCv4_src
     src/calorimeter/SEcal05_Barrel.cpp
     src/calorimeter/SEcal05_Endcaps.cpp
     src/calorimeter/SEcal05_ECRing.cpp
+    src/calorimeter/SHcalRpc01_Barrel.cpp
+    src/calorimeter/SHcalRpc01_Endcaps.cpp
+    src/calorimeter/SHcalRpc01_EndcapRing.cpp
     src/other/BoxSupport_o1_v01_geo.cpp
     src/other/TubeSupport_o1_v01_geo.cpp
 )
