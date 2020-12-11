@@ -46,8 +46,9 @@ if not os.path.exists(geometry_path):
 
 from Configurables import GeomSvc
 geosvc = GeomSvc("GeomSvc")
-geosvc.compact = geometry_path
-
+#geosvc.compact = geometry_path
+geosvc.compact = "/workfs/higgs/fangwx/fork_TrackerDedx_20201209/CEPCSW/Detector/DetCRD/compact/CRD_o1_v01/CRD_o1_v01.xml"
+#geosvc.compact = "/workfs/higgs/fangwx/fork_TrackerDedx_20201209/CEPCSW/Detector/DetCRD/compact/CRD_o1_v01/CRD_o1_v01_DCH.xml"
 ##############################################################################
 # Physics Generator
 ##############################################################################
@@ -63,15 +64,15 @@ gun = GtGunTool("GtGunTool")
 # gun.EnergyMins = [100.] # GeV
 # gun.EnergyMaxs = [100.] # GeV
 
-gun.Particles = ["e-"]
 
 # gun.PositionXs = [100.] # mm
 # gun.PositionYs = [100.] # mm
 # gun.PositionZs = [0.] # mm
 
+gun.Particles = ["K-"]
 
-gun.EnergyMins = [10.] # GeV
-gun.EnergyMaxs = [10.] # GeV
+gun.EnergyMins = [0.1] # GeV
+gun.EnergyMaxs = [20] # GeV
 
 gun.ThetaMins = [90] # rad; 45deg
 gun.ThetaMaxs = [90] # rad; 45deg
@@ -112,6 +113,8 @@ detsimsvc = DetSimSvc("DetSimSvc")
 from Configurables import DetSimAlg
 
 detsimalg = DetSimAlg("DetSimAlg")
+#detsimalg.RunMacs = ["Examples/options/noDecay.mac"]
+detsimalg.RunCmds = ["Examples/options/noDecay.mac"]
 
 if int(os.environ.get("VIS", 0)):
     detsimalg.VisMacs = ["vis.mac"]
@@ -147,15 +150,15 @@ if dedxoption == "DummyDedxSimTool":
     dedx_simtool = DummyDedxSimTool("DummyDedxSimTool")
 elif dedxoption == "BetheBlochEquationDedxSimTool":
     dedx_simtool = BetheBlochEquationDedxSimTool("BetheBlochEquationDedxSimTool")
-    dedx_simtool.material_Z = 2
-    dedx_simtool.material_A = 4
-    dedx_simtool.scale = 10
-    dedx_simtool.resolution = 0.0001
+    dedx_simtool.material_Z = 7  # approximate to Air
+    dedx_simtool.material_A = 14
+    dedx_simtool.scale = 1
+    dedx_simtool.resolution = 0.05
 
 ##############################################################################
 from Configurables import NTupleSvc
 ntsvc = NTupleSvc("NTupleSvc")
-ntsvc.Output = ["MyTuples DATAFILE='DCH_digi_ana.root' OPT='NEW' TYP='ROOT'"]
+ntsvc.Output = ["MyTuples DATAFILE='TruthTrack_ana.root' OPT='NEW' TYP='ROOT'"]
 
 ##############################################################################
 # DCHDigiAlg
@@ -168,7 +171,7 @@ dCHDigiAlg.mom_threshold = 0 #GeV
 dCHDigiAlg.SimDCHitCollection = "DriftChamberHitsCollection"
 dCHDigiAlg.DigiDCHitCollection = "DigiDCHitsCollection"
 dCHDigiAlg.AssociationCollection = "DCHAssociationCollectio"
-dCHDigiAlg.WriteAna  = True
+dCHDigiAlg.WriteAna  = False
 
 ##############################################################################
 # TruthTrackerAlg
@@ -176,7 +179,11 @@ dCHDigiAlg.WriteAna  = True
 from Configurables import TruthTrackerAlg
 truthTrackerAlg = TruthTrackerAlg("TruthTrackerAlg")
 truthTrackerAlg.DCHitAssociationCollection="DCHAssociationCollectio"
+truthTrackerAlg.truncate = 0.7
+truthTrackerAlg.mom_resolution = 0
+truthTrackerAlg.track_dedx_resolution = 0.05
 truthTrackerAlg.debug = 1
+truthTrackerAlg.WriteAna = True
 
 ##############################################################################
 # POD I/O
@@ -191,9 +198,9 @@ out.outputCommands = ["keep *"]
 ##############################################################################
 
 from Configurables import ApplicationMgr
-ApplicationMgr( TopAlg = [genalg, detsimalg, dCHDigiAlg, truthTrackerAlg, out],
+ApplicationMgr( TopAlg = [genalg, detsimalg, dCHDigiAlg, truthTrackerAlg],
                 EvtSel = 'NONE',
-                EvtMax = 10,
+                EvtMax = 2,
                 ExtSvc = [rndmengine, dsvc, geosvc],
                 HistogramPersistency = "ROOT",
                 OutputLevel=INFO

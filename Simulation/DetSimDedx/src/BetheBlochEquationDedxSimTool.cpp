@@ -28,8 +28,12 @@ double BetheBlochEquationDedxSimTool::dedx(const G4Step* aStep)
     float Tmax = 2*m_me*pow(gammabeta,2)/(1+(2*gamma*m_me/M)+pow(m_me/M,2));
     float dedx = m_K*pow(z,2)*material_Z*(0.5*log(2*m_me*pow(gammabeta,2)*Tmax/pow(m_I,2))-pow(beta,2))/(material_A*pow(beta,2));    
     dedx = dedx*CLHEP::RandGauss::shoot(m_scale, m_resolution);
-    double Dedx = dedx * (CLHEP::MeV/CLHEP::cm) / (CLHEP::g/CLHEP::cm3) ;
-    return Dedx*material_density;
+    double Dedx = dedx * (CLHEP::MeV/CLHEP::cm) ;//
+    //double Dedx = dedx * (CLHEP::MeV/CLHEP::cm) / (CLHEP::g/CLHEP::cm3) ;
+    //std::cout<<"material_density="<<material_density<<",dedx="<<dedx<<std::endl;
+    //std::cout<<"dedx="<<dedx<<",CLHEP::MeV="<<CLHEP::MeV<<",CLHEP::cm="<<CLHEP::cm<<",(CLHEP::g/CLHEP::cm3)="<<(CLHEP::g/CLHEP::cm3)<<std::endl;
+    //return Dedx*material_density;
+    return Dedx; //seems the material_density is a (small) constant, it should be fine to strip it.
 }
 
 StatusCode BetheBlochEquationDedxSimTool::initialize()

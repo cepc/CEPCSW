@@ -18,6 +18,7 @@
 #include "DD4hep/IDDescriptor.h"
 #include "DD4hep/Plugins.h"
 #include "DD4hep/DD4hepUnits.h"
+#include "CLHEP/Random/RandGauss.h"
 
 DECLARE_COMPONENT(TruthTrackerAlg)
 
@@ -41,6 +42,8 @@ TruthTrackerAlg::TruthTrackerAlg(const std::string& name, ISvcLocator* svcLoc)
 
 StatusCode TruthTrackerAlg::initialize()
 {
+    m_me = 0.511*pow(10,6);//0.511 MeV to eV
+    m_K = 0.307075;//const
     ///Get geometry
     m_geomSvc=service<IGeomSvc>("GeomSvc");
     if (!m_geomSvc) {
@@ -69,6 +72,35 @@ StatusCode TruthTrackerAlg::initialize()
     if (nullptr==m_decoder) {
         error() << "Failed to get the decoder" << endmsg;
         return StatusCode::FAILURE;
+    }
+    if(m_WriteAna){
+
+        NTuplePtr nt( ntupleSvc(), "MyTuples/TruthTrack_evt" );
+        if ( nt ) m_tuple = nt;
+        else {
+            m_tuple = ntupleSvc()->book( "MyTuples/TruthTrack_evt", CLID_ColumnWiseTuple, "TruthTrack" );
+            if ( m_tuple ) {
+              m_tuple->addItem( "N_hit", m_hit, 0, 100000 ).ignore();
+              m_tuple->addItem( "hit_x" , m_hit, m_hit_x  ).ignore();
+              m_tuple->addItem( "hit_y" , m_hit, m_hit_y  ).ignore();
+              m_tuple->addItem( "hit_z" , m_hit, m_hit_z  ).ignore();
+              m_tuple->addItem( "hit_dedx" , m_hit, m_hit_dedx ).ignore();
+              m_tuple->addItem( "track_dedx" , m_track_dedx  ).ignore();
+              m_tuple->addItem( "track_dedx_BB" , m_track_dedx_BB  ).ignore();
+              m_tuple->addItem( "track_px" , m_track_px  ).ignore();
+              m_tuple->addItem( "track_py" , m_track_py  ).ignore();
+              m_tuple->addItem( "track_pz" , m_track_pz  ).ignore();
+              m_tuple->addItem( "track_mass" , m_track_mass  ).ignore();
+              m_tuple->addItem( "track_pid" , m_track_pid  ).ignore();
+              m_tuple->addItem( "mc_px" , m_mc_px  ).ignore();
+              m_tuple->addItem( "mc_py" , m_mc_py  ).ignore();
+              m_tuple->addItem( "mc_pz" , m_mc_pz  ).ignore();
+            } 
+            else { // did not manage to book the N tuple....
+              error() << "    Cannot book N-tuple:" << long( m_tuple ) << endmsg;
+              return StatusCode::FAILURE;
+            }
+        }
     }
 
     return GaudiAlgorithm::initialize();
@@ -108,12 +140,19 @@ StatusCode TruthTrackerAlg::execute()
     if(m_debug){
         debug()<<"MCParticleCol size="<<mcParticleCol->size()<<endmsg;
     }
+    if(mcParticleCol->size() != 1) throw ("current only support one track each event!!!");
+    m_hit = 0;
     for(auto mcParticle : *mcParticleCol){
         //if(fabs(mcParticle.getCharge()<1e-6) continue;//Skip neutral particles
         edm4hep::Vector3d posV= mcParticle.getVertex();
         edm4hep::Vector3f momV= mcParticle.getMomentum();//GeV
         float pos[3]={posV.x, posV.y, posV.z};
-        float mom[3]={momV.x, momV.y, momV.z};
+        float mom_truth[3]={momV.x, momV.y, momV.z};
+        float mom[3]      ={momV.x, momV.y, momV.z};
+        float mom_smear  = CLHEP::RandGauss::shoot(1, m_mom_resolution);
+        mom[0]=mom[0]*mom_smear;
+        mom[1]=mom[1]*mom_smear;
+        mom[2]=mom[2]*mom_smear;
         //FIXME
         //pivotToFirstLayer(mcPocaPos,mcPocaMom,firstLayerPos,firstLayerMom);
         double B[3]={1e9,1e9,1e9};
@@ -149,6 +188,7 @@ StatusCode TruthTrackerAlg::execute()
         //new Track
         edm4hep::Track track = dcTrackCol->create();
         track.addToTrackStates(trackState);
+        std::vector<double> tmp_dedx_vec;
         if(nullptr!=digiDCHitsCol) {
             //track.setType();//TODO
             //track.setChi2(trackState->getChi2());
@@ -159,7 +199,33 @@ StatusCode TruthTrackerAlg::execute()
                 edm4hep::TrackerHit digiDC=digiDCHitsCol->at(i);
                 //if(Sim->MCParti!=current) continue;//TODO
                 track.addToTrackerHits(digiDC);
+                tmp_dedx_vec.push_back(digiDC.getEdx());
+                if(m_WriteAna){
+                    m_hit_x[m_hit] = digiDC.getPosition()[0]; 
+                    m_hit_y[m_hit] = digiDC.getPosition()[1]; 
+                    m_hit_z[m_hit] = digiDC.getPosition()[2]; 
+                    m_hit_dedx[m_hit] = digiDC.getEdx(); 
+                    m_hit ++ ;
+                }
             }
+        }
+        int usedhit=-1;
+        double track_dedx = cal_dedx_bitrunc(m_truncate, tmp_dedx_vec, usedhit);
+        double track_dedx_BB = BetheBlochEquationDedx(mcParticle) ;
+        float dedx_smear  = CLHEP::RandGauss::shoot(1, m_track_dedx_resolution);
+        track.setDEdx(track_dedx*dedx_smear);
+        if(m_WriteAna){
+            m_track_dedx = track_dedx*dedx_smear ;
+            m_track_dedx_BB = track_dedx_BB ;
+            m_track_px    = mom[0] ;
+            m_track_py    = mom[1] ;
+            m_track_pz    = mom[2] ;
+            //std::cout<<"m_track_mass="<<mcParticle.getMass()<<",m_track_pid="<<mcParticle.getPDG()<<std::endl;
+            m_track_mass  = mcParticle.getMass() ;
+            m_track_pid   = mcParticle.getPDG() ;
+            m_mc_px    = mom_truth[0] ;
+            m_mc_py    = mom_truth[1] ;
+            m_mc_pz    = mom_truth[2] ;
         }
         //TODO
         //new ReconstructedParticle
@@ -169,6 +235,13 @@ StatusCode TruthTrackerAlg::execute()
         //        helix.getMomentum()[1],helix.getMomentum()[2]);
         //recParticle->setMomentum(momVec3);
     }
+    if(m_WriteAna){
+        StatusCode status = m_tuple->write();
+        if ( status.isFailure() ) {
+          error() << "    Cannot fill N-tuple:" << long( m_tuple ) << endmsg;
+          return StatusCode::FAILURE;
+        }
+    }
 
     if(m_debug) std::cout<<"Output DCTrack size="<<dcTrackCol->size()<<std::endl;
     return StatusCode::SUCCESS;
@@ -177,4 +250,42 @@ StatusCode TruthTrackerAlg::execute()
 StatusCode TruthTrackerAlg::finalize()
 {
     return GaudiAlgorithm::finalize();
+}
+
+double TruthTrackerAlg::cal_dedx_bitrunc(float truncate, std::vector<double> phlist, int & usedhit )
+{   
+    sort(phlist.begin(),phlist.end());
+    int nsampl = (int)( phlist.size()*truncate );
+    int smpl = (int)(phlist.size()*(truncate+0.05));
+    int min_cut = (int)( phlist.size()*0.05 + 0.5 );
+    double qSum = 0;
+    unsigned i = 0;
+    for(std::vector<double>::iterator ql= phlist.begin();ql!=phlist.end();ql++)
+    {   
+        i++;
+        if(i<= smpl && i>=min_cut ) qSum += (*ql);
+    }
+    double trunc=-99;
+    usedhit = smpl-min_cut+1;
+    if(usedhit>0)  trunc=qSum/usedhit;
+    
+    return trunc;
+}
+
+double TruthTrackerAlg::BetheBlochEquationDedx(const edm4hep::MCParticle& mcp)
+{
+    int z = mcp.getCharge();
+    if (z == 0) return 0;
+    float m_I = m_material_Z*10;  // Approximate
+
+    double M = mcp.getMass();
+    double gammabeta=sqrt(mcp.getMomentum()[0]*mcp.getMomentum()[0]+mcp.getMomentum()[1]*mcp.getMomentum()[1]+mcp.getMomentum()[2]*mcp.getMomentum()[2])/M;
+    if(gammabeta<0.01)return 0;//too low momentum
+    float beta = gammabeta/sqrt(1.0+pow(gammabeta,2));
+    float gamma = gammabeta/beta;
+    M = M*pow(10,9);//to eV
+    float Tmax = 2*m_me*pow(gammabeta,2)/(1+(2*gamma*m_me/M)+pow(m_me/M,2));
+    float dedx = m_K*pow(z,2)*m_material_Z*(0.5*log(2*m_me*pow(gammabeta,2)*Tmax/pow(m_I,2))-pow(beta,2))/(m_material_A*pow(beta,2));    
+    dedx = dedx*CLHEP::RandGauss::shoot(m_dedx_scale, m_dedx_resolution);
+    return dedx; // (CLHEP::MeV/CLHEP::cm) / (CLHEP::g/CLHEP::cm3)
 }
