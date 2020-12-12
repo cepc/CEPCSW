@@ -1,0 +1,5 @@
+BootStrap:docker
+From:centos:7
+
+%post
+       yum install -y libicu which make redhat-lsb epel-release libglvnd-devel git mesa-libGLU-devel libXmu-devel motif-devel compat-db47
