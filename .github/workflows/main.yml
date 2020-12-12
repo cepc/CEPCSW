@@ -36,4 +36,6 @@ jobs:
           echo test, and deploy your project.
           
       - name: Run the build script
-        run: pwd
+        run: |
+          pwd
+          bash ./.build.ci.sh
