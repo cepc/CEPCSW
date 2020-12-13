@@ -130,6 +130,39 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 
         dd4hep::Tube layer_solid(rmin,rmax,chamber_length*0.5);
         dd4hep::Volume layer_vol(layer_name,layer_solid,det_mat);
+        layer_vol.setAttributes(theDetector,x_det.regionStr(),x_det.limitsStr(),x_det.visStr());
+
+        // - wire vol
+        if(layer_id==0) {
+        for(int icell=0; icell< numWire; icell++) {
+            double wire_phi = (icell+0.5)*layer_Phi + offset;
+            for(xml_coll_t c(x_det,_U(module)); c; ++c) {
+                xml_comp_t x_module = c;
+                if(x_module.id()==0) {
+                  double module_rmin = x_module.rmin();
+                  double module_rmax = x_module.rmax();
+                  std::string module_name = x_module.nameStr();
+                  dd4hep::Tube module_solid(module_rmin,module_rmax,chamber_length*0.5);
+                  std::string Module_name = layer_name + module_name;
+                  dd4hep::Volume module_vol(Module_name,module_solid,det_mat);
+                  for(xml_coll_t l(x_module,_U(tubs)); l; ++l) {
+                      xml_comp_t x_tube =l;
+                      double tube_rmin = x_tube.rmin();
+                      double tube_rmax = x_tube.rmax();
+                      std::string tube_name = x_tube.nameStr();
+                      std::string wire_name= Module_name + _toString(icell,"_%d") + tube_name;
+                      dd4hep::Material tube_mat = theDetector.material(x_tube.materialStr());
+                      dd4hep::Tube wire_solid(tube_rmin,tube_rmax,chamber_length*0.5);
+                      dd4hep::Volume wire_vol(wire_name,wire_solid,tube_mat);
+                      dd4hep::Transform3D transform_wire(dd4hep::Rotation3D(),dd4hep::Position(0.,0.,0.));
+                      dd4hep::PlacedVolume wire_phy = module_vol.placeVolume(wire_vol,transform_wire);
+                  }
+                dd4hep::Transform3D transform_module(dd4hep::Rotation3D(),dd4hep::Position(rmid*std::cos(wire_phi),rmid*std::sin(wire_phi),0.));
+                dd4hep::PlacedVolume module_phy = layer_vol.placeVolume(module_vol,transform_module);
+              }
+           }
+         }
+       }
         dd4hep::Transform3D transform_layer(dd4hep::Rotation3D(),dd4hep::Position(0.,0.,0.));
         dd4hep::PlacedVolume layer_phy = (*current_vol_ptr).placeVolume(layer_vol, transform_layer);
         layer_phy.addPhysVolID("layer",layer_id);
