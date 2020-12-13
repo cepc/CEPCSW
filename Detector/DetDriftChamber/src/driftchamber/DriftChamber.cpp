@@ -133,7 +133,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         layer_vol.setAttributes(theDetector,x_det.regionStr(),x_det.limitsStr(),x_det.visStr());
 
         // - wire vol
-        if(layer_id==0) {
+//        if(layer_id==0) {
         for(int icell=0; icell< numWire; icell++) {
             double wire_phi = (icell+0.5)*layer_Phi + offset;
             for(xml_coll_t c(x_det,_U(module)); c; ++c) {
@@ -162,7 +162,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
               }
            }
          }
-       }
+//       }
         dd4hep::Transform3D transform_layer(dd4hep::Rotation3D(),dd4hep::Position(0.,0.,0.));
         dd4hep::PlacedVolume layer_phy = (*current_vol_ptr).placeVolume(layer_vol, transform_layer);
         layer_phy.addPhysVolID("layer",layer_id);
