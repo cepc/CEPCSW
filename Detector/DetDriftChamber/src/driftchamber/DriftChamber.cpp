@@ -100,7 +100,6 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         double rmin,rmax,offset;
         std::string layer_name;
         dd4hep::Volume* current_vol_ptr = nullptr;
-
         if( layer_id < inner_chamber_layer_number ) {
            current_vol_ptr = &det_inner_chamber_vol;
            rmin = inner_chamber_radius_min+(layer_id*chamber_layer_width);
@@ -133,15 +132,18 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         layer_vol.setAttributes(theDetector,x_det.regionStr(),x_det.limitsStr(),x_det.visStr());
 
         // - wire vol
-//        if(layer_id==0) {
+       if(layer_id==0) {
         for(int icell=0; icell< numWire; icell++) {
             double wire_phi = (icell+0.5)*layer_Phi + offset;
             for(xml_coll_t c(x_det,_U(module)); c; ++c) {
                 xml_comp_t x_module = c;
+                double module_rmin,module_rmax;
+                std::string module_name;
                 if(x_module.id()==0) {
-                  double module_rmin = x_module.rmin();
-                  double module_rmax = x_module.rmax();
-                  std::string module_name = x_module.nameStr();
+                  module_rmin = x_module.rmin();
+                  module_rmax = x_module.rmax();
+                  module_name = x_module.nameStr();
+                 }
                   dd4hep::Tube module_solid(module_rmin,module_rmax,chamber_length*0.5);
                   std::string Module_name = layer_name + module_name;
                   dd4hep::Volume module_vol(Module_name,module_solid,det_mat);
@@ -159,10 +161,9 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
                   }
                 dd4hep::Transform3D transform_module(dd4hep::Rotation3D(),dd4hep::Position(rmid*std::cos(wire_phi),rmid*std::sin(wire_phi),0.));
                 dd4hep::PlacedVolume module_phy = layer_vol.placeVolume(module_vol,transform_module);
-              }
            }
          }
-//       }
+       }
         dd4hep::Transform3D transform_layer(dd4hep::Rotation3D(),dd4hep::Position(0.,0.,0.));
         dd4hep::PlacedVolume layer_phy = (*current_vol_ptr).placeVolume(layer_vol, transform_layer);
         layer_phy.addPhysVolID("layer",layer_id);
@@ -178,17 +179,15 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
             dd4hep::Position(0,0,0));
      dd4hep::PlacedVolume det_inner_chamber_phy = det_vol.placeVolume(det_inner_chamber_vol,
             transform_inner_chamber);
-     
-     det_inner_chamber_phy.addPhysVolID("chamber", 0);
 
+     det_inner_chamber_phy.addPhysVolID("chamber", 0);
     // outer
     dd4hep::Transform3D transform_outer_chamber(dd4hep::Rotation3D(),
             dd4hep::Position(0,0,0));
     dd4hep::PlacedVolume det_outer_chamber_phy = det_vol.placeVolume(det_outer_chamber_vol,
             transform_inner_chamber);
-    
-    det_outer_chamber_phy.addPhysVolID("chamber", 1);
 
+    det_outer_chamber_phy.addPhysVolID("chamber", 1);
     // - place in world
     dd4hep::Transform3D transform(dd4hep::Rotation3D(),
             dd4hep::Position(0,0,0));
