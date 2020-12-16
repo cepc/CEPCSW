@@ -193,6 +193,17 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
                                     trk_hit->momentum.z()/CLHEP::GeV};
                     edm_trk_hit.setMomentum(edm4hep::Vector3f(mom));
 
+                    // get the truth or contribution
+                    auto& truth = trk_hit->truth;
+                    int trackID = truth.trackID;
+                    
+                    int pritrkid = m_track2primary[trackID];
+                    if (pritrkid <= 0) {
+                        error() << "Failed to find the primary track for trackID #" << trackID << endmsg;
+                        pritrkid = 1;
+                    }
+
+                    edm_trk_hit.setMCParticle(mcCol->at(pritrkid-1));
                 }
 
                 dd4hep::sim::Geant4CalorimeterHit* cal_hit = dynamic_cast<dd4hep::sim::Geant4CalorimeterHit*>(h);
