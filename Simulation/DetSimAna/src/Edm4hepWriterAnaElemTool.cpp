@@ -207,6 +207,11 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
                     }
 
                     edm_trk_hit.setMCParticle(mcCol->at(pritrkid-1));
+
+                    if (pritrkid != trackID) {
+                        // If the track is a secondary, then the primary track id and current track id is different
+                        edm_trk_hit.setProducedBySecondary(true);
+                    }
                 }
 
                 dd4hep::sim::Geant4CalorimeterHit* cal_hit = dynamic_cast<dd4hep::sim::Geant4CalorimeterHit*>(h);
