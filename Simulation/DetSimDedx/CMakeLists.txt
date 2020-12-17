@@ -8,6 +8,8 @@ gaudi_depends_on_subdirs(
 find_package(Geant4 REQUIRED ui_all vis_all)
 include(${Geant4_USE_FILE})
 find_package(DD4hep COMPONENTS DDG4 REQUIRED)
+find_package(EDM4HEP REQUIRED )
+include_directories(${EDM4HEP_INCLUDE_DIR})
 
 set(DetSimDedx_srcs
     src/DummyDedxSimTool.cpp
@@ -20,5 +22,7 @@ gaudi_add_module(DetSimDedx ${DetSimDedx_srcs}
         DD4hep
         ${DD4hep_COMPONENT_LIBRARIES}
         GaudiKernel
+    -Wl,--no-as-needed 
+    EDM4HEP::edm4hep EDM4HEP::edm4hepDict
 )
 

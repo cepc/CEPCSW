@@ -3,6 +3,7 @@
 
 #include "GaudiKernel/AlgTool.h"
 #include "DetSimInterface/IDedxSimTool.h"
+#include "edm4hep/MCParticle.h"
 
 class DummyDedxSimTool: public extends<AlgTool, IDedxSimTool> {
 
@@ -15,6 +16,7 @@ public:
 
     /// Overriding dedx tool
     double dedx(const G4Step* aStep) override;
+    double dedx(const edm4hep::MCParticle& mc) override;
 
 };
 

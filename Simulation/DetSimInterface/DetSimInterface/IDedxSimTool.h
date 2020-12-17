@@ -15,6 +15,9 @@
 #include "GaudiKernel/IAlgTool.h"
 
 class G4Step;
+namespace edm4hep{
+    class MCParticle;
+}
 
 class IDedxSimTool: virtual public IAlgTool {
 public:
@@ -23,6 +26,7 @@ public:
     virtual ~IDedxSimTool() {}
 
     virtual double dedx(const G4Step* aStep) = 0;
+    virtual double dedx(const edm4hep::MCParticle& mc) = 0;
 
 };
 

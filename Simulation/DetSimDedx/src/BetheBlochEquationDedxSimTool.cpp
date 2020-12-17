@@ -28,8 +28,26 @@ double BetheBlochEquationDedxSimTool::dedx(const G4Step* aStep)
     float Tmax = 2*m_me*pow(gammabeta,2)/(1+(2*gamma*m_me/M)+pow(m_me/M,2));
     float dedx = m_K*pow(z,2)*material_Z*(0.5*log(2*m_me*pow(gammabeta,2)*Tmax/pow(m_I,2))-pow(beta,2))/(material_A*pow(beta,2));    
     dedx = dedx*CLHEP::RandGauss::shoot(m_scale, m_resolution);
-    double Dedx = dedx * (CLHEP::MeV/CLHEP::cm) / (CLHEP::g/CLHEP::cm3) ;
-    return Dedx*material_density;
+    double Dedx = dedx * (CLHEP::MeV/CLHEP::cm) ;
+    return Dedx;
+}
+
+double BetheBlochEquationDedxSimTool::dedx(const edm4hep::MCParticle& mcp) {
+
+    int z = mcp.getCharge();
+    if (z == 0) return 0;
+    float m_I = m_material_Z*10;  // Approximate
+
+    double M = mcp.getMass();
+    double gammabeta=sqrt(mcp.getMomentum()[0]*mcp.getMomentum()[0]+mcp.getMomentum()[1]*mcp.getMomentum()[1]+mcp.getMomentum()[2]*mcp.getMomentum()[2])/M;
+    if(gammabeta<0.01)return 0;//too low momentum
+    float beta = gammabeta/sqrt(1.0+pow(gammabeta,2));
+    float gamma = gammabeta/beta;
+    M = M*pow(10,9);//to eV
+    float Tmax = 2*m_me*pow(gammabeta,2)/(1+(2*gamma*m_me/M)+pow(m_me/M,2));
+    float dedx = m_K*pow(z,2)*m_material_Z*(0.5*log(2*m_me*pow(gammabeta,2)*Tmax/pow(m_I,2))-pow(beta,2))/(m_material_A*pow(beta,2));    
+    dedx = dedx*CLHEP::RandGauss::shoot(m_scale, m_resolution);
+    return dedx; // (CLHEP::MeV/CLHEP::cm) / (CLHEP::g/CLHEP::cm3)
 }
 
 StatusCode BetheBlochEquationDedxSimTool::initialize()
