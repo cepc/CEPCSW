@@ -353,8 +353,11 @@ Edm4hepWriterAnaElemTool::PostUserTrackingAction(const G4Track* track) {
                 if (creatorProcess==proc_decay) {
                     info() << "Creator Process is Decay for secondary particle: "
                            << " idx: " << i
+                           << " trkid: " << sectrk->GetTrackID() // not valid until track
                            << " particle: " << secparticle->GetParticleName()
                            << " pdg: " << secparticle->GetPDGEncoding()
+                           << " at position: " << sectrk->GetPosition() // 
+                           << " momentum: " << sectrk->GetMomentum() // 
                            << endmsg;
                     is_decay = true;
 
@@ -368,8 +371,16 @@ Edm4hepWriterAnaElemTool::PostUserTrackingAction(const G4Track* track) {
                     mcp.setCharge(secparticle->GetPDGCharge());
                     mcp.setTime(0.0); // todo
                     mcp.setMass(secparticle->GetPDGMass());
-                    double x=0, y=0, z=0;
-                    double px=0, py=0, pz=0;
+
+                    const G4ThreeVector& sec_init_pos = sectrk->GetPosition();
+                    double x=sec_init_pos.x()/CLHEP::mm;
+                    double y=sec_init_pos.y()/CLHEP::mm;
+                    double z=sec_init_pos.z()/CLHEP::mm;
+
+                    const G4ThreeVector& sec_init_mom = sectrk->GetMomentum();
+                    double px=sec_init_mom.x()/CLHEP::GeV;
+                    double py=sec_init_mom.y()/CLHEP::GeV;
+                    double pz=sec_init_mom.z()/CLHEP::GeV;
                     mcp.setVertex(edm4hep::Vector3d(x,y,z)); // todo
                     mcp.setEndpoint(edm4hep::Vector3d(x,y,z)); // todo
                     mcp.setMomentum(edm4hep::Vector3f(px,py,pz)); // todo
