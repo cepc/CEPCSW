@@ -2,6 +2,9 @@
 
 #include "G4Event.hh"
 #include "G4THitsCollection.hh"
+#include "G4EventManager.hh"
+#include "G4TrackingManager.hh"
+#include "G4SteppingManager.hh"
 
 #include "DD4hep/Detector.h"
 #include "DD4hep/Plugins.h"
@@ -311,6 +314,58 @@ Edm4hepWriterAnaElemTool::PostUserTrackingAction(const G4Track* track) {
                                        stop_mom.z()/CLHEP::GeV);
         primary_particle.setMomentumAtEndpoint(mom_endpoint);
 
+        // ===================================================================
+        // Update the flags of the primary particles
+        // ===================================================================
+
+        // processes
+        static G4VProcess* proc_decay = nullptr;
+        if (!proc_decay) {
+            G4ProcessManager* pm 
+                = track->GetDefinition()->GetProcessManager();
+            G4int nprocesses = pm->GetProcessListLength();
+            G4ProcessVector* pv = pm->GetProcessList();
+            
+            for(G4int i=0; i<nprocesses; ++i){
+                if((*pv)[i]->GetProcessName()=="Decay"){
+                    proc_decay = (*pv)[i];
+                }
+            }
+
+        }
+
+        // flags
+        bool is_decay = false;
+
+        G4TrackingManager* tm = G4EventManager::GetEventManager() 
+            -> GetTrackingManager();
+        G4TrackVector* secondaries = tm->GimmeSecondaries();
+        if(secondaries) {
+
+
+            size_t nSeco = secondaries->size();
+            for (size_t i = 0; i < nSeco; ++i) {
+                G4Track* sectrk = (*secondaries)[i];
+                G4ParticleDefinition* secparticle = sectrk->GetDefinition();
+                const G4VProcess* creatorProcess = sectrk->GetCreatorProcess();
+
+                // select the necessary processes
+                if (creatorProcess==proc_decay) {
+                    info() << "Creator Process is Decay for secondary particle: "
+                           << " idx: " << i
+                           << " particle: " << secparticle->GetParticleName()
+                           << " pdg: " << secparticle->GetPDGEncoding()
+                           << endmsg;
+                    is_decay = true;
+                }
+            }
+        }
+
+        // now update
+        if (is_decay) {
+            primary_particle.setDecayedInTracker(is_decay);
+            primary_particle.setDecayedInCalorimeter(is_decay);
+        }
 
     } else {
         // TODO: select other interested tracks
