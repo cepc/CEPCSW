@@ -1,4 +1,4 @@
-gaudi_subdir(Dedx v0r0)
+gaudi_subdir(DCHDedx v0r0)
 
 find_package(EDM4HEP REQUIRED ) 
 find_package(DD4hep COMPONENTS DDCore DDRec REQUIRED)
@@ -16,7 +16,7 @@ set(srcs
 )
 
 # Modules
-gaudi_add_module(Dedx ${srcs}
+gaudi_add_module(DCHDedx ${srcs}
     INCLUDE_DIRS GaudiKernel 
     LINK_LIBRARIES GaudiAlgLib GaudiKernel 
     DetSegmentation

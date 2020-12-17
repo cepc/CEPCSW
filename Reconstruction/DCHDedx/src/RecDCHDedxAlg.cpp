@@ -1,4 +1,4 @@
-#include "DedxAlg.h"
+#include "RecDCHDedxAlg.h"
 #include "edm4hep/EventHeaderCollection.h"
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4hep/SimTrackerHitCollection.h"
@@ -19,16 +19,16 @@
 #include "DD4hep/DD4hepUnits.h"
 #include "CLHEP/Random/RandGauss.h"
 
-DECLARE_COMPONENT(DedxAlg)
+DECLARE_COMPONENT(RecDCHDedxAlg)
 
-DedxAlg::DedxAlg(const std::string& name, ISvcLocator* svcLoc)
+RecDCHDedxAlg::RecDCHDedxAlg(const std::string& name, ISvcLocator* svcLoc)
 : GaudiAlgorithm(name, svcLoc)
 {
     declareProperty("DCHitAssociationCollection", m_dcHitAssociationCol, "Handle of association collection");
     declareProperty("DCTrackCollection", m_dcTrackCol,"Handle of input Track collection");
 }
 
-StatusCode DedxAlg::initialize()
+StatusCode RecDCHDedxAlg::initialize()
 {
     if(m_WriteAna){
 
@@ -57,7 +57,7 @@ StatusCode DedxAlg::initialize()
 }
 
 
-StatusCode DedxAlg::execute()
+StatusCode RecDCHDedxAlg::execute()
 {
 
     if(m_WriteAna){
@@ -142,12 +142,12 @@ StatusCode DedxAlg::execute()
    return StatusCode::SUCCESS;
 }
 
-StatusCode DedxAlg::finalize()
+StatusCode RecDCHDedxAlg::finalize()
 {
     return GaudiAlgorithm::finalize();
 }
 
-double DedxAlg::cal_dedx_bitrunc(float truncate, std::vector<double> phlist, int & usedhit )
+double RecDCHDedxAlg::cal_dedx_bitrunc(float truncate, std::vector<double> phlist, int & usedhit )
 {   
     sort(phlist.begin(),phlist.end());
     int nsampl = (int)( phlist.size()*truncate );
@@ -167,7 +167,7 @@ double DedxAlg::cal_dedx_bitrunc(float truncate, std::vector<double> phlist, int
     return trunc;
 }
 /*
-double DedxAlg::BetheBlochEquationDedx(const edm4hep::MCParticle& mcp)
+double RecDCHDedxAlg::BetheBlochEquationDedx(const edm4hep::MCParticle& mcp)
 {
     int z = mcp.getCharge();
     if (z == 0) return 0;

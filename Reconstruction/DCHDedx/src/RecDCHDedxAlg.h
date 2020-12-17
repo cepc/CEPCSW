@@ -1,5 +1,5 @@
-#ifndef DedxAlg_h
-#define DedxAlg_h
+#ifndef RecDCHDedxAlg_h
+#define RecDCHDedxAlg_h
 
 #include "edm4hep/MCParticleCollection.h"
 #include "GaudiAlg/GaudiAlgorithm.h"
@@ -26,10 +26,10 @@ namespace edm4hep {
     class MCRecoParticleAssociationCollection;
 }
 
-class DedxAlg: public GaudiAlgorithm
+class RecDCHDedxAlg: public GaudiAlgorithm
 {
     public:
-        DedxAlg(const std::string& name, ISvcLocator* svcLoc);
+        RecDCHDedxAlg(const std::string& name, ISvcLocator* svcLoc);
 
         virtual StatusCode initialize();
         virtual StatusCode execute();
