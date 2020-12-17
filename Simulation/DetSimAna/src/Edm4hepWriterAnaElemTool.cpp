@@ -356,7 +356,8 @@ Edm4hepWriterAnaElemTool::PostUserTrackingAction(const G4Track* track) {
                            << " trkid: " << sectrk->GetTrackID() // not valid until track
                            << " particle: " << secparticle->GetParticleName()
                            << " pdg: " << secparticle->GetPDGEncoding()
-                           << " at position: " << sectrk->GetPosition() // 
+                           << " at position: " << sectrk->GetPosition() //
+                           << " time: " << sectrk->GetGlobalTime()
                            << " momentum: " << sectrk->GetMomentum() // 
                            << endmsg;
                     is_decay = true;
@@ -369,7 +370,7 @@ Edm4hepWriterAnaElemTool::PostUserTrackingAction(const G4Track* track) {
                     mcp.setGeneratorStatus(0); // not created by Generator
                     mcp.setCreatedInSimulation(1);
                     mcp.setCharge(secparticle->GetPDGCharge());
-                    mcp.setTime(0.0); // todo
+                    mcp.setTime(sectrk->GetGlobalTime()/CLHEP::ns); // todo
                     mcp.setMass(secparticle->GetPDGMass());
 
                     const G4ThreeVector& sec_init_pos = sectrk->GetPosition();
