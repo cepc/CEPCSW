@@ -357,6 +357,26 @@ Edm4hepWriterAnaElemTool::PostUserTrackingAction(const G4Track* track) {
                            << " pdg: " << secparticle->GetPDGEncoding()
                            << endmsg;
                     is_decay = true;
+
+                    // create secondaries in MC particles
+                    // todo: convert the const collection to non-const
+                    auto mcCol = const_cast<edm4hep::MCParticleCollection*>(m_mcParCol.get());
+                    edm4hep::MCParticle mcp = mcCol->create();
+                    mcp.setPDG(secparticle->GetPDGEncoding());
+                    mcp.setGeneratorStatus(0); // not created by Generator
+                    mcp.setCreatedInSimulation(1);
+                    mcp.setCharge(secparticle->GetPDGCharge());
+                    mcp.setTime(0.0); // todo
+                    mcp.setMass(secparticle->GetPDGMass());
+                    double x=0, y=0, z=0;
+                    double px=0, py=0, pz=0;
+                    mcp.setVertex(edm4hep::Vector3d(x,y,z)); // todo
+                    mcp.setEndpoint(edm4hep::Vector3d(x,y,z)); // todo
+                    mcp.setMomentum(edm4hep::Vector3f(px,py,pz)); // todo
+                    mcp.setMomentumAtEndpoint(edm4hep::Vector3f(px,py,pz)); //todo
+
+                    mcp.addToParents(primary_particle);
+                    primary_particle.addToDaughters(mcp);
                 }
             }
         }
