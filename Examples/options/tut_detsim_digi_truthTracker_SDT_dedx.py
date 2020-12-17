@@ -187,8 +187,8 @@ truthTrackerAlg.debug = 1
 ##############################################################################
 # DedxAlg
 ##############################################################################
-from Configurables import DedxAlg
-dedxAlg = DedxAlg("DedxAlg")
+from Configurables import RecDCHDedxAlg
+dedxAlg = RecDCHDedxAlg("RecDCHDedxAlg")
 dedxAlg.debug = True
 dedxAlg.method = 1
 dedxAlg.sampling_option = "BetheBlochEquationDedxSimTool"
