@@ -2,6 +2,9 @@
 
 #include "G4Event.hh"
 #include "G4THitsCollection.hh"
+#include "G4EventManager.hh"
+#include "G4TrackingManager.hh"
+#include "G4SteppingManager.hh"
 
 #include "DD4hep/Detector.h"
 #include "DD4hep/Plugins.h"
@@ -204,6 +207,11 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
                     }
 
                     edm_trk_hit.setMCParticle(mcCol->at(pritrkid-1));
+
+                    if (pritrkid != trackID) {
+                        // If the track is a secondary, then the primary track id and current track id is different
+                        edm_trk_hit.setProducedBySecondary(true);
+                    }
                 }
 
                 dd4hep::sim::Geant4CalorimeterHit* cal_hit = dynamic_cast<dd4hep::sim::Geant4CalorimeterHit*>(h);
@@ -311,6 +319,90 @@ Edm4hepWriterAnaElemTool::PostUserTrackingAction(const G4Track* track) {
                                        stop_mom.z()/CLHEP::GeV);
         primary_particle.setMomentumAtEndpoint(mom_endpoint);
 
+        // ===================================================================
+        // Update the flags of the primary particles
+        // ===================================================================
+
+        // processes
+        static G4VProcess* proc_decay = nullptr;
+        if (!proc_decay) {
+            G4ProcessManager* pm 
+                = track->GetDefinition()->GetProcessManager();
+            G4int nprocesses = pm->GetProcessListLength();
+            G4ProcessVector* pv = pm->GetProcessList();
+            
+            for(G4int i=0; i<nprocesses; ++i){
+                if((*pv)[i]->GetProcessName()=="Decay"){
+                    proc_decay = (*pv)[i];
+                }
+            }
+
+        }
+
+        // flags
+        bool is_decay = false;
+
+        G4TrackingManager* tm = G4EventManager::GetEventManager() 
+            -> GetTrackingManager();
+        G4TrackVector* secondaries = tm->GimmeSecondaries();
+        if(secondaries) {
+
+
+            size_t nSeco = secondaries->size();
+            for (size_t i = 0; i < nSeco; ++i) {
+                G4Track* sectrk = (*secondaries)[i];
+                G4ParticleDefinition* secparticle = sectrk->GetDefinition();
+                const G4VProcess* creatorProcess = sectrk->GetCreatorProcess();
+
+                // select the necessary processes
+                if (creatorProcess==proc_decay) {
+                    info() << "Creator Process is Decay for secondary particle: "
+                           << " idx: " << i
+                           << " trkid: " << sectrk->GetTrackID() // not valid until track
+                           << " particle: " << secparticle->GetParticleName()
+                           << " pdg: " << secparticle->GetPDGEncoding()
+                           << " at position: " << sectrk->GetPosition() //
+                           << " time: " << sectrk->GetGlobalTime()
+                           << " momentum: " << sectrk->GetMomentum() // 
+                           << endmsg;
+                    is_decay = true;
+
+                    // create secondaries in MC particles
+                    // todo: convert the const collection to non-const
+                    auto mcCol = const_cast<edm4hep::MCParticleCollection*>(m_mcParCol.get());
+                    edm4hep::MCParticle mcp = mcCol->create();
+                    mcp.setPDG(secparticle->GetPDGEncoding());
+                    mcp.setGeneratorStatus(0); // not created by Generator
+                    mcp.setCreatedInSimulation(1);
+                    mcp.setCharge(secparticle->GetPDGCharge());
+                    mcp.setTime(sectrk->GetGlobalTime()/CLHEP::ns); // todo
+                    mcp.setMass(secparticle->GetPDGMass());
+
+                    const G4ThreeVector& sec_init_pos = sectrk->GetPosition();
+                    double x=sec_init_pos.x()/CLHEP::mm;
+                    double y=sec_init_pos.y()/CLHEP::mm;
+                    double z=sec_init_pos.z()/CLHEP::mm;
+
+                    const G4ThreeVector& sec_init_mom = sectrk->GetMomentum();
+                    double px=sec_init_mom.x()/CLHEP::GeV;
+                    double py=sec_init_mom.y()/CLHEP::GeV;
+                    double pz=sec_init_mom.z()/CLHEP::GeV;
+                    mcp.setVertex(edm4hep::Vector3d(x,y,z)); // todo
+                    mcp.setEndpoint(edm4hep::Vector3d(x,y,z)); // todo
+                    mcp.setMomentum(edm4hep::Vector3f(px,py,pz)); // todo
+                    mcp.setMomentumAtEndpoint(edm4hep::Vector3f(px,py,pz)); //todo
+
+                    mcp.addToParents(primary_particle);
+                    primary_particle.addToDaughters(mcp);
+                }
+            }
+        }
+
+        // now update
+        if (is_decay) {
+            primary_particle.setDecayedInTracker(is_decay);
+            primary_particle.setDecayedInCalorimeter(is_decay);
+        }
 
     } else {
         // TODO: select other interested tracks
