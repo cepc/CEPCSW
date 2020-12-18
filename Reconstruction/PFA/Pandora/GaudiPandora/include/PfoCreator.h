@@ -51,6 +51,7 @@ public:
         float           m_hadStochasticTerm;                    ///< The stochastic term for Hadronic shower energy resolution
         float           m_emConstantTerm;                       ///< The constant term for EM shower energy resolution
         float           m_hadConstantTerm;                      ///< The constant term for Hadronic shower energy resolution
+        bool            m_debug;
     };
 
     /**

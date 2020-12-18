@@ -1,6 +1,7 @@
 # [CEPCSW](https://cepc.github.io/CEPCSW/)
 
 [![Build Status](https://www.travis-ci.com/cepc/CEPCSW.svg?branch=master)](https://www.travis-ci.com/cepc/CEPCSW)
+[![CI](https://github.com/cepc/CEPCSW/workflows/CI/badge.svg?branch=master)](https://github.com/cepc/CEPCSW/actions)
 
 CEPC offline software prototype based on [Key4hep](https://github.com/key4hep).
 

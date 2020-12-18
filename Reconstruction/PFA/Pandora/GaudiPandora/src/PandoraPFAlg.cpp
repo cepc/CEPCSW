@@ -83,6 +83,16 @@ void PandoraPFAlg::FinaliseSteeringParameters(ISvcLocator* svcloc)
         std::cout<<"m_innerBField="<<m_settings.m_innerBField<<std::endl;    
         m_mcParticleCreatorSettings.m_bField = m_settings.m_innerBField;
     }
+    std::cout<<"m_absorberRadLengthECal        ="<< m_geometryCreatorSettings.m_absorberRadLengthECal       <<std::endl;
+    std::cout<<"m_absorberIntLengthECal        ="<< m_geometryCreatorSettings.m_absorberIntLengthECal       <<std::endl;
+    std::cout<<"m_absorberRadLengthHCal        ="<< m_geometryCreatorSettings.m_absorberRadLengthHCal       <<std::endl;
+    std::cout<<"m_absorberIntLengthHCal        ="<< m_geometryCreatorSettings.m_absorberIntLengthHCal       <<std::endl;
+    std::cout<<"m_absorberRadLengthOther       ="<< m_geometryCreatorSettings.m_absorberRadLengthOther      <<std::endl;
+    std::cout<<"m_absorberIntLengthOther       ="<< m_geometryCreatorSettings.m_absorberIntLengthOther      <<std::endl;
+    std::cout<<"m_hCalEndCapInnerSymmetryOrder ="<< m_geometryCreatorSettings.m_hCalEndCapInnerSymmetryOrder<<std::endl;
+    std::cout<<"m_hCalEndCapInnerPhiCoordinate ="<< m_geometryCreatorSettings.m_hCalEndCapInnerPhiCoordinate<<std::endl;
+
+
 }
 
 
@@ -116,6 +126,7 @@ StatusCode PandoraPFAlg::initialize()
             m_tuple->addItem( "m_mc_pz"    , m_n_mc  ,m_mc_pz     ).ignore();
             m_tuple->addItem( "m_mc_charge", m_n_mc  ,m_mc_charge ).ignore();
             m_tuple->addItem( "m_hasConversion", m_hasConversion  ).ignore();
+            m_tuple->addItem( "m_marlinTrack", m_marlinTrack ).ignore();
           } 
           else { // did not manage to book the N tuple....
             error() << "    Cannot book N-tuple:" << long( m_tuple ) << endmsg;
@@ -169,6 +180,7 @@ StatusCode PandoraPFAlg::initialize()
   m_settings.m_muonBarrelBField = m_MuonBarrelBField; 
   m_settings.m_muonEndCapBField = m_MuonEndCapBField;
   
+  m_trackCreatorSettings.m_debug = m_debug;
   m_trackCreatorSettings.m_trackCollections = m_TrackCollections ; 
   m_trackCreatorSettings.m_kinkVertexCollections = m_KinkVertexCollections; 
   m_trackCreatorSettings.m_prongVertexCollections = m_ProngVertexCollections;
@@ -176,20 +188,28 @@ StatusCode PandoraPFAlg::initialize()
   m_trackCreatorSettings.m_v0VertexCollections = m_V0VertexCollections; 
   m_trackCreatorSettings.m_use_dd4hep_geo      = m_use_dd4hep_geo; 
   
+  m_caloHitCreatorSettings.m_debug = m_debug;
   m_caloHitCreatorSettings.m_eCalCaloHitCollections = m_ECalCaloHitCollections;
+  m_caloHitCreatorSettings.m_eCalCaloReadOuts       = m_ECalReadOutNames;
   m_caloHitCreatorSettings.m_hCalCaloHitCollections = m_HCalCaloHitCollections;
+  m_caloHitCreatorSettings.m_hCalCaloReadOuts       = m_HCalReadOutNames;
   m_caloHitCreatorSettings.m_lCalCaloHitCollections = m_LCalCaloHitCollections;
+  m_caloHitCreatorSettings.m_lCalCaloReadOuts       = m_LCalReadOutNames;
   m_caloHitCreatorSettings.m_lHCalCaloHitCollections = m_LHCalCaloHitCollections;
+  m_caloHitCreatorSettings.m_lHCalCaloReadOuts       = m_LHCalReadOutNames;
   m_caloHitCreatorSettings.m_muonCaloHitCollections = m_MuonCaloHitCollections; 
+  m_caloHitCreatorSettings.m_muonCalCaloReadOuts    = m_MuonCalReadOutNames;
   m_caloHitCreatorSettings.m_use_dd4hep_geo         = m_use_dd4hep_geo; 
   m_caloHitCreatorSettings.m_use_dd4hep_decoder     = m_use_dd4hep_decoder ; 
   m_caloHitCreatorSettings.m_use_preshower          = m_use_preshower  ; 
   m_mcParticleCreatorSettings.m_mcParticleCollections = m_MCParticleCollections;
   m_mcParticleCreatorSettings.m_CaloHitRelationCollections = m_RelCaloHitCollections; 
   m_mcParticleCreatorSettings.m_TrackRelationCollections = m_RelTrackCollections;
+  m_mcParticleCreatorSettings.m_debug = m_debug;
   
   
   // Absorber properties
+  m_geometryCreatorSettings.m_debug = m_debug;
   m_geometryCreatorSettings.m_absorberRadLengthECal = m_AbsorberRadLengthECal;
   m_geometryCreatorSettings.m_absorberIntLengthECal = m_AbsorberIntLengthECal;
   m_geometryCreatorSettings.m_absorberRadLengthHCal = m_AbsorberRadLengthHCal;
@@ -199,6 +219,7 @@ StatusCode PandoraPFAlg::initialize()
   
   // Name of PFO collection written by GaudiPandora
   
+  m_pfoCreatorSettings.m_debug = m_debug;
   m_pfoCreatorSettings.m_clusterCollectionName = m_ClusterCollectionName;// not used  
   m_pfoCreatorSettings.m_pfoCollectionName = m_PFOCollectionName;//
   m_pfoCreatorSettings.m_startVertexCollectionName = m_StartVertexCollectionName; //
@@ -443,6 +464,7 @@ collectionMap_TrkRel.clear();
 
 StatusCode PandoraPFAlg::updateMap()
 {
+    m_marlinTrack = 0; //check
     for(auto &v : m_dataHandles){
         try{
             if(m_collections[v.first]=="MCParticle"){
@@ -479,6 +501,7 @@ StatusCode PandoraPFAlg::updateMap()
                     m_CollectionMaps->collectionMap_Track[v.first] = v_cal ;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_Track [v.first].push_back(po->at(i));
                     std::cout<<"saved col name="<<v.first<<std::endl;
+                    m_marlinTrack = po->size();
                 }
                 else{
                 std::cout<<"don't find col name="<<v.first<<std::endl;
@@ -562,10 +585,11 @@ StatusCode PandoraPFAlg::Ana()
         m_pReco_py    [m_n_rec]=py;
         m_pReco_pz    [m_n_rec]=pz;
         m_n_rec ++ ;
+        if(m_debug) std::cout<<"rec type="<<type<<",energy="<<energy<<std::endl;
         for(int j=0; j < reco_associa_col->size(); j++)
         {
             if(reco_associa_col->at(j).getRec().id() != pReco.id() ) continue;
-            std::cout<<"MC pid ="<<reco_associa_col->at(j).getSim().getPDG()<<",weight="<<reco_associa_col->at(j).getWeight()<<", px="<<reco_associa_col->at(j).getSim().getMomentum()[0]<<", py="<<reco_associa_col->at(j).getSim().getMomentum()[1]<<",pz="<<reco_associa_col->at(j).getSim().getMomentum()[2]<<std::endl;
+            if(m_debug) std::cout<<"MC pid ="<<reco_associa_col->at(j).getSim().getPDG()<<",weight="<<reco_associa_col->at(j).getWeight()<<", px="<<reco_associa_col->at(j).getSim().getMomentum()[0]<<", py="<<reco_associa_col->at(j).getSim().getMomentum()[1]<<",pz="<<reco_associa_col->at(j).getSim().getMomentum()[2]<<std::endl;
         }
     }
     const edm4hep::MCParticleCollection*     MCParticle = nullptr;
@@ -581,6 +605,8 @@ StatusCode PandoraPFAlg::Ana()
             m_mc_py    [m_n_mc] = MCParticle->at(i).getMomentum()[1];
             m_mc_pz    [m_n_mc] = MCParticle->at(i).getMomentum()[2];
             m_mc_charge[m_n_mc] = MCParticle->at(i).getCharge();
+            float mc_E = sqrt( MCParticle->at(i).getMass()*MCParticle->at(i).getMass() + MCParticle->at(i).getMomentum()[0]*MCParticle->at(i).getMomentum()[0] + MCParticle->at(i).getMomentum()[1]*MCParticle->at(i).getMomentum()[1] + MCParticle->at(i).getMomentum()[2]*MCParticle->at(i).getMomentum()[2]);
+            if(m_debug) std::cout<<"mc type="<<MCParticle->at(i).getPDG()<<",energy="<<mc_E<<std::endl;
             m_n_mc ++ ;
             if (MCParticle->at(i).getPDG() != 22) continue;
             int hasEm = 0;

@@ -10,6 +10,9 @@
 
 #include "DetectorConstruction.h"
 #include "G4PhysListFactory.hh"
+#include "G4EmParameters.hh"
+#include "G4StepLimiterPhysics.hh"
+#include "G4FastSimulationPhysics.hh"
 #include "PrimaryGeneratorAction.h"
 
 #include "ActionInitialization.h"
@@ -42,14 +45,37 @@ DetSimAlg::initialize() {
 
     // Detector Construction
     m_root_detelem = ToolHandle<IDetElemTool>(m_root_det_elem.value());
-    runmgr->SetUserInitialization(new DetectorConstruction(m_root_detelem));
+
+    for (auto fastsimname: m_fast_simnames) {
+        info() << "Fast Sim Tool: " << fastsimname << endmsg;
+        m_fast_simtools.push_back(fastsimname);
+    }
+
+    runmgr->SetUserInitialization(new DetectorConstruction(m_root_detelem, m_fast_simtools));
     // Physics List
     G4VUserPhysicsList *physicsList = nullptr;
     if (m_physics_lists_name.value() == "CEPC") {
 
     } else {
         G4PhysListFactory *physListFactory = new G4PhysListFactory();
-        physicsList = physListFactory->GetReferencePhysList(m_physics_lists_name.value());
+        G4VModularPhysicsList* modularPhysicsList = physListFactory->GetReferencePhysList(m_physics_lists_name.value());
+
+        // PAI model
+        G4EmParameters::Instance()->AddPAIModel("all","DriftChamberRegion","pai");
+        // G4EmParameters::Instance()->AddPAIModel("all","DriftChamberRegion","pai_photon");
+
+        // register addition physics list
+        modularPhysicsList->RegisterPhysics(new G4StepLimiterPhysics());
+
+        // register fastsim physics
+        G4FastSimulationPhysics* fastsim_physics = new G4FastSimulationPhysics();
+        fastsim_physics->BeVerbose();
+        fastsim_physics->ActivateFastSimulation("e-");
+        fastsim_physics->ActivateFastSimulation("e+");
+        fastsim_physics->ActivateFastSimulation("gamma");
+        modularPhysicsList->RegisterPhysics(fastsim_physics);
+
+        physicsList = modularPhysicsList;
     }
     assert(physicsList);
     runmgr->SetUserInitialization(physicsList);

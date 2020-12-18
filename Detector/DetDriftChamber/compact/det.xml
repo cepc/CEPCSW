@@ -50,8 +50,13 @@
     <vis name="VisibleGreen" alpha="1.0" r="0.0" g="1.0" b="0.0" drawingStyle="solid" lineStyle="solid" showDaughters="true" visible="true"/>
   </display>
 
+  <regions>
+    <region name="DriftChamberRegion">
+    </region>
+  </regions>
+
   <detectors>
-    <detector id="1" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="VisibleBlue" sensitive="true">
+    <detector id="1" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="VisibleBlue" sensitive="true" region="DriftChamberRegion">
       <envelope vis="SeeThrough">
         <shape type="BooleanShape" operation="Union" material="Air">
           <shape type="Tube" rmin="SDT_radius_min" rmax="SDT_inner_chamber_radius_max" dz="SDT_half_length" />

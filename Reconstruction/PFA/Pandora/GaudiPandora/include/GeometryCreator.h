@@ -59,6 +59,7 @@ public:
         int             m_hCalRingOuterSymmetryOrder;           ///< HCal ring outer symmetry order (missing from ILD gear files)
         float           m_hCalRingOuterPhiCoordinate;           ///< HCal ring outer phi coordinate (missing from ILD gear files)
         bool            m_use_dd4hep_geo;           ///true to use dd4hep geo info
+        bool            m_debug;
     };
 
     /**

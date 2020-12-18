@@ -39,6 +39,7 @@ public:
         StringVector    m_CaloHitRelationCollections;         ///< The SimCaloHit to CaloHit particle relations
         StringVector    m_TrackRelationCollections;           ///< The SimTrackerHit to TrackerHit particle relations
         float           m_bField;                             ///< m_bField
+        bool            m_debug;
     };
 
     /**
