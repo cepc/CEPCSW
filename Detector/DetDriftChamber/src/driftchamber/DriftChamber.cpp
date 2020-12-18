@@ -16,6 +16,9 @@
 #include "DDSegmentation/Segmentation.h"
 #include "DetSegmentation/GridDriftChamber.h"
 
+#include "TFile.h"
+#include "TTree.h"
+
 using namespace dd4hep;
 using namespace dd4hep::detail;
 using namespace dd4hep::rec ;
@@ -94,7 +97,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 
    // - wire
     dd4hep::Volume module_vol;
-//    dd4hep::Volume Module_vol;
+    dd4hep::Volume Module_vol;
     for(xml_coll_t c(x_det,_U(module)); c; ++c) {
       xml_comp_t x_module = c;
       double  module_rmin = x_module.rmin();
@@ -103,29 +106,30 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
       dd4hep::Tube module_solid(module_rmin,module_rmax,chamber_length*0.5);
       if(x_module.id()==0) {
          module_vol = dd4hep::Volume(module_name,module_solid,det_mat);
-      }// else {
-//         Module_vol = dd4hep::Volume(module_name,module_solid,det_mat);
-//      }
+         module_vol.setVisAttributes(theDetector.visAttributes(x_module.visStr()));
+      } else {
+         Module_vol = dd4hep::Volume(module_name,module_solid,det_mat);
+         Module_vol.setVisAttributes(theDetector.visAttributes(x_module.visStr()));
+      }
 
-         for(xml_coll_t l(x_module,_U(tubs)); l; ++l) {
-            xml_comp_t x_tube =l;
-            double tube_rmin = x_tube.rmin();
-            double tube_rmax = x_tube.rmax();
-            std::string tube_name = x_tube.nameStr();
-            std::string wire_name= module_name + tube_name;
-            dd4hep::Material tube_mat = theDetector.material(x_tube.materialStr());
-            dd4hep::Tube wire_solid(tube_rmin,tube_rmax,chamber_length*0.5);
-            dd4hep::Volume wire_vol(wire_name,wire_solid,tube_mat);
-            dd4hep::Transform3D transform_wire(dd4hep::Rotation3D(),dd4hep::Position(0.,0.,0.));
-            dd4hep::PlacedVolume wire_phy;
-            if(x_module.id()==0) {
-               wire_phy = module_vol.placeVolume(wire_vol,transform_wire);
-            }// else {
-//               wire_phy = Module_vol.placeVolume(wire_vol,transform_wire);
-//            }
+      for(xml_coll_t l(x_module,_U(tubs)); l; ++l) {
+         xml_comp_t x_tube =l;
+         double tube_rmin = x_tube.rmin();
+         double tube_rmax = x_tube.rmax();
+         std::string tube_name = x_tube.nameStr();
+         std::string wire_name= module_name + tube_name;
+         dd4hep::Material tube_mat = theDetector.material(x_tube.materialStr());
+         dd4hep::Tube wire_solid(tube_rmin,tube_rmax,chamber_length*0.5);
+         dd4hep::Volume wire_vol(wire_name,wire_solid,tube_mat);
+         dd4hep::Transform3D transform_wire(dd4hep::Rotation3D(),dd4hep::Position(0.,0.,0.));
+         dd4hep::PlacedVolume wire_phy;
+         if(x_module.id()==0) {
+            wire_phy = module_vol.placeVolume(wire_vol,transform_wire);
+         } else {
+            wire_phy = Module_vol.placeVolume(wire_vol,transform_wire);
          }
+      }
   }
-
 
     //Initialize the segmentation
     dd4hep::Readout readout = sd.readout();
@@ -171,13 +175,43 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         layer_vol.setAttributes(theDetector,x_det.regionStr(),x_det.limitsStr(),x_det.visStr());
 
         // - wire vol
-//     if(layer_id == 1) {
+        //phi <-------------------> -phi
+        //    |       F3        F4|   Only on the outermost layer
+        //    |                   |
+        //    |       S         F2|
+        //    |                   |
+        //    |       F0        F1|
+        //    --------------------
+//     if(layer_id == 66) {
         for(int icell=0; icell< numWire; icell++) {
             double wire_phi = (icell+0.5)*layer_Phi + offset;
+            // - signal wire
             dd4hep::Transform3D transform_module(dd4hep::Rotation3D(),dd4hep::Position(rmid*std::cos(wire_phi),rmid*std::sin(wire_phi),0.));
-//            dd4hep::Transform3D transform_Module(dd4hep::Rotation3D(),dd4hep::Position((rmid+chamber_layer_width*0.5)*std::cos(wire_phi),(rmid+chamber_layer_width*0.5)*std::sin(wire_phi),0.));
             dd4hep::PlacedVolume module_phy = layer_vol.placeVolume(module_vol,transform_module);
-//            dd4hep::PlacedVolume Module_phy = layer_vol.placeVolume(Module_vol,transform_Module);
+           // - Field wire
+            dd4hep::PlacedVolume Module_phy;
+           // - Field wire 0
+            dd4hep::Position tr3D_0 = Position((rmid-chamber_layer_width*0.5)*std::cos(wire_phi),(rmid-chamber_layer_width*0.5)*std::sin(wire_phi),0.);
+            dd4hep::Transform3D transform_Module_0(dd4hep::Rotation3D(),tr3D_0);
+            Module_phy = layer_vol.placeVolume(Module_vol,transform_Module_0);
+            // - Field wire 1
+            dd4hep::Position tr3D_1 = Position((rmid-chamber_layer_width*0.5)*std::cos(wire_phi+layer_Phi*0.5),(rmid-chamber_layer_width*0.5)*std::sin(wire_phi+layer_Phi*0.5),0.);
+            dd4hep::Transform3D transform_Module_1(dd4hep::Rotation3D(),tr3D_1);
+            Module_phy = layer_vol.placeVolume(Module_vol,transform_Module_1);
+            // - Field wire 2
+            dd4hep::Position tr3D_2 = Position(rmid*std::cos(wire_phi+layer_Phi*0.5),rmid*std::sin(wire_phi+layer_Phi*0.5),0.);
+            dd4hep::Transform3D transform_Module_2(dd4hep::Rotation3D(),tr3D_2);
+            Module_phy = layer_vol.placeVolume(Module_vol,transform_Module_2);
+            if(layer_id==66 || layer_id==129) {
+               // - Field wire 3
+               dd4hep::Position tr3D_3 = Position((rmid+chamber_layer_width*0.5)*std::cos(wire_phi),(rmid+chamber_layer_width*0.5)*std::sin(wire_phi),0.);
+               dd4hep::Transform3D transform_Module_3(dd4hep::Rotation3D(),tr3D_3);
+               Module_phy = layer_vol.placeVolume(Module_vol,transform_Module_3);
+               // - Field wire 4
+               dd4hep::Position tr3D_4 = Position((rmid+chamber_layer_width*0.5)*std::cos(wire_phi+layer_Phi*0.5),(rmid+chamber_layer_width*0.5)*std::sin(wire_phi+layer_Phi*0.5),0.);
+               dd4hep::Transform3D transform_Module_4(dd4hep::Rotation3D(),tr3D_4);
+               Module_phy = layer_vol.placeVolume(Module_vol,transform_Module_4);
+            }
         }
 //  }
 
