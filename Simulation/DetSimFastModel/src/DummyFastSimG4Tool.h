@@ -14,7 +14,8 @@ public:
     bool CreateFastSimulationModel() override;
 
 private:
-
+    // the regions will be associated with the fast sim model
+    Gaudi::Property<std::vector<std::string>> m_regions{this, "Regions"};
 };
 
 #endif
