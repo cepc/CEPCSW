@@ -187,12 +187,16 @@ truthTrackerAlg.debug = 1
 ##############################################################################
 # DedxAlg
 ##############################################################################
+from Configurables import GFDndxSimTool
+dndx_simtool = GFDndxSimTool("GFDndxSimTool")
 from Configurables import RecDCHDedxAlg
 dedxAlg = RecDCHDedxAlg("RecDCHDedxAlg")
 dedxAlg.debug = True
-dedxAlg.method = 1
-dedxAlg.sampling_option = "BetheBlochEquationDedxSimTool"
-dedxAlg.dedx_resolution = 0.05
+#dedxAlg.method = 1
+#dedxAlg.sampling_option = "BetheBlochEquationDedxSimTool"
+dedxAlg.method = 2
+dedxAlg.sampling_option = "GFDndxSimTool"
+dedxAlg.dedx_resolution = 0.0
 dedxAlg.DCTrackCollection = "DCTrackCollection"
 dedxAlg.DCHitAssociationCollection = "DCHAssociationCollection"
 dedxAlg.WriteAna  = True

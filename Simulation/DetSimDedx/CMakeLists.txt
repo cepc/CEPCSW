@@ -14,6 +14,7 @@ include_directories(${EDM4HEP_INCLUDE_DIR})
 set(DetSimDedx_srcs
     src/DummyDedxSimTool.cpp
     src/BetheBlochEquationDedxSimTool.cpp
+    src/GFDndxSimTool.cpp
 )
 
 gaudi_add_module(DetSimDedx ${DetSimDedx_srcs}
