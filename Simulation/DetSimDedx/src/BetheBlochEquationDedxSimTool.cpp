@@ -49,6 +49,9 @@ double BetheBlochEquationDedxSimTool::dedx(const edm4hep::MCParticle& mcp) {
     dedx = dedx*CLHEP::RandGauss::shoot(m_scale, m_resolution);
     return dedx; // (CLHEP::MeV/CLHEP::cm) / (CLHEP::g/CLHEP::cm3)
 }
+double BetheBlochEquationDedxSimTool::dndx(double betagamma) {
+    return -1;
+}
 
 StatusCode BetheBlochEquationDedxSimTool::initialize()
 {

@@ -1,11 +1,11 @@
-#ifndef DummyDedxSimTool_h
-#define DummyDedxSimTool_h
+#ifndef GFDndxSimTool_h
+#define GFDndxSimTool_h
 
 #include "GaudiKernel/AlgTool.h"
 #include "DetSimInterface/IDedxSimTool.h"
 #include "edm4hep/MCParticle.h"
 
-class DummyDedxSimTool: public extends<AlgTool, IDedxSimTool> {
+class GFDndxSimTool: public extends<AlgTool, IDedxSimTool> {
 
 public:
     using extends::extends;

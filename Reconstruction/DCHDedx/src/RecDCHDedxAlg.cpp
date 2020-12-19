@@ -131,6 +131,74 @@ StatusCode RecDCHDedxAlg::execute()
             }
         }
    }//method 1
+   if(m_method==2){// get the primary mc particle of the reconstructed track and do dndx sampling according the mc beta-gamma 
+
+       m_dedx_simtool = ToolHandle<IDedxSimTool>(m_dedx_sim_option.value());
+       if (!m_dedx_simtool) {
+           error() << "Failed to find dedx sampling tool :"<<m_dedx_sim_option.value()<< endmsg;
+           return StatusCode::FAILURE;
+       }
+       
+       const edm4hep::TrackCollection* trkCol=nullptr;
+       trkCol=m_dcTrackCol.get();
+       if(nullptr==trkCol){
+           throw ("Error: TrackCollection not found.");
+           return StatusCode::SUCCESS;
+       }
+       edm4hep::TrackCollection* ptrkCol = const_cast<edm4hep::TrackCollection*>(trkCol);
+
+       const edm4hep::MCRecoTrackerAssociationCollection* assoCol=nullptr;
+       assoCol = m_dcHitAssociationCol.get();
+       if(nullptr==assoCol){
+           throw ("Error: MCRecoTrackerAssociationCollection not found.");
+           return StatusCode::SUCCESS;
+       }
+       for(unsigned j=0; j<ptrkCol->size(); j++){
+           std::map< edm4hep::ConstMCParticle, int > map_mc_count;
+           auto tmp_track = ptrkCol->at(j);
+           for(unsigned k=0; k< tmp_track.trackerHits_size(); k++){
+               for(unsigned z=0; z< assoCol->size(); z++){
+                   if(assoCol->at(z).getRec().id() != tmp_track.getTrackerHits(k).id()) continue;
+                   
+                   auto tmp_mc = assoCol->at(z).getSim().getMCParticle();
+                   if(tmp_mc.parents_size()!=0) continue;
+                   if(map_mc_count.find(tmp_mc) != map_mc_count.end()) map_mc_count[tmp_mc] += 1;
+                   else                                                map_mc_count[tmp_mc] = 1;
+                   
+               }
+           }
+           edm4hep::MCParticle tmp_mc;
+           int max_cout = 0;
+           for(auto iter = map_mc_count.begin(); iter != map_mc_count.end(); iter++ ){
+               if(iter->second > max_cout){
+                   max_cout = iter->second;
+                   //tmp_mc = iter->first;
+                   tmp_mc.setMass(iter->first.getMass());
+                   tmp_mc.setCharge(iter->first.getCharge());
+                   tmp_mc.setMomentum(iter->first.getMomentum());
+                   if(m_debug){
+                       std::cout<<"mass="<<iter->first.getMass()<<",charge="<<iter->first.getCharge()<<",mom_x"<<iter->first.getMomentum()[0]<<",mom_y"<<iter->first.getMomentum()[1]<<",mom_z"<<iter->first.getMomentum()[2]<<std::endl;
+                   }
+               }
+           }
+           double dndx = 0.0;
+           double betagamma = tmp_mc.getMass() !=0 ? sqrt(tmp_mc.getMomentum()[0]*tmp_mc.getMomentum()[0] + tmp_mc.getMomentum()[1]*tmp_mc.getMomentum()[1] + tmp_mc.getMomentum()[2]*tmp_mc.getMomentum()[2] )/tmp_mc.getMass() : -1 ;
+           dndx = m_dedx_simtool->dndx(betagamma);
+           float dndx_smear  = CLHEP::RandGauss::shoot(m_scale, m_resolution);
+           if(m_debug) std::cout<<"dndx from sampling ="<<dndx<<",smear="<<dndx_smear<<",final="<<dndx*dndx_smear<<",scale="<<m_scale<<",res="<<m_resolution<<std::endl;
+           ptrkCol->at(j).setDEdx(dndx*dndx_smear);//update the dndx
+           if(m_WriteAna){
+               m_track_dedx[m_n_track]= dndx*dndx_smear;
+               m_track_dedx_BB[m_n_track]= dndx;
+               m_track_px     [m_n_track]= tmp_mc.getMomentum()[0];
+               m_track_py     [m_n_track]= tmp_mc.getMomentum()[1];
+               m_track_pz     [m_n_track]= tmp_mc.getMomentum()[2];
+               m_track_mass   [m_n_track]= tmp_mc.getMass();
+               m_track_pid    [m_n_track]= tmp_mc.getPDG();
+               m_n_track ++;
+           }
+       }
+   }//method 2
    if(m_WriteAna){
        StatusCode status = m_tuple->write();
        if ( status.isFailure() ) {

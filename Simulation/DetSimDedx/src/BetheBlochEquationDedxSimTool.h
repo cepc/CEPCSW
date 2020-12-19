@@ -13,6 +13,7 @@ class BetheBlochEquationDedxSimTool: public extends<AlgTool, IDedxSimTool> {
         StatusCode finalize() override;
         double dedx(const G4Step* aStep) override;
         double dedx(const edm4hep::MCParticle& mc) override;
+        double dndx(double betagamma) override;
 
     private:
 
