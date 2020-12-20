@@ -95,6 +95,30 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     dd4hep::Tube det_outer_chamber_solid(outer_chamber_radius_min, outer_chamber_radius_max, outer_chamber_length*0.5);
     dd4hep::Volume det_outer_chamber_vol(det_name+"_outer_chamber_vol", det_outer_chamber_solid, det_mat);
 
+    // - inner wall
+    xml_coll_t c(x_det,_U(barrel));
+    xml_comp_t x_barrel = c;
+    double inner_wall_rmin = x_barrel.rmin();
+    double inner_wall_rmax = x_barrel.rmax();
+    std::string inner_wall_name = x_barrel.nameStr();
+    dd4hep::Material inner_wall_mat = theDetector.material(x_barrel.materialStr());
+std::cout << inner_wall_rmin << " " << inner_wall_rmax << " " << inner_wall_name << std::endl;
+    dd4hep::Tube inner_wall_solid(inner_wall_rmin,inner_wall_rmax,chamber_length*0.5);
+    dd4hep::Volume inner_wall_vol(inner_wall_name,inner_wall_solid,inner_wall_mat);
+    inner_wall_vol.setVisAttributes(theDetector.visAttributes(x_barrel.visStr()));
+
+    // - outer wall
+    xml_coll_t l(x_det,_U(model));
+    xml_comp_t x_model = l;
+    double outer_wall_rmin = x_model.rmin();
+    double outer_wall_rmax = x_model.rmax();
+    std::string outer_wall_name = x_model.nameStr();
+    dd4hep::Material outer_wall_mat = theDetector.material(x_model.materialStr());
+std::cout << outer_wall_rmin << " " << outer_wall_rmax << " " << outer_wall_name << std::endl;
+    dd4hep::Tube outer_wall_solid(outer_wall_rmin,outer_wall_rmax,chamber_length*0.5);
+    dd4hep::Volume outer_wall_vol(outer_wall_name,outer_wall_solid,outer_wall_mat);
+    outer_wall_vol.setVisAttributes(theDetector.visAttributes(x_model.visStr()));
+
    // - wire
     dd4hep::Volume module_vol;
     dd4hep::Volume Module_vol;
@@ -176,13 +200,13 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 
         // - wire vol
         //phi <-------------------> -phi
-        //    |       F3        F4|   Only on the outermost layer
+        //    |       F3        F4|
         //    |                   |
         //    |       S         F2|
         //    |                   |
         //    |       F0        F1|
         //    --------------------
-//     if(layer_id == 66) {
+//     if(layer_id == 1) {
         for(int icell=0; icell< numWire; icell++) {
             double wire_phi = (icell+0.5)*layer_Phi + offset;
             // - signal wire
@@ -202,16 +226,14 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
             dd4hep::Position tr3D_2 = Position(rmid*std::cos(wire_phi+layer_Phi*0.5),rmid*std::sin(wire_phi+layer_Phi*0.5),0.);
             dd4hep::Transform3D transform_Module_2(dd4hep::Rotation3D(),tr3D_2);
             Module_phy = layer_vol.placeVolume(Module_vol,transform_Module_2);
-            if(layer_id==66 || layer_id==129) {
-               // - Field wire 3
-               dd4hep::Position tr3D_3 = Position((rmid+chamber_layer_width*0.5)*std::cos(wire_phi),(rmid+chamber_layer_width*0.5)*std::sin(wire_phi),0.);
-               dd4hep::Transform3D transform_Module_3(dd4hep::Rotation3D(),tr3D_3);
-               Module_phy = layer_vol.placeVolume(Module_vol,transform_Module_3);
-               // - Field wire 4
-               dd4hep::Position tr3D_4 = Position((rmid+chamber_layer_width*0.5)*std::cos(wire_phi+layer_Phi*0.5),(rmid+chamber_layer_width*0.5)*std::sin(wire_phi+layer_Phi*0.5),0.);
-               dd4hep::Transform3D transform_Module_4(dd4hep::Rotation3D(),tr3D_4);
-               Module_phy = layer_vol.placeVolume(Module_vol,transform_Module_4);
-            }
+            // - Field wire 3
+            dd4hep::Position tr3D_3 = Position((rmid+chamber_layer_width*0.5)*std::cos(wire_phi),(rmid+chamber_layer_width*0.5)*std::sin(wire_phi),0.);
+            dd4hep::Transform3D transform_Module_3(dd4hep::Rotation3D(),tr3D_3);
+            Module_phy = layer_vol.placeVolume(Module_vol,transform_Module_3);
+            // - Field wire 4
+            dd4hep::Position tr3D_4 = Position((rmid+chamber_layer_width*0.5)*std::cos(wire_phi+layer_Phi*0.5),(rmid+chamber_layer_width*0.5)*std::sin(wire_phi+layer_Phi*0.5),0.);
+            dd4hep::Transform3D transform_Module_4(dd4hep::Rotation3D(),tr3D_4);
+            Module_phy = layer_vol.placeVolume(Module_vol,transform_Module_4);
         }
 //  }
 
@@ -247,6 +269,10 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     dd4hep::Transform3D transform(dd4hep::Rotation3D(),
             dd4hep::Position(0,0,0));
     dd4hep::PlacedVolume phv = envelope.placeVolume(det_vol,transform); 
+
+    dd4hep::PlacedVolume inner_wall_phy = envelope.placeVolume(inner_wall_vol,transform);
+
+    dd4hep::PlacedVolume outer_wall_phy = envelope.placeVolume(outer_wall_vol,transform);
 
     if ( x_det.hasAttr(_U(id)) )  {
         phv.addPhysVolID("system",x_det.id());

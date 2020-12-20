@@ -27,7 +27,7 @@
     <constant name="SDT_half_length" value="2225*mm"/>
     <constant name="SDT_length" value="SDT_half_length*2"/>
 
-    <constant name="SDT_inner_chamber_radius_min" value="SDT_radius_min"/>
+    <constant name="SDT_inner_chamber_radius_min" value="235*mm"/>
     <constant name="SDT_inner_chamber_radius_max" value="909*mm"/>
     <constant name="SDT_inner_chamber_length" value="SDT_length"/>
 
@@ -63,6 +63,9 @@
           <shape type="Tube" rmin="SDT_outer_chamber_radius_min" rmax="SDT_radius_max" dz="SDT_half_length" />
         </shape>
       </envelope>
+
+         <barrel  name="inner_wall" type="Tube" rmin="234.8*mm" rmax="235*mm" material="Air" vis="VisibleGreen"/>
+         <model name="outer_wall" type="Tube" rmin="1715*mm" rmax="1717.8*mm" material="Air" vis="VisibleGreen"/>
 
       <module id="0" name="SignalWire" type="Tube" rmin="0*mm" rmax="0.01*mm" vis="VisibleRed">
           <tubs name="W" type="Tube" rmin="0*mm" rmax="0.007*mm" material="Tungsten"/>
