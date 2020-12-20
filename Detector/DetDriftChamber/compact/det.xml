@@ -77,8 +77,6 @@
           <tubs name="Ag" type="Tube" rmin="0.017*mm" rmax="0.02*mm" material="Silver"/>
       </module>
 
-<!--      <tubs name="SignalWire" rmin="0*mm" rmax="0.01*mm" material="Tungsten"/>-->
-
       <type_flags type="DetType_TRACKER + DetType_BARREL + DetType_GASEOUS + DetType_WIRE"/>
       <!-- Use cm as unit if you want to use Pandora for reconstruction -->
      <sensitive type="SimpleDriftChamber"/>

@@ -102,7 +102,6 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     double inner_wall_rmax = x_barrel.rmax();
     std::string inner_wall_name = x_barrel.nameStr();
     dd4hep::Material inner_wall_mat = theDetector.material(x_barrel.materialStr());
-std::cout << inner_wall_rmin << " " << inner_wall_rmax << " " << inner_wall_name << std::endl;
     dd4hep::Tube inner_wall_solid(inner_wall_rmin,inner_wall_rmax,chamber_length*0.5);
     dd4hep::Volume inner_wall_vol(inner_wall_name,inner_wall_solid,inner_wall_mat);
     inner_wall_vol.setVisAttributes(theDetector.visAttributes(x_barrel.visStr()));
@@ -114,7 +113,6 @@ std::cout << inner_wall_rmin << " " << inner_wall_rmax << " " << inner_wall_name
     double outer_wall_rmax = x_model.rmax();
     std::string outer_wall_name = x_model.nameStr();
     dd4hep::Material outer_wall_mat = theDetector.material(x_model.materialStr());
-std::cout << outer_wall_rmin << " " << outer_wall_rmax << " " << outer_wall_name << std::endl;
     dd4hep::Tube outer_wall_solid(outer_wall_rmin,outer_wall_rmax,chamber_length*0.5);
     dd4hep::Volume outer_wall_vol(outer_wall_name,outer_wall_solid,outer_wall_mat);
     outer_wall_vol.setVisAttributes(theDetector.visAttributes(x_model.visStr()));
