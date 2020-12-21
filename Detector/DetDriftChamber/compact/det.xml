@@ -40,6 +40,11 @@
     <constant name="SDT_chamber_layer_width" value="10*mm"/>
     <constant name="Epsilon" value="0*deg"/>
 
+    <constant name="SDT_inner_wall_radius_min" value="234.8*mm"/>
+    <constant name="SDT_inner_wall_radius_max" value="235*mm"/>
+    <constant name="SDT_outer_wall_radius_min" value="1715*mm"/>
+    <constant name="SDT_outer_wall_radius_max" value="1717.8*mm"/>
+
   </define>
 
   <display>
@@ -63,9 +68,6 @@
           <shape type="Tube" rmin="SDT_outer_chamber_radius_min" rmax="SDT_radius_max" dz="SDT_half_length" />
         </shape>
       </envelope>
-
-         <barrel  name="inner_wall" type="Tube" rmin="234.8*mm" rmax="235*mm" material="Air" vis="VisibleGreen"/>
-         <model name="outer_wall" type="Tube" rmin="1715*mm" rmax="1717.8*mm" material="Air" vis="VisibleGreen"/>
 
       <module id="0" name="SignalWire" type="Tube" rmin="0*mm" rmax="0.01*mm" vis="VisibleRed">
           <tubs name="W" type="Tube" rmin="0*mm" rmax="0.007*mm" material="Tungsten"/>
