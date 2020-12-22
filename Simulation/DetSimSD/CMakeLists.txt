@@ -1,12 +1,4 @@
 
-gaudi_subdir(DetSimSD v0r0)
-
-gaudi_depends_on_subdirs(
-    k4FWCore
-    Detector/DetInterface
-    Simulation/DetSimInterface
-)
-
 find_package(Geant4 REQUIRED ui_all vis_all)
 include(${Geant4_USE_FILE})
 find_package(DD4hep COMPONENTS DDG4 REQUIRED)
@@ -24,18 +16,20 @@ set(DetSimSD_srcs
     src/TimeProjectionChamberSensitiveDetector.cpp
 )
 
-gaudi_add_module(DetSimSD ${DetSimSD_srcs}
-    INCLUDE_DIRS
-      # DetSimInterface
-      # k4FWCore
-      # DD4hep
-      # GaudiKernel
-      # Geant4 
-    LINK_LIBRARIES
-      # DetSimInterface
-      # k4FWCore
-      DD4hep
-      ${DD4hep_COMPONENT_LIBRARIES} 
-      GaudiKernel
-      # Geant4
+gaudi_add_module(DetSimSD 
+                 SOURCES ${DetSimSD_srcs}
+                 LINK DetSimInterface
+                      DetInterface
+                      ${DD4hep_COMPONENT_LIBRARIES} 
+                      Gaudi::GaudiKernel
 )
+target_include_directories(DetSimSD PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+install(TARGETS DetSimSD
+  EXPORT CEPCSWTargets
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
+  COMPONENT dev)
+
