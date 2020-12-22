@@ -1,5 +1,5 @@
 
-#add_subdirectory(DetSimAna)
+add_subdirectory(DetSimAna)
 add_subdirectory(DetSimCore)
 #add_subdirectory(DetSimDedx)
 #add_subdirectory(DetSimFastModel)
