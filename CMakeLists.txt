@@ -1,8 +1,10 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0)
 
+project(CEPCSW)
+
 find_package(ROOT COMPONENTS RIO Tree)
 
-find_package(GaudiProject)
+find_package(Gaudi)
 
 # Set up C++ Standard
 # ``-DCMAKE_CXX_STANDARD=<standard>`` when invoking CMake
@@ -12,8 +14,4 @@ if(NOT CMAKE_CXX_STANDARD MATCHES "14|17")
   message(FATAL_ERROR "Unsupported C++ standard: ${CMAKE_CXX_STANDARD}")
 endif()
 
-
-gaudi_project(CEPCSW v0r1
-              USE Gaudi v33r1 
-              USE k4FWCore v0r1
-)
+add_subdirectory(Analysis)
