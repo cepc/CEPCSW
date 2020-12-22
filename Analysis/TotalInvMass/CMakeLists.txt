@@ -18,3 +18,9 @@ gaudi_add_module(TotalInvMass
                       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
                       ${ROOT_LIBRARIES}
 )
+
+install(TARGETS TotalInvMass
+  EXPORT CEPCSWTargets
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
+  COMPONENT dev)

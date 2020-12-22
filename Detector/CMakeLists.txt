@@ -5,4 +5,4 @@
 # add_subdirectory(DetEcalMatrix)
 add_subdirectory(DetInterface)
 # add_subdirectory(DetSegmentation)
-# add_subdirectory(GeomSvc)
+add_subdirectory(GeomSvc)
