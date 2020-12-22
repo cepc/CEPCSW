@@ -2,7 +2,7 @@
 #define AnExampleDetElemTool_h
 
 #include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/Property.h"
+#include <Gaudi/Property.h>
 #include <GaudiKernel/ToolHandle.h>
 
 #include "G4SystemOfUnits.hh"
