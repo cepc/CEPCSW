@@ -92,21 +92,23 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     dd4hep::Tube det_outer_chamber_solid(outer_chamber_radius_min, outer_chamber_radius_max, outer_chamber_length*0.5);
     dd4hep::Volume det_outer_chamber_vol(det_name+"_outer_chamber_vol", det_outer_chamber_solid, det_mat);
 
-    // - inner wall
-    double inner_wall_rmin = theDetector.constant<double>("SDT_inner_wall_radius_min");
-    double inner_wall_rmax = theDetector.constant<double>("SDT_inner_wall_radius_max");
-    dd4hep::Material inner_wall_mat(theDetector.material("Air"));
-    dd4hep::Tube inner_wall_solid(inner_wall_rmin,inner_wall_rmax,chamber_length*0.5);
-    dd4hep::Volume inner_wall_vol(det_name+"_inner_wall",inner_wall_solid,inner_wall_mat);
-    inner_wall_vol.setVisAttributes(theDetector,"VisibleGreen");
+    // - wall
+    double inner_chamber_inner_wall_rmin = theDetector.constant<double>("SDT_inner_chamber_inner_wall_radius_min");
+    double inner_chamber_inner_wall_rmax = theDetector.constant<double>("SDT_inner_chamber_inner_wall_radius_max");
+    double inner_chamber_outer_wall_rmin = theDetector.constant<double>("SDT_inner_chamber_outer_wall_radius_min");
+    double inner_chamber_outer_wall_rmax = theDetector.constant<double>("SDT_inner_chamber_outer_wall_radius_max");
+    double outer_chamber_outer_wall_rmin = theDetector.constant<double>("SDT_outer_chamber_outer_wall_radius_min");
+    double outer_chamber_outer_wall_rmax = theDetector.constant<double>("SDT_outer_chamber_outer_wall_radius_max");
+    double outer_chamber_inner_wall_rmin = theDetector.constant<double>("SDT_outer_chamber_inner_wall_radius_min");
+    double outer_chamber_inner_wall_rmax = theDetector.constant<double>("SDT_outer_chamber_inner_wall_radius_max");
 
-    // - outer wall
-    double outer_wall_rmin = theDetector.constant<double>("SDT_outer_wall_radius_min");
-    double outer_wall_rmax = theDetector.constant<double>("SDT_outer_wall_radius_max");
-    dd4hep::Material outer_wall_mat(theDetector.material("Air"));
-    dd4hep::Tube outer_wall_solid(outer_wall_rmin,outer_wall_rmax,chamber_length*0.5);
-    dd4hep::Volume outer_wall_vol(det_name+"_outer_wall",outer_wall_solid,outer_wall_mat);
-    outer_wall_vol.setVisAttributes(theDetector,"VisibleGreen");
+    dd4hep::Material wall_mat(theDetector.material("CarbonFiber"));
+
+    double wall_rmin[4] = {inner_chamber_inner_wall_rmin,inner_chamber_outer_wall_rmin,outer_chamber_inner_wall_rmin,outer_chamber_outer_wall_rmin};
+    double wall_rmax[4] = {inner_chamber_inner_wall_rmax,inner_chamber_outer_wall_rmax,outer_chamber_inner_wall_rmax,outer_chamber_outer_wall_rmax};
+
+    dd4hep::Tube wall_solid;
+    dd4hep::Volume wall_vol;
 
    // - wire
     dd4hep::Volume module_vol;
@@ -189,7 +191,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 
         // - wire vol
         //phi <-------------------> -phi
-        //    |       F3        F4|
+        //    |       F4        F3|
         //    |                   |
         //    |       S         F2|
         //    |                   |
@@ -203,26 +205,13 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
             dd4hep::PlacedVolume module_phy = layer_vol.placeVolume(module_vol,transform_module);
            // - Field wire
             dd4hep::PlacedVolume Module_phy;
-           // - Field wire 0
-            dd4hep::Position tr3D_0 = Position((rmid-chamber_layer_width*0.5)*std::cos(wire_phi),(rmid-chamber_layer_width*0.5)*std::sin(wire_phi),0.);
-            dd4hep::Transform3D transform_Module_0(dd4hep::Rotation3D(),tr3D_0);
-            Module_phy = layer_vol.placeVolume(Module_vol,transform_Module_0);
-            // - Field wire 1
-            dd4hep::Position tr3D_1 = Position((rmid-chamber_layer_width*0.5)*std::cos(wire_phi-layer_Phi*0.5),(rmid-chamber_layer_width*0.5)*std::sin(wire_phi-layer_Phi*0.5),0.);
-            dd4hep::Transform3D transform_Module_1(dd4hep::Rotation3D(),tr3D_1);
-            Module_phy = layer_vol.placeVolume(Module_vol,transform_Module_1);
-            // - Field wire 2
-            dd4hep::Position tr3D_2 = Position(rmid*std::cos(wire_phi-layer_Phi*0.5),rmid*std::sin(wire_phi-layer_Phi*0.5),0.);
-            dd4hep::Transform3D transform_Module_2(dd4hep::Rotation3D(),tr3D_2);
-            Module_phy = layer_vol.placeVolume(Module_vol,transform_Module_2);
-            // - Field wire 3
-            dd4hep::Position tr3D_3 = Position((rmid+chamber_layer_width*0.5)*std::cos(wire_phi),(rmid+chamber_layer_width*0.5)*std::sin(wire_phi),0.);
-            dd4hep::Transform3D transform_Module_3(dd4hep::Rotation3D(),tr3D_3);
-            Module_phy = layer_vol.placeVolume(Module_vol,transform_Module_3);
-            // - Field wire 4
-            dd4hep::Position tr3D_4 = Position((rmid+chamber_layer_width*0.5)*std::cos(wire_phi-layer_Phi*0.5),(rmid+chamber_layer_width*0.5)*std::sin(wire_phi-layer_Phi*0.5),0.);
-            dd4hep::Transform3D transform_Module_4(dd4hep::Rotation3D(),tr3D_4);
-            Module_phy = layer_vol.placeVolume(Module_vol,transform_Module_4);
+            double radius[5] = {rmid-chamber_layer_width*0.5,rmid-chamber_layer_width*0.5,rmid,rmid+chamber_layer_width*0.5,rmid+chamber_layer_width*0.5};
+            double phi[5] = {wire_phi,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.5,wire_phi};
+            for(int i=0; i<5; i++) {
+                dd4hep::Position tr3D = Position(radius[i]*std::cos(phi[i]),radius[i]*std::sin(phi[i]),0.);
+                dd4hep::Transform3D transform_Module(dd4hep::Rotation3D(),tr3D);
+                Module_phy = layer_vol.placeVolume(Module_vol,transform_Module);
+            }
         }
 //  }
 
@@ -258,10 +247,14 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     dd4hep::Transform3D transform(dd4hep::Rotation3D(),
             dd4hep::Position(0,0,0));
     dd4hep::PlacedVolume phv = envelope.placeVolume(det_vol,transform);
-
-    dd4hep::PlacedVolume inner_wall_phy = envelope.placeVolume(inner_wall_vol,transform);
-
-    dd4hep::PlacedVolume outer_wall_phy = envelope.placeVolume(outer_wall_vol,transform);
+    // - place wall
+    dd4hep::PlacedVolume wall_phy;
+    for(int i=0; i<4 ; i++) {
+       wall_solid = Tube(wall_rmin[i],wall_rmax[i],chamber_length*0.5);
+       wall_vol = Volume(det_name+"_wall_vol",wall_solid,wall_mat);
+       wall_vol.setVisAttributes(theDetector,"VisibleGreen");
+       wall_phy = envelope.placeVolume(wall_vol,transform);
+    }
 
     if ( x_det.hasAttr(_U(id)) )  {
         phv.addPhysVolID("system",x_det.id());
