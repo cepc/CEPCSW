@@ -81,6 +81,23 @@ private:
             "EcalEndcapRingContributionCollection", 
             Gaudi::DataHandle::Writer, this};
 
+    // Hcal
+    DataHandle<edm4hep::SimCalorimeterHitCollection> m_HcalBarrelCol{"HcalBarrelCollection", 
+            Gaudi::DataHandle::Writer, this};
+    DataHandle<edm4hep::CaloHitContributionCollection> m_HcalBarrelContributionCol{
+            "HcalBarrelContributionCollection", 
+            Gaudi::DataHandle::Writer, this};
+    DataHandle<edm4hep::SimCalorimeterHitCollection> m_HcalEndcapsCol{"HcalEndcapsCollection", 
+            Gaudi::DataHandle::Writer, this};
+    DataHandle<edm4hep::CaloHitContributionCollection> m_HcalEndcapsContributionCol{
+            "HcalEndcapsContributionCollection", 
+            Gaudi::DataHandle::Writer, this};
+    DataHandle<edm4hep::SimCalorimeterHitCollection> m_HcalEndcapRingCol{"HcalEndcapRingCollection", 
+            Gaudi::DataHandle::Writer, this};
+    DataHandle<edm4hep::CaloHitContributionCollection> m_HcalEndcapRingContributionCol{
+            "HcalEndcapRingContributionCollection", 
+            Gaudi::DataHandle::Writer, this};
+
     // Drift Chamber
     // - DriftChamberHitsCollection
     DataHandle<edm4hep::SimTrackerHitCollection> m_DriftChamberHitsCol{
