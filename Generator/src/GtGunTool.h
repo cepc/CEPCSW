@@ -12,7 +12,7 @@
  */
 
 #include <GaudiKernel/AlgTool.h>
-#include <GaudiKernel/Property.h>
+#include <Gaudi/Property.h>
 #include "IGenTool.h"
 
 #include <vector>

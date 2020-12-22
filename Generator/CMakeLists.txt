@@ -1,5 +1,5 @@
 ########################################
-gaudi_subdir(Generator v0r0)
+
 set(GenAlgo_srcs 
     src/IGenTool.cpp 
     src/GenAlgo.cpp 
@@ -13,7 +13,6 @@ set(GenAlgo_srcs
     src/HepMCRdr.cpp
     src/GtGunTool.cpp
 )
-set(GenAlgo_incs src)
 
 find_package(Geant4 REQUIRED)
 include(${Geant4_USE_FILE})
@@ -41,21 +40,16 @@ endif(HepMC_FOUND)
 if(CLHEP_FOUND)
     message("found CLHEP: ${CLHEP_INCLUDE_DIRS} ${CLHEP_LIBRARY_DIR}")
 endif(CLHEP_FOUND)
-############## for producing plcio library #############
-INCLUDE_DIRECTORIES(${GenAlgo_incs})
 
-gaudi_add_module(GenAlgo ${GenAlgo_srcs} 
-  INCLUDE_DIRS 
-    k4FWCore
-  LINK_LIBRARIES 
-    ROOT
-    k4FWCore 
-    GaudiAlgLib GaudiKernel
-    HepMC
-    CLHEP
-    LCIO
+gaudi_add_module(GenAlgo
+                 SOURCES ${GenAlgo_srcs} 
+                 LINK ${ROOT_LIBRARIES}
+                      k4FWCore::k4FWCore 
+                      Gaudi::GaudiAlgLib
+                      Gaudi::GaudiKernel
+                      ${HEPMC_LIBRARIES}
+                      ${CLHEP_LIBRARIES}
+                      ${LCIO_LIBRARIES}
     EDM4HEP::edm4hep EDM4HEP::edm4hepDict
   )
-#gaudi_add_test(Reader FRAMEWORK options/read.py)
 
-###########################
