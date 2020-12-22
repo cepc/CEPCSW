@@ -2,7 +2,7 @@
 #define HelloAlg_h
 
 #include <GaudiKernel/Algorithm.h>
-#include "GaudiKernel/Property.h"
+#include <Gaudi/Property.h>
 
 class HelloAlg: public Algorithm {
 public:
