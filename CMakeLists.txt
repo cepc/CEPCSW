@@ -28,6 +28,9 @@ add_subdirectory(Detector)
 # add_subdirectory(Digitisers)
 # add_subdirectory(Examples)
 add_subdirectory(Generator)
+# add_subdirectory(Reconstruction)
+add_subdirectory(Simulation)
+# add_subdirectory(Utilities)
 
 ##############################################################################
 # INSTALL
