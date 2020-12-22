@@ -15,3 +15,4 @@ if(NOT CMAKE_CXX_STANDARD MATCHES "14|17")
 endif()
 
 add_subdirectory(Analysis)
+add_subdirectory(Detector)
