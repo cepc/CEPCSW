@@ -1,6 +1,6 @@
 
 # add_subdirectory(DetCEPCv4)
-# add_subdirectory(DetCRD)
+add_subdirectory(DetCRD)
 add_subdirectory(DetDriftChamber)
 add_subdirectory(DetEcalMatrix)
 add_subdirectory(DetInterface)
