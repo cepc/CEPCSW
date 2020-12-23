@@ -92,9 +92,24 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     dd4hep::Tube det_outer_chamber_solid(outer_chamber_radius_min, outer_chamber_radius_max, outer_chamber_length*0.5);
     dd4hep::Volume det_outer_chamber_vol(det_name+"_outer_chamber_vol", det_outer_chamber_solid, det_mat);
 
+    // - wall
+    double inner_chamber_inner_wall_rmin = theDetector.constant<double>("SDT_inner_chamber_inner_wall_radius_min");
+    double inner_chamber_inner_wall_rmax = theDetector.constant<double>("SDT_inner_chamber_inner_wall_radius_max");
+    double inner_chamber_outer_wall_rmin = theDetector.constant<double>("SDT_inner_chamber_outer_wall_radius_min");
+    double inner_chamber_outer_wall_rmax = theDetector.constant<double>("SDT_inner_chamber_outer_wall_radius_max");
+    double outer_chamber_outer_wall_rmin = theDetector.constant<double>("SDT_outer_chamber_outer_wall_radius_min");
+    double outer_chamber_outer_wall_rmax = theDetector.constant<double>("SDT_outer_chamber_outer_wall_radius_max");
+    double outer_chamber_inner_wall_rmin = theDetector.constant<double>("SDT_outer_chamber_inner_wall_radius_min");
+    double outer_chamber_inner_wall_rmax = theDetector.constant<double>("SDT_outer_chamber_inner_wall_radius_max");
+
+    dd4hep::Material wall_mat(theDetector.material("CarbonFiber"));
+
+    double wall_rmin[4] = {inner_chamber_inner_wall_rmin,inner_chamber_outer_wall_rmin,outer_chamber_inner_wall_rmin,outer_chamber_outer_wall_rmin};
+    double wall_rmax[4] = {inner_chamber_inner_wall_rmax,inner_chamber_outer_wall_rmax,outer_chamber_inner_wall_rmax,outer_chamber_outer_wall_rmax};
+
    // - wire
     dd4hep::Volume module_vol;
-//    dd4hep::Volume Module_vol;
+    dd4hep::Volume Module_vol;
     for(xml_coll_t c(x_det,_U(module)); c; ++c) {
       xml_comp_t x_module = c;
       double  module_rmin = x_module.rmin();
@@ -103,29 +118,30 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
       dd4hep::Tube module_solid(module_rmin,module_rmax,chamber_length*0.5);
       if(x_module.id()==0) {
          module_vol = dd4hep::Volume(module_name,module_solid,det_mat);
-      }// else {
-//         Module_vol = dd4hep::Volume(module_name,module_solid,det_mat);
-//      }
+         module_vol.setVisAttributes(theDetector.visAttributes(x_module.visStr()));
+      } else {
+         Module_vol = dd4hep::Volume(module_name,module_solid,det_mat);
+         Module_vol.setVisAttributes(theDetector.visAttributes(x_module.visStr()));
+      }
 
-         for(xml_coll_t l(x_module,_U(tubs)); l; ++l) {
-            xml_comp_t x_tube =l;
-            double tube_rmin = x_tube.rmin();
-            double tube_rmax = x_tube.rmax();
-            std::string tube_name = x_tube.nameStr();
-            std::string wire_name= module_name + tube_name;
-            dd4hep::Material tube_mat = theDetector.material(x_tube.materialStr());
-            dd4hep::Tube wire_solid(tube_rmin,tube_rmax,chamber_length*0.5);
-            dd4hep::Volume wire_vol(wire_name,wire_solid,tube_mat);
-            dd4hep::Transform3D transform_wire(dd4hep::Rotation3D(),dd4hep::Position(0.,0.,0.));
-            dd4hep::PlacedVolume wire_phy;
-            if(x_module.id()==0) {
-               wire_phy = module_vol.placeVolume(wire_vol,transform_wire);
-            }// else {
-//               wire_phy = Module_vol.placeVolume(wire_vol,transform_wire);
-//            }
+      for(xml_coll_t l(x_module,_U(tubs)); l; ++l) {
+         xml_comp_t x_tube =l;
+         double tube_rmin = x_tube.rmin();
+         double tube_rmax = x_tube.rmax();
+         std::string tube_name = x_tube.nameStr();
+         std::string wire_name= module_name + tube_name;
+         dd4hep::Material tube_mat = theDetector.material(x_tube.materialStr());
+         dd4hep::Tube wire_solid(tube_rmin,tube_rmax,chamber_length*0.5);
+         dd4hep::Volume wire_vol(wire_name,wire_solid,tube_mat);
+         dd4hep::Transform3D transform_wire(dd4hep::Rotation3D(),dd4hep::Position(0.,0.,0.));
+         dd4hep::PlacedVolume wire_phy;
+         if(x_module.id()==0) {
+            wire_phy = module_vol.placeVolume(wire_vol,transform_wire);
+         } else {
+            wire_phy = Module_vol.placeVolume(wire_vol,transform_wire);
          }
+      }
   }
-
 
     //Initialize the segmentation
     dd4hep::Readout readout = sd.readout();
@@ -139,6 +155,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         double rmin,rmax,offset;
         std::string layer_name;
         dd4hep::Volume* current_vol_ptr = nullptr;
+        dd4hep::Material layer_mat(theDetector.material("GasHe_90Isob_10"));
         if( layer_id < inner_chamber_layer_number ) {
            current_vol_ptr = &det_inner_chamber_vol;
            rmin = inner_chamber_radius_min+(layer_id*chamber_layer_width);
@@ -167,17 +184,34 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         DCHseg->setWiresInLayer(layer_id, numWire);
 
         dd4hep::Tube layer_solid(rmin,rmax,chamber_length*0.5);
-        dd4hep::Volume layer_vol(layer_name,layer_solid,det_mat);
+        dd4hep::Volume layer_vol(layer_name,layer_solid,layer_mat);
         layer_vol.setAttributes(theDetector,x_det.regionStr(),x_det.limitsStr(),x_det.visStr());
 
         // - wire vol
-//     if(layer_id == 1) {
+        //phi <-------------------> -phi
+        //    |   F8    F7   F6   F5|  Only on the outermost layer.
+        //    |                     |
+        //    |         S         F4|
+        //    |                     |
+        //    |   F0    F1   F2   F3|
+        //    -----------------------
+//     if(layer_id == 1|| layer_id == 2 || layer_id ==3) {
         for(int icell=0; icell< numWire; icell++) {
             double wire_phi = (icell+0.5)*layer_Phi + offset;
+            // - signal wire
             dd4hep::Transform3D transform_module(dd4hep::Rotation3D(),dd4hep::Position(rmid*std::cos(wire_phi),rmid*std::sin(wire_phi),0.));
-//            dd4hep::Transform3D transform_Module(dd4hep::Rotation3D(),dd4hep::Position((rmid+chamber_layer_width*0.5)*std::cos(wire_phi),(rmid+chamber_layer_width*0.5)*std::sin(wire_phi),0.));
             dd4hep::PlacedVolume module_phy = layer_vol.placeVolume(module_vol,transform_module);
-//            dd4hep::PlacedVolume Module_phy = layer_vol.placeVolume(Module_vol,transform_Module);
+           // - Field wire
+            dd4hep::PlacedVolume Module_phy;
+            double radius[9] = {rmid-chamber_layer_width*0.5,rmid-chamber_layer_width*0.5,rmid-chamber_layer_width*0.5,rmid-chamber_layer_width*0.5,rmid,rmid+chamber_layer_width*0.5,rmid+chamber_layer_width*0.5,rmid+chamber_layer_width*0.5,rmid+chamber_layer_width*0.5};
+            double phi[9] = {wire_phi+layer_Phi*0.25,wire_phi,wire_phi-layer_Phi*0.25,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.25,wire_phi,wire_phi+layer_Phi*0.25};
+            int num = 5;
+            if(layer_id==66||layer_id==129) { num = 9; }
+            for(int i=0; i<num ; i++) {
+                dd4hep::Position tr3D = Position(radius[i]*std::cos(phi[i]),radius[i]*std::sin(phi[i]),0.);
+                dd4hep::Transform3D transform_Module(dd4hep::Rotation3D(),tr3D);
+                Module_phy = layer_vol.placeVolume(Module_vol,transform_Module);
+            }
         }
 //  }
 
@@ -212,7 +246,15 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     // - place in world
     dd4hep::Transform3D transform(dd4hep::Rotation3D(),
             dd4hep::Position(0,0,0));
-    dd4hep::PlacedVolume phv = envelope.placeVolume(det_vol,transform); 
+    dd4hep::PlacedVolume phv = envelope.placeVolume(det_vol,transform);
+    // - place wall
+//    dd4hep::PlacedVolume wall_phy;
+    for(int i=0; i<4; i++) {
+       dd4hep::Tube wall_solid(wall_rmin[i],wall_rmax[i],chamber_length*0.5);
+       dd4hep::Volume wall_vol(det_name+"_wall_vol",wall_solid,wall_mat);
+       wall_vol.setVisAttributes(theDetector,"VisibleGreen");
+       dd4hep::PlacedVolume wall_phy = envelope.placeVolume(wall_vol,transform);
+    }
 
     if ( x_det.hasAttr(_U(id)) )  {
         phv.addPhysVolID("system",x_det.id());
