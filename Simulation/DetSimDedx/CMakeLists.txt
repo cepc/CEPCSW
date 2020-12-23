@@ -5,9 +5,6 @@ find_package(DD4hep COMPONENTS DDG4 REQUIRED)
 find_package(EDM4HEP REQUIRED )
 include_directories(${EDM4HEP_INCLUDE_DIR})
 
-set(DetSimDedx_srcs
-)
-
 gaudi_add_module(DetSimDedx
                  SOURCES src/DummyDedxSimTool.cpp
                          src/BetheBlochEquationDedxSimTool.cpp
