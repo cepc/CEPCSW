@@ -24,3 +24,8 @@ gaudi_add_module(DCHDigi
                       DetSegmentation
                       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
 )
+install(TARGETS DCHDigi
+  EXPORT CEPCSWTargets
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
+  COMPONENT dev)
