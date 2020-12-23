@@ -76,3 +76,13 @@ gaudi_add_library(KiTrackLib
                        EDM4HEP::edm4hep
                        ${LCIO_LIBRARIES}
 )
+
+target_include_directories(KiTrackLib PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+install(TARGETS KiTrackLib
+  EXPORT CEPCSWTargets
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
+  COMPONENT dev)
