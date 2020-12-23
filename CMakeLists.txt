@@ -30,7 +30,7 @@ add_subdirectory(Examples)
 add_subdirectory(Generator)
 # add_subdirectory(Reconstruction)
 add_subdirectory(Simulation)
-# add_subdirectory(Utilities)
+add_subdirectory(Utilities)
 
 ##############################################################################
 # INSTALL
