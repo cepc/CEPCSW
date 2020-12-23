@@ -14,12 +14,8 @@ find_package(ROOT COMPONENTS MathCore GenVector Geom REQUIRED)
 
 # install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/compact DESTINATION Detector/DetDriftChamber)
 
-set(DetDriftChamber_src
-    src/driftchamber/DriftChamber.cpp
-)
-
 gaudi_add_module(DetDriftChamber
-                 SOURCES ${DetDriftChamber_src}
+                 SOURCES src/driftchamber/DriftChamber.cpp
 		 LINK DetSegmentation
                       ${DD4hep_COMPONENT_LIBRARIES} 
                   # ROOT Geant4

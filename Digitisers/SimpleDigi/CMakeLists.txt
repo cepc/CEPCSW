@@ -6,13 +6,11 @@ find_package(LCIO REQUIRED )
 find_package(k4FWCore REQUIRED)
 find_package(EDM4HEP REQUIRED)
 
-set(SimpleDigi_srcs src/PlanarDigiAlg.cpp
-                    src/TPCDigiAlg.cpp
-                    src/voxel.cpp)
-
 # Modules
 gaudi_add_module(SimpleDigi 
-                 SOURCES ${SimpleDigi_srcs}
+                 SOURCES src/PlanarDigiAlg.cpp
+                         src/TPCDigiAlg.cpp
+                         src/voxel.cpp
                  LINK GearSvc
                       EventSeeder
                       TrackSystemSvcLib

@@ -15,13 +15,8 @@ find_package(ROOT COMPONENTS MathCore GenVector Geom REQUIRED)
 
 # TODO: how to handle 
 # install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/compact DESTINATION Detector/DetEcalMatrix)
-
-set(DetEcalMatrix_src
-    src/calorimeter/EcalMatrix.cpp
-)
-
 gaudi_add_module(DetEcalMatrix
-                 SOURCES ${DetEcalMatrix_src}
+                 SOURCES src/calorimeter/EcalMatrix.cpp
 		 LINK ${DD4hep_COMPONENT_LIBRARIES} 
                       # ROOT Geant4
 )

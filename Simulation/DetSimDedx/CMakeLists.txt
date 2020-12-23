@@ -6,13 +6,13 @@ find_package(EDM4HEP REQUIRED )
 include_directories(${EDM4HEP_INCLUDE_DIR})
 
 set(DetSimDedx_srcs
-    src/DummyDedxSimTool.cpp
-    src/BetheBlochEquationDedxSimTool.cpp
-    src/GFDndxSimTool.cpp
 )
 
 gaudi_add_module(DetSimDedx
-                 SOURCES ${DetSimDedx_srcs}
+                 SOURCES src/DummyDedxSimTool.cpp
+                         src/BetheBlochEquationDedxSimTool.cpp
+                         src/GFDndxSimTool.cpp
+
                  LINK DetSimInterface
                       ${DD4hep_COMPONENT_LIBRARIES}
                       Gaudi::GaudiKernel

@@ -6,12 +6,9 @@ find_package(DD4hep COMPONENTS DDG4 REQUIRED)
 # For EDM & I/O
 find_package(EDM4HEP REQUIRED)
 
-set(DetSimAna_srcs
-    src/Edm4hepWriterAnaElemTool.cpp
-)
 
 gaudi_add_module(DetSimAna
-                 SOURCES ${DetSimAna_srcs}
+                 SOURCES src/Edm4hepWriterAnaElemTool.cpp
                  LINK DetSimInterface
                       ${DD4hep_COMPONENT_LIBRARIES} 
                       Gaudi::GaudiKernel

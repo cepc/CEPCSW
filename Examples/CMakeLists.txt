@@ -5,21 +5,17 @@ find_package(EDM4HEP REQUIRED)
 find_package(k4FWCore REQUIRED)
 find_package(DD4hep COMPONENTS DDRec DDParsers REQUIRED)
 
-set(Examples_srcs
-    src/HelloWorld/HelloAlg.cpp
-    src/FirstSvc/FirstSvc.cpp
-    src/SecondAlg/SecondAlg.cpp
-    src/Edm4hepTest/Edm4hepReadAlg.cpp
-    src/Edm4hepTest/Edm4hepReadDCAlg.cpp
-    src/Edm4hepTest/Edm4hepWriteAlg.cpp
-    src/DumpIDAlg/DumpIDAlg.cpp
-)
-
 # Headers and Libraries
 
 # Modules
 gaudi_add_module(Examples
-                 SOURCES ${Examples_srcs}
+                 SOURCES src/HelloWorld/HelloAlg.cpp
+                         src/FirstSvc/FirstSvc.cpp
+                         src/SecondAlg/SecondAlg.cpp
+                         src/Edm4hepTest/Edm4hepReadAlg.cpp
+                         src/Edm4hepTest/Edm4hepReadDCAlg.cpp
+                         src/Edm4hepTest/Edm4hepWriteAlg.cpp
+                         src/DumpIDAlg/DumpIDAlg.cpp
                  LINK DetInterface
                       k4FWCore::k4FWCore
                       Gaudi::GaudiAlgLib Gaudi::GaudiKernel

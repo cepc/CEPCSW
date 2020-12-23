@@ -6,13 +6,9 @@ find_package(EDM4HEP REQUIRED )
 
 find_package(ROOT COMPONENTS MathCore Physics GenVector Geom REQUIRED)
 
-set(DCHDigi_srcs
-    src/DCHDigiAlg.cpp
-)
-
 ## Modules
 gaudi_add_module(DCHDigi
-                 SOURCES ${DCHDigi_srcs}
+                 SOURCES src/DCHDigiAlg.cpp
                  LINK DetInterface
                       DetSegmentation
                       k4FWCore::k4FWCore 

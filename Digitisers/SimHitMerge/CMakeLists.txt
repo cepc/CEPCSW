@@ -3,11 +3,9 @@ find_package(DD4hep COMPONENTS DDG4 REQUIRED)
 find_package(EDM4HEP REQUIRED)
 find_package(k4FWCore REQUIRED)
 
-set(SimHitMergeAlg_srcs src/SimHitMergeAlg.cpp)
-
 # Modules
 gaudi_add_module(SimHitMerge
-                 SOURCES ${SimHitMergeAlg_srcs}
+                 SOURCES src/SimHitMergeAlg.cpp
                  LINK DetInterface
                       k4FWCore::k4FWCore
                       Gaudi::GaudiKernel

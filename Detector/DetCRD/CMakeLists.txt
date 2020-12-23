@@ -15,13 +15,9 @@ find_package(ROOT COMPONENTS MathCore GenVector Geom REQUIRED)
 
 # install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/compact DESTINATION Detector/DetCRD)
 
-set(DetCRD_src
-    src/Calorimeter/CRDEcal.cpp
-    src/Other/CRDBeamPipe_v01_geo.cpp
-)
-
 gaudi_add_module(DetCRD
-                 SOURCES ${DetCRD_src}
+                 SOURCES src/Calorimeter/CRDEcal.cpp
+                         src/Other/CRDBeamPipe_v01_geo.cpp
 		 LINK ${DD4hep_COMPONENT_LIBRARIES}
 )
 

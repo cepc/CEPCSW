@@ -9,25 +9,16 @@ find_package(EDM4HEP REQUIRED)
 #find_package(KalDet REQUIRED)
 find_package(DD4hep COMPONENTS DDCore DDRec REQUIRED)
 
-set(TrackSystemSvc_srcs src/TrackSystemSvc.cpp)
-set(TrackSystemSvcLib_srcs 
-      src/HelixFit.cc
-      src/HelixTrack.cc
-      src/IMarlinTrack.cc
-      src/IMarlinTrkSystem.cc
-      src/LCIOTrackPropagators.cc
-      src/MarlinKalTest.cc
-      src/MarlinKalTestTrack.cc
-      src/MarlinTrkUtils.cc
-)
-
-# gaudi_install_headers(TrackSystemSvc)
-
-#message( "${INCLUDE_DIRS}" )
-#message( "${LINK_LIBRARIES}" )
-
 gaudi_add_library(TrackSystemSvcLib
-                  SOURCES ${TrackSystemSvcLib_srcs}
+                  SOURCES src/HelixFit.cc
+                          src/HelixTrack.cc
+                          src/IMarlinTrack.cc
+                          src/IMarlinTrkSystem.cc
+                          src/LCIOTrackPropagators.cc
+                          src/MarlinKalTest.cc
+                          src/MarlinKalTestTrack.cc
+                          src/MarlinTrkUtils.cc
+
                   LINK DataHelperLib 
                        KalTestLib 
                        KalDetLib 
@@ -41,7 +32,7 @@ gaudi_add_library(TrackSystemSvcLib
 )
 
 gaudi_add_module(TrackSystemSvc 
-                 SOURCES ${TrackSystemSvc_srcs}
+                 SOURCES src/TrackSystemSvc.cpp
 		 LINK TrackSystemSvcLib 
                       Gaudi::GaudiKernel
                       ${GEAR_LIBRARIES}

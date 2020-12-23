@@ -5,10 +5,8 @@ find_package(GSL REQUIRED )
 find_package(LCIO REQUIRED ) 
 find_package(k4FWCore REQUIRED)
 
-set(TotalInvMass_srcs src/TotalInvMass.cc)
-
 gaudi_add_module(TotalInvMass
-                 SOURCES ${TotalInvMass_srcs}
+                 SOURCES src/TotalInvMass.cc
                  LINK k4FWCore::k4FWCore 
                       Gaudi::GaudiKernel 
                       Gaudi::GaudiAlgLib 

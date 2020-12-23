@@ -3,13 +3,9 @@ find_package(Geant4 REQUIRED ui_all vis_all)
 include(${Geant4_USE_FILE})
 find_package(DD4hep COMPONENTS DDG4 REQUIRED)
 
-set(DetSimGeom_srcs
-    src/WorldDetElemTool.cpp
-    src/AnExampleDetElemTool.cpp
-)
-
 gaudi_add_module(DetSimGeom 
-                 SOURCES ${DetSimGeom_srcs}
+                 SOURCES src/WorldDetElemTool.cpp
+                         src/AnExampleDetElemTool.cpp
                  LINK DetSimInterface
                       DetInterface
                       ${DD4hep_COMPONENT_LIBRARIES} 

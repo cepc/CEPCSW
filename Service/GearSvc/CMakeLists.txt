@@ -1,5 +1,6 @@
 
 find_package(GEAR REQUIRED)
+
 find_package(DD4hep COMPONENTS DDCore DDRec REQUIRED)
 
 gaudi_add_header_only_library(GearSvc)

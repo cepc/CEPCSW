@@ -3,13 +3,9 @@ find_package(k4FWCore)
 find_package(EDM4HEP REQUIRED ) 
 find_package(DD4hep COMPONENTS DDCore DDRec REQUIRED)
 
-set(srcs
-    src/RecDCHDedxAlg.cpp
-)
-
 # Modules
 gaudi_add_module(DCHDedx
-                 SOURCES ${srcs}
+                 SOURCES src/RecDCHDedxAlg.cpp
                  LINK DetSimInterface
                       DetInterface
                       DetSegmentation
