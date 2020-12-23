@@ -55,6 +55,11 @@ gaudi_add_library(KalTestLib
 		  LINK Gaudi::GaudiKernel
                        ${ROOT_LIBRARIES}
 )
+
+target_include_directories(KalTestLib PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
 install(TARGETS KalTestLib
   EXPORT CEPCSWTargets
   RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
