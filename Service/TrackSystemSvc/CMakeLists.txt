@@ -9,10 +9,17 @@ find_package(EDM4HEP REQUIRED)
 #find_package(KalDet REQUIRED)
 find_package(DD4hep COMPONENTS DDCore DDRec REQUIRED)
 
-# gaudi_depends_on_subdirs(Service/GearSvc Detector/DetInterface Utilities/DataHelper Utilities/KalTest Utilities/KalDet)
-
-set(TrackSystemSvc_srcs src/*.cpp)
-set(TrackSystemSvcLib_srcs src/*.cc)
+set(TrackSystemSvc_srcs src/TrackSystemSvc.cpp)
+set(TrackSystemSvcLib_srcs 
+      src/HelixFit.cc
+      src/HelixTrack.cc
+      src/IMarlinTrack.cc
+      src/IMarlinTrkSystem.cc
+      src/LCIOTrackPropagators.cc
+      src/MarlinKalTest.cc
+      src/MarlinKalTestTrack.cc
+      src/MarlinTrkUtils.cc
+)
 
 # gaudi_install_headers(TrackSystemSvc)
 
@@ -24,6 +31,7 @@ gaudi_add_library(TrackSystemSvcLib
                   LINK DataHelperLib 
                        KalTestLib 
                        KalDetLib 
+                       GearSvc
                        Gaudi::GaudiKernel 
                        ${ROOT_LIBRARIES}
                        ${CLHEP_LIBRARIES} 
@@ -38,3 +46,10 @@ gaudi_add_module(TrackSystemSvc
                       Gaudi::GaudiKernel
                       ${GEAR_LIBRARIES}
 )
+
+install(TARGETS TrackSystemSvcLib TrackSystemSvc
+  EXPORT CEPCSWTargets
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
+  COMPONENT dev)
+
