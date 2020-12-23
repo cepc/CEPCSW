@@ -21,7 +21,7 @@ jobs:
     runs-on: self-hosted
     strategy:
       matrix:
-        LCG_RELEASE: [LCG_97, KEY4HEP_STACK]
+        LCG_RELEASE: [LCG_98, KEY4HEP_STACK]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -43,4 +43,4 @@ jobs:
           pwd
           bash ./.build.ci.sh
         env:
-          LCG_RELEASE: ${{strategy.LCG_RELEASE}}
+          LCG_RELEASE: ${{matrix.LCG_RELEASE}}
