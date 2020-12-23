@@ -29,10 +29,14 @@
     <constant name="SDT_chamber_layer_width" value="10*mm"/>
     <constant name="Epsilon" value="0*deg"/>
 
-    <constant name="SDT_inner_wall_radius_min" value="234.8*mm"/>
-    <constant name="SDT_inner_wall_radius_max" value="235*mm"/>
-    <constant name="SDT_outer_wall_radius_min" value="1715*mm"/>
-    <constant name="SDT_outer_wall_radius_max" value="1717.8*mm"/>
+    <constant name="SDT_inner_chamber_inner_wall_radius_min" value="234.8*mm"/>
+    <constant name="SDT_inner_chamber_inner_wall_radius_max" value="235*mm"/>
+    <constant name="SDT_inner_chamber_outer_wall_radius_min" value="906*mm"/>
+    <constant name="SDT_inner_chamber_outer_wall_radius_max" value="908.8*mm"/>
+    <constant name="SDT_outer_chamber_inner_wall_radius_min" value="1084.8*mm"/>
+    <constant name="SDT_outer_chamber_inner_wall_radius_max" value="1085*mm"/>
+    <constant name="SDT_outer_chamber_outer_wall_radius_min" value="1715*mm"/>
+    <constant name="SDT_outer_chamber_outer_wall_radius_max" value="1717.8*mm"/>
 
   </define>
 
@@ -40,8 +44,8 @@
     <detector id="DetID_DC" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="BlueVis" sensitive="true" insideTrackingVolume="true">
       <envelope vis="SeeThrough">
         <shape type="BooleanShape" operation="Union" material="Air">
-	  <shape type="Tube" rmin="SDT_radius_min" rmax="SDT_inner_chamber_radius_max" dz="SDT_half_length" />
-          <shape type="Tube" rmin="SDT_outer_chamber_radius_min" rmax="SDT_radius_max" dz="SDT_half_length" />
+	  <shape type="Tube" rmin="SDT_radius_min" rmax="909*mm" dz="SDT_half_length" />
+          <shape type="Tube" rmin="1084.8*mm" rmax="SDT_radius_max" dz="SDT_half_length" />
         </shape>
       </envelope>
 

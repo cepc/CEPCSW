@@ -84,7 +84,7 @@
     <constant name="MainTracker_half_length"  value="2225*mm" />
     <constant name="InnerTracker_half_length"  value="MainTracker_half_length" />
     <constant name="InnerTracker_inner_radius" value="234*mm"/>
-    <constant name="InnerTracker_outer_radius" value="909*mm"/>
+    <constant name="InnerTracker_outer_radius" value="906*mm"/>
     <constant name="OuterTracker_half_length"  value="MainTracker_half_length"/>
     <constant name="OuterTracker_inner_radius" value="1085*mm"/>
     <constant name="OuterTracker_outer_radius" value="1720*mm"/>
