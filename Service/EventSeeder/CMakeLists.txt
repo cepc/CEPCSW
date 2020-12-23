@@ -1,14 +1,12 @@
-gaudi_subdir(EventSeeder v0r0)
-
-#find_package(GEAR REQUIRED)
 
 set(EventSeeder_srcs
-    src/*.cpp
+    src/MarlinEvtSeeder.cpp
 )
 
-gaudi_install_headers(EventSeeder)
+gaudi_add_header_only_library(EventSeeder)
 
-gaudi_add_module(EventSeeder ${EventSeeder_srcs}
-    INCLUDE_DIRS GaudiKernel
-    LINK_LIBRARIES GaudiKernel
+gaudi_add_module(EventSeederPlugins
+                 SOURCES ${EventSeeder_srcs}
+                 LINK EventSeeder
+                      Gaudi::GaudiKernel
 )
