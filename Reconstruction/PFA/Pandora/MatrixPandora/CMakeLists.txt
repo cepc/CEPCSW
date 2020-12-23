@@ -1,45 +1,47 @@
-gaudi_subdir(MatrixPandora v0r0)
 
 find_package(DD4hep COMPONENTS DDG4 REQUIRED)
 find_package(CLHEP REQUIRED;CONFIG)
 find_package(LCIO REQUIRED ) 
 find_package(GEAR REQUIRED)
 find_package(EDM4HEP REQUIRED ) 
-include_directories(${EDM4HEP_INCLUDE_DIR})
+find_package(k4FWCore REQUIRED ) 
 
 find_package(PandoraSDK REQUIRED ) 
 find_package(LCContent REQUIRED ) 
-include_directories(${PandoraSDK_INCLUDE_DIRS})
-link_libraries(${PandoraSDK_LIBRARIES})
-include_directories(${LCContent_INCLUDE_DIRS})
-link_libraries(${LCContent_LIBRARIES})
 
+find_package(ROOT REQUIRED COMPONENTS Eve Geom RGL EG)
 
-list(APPEND CMAKE_MODULE_PATH "$ENV{ROOTSYS}/etc/cmake/")
-find_package(ROOT 5.26.00 REQUIRED COMPONENTS Eve Geom RGL EG)
-
-
-gaudi_depends_on_subdirs(
-    Service/EventSeeder
-    Service/GearSvc
-    Detector/DetInterface
-    Utilities/DataHelper
-)
-
-set(dir_srcs
-    src/PandoraMatrixAlg.cpp
-    src/MCParticleCreator.cpp
-    src/GeometryCreator.cpp
-    src/CaloHitCreator.cpp
-    src/TrackCreator.cpp
-    src/PfoCreator.cpp
-)
-set(dir_include include)
 # Modules
-gaudi_add_module(MatrixPandora ${dir_srcs}
-    INCLUDE_DIRS ${dir_include} GaudiKernel k4FWCore ${CLHEP_INCLUDE_DIR}  ${LCIO_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} gear DD4hep  
-    LINK_LIBRARIES GaudiKernel k4FWCore ${CLHEP_LIBRARIES} ROOT ${LCIO_LIBRARIES} ${GEAR_LIBRARIES} DD4hep ${DD4hep_COMPONENT_LIBRARIES} DDRec DataHelperLib
-      -Wl,--no-as-needed 
-      EDM4HEP::edm4hep EDM4HEP::edm4hepDict
-      -Wl,--as-needed 
+gaudi_add_module(MatrixPandora
+                 SOURCES src/PandoraMatrixAlg.cpp
+                         src/MCParticleCreator.cpp
+                         src/GeometryCreator.cpp
+                         src/CaloHitCreator.cpp
+                         src/TrackCreator.cpp
+                         src/PfoCreator.cpp
+                 LINK EventSeeder
+                      GearSvc 
+                      DetInterface
+                      DataHelperLib
+                      Gaudi::GaudiKernel
+                      k4FWCore::k4FWCore
+                      ${PandoraSDK_LIBRARIES}
+                      ${LCContent_LIBRARIES}
+                      ${CLHEP_LIBRARIES}
+                      ${ROOT_LIBRARIES}
+                      ${LCIO_LIBRARIES} 
+                      ${GEAR_LIBRARIES} 
+                      ${DD4hep_COMPONENT_LIBRARIES}
+                      EDM4HEP::edm4hep EDM4HEP::edm4hepDict
 )
+
+target_include_directories(MatrixPandora PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+install(TARGETS MatrixPandora
+  EXPORT CEPCSWTargets
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
+  COMPONENT dev)
+

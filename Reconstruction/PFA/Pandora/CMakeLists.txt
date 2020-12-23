@@ -1,3 +1,3 @@
 
 add_subdirectory(GaudiPandora)
-# add_subdirectory(MatrixPandora)
+add_subdirectory(MatrixPandora)
