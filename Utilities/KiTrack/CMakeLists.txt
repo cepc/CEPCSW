@@ -1,4 +1,3 @@
-gaudi_subdir(KiTrack v0r0)
 
 find_package(CLHEP REQUIRED;CONFIG)
 find_package(ROOT REQUIRED)
@@ -8,15 +7,72 @@ find_package(EDM4HEP REQUIRED)
 find_package(LCIO REQUIRED)
 find_package(DD4hep COMPONENTS DDCore DDRec REQUIRED)
 
-gaudi_depends_on_subdirs(Service/TrackSystemSvc Utilities/DataHelper)
+# gaudi_depends_on_subdirs(Service/TrackSystemSvc Utilities/DataHelper)
 
-set(KiTrackLib_srcs src/KiTrack/*.cc src/Criteria/*.cc src/ILDImpl/*.cc src/Tools/*.cc)
+set(KiTrackLib_srcs 
+    src/KiTrack/Automaton.cc 
+    src/KiTrack/HopfieldNeuralNet.cc 
+    src/KiTrack/IHit.cc 
+    src/KiTrack/SegmentBuilder.cc 
+    src/KiTrack/Segment.cc 
 
-#gaudi_install_headers(src)
-include_directories(src)
+    src/Criteria/Crit2_DeltaPhi.cc
+    src/Criteria/Crit2_DeltaPhi_MV.cc
+    src/Criteria/Crit2_DeltaRho.cc
+    src/Criteria/Crit2_DeltaTheta_MV.cc
+    src/Criteria/Crit2_Distance_MV.cc
+    src/Criteria/Crit2_HelixWithIP.cc
+    src/Criteria/Crit2_RZRatio.cc
+    src/Criteria/Crit2_StraightTrackRatio.cc
+    src/Criteria/Crit3_2DAngle.cc
+    src/Criteria/Crit3_2DAngleTimesR.cc
+    src/Criteria/Crit3_3DAngle.cc
+    src/Criteria/Crit3_3DAngleTimesR.cc
+    src/Criteria/Crit3_ChangeRZRatio.cc
+    src/Criteria/Crit3_IPCircleDist.cc
+    src/Criteria/Crit3_IPCircleDistTimesR.cc
+    src/Criteria/Crit3_NoZigZag_MV.cc
+    src/Criteria/Crit3_PT.cc
+    src/Criteria/Crit3_PT_MV.cc
+    src/Criteria/Crit4_2DAngleChange.cc
+    src/Criteria/Crit4_3DAngleChange.cc
+    src/Criteria/Crit4_3DAngleChangeNormed.cc
+    src/Criteria/Crit4_DistOfCircleCenters.cc
+    src/Criteria/Crit4_DistToExtrapolation.cc
+    src/Criteria/Crit4_NoZigZag.cc
+    src/Criteria/Crit4_PhiZRatioChange.cc
+    src/Criteria/Crit4_RChange.cc
+    src/Criteria/Criteria.cc
+    src/Criteria/SimpleCircle.cc
 
-gaudi_add_library(KiTrackLib ${KiTrackLib_srcs}
-    PUBLIC_HEADERS KiTrack 
-    LINK_LIBRARIES DataHelperLib TrackSystemSvcLib ROOT ${CLHEP_LIBRARIES} GSL EDM4HEP::edm4hep LCIO
-    #              DD4hep
+
+    src/ILDImpl/FTDHit01.cc
+    src/ILDImpl/FTDHitSimple.cc
+    src/ILDImpl/FTDNeighborPetalSecCon.cc
+    src/ILDImpl/FTDSectorConnector.cc
+    src/ILDImpl/FTDTrack.cc
+    src/ILDImpl/MiniVector.cc
+    src/ILDImpl/MiniVectorHit01.cc
+    src/ILDImpl/SectorSystemFTD.cc
+    src/ILDImpl/SectorSystemVXD.cc
+    src/ILDImpl/VXDHit01.cc
+    src/ILDImpl/VXDHitSimple.cc
+    src/ILDImpl/VXDSectorConnector.cc
+    src/ILDImpl/VXDTrack.cc
+
+    src/Tools/Fitter.cc
+    src/Tools/FTDHelixFitter.cc
+    src/Tools/KiTrackMarlinTools.cc
+    src/Tools/Timer.cc
+)
+
+gaudi_add_library(KiTrackLib 
+                  SOURCES ${KiTrackLib_srcs}
+                  LINK DataHelperLib 
+                       TrackSystemSvcLib 
+                       ${ROOT_LIBRARIES}
+                       ${CLHEP_LIBRARIES}
+                       ${GSL_LIBRARIES}
+                       EDM4HEP::edm4hep
+                       ${LCIO_LIBRARIES}
 )

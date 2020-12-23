@@ -1,4 +1,4 @@
-gaudi_subdir(TrackSystemSvc v0r0)
+# gaudi_subdir(TrackSystemSvc v0r0)
 
 find_package(CLHEP REQUIRED;CONFIG)
 find_package(ROOT 6.14 REQUIRED COMPONENTS Matrix Physics)
@@ -9,26 +9,32 @@ find_package(EDM4HEP REQUIRED)
 #find_package(KalDet REQUIRED)
 find_package(DD4hep COMPONENTS DDCore DDRec REQUIRED)
 
-gaudi_depends_on_subdirs(Service/GearSvc Detector/DetInterface Utilities/DataHelper Utilities/KalTest Utilities/KalDet)
+# gaudi_depends_on_subdirs(Service/GearSvc Detector/DetInterface Utilities/DataHelper Utilities/KalTest Utilities/KalDet)
 
 set(TrackSystemSvc_srcs src/*.cpp)
 set(TrackSystemSvcLib_srcs src/*.cc)
 
-gaudi_install_headers(TrackSystemSvc)
+# gaudi_install_headers(TrackSystemSvc)
 
 #message( "${INCLUDE_DIRS}" )
 #message( "${LINK_LIBRARIES}" )
 
-gaudi_add_library(TrackSystemSvcLib ${TrackSystemSvcLib_srcs}
-    PUBLIC_HEADERS TrackSystemSvc
-    INCLUDE_DIRS GaudiKernel ROOT ${CLHEP_INCLUDE_DIR} gear ${LCIO_INCLUDE_DIRS} ${EDM4HEP_INCLUDE_DIRS}
-    LINK_LIBRARIES DataHelperLib KalTestLib KalDetLib GaudiKernel ROOT ${CLHEP_LIBRARIES} ${GEAR_LIBRARIES} ${LCIO_LIBRARIES}
-     -Wl,--no-as-needed
-     EDM4HEP::edm4hep EDM4HEP::edm4hepDict
-     -Wl,--as-needed
+gaudi_add_library(TrackSystemSvcLib
+                  SOURCES ${TrackSystemSvcLib_srcs}
+                  LINK DataHelperLib 
+                       KalTestLib 
+                       KalDetLib 
+                       Gaudi::GaudiKernel 
+                       ${ROOT_LIBRARIES}
+                       ${CLHEP_LIBRARIES} 
+                       ${GEAR_LIBRARIES}
+                       ${LCIO_LIBRARIES}
+                       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
 )
 
-gaudi_add_module(TrackSystemSvc ${TrackSystemSvc_srcs}
-				INCLUDE_DIRS GaudiKernel gear 
-				LINK_LIBRARIES TrackSystemSvcLib GaudiKernel ${GEAR_LIBRARIES}
+gaudi_add_module(TrackSystemSvc 
+                 SOURCES ${TrackSystemSvc_srcs}
+		 LINK TrackSystemSvcLib 
+                      Gaudi::GaudiKernel
+                      ${GEAR_LIBRARIES}
 )
