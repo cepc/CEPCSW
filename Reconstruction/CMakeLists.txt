@@ -1,5 +1,5 @@
 add_subdirectory(DCHDedx)
 add_subdirectory(Digi_Calo)
 # add_subdirectory(PFA)
-# add_subdirectory(SiliconTracking)
+add_subdirectory(SiliconTracking)
 # add_subdirectory(Tracking)
