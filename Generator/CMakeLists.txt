@@ -32,6 +32,7 @@ gaudi_add_module(GenAlgo
                       ${CLHEP_LIBRARIES}
                       ${LCIO_LIBRARIES}
                       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
+                      ROOT::EG
 )
 
 install(TARGETS GenAlgo
