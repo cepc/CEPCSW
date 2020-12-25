@@ -3,8 +3,6 @@
 #    Desc: import from ILCSoft
 ##############################################################################
 
-find_package(ROOT REQUIRED COMPONENTS MathCore)
-
 set( DICT_CINT_DEFINITIONS "HANDLE_DICT_EXCEPTIONS=IGNORED_FOR_CINT" )
 set( DICT_INPUT_DIRS geomlib kallib kaltracklib utils )
 set( DICT_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/rootdict )

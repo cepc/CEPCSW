@@ -1,10 +1,6 @@
 
 find_package(Geant4 REQUIRED ui_all vis_all)
 include(${Geant4_USE_FILE})
-find_package(DD4hep COMPONENTS DDG4 REQUIRED)
-
-set(DetSimSD_srcs
-)
 
 gaudi_add_module(DetSimSD 
                  SOURCES src/CalorimeterSensDetTool.cpp

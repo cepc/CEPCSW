@@ -1,10 +1,3 @@
-
-find_package(podio REQUIRED)
-find_package(LCIO REQUIRED)
-find_package(EDM4HEP REQUIRED)
-find_package(k4FWCore REQUIRED)
-find_package(DD4hep COMPONENTS DDRec DDParsers REQUIRED)
-
 # Headers and Libraries
 
 # Modules

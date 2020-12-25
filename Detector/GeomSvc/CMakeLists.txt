@@ -4,10 +4,6 @@
 #    Desc: implement the IGeomSvc interface.
 ##############################################################################
 
-find_package(ROOT COMPONENTS MathCore GenVector Geom Tree)
-find_package(DD4hep COMPONENTS DDG4 DDRec REQUIRED)
-find_package(GEAR REQUIRED)
-
 gaudi_add_module(GeomSvc
                  SOURCES src/GeomSvc.cpp
                  LINK

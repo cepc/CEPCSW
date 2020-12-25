@@ -1,11 +1,4 @@
 
-find_package(GEAR REQUIRED)
-find_package(GSL REQUIRED ) 
-find_package(LCIO REQUIRED )
-find_package(EDM4HEP REQUIRED ) 
-find_package(DD4hep COMPONENTS DDCore DDRec REQUIRED)
-find_package(k4FWCore)
-
 # Modules
 gaudi_add_module(SiliconTracking
                  SOURCES src/ForwardTrackingAlg.cpp

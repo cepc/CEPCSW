@@ -7,8 +7,6 @@ set(CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}  ${DD4hep_ROOT}/cmake )
 
 include(DD4hep)
 
-find_package(ROOT COMPONENTS MathCore Physics GenVector Geom REQUIRED)
-
 gaudi_add_library(DetSegmentation
                   SOURCES src/GridDriftChamber.cpp
                   LINK Gaudi::GaudiKernel

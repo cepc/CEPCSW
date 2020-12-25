@@ -1,11 +1,3 @@
-
-find_package(CLHEP REQUIRED;CONFIG)
-find_package(GEAR REQUIRED)
-find_package(GSL REQUIRED ) 
-find_package(LCIO REQUIRED ) 
-find_package(k4FWCore REQUIRED)
-find_package(EDM4HEP REQUIRED)
-
 # Modules
 gaudi_add_module(SimpleDigi 
                  SOURCES src/PlanarDigiAlg.cpp

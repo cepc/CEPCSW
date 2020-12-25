@@ -1,11 +1,3 @@
-
-find_package(k4FWCore)
-find_package(CLHEP REQUIRED;CONFIG)
-find_package(DD4hep COMPONENTS DDG4 REQUIRED)
-find_package(EDM4HEP REQUIRED )
-
-find_package(ROOT COMPONENTS MathCore Physics GenVector Geom REQUIRED)
-
 ## Modules
 gaudi_add_module(DCHDigi
                  SOURCES src/DCHDigiAlg.cpp

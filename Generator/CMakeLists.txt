@@ -3,14 +3,6 @@
 find_package(Geant4 REQUIRED)
 include(${Geant4_USE_FILE})
 
-find_package(ROOT COMPONENTS RIO Tree TreePlayer MathCore Net Graf3d Graf Gpad EG REQUIRED)
-find_package(LCIO)
-find_package(podio)
-find_package(EDM4HEP)
-find_package(HepMC)
-find_package(CLHEP REQUIRED;CONFIG)
-find_package(k4FWCore REQUIRED)
-
 gaudi_add_module(GenAlgo
                  SOURCES src/IGenTool.cpp 
                          src/GenAlgo.cpp 

@@ -1,12 +1,4 @@
 
-find_package(CLHEP REQUIRED;CONFIG)
-find_package(EDM4HEP REQUIRED)
-find_package(GSL REQUIRED )
-message("GSL: ${GSL_LIBRARIES} ")
-message("GSL INCLUDE_DIRS: ${GSL_INCLUDE_DIRS} ")
-
-#gaudi_install_headers(DataHelper)
-
 gaudi_add_library(DataHelperLib 
                   SOURCES src/CaloHitExtended.cc
                           src/Circle.cc

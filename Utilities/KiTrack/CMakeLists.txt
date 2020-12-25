@@ -1,12 +1,4 @@
 
-find_package(CLHEP REQUIRED;CONFIG)
-find_package(ROOT REQUIRED)
-#find_package(DD4hep REQUIRED)
-find_package(GSL REQUIRED)
-find_package(EDM4HEP REQUIRED)
-find_package(LCIO REQUIRED)
-find_package(DD4hep COMPONENTS DDCore DDRec REQUIRED)
-
 gaudi_add_library(KiTrackLib 
                   SOURCES src/KiTrack/Automaton.cc 
                           src/KiTrack/HopfieldNeuralNet.cc 

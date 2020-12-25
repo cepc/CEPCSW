@@ -1,17 +1,4 @@
 
-find_package(LCIO REQUIRED ) 
-find_package(DD4hep COMPONENTS DDG4 REQUIRED)
-find_package(GEAR REQUIRED)
-find_package(CLHEP REQUIRED;CONFIG)
-
-find_package(EDM4HEP REQUIRED )
-find_package(k4FWCore REQUIRED )
-
-find_package(PandoraSDK REQUIRED ) 
-find_package(LCContent REQUIRED ) 
-
-find_package(ROOT COMPONENTS MathCore Physics GenVector Geom REQUIRED)
-
 # Modules
 gaudi_add_module(GaudiPandora
                  SOURCES src/PandoraPFAlg.cpp

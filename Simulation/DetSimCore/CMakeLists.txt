@@ -2,8 +2,6 @@
 find_package(Geant4 REQUIRED ui_all vis_all)
 include(${Geant4_USE_FILE})
 
-find_package(EDM4HEP REQUIRED)
-find_package(DD4hep COMPONENTS DDG4 REQUIRED)
 
 message(" Geant4_LIBRARIES: ${Geant4_LIBRARIES}")
 

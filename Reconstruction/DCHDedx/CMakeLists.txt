@@ -1,8 +1,4 @@
 
-find_package(k4FWCore)
-find_package(EDM4HEP REQUIRED ) 
-find_package(DD4hep COMPONENTS DDCore DDRec REQUIRED)
-
 # Modules
 gaudi_add_module(DCHDedx
                  SOURCES src/RecDCHDedxAlg.cpp

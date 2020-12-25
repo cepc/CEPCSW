@@ -1,10 +1,4 @@
 
-find_package(CLHEP REQUIRED;CONFIG)
-find_package(EDM4HEP REQUIRED)
-find_package(GSL REQUIRED ) 
-find_package(LCIO REQUIRED ) 
-find_package(k4FWCore REQUIRED)
-
 gaudi_add_module(TotalInvMass
                  SOURCES src/TotalInvMass.cc
                  LINK k4FWCore::k4FWCore 

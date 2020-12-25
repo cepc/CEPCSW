@@ -1,11 +1,4 @@
 
-find_package(CLHEP REQUIRED;CONFIG)
-find_package(DD4hep COMPONENTS DDG4 REQUIRED)
-find_package(EDM4HEP REQUIRED )
-find_package(k4FWCore REQUIRED )
-
-find_package(CLHEP REQUIRED)
-
 ## Modules
 gaudi_add_module(Digi_Calo
                  SOURCES src/CaloDigiAlg.cpp

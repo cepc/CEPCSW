@@ -1,11 +1,6 @@
 
 find_package(Geant4 REQUIRED ui_all vis_all)
 include(${Geant4_USE_FILE})
-find_package(DD4hep COMPONENTS DDG4 REQUIRED)
-
-# For EDM & I/O
-find_package(EDM4HEP REQUIRED)
-
 
 gaudi_add_module(DetSimAna
                  SOURCES src/Edm4hepWriterAnaElemTool.cpp

@@ -1,10 +1,4 @@
 
-find_package(GEAR REQUIRED)
-find_package(GSL REQUIRED ) 
-find_package(LCIO REQUIRED ) 
-find_package(EDM4HEP REQUIRED ) 
-find_package(DD4hep COMPONENTS DDCore DDRec REQUIRED)
-
 # Modules
 gaudi_add_module(Tracking
                  SOURCES src/Clupatra/ClupatraAlg.cpp

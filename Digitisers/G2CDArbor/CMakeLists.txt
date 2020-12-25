@@ -1,12 +1,3 @@
-
-find_package(CLHEP REQUIRED;CONFIG)
-find_package(DD4hep COMPONENTS DDG4 REQUIRED)
-find_package(EDM4HEP REQUIRED)
-find_package(GEAR REQUIRED)
-find_package(GSL REQUIRED ) 
-find_package(LCIO REQUIRED ) 
-find_package(k4FWCore REQUIRED)
-
 # Modules
 gaudi_add_module(G2CDArbor
                  SOURCES src/G2CDArborAlg.cpp

@@ -1,8 +1,4 @@
 
-find_package(DD4hep COMPONENTS DDG4 REQUIRED)
-find_package(EDM4HEP REQUIRED)
-find_package(k4FWCore REQUIRED)
-
 # Modules
 gaudi_add_module(SimHitMerge
                  SOURCES src/SimHitMergeAlg.cpp

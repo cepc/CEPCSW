@@ -3,13 +3,6 @@
 #    Desc: import from ILCSoft
 ##############################################################################
 
-find_package(CLHEP REQUIRED;CONFIG)
-find_package(LCIO)
-find_package(GEAR)
-find_package(ROOT COMPONENTS MathCore)
-find_package(EDM4HEP REQUIRED)
-find_package(DD4hep COMPONENTS DDCore DDRec REQUIRED)
-
 get_target_property(to_incl KalTestLib SOURCE_DIR)
 if (to_incl)
   LIST( APPEND DICT_INCLUDE_DIRS ${to_incl}/include)
