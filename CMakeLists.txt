@@ -2,6 +2,10 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.15)
 
 project(CEPCSW)
 
+# setup some necessary envvar
+include(cmake/CEPCSWEnv.cmake)
+#
+
 find_package(ROOT COMPONENTS RIO Tree)
 
 find_package(Gaudi)
