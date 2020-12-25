@@ -36,7 +36,7 @@ dsvc = k4DataSvc("EventDataSvc")
 geometry_option = "det.xml"
 
 if not os.getenv("DETDRIFTCHAMBERROOT"):
-    print("Can't find the geometry. Please setup envvar DETCEPCV4ROOT." )
+    print("Can't find the geometry. Please setup envvar DETDRIFTCHAMBERROOT." )
     sys.exit(-1)
 
 geometry_path = os.path.join(os.getenv("DETDRIFTCHAMBERROOT"), "compact", geometry_option)

@@ -2,7 +2,7 @@
 #define SecondAlg_h
 
 #include <GaudiKernel/Algorithm.h>
-#include <GaudiKernel/Property.h>
+#include <Gaudi/Property.h>
 
 #include "Examples/IFirstSvc.h"
 

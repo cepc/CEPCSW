@@ -1,19 +1,18 @@
-gaudi_subdir(GearSvc v0r0)
 
-find_package(GEAR REQUIRED)
-find_package(DD4hep COMPONENTS DDCore DDRec REQUIRED)
+gaudi_add_header_only_library(GearSvc)
 
-gaudi_depends_on_subdirs(
-    Detector/DetInterface
+gaudi_add_module(GearSvcPlugins
+                 SOURCES src/GearSvc.cpp
+                 LINK GearSvc
+                      Gaudi::GaudiKernel
+                      ${GEAR_LIBRARIES}
+                      ${DD4hep_COMPONENT_LIBRARIES}
+                      DetInterface
 )
 
-set(GearSvc_srcs
-    src/*.cpp
-)
+install(TARGETS GearSvc GearSvcPlugins
+  EXPORT CEPCSWTargets
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
+  COMPONENT dev)
 
-gaudi_install_headers(GearSvc)
-
-gaudi_add_module(GearSvc ${GearSvc_srcs}
-    INCLUDE_DIRS GaudiKernel gear
-    LINK_LIBRARIES GaudiKernel ${GEAR_LIBRARIES} ${DD4hep_COMPONENT_LIBRARIES}
-)

@@ -1,58 +1,29 @@
-
-gaudi_subdir(Examples v0r0)
-
-find_package(podio REQUIRED)
-#find_package(plcio REQUIRED)
-find_package(LCIO REQUIRED)
-find_package(EDM4HEP REQUIRED)
-find_package(k4FWCore REQUIRED)
-find_package(DD4hep COMPONENTS DDRec DDParsers REQUIRED)
-
-gaudi_depends_on_subdirs(
-    Detector/DetInterface
-)
-
-set(Examples_srcs
-    src/HelloWorld/*.cpp
-    src/FirstSvc/*.cpp
-    src/SecondAlg/*.cpp
- #   src/PlcioTest/*.cpp
-    src/Edm4hepTest/*.cpp
-    src/DumpIDAlg/*.cpp
-)
-
 # Headers and Libraries
 
-gaudi_install_headers(Examples)
-
 # Modules
-gaudi_add_module(Examples ${Examples_srcs}
-    INCLUDE_DIRS k4FWCore GaudiAlgLib GaudiKernel ${podio_INCLUDE_DIRS} ${LCIO_INCLUDE_DIRS}
-    LINK_LIBRARIES k4FWCore GaudiAlgLib GaudiKernel ${LCIO_LIBRARIES} 
-      DD4hep ${DD4hep_COMPONENT_LIBRARIES}
-      # Force loading the libraries.
-      -Wl,--no-as-needed EDM4HEP::edm4hep EDM4HEP::edm4hepDict ${podio_LIBRARIES} podio::podioRootIO -Wl,--as-needed
+gaudi_add_module(Examples
+                 SOURCES src/HelloWorld/HelloAlg.cpp
+                         src/FirstSvc/FirstSvc.cpp
+                         src/SecondAlg/SecondAlg.cpp
+                         src/Edm4hepTest/Edm4hepReadAlg.cpp
+                         src/Edm4hepTest/Edm4hepReadDCAlg.cpp
+                         src/Edm4hepTest/Edm4hepWriteAlg.cpp
+                         src/DumpIDAlg/DumpIDAlg.cpp
+                 LINK DetInterface
+                      k4FWCore::k4FWCore
+                      Gaudi::GaudiAlgLib Gaudi::GaudiKernel
+                      ${LCIO_LIBRARIES} 
+                      ${DD4hep_COMPONENT_LIBRARIES}
+                      EDM4HEP::edm4hep EDM4HEP::edm4hepDict
+                      ${podio_LIBRARIES} podio::podioRootIO
 )
 
-# Unit tests
-gaudi_add_test(HelloAlg
-               FRAMEWORK options/helloalg.py)
+target_include_directories(Examples PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
-gaudi_add_test(SecondAlg
-               FRAMEWORK options/secondalg.py)
-
-gaudi_add_test(PlcioWriteAlg
-               FRAMEWORK options/plcio_write.py)
-
-gaudi_add_test(PlcioReadAlg
-               FRAMEWORK options/plcio_read.py)
-
-gaudi_add_test(Edm4hepWriteAlg
-               FRAMEWORK options/edm4hep_write.py)
-
-gaudi_add_test(Edm4hepReadAlg
-               FRAMEWORK options/edm4hep_read.py)
-
-gaudi_add_test(LCIOReadAlg
-               FRAMEWORK options/LCIO_read.py)
-
+install(TARGETS Examples
+  EXPORT CEPCSWTargets
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
+  COMPONENT dev)

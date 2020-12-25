@@ -5,7 +5,7 @@
 #include <vector>
 
 #include <GaudiKernel/Algorithm.h>
-#include <GaudiKernel/Property.h>
+#include <Gaudi/Property.h>
 #include <GaudiKernel/ToolHandle.h>
 
 #include <DetSimInterface/IDetSimSvc.h>

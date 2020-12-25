@@ -57,9 +57,9 @@ private:
   dd4hep::Detector* m_dd4hep_geo;
 
 
-  gear::ZPlanarParametersImpl* m_vxdParameters;
-  dd4hep::rec::ZPlanarData* m_vxdData;
-  dd4hep::rec::ConicalSupportData* m_beamPipeData;
+  gear::ZPlanarParametersImpl* m_vxdParameters{nullptr};
+  dd4hep::rec::ZPlanarData* m_vxdData{nullptr};
+  dd4hep::rec::ConicalSupportData* m_beamPipeData{nullptr};
 
   //gear::GearParametersImpl* m_vxdInfra;
   std::map<std::string, std::map<std::string,double> > m_detParameters;

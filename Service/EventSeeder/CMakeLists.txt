@@ -1,14 +1,16 @@
-gaudi_subdir(EventSeeder v0r0)
 
-#find_package(GEAR REQUIRED)
+gaudi_add_header_only_library(EventSeeder)
 
-set(EventSeeder_srcs
-    src/*.cpp
+gaudi_add_module(EventSeederPlugins
+                 SOURCES src/MarlinEvtSeeder.cpp
+                 LINK EventSeeder
+                      Gaudi::GaudiKernel
 )
 
-gaudi_install_headers(EventSeeder)
+install(TARGETS EventSeeder EventSeederPlugins
+  EXPORT CEPCSWTargets
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
+  COMPONENT dev)
 
-gaudi_add_module(EventSeeder ${EventSeeder_srcs}
-    INCLUDE_DIRS GaudiKernel
-    LINK_LIBRARIES GaudiKernel
-)
+

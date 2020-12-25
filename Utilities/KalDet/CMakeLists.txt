@@ -3,30 +3,16 @@
 #    Desc: import from ILCSoft
 ##############################################################################
 
-gaudi_subdir(KalDet v0r0)
-
-find_package(CLHEP REQUIRED;CONFIG)
-find_package(LCIO)
-find_package(GEAR)
-find_package(ROOT COMPONENTS MathCore)
-find_package(EDM4HEP REQUIRED)
-find_package(DD4hep COMPONENTS DDCore DDRec REQUIRED)
-
-gaudi_depends_on_subdirs(
-  Detector/DetInterface
-  Utilities/KalTest
-)
-
 get_target_property(to_incl KalTestLib SOURCE_DIR)
 if (to_incl)
-  LIST( APPEND DICT_INCLUDE_DIRS ${to_incl})
+  LIST( APPEND DICT_INCLUDE_DIRS ${to_incl}/include)
 else()
   message(FATAL_ERROR "Failed to get the source dir for package KalTestLib")
 endif()
 
 set( DICT_CINT_DEFINITIONS "HANDLE_DICT_EXCEPTIONS=IGNORED_FOR_CINT" )
 set( DICT_INPUT_DIRS gen kern lctpc/gearTPC )
-set( DICT_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/rootdict )
+set( DICT_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/rootdict )
 
 foreach( DICT_DIR ${DICT_INPUT_DIRS} )
   list( APPEND DICT_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src/${DICT_DIR} )
@@ -75,7 +61,22 @@ include_directories( ${DICT_INCLUDE_DIRS} )
 
 set( KalDetLib_srcs ${LIB_SOURCES} ${COMMON_SOURCES} )
 
-gaudi_add_library(KalDetLib ${KalDetLib_srcs}
-		 PUBLIC_HEADERS kaldet
-                 LINK_LIBRARIES GaudiKernel ROOT ${CLHEP_LIBRARIES} LCIO ${GEAR_LIBRARIES} KalTestLib EDM4HEP::edm4hep EDM4HEP::edm4hepDict ${DD4hep_COMPONENT_LIBRARIES}
+gaudi_add_library(KalDetLib
+                  SOURCES ${KalDetLib_srcs}
+                  LINK DetInterface
+                       KalTestLib
+                       Gaudi::GaudiKernel
+                       ${ROOT_LIBRARIES}
+                       ${CLHEP_LIBRARIES} 
+                       ${LCIO_LIBRARIES} 
+                       ${GEAR_LIBRARIES} 
+                       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
+                       ${DD4hep_COMPONENT_LIBRARIES}
 )
+
+install(TARGETS KalDetLib
+  EXPORT CEPCSWTargets
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
+  COMPONENT dev)
+

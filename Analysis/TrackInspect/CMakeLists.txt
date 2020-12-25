@@ -1,18 +1,16 @@
-gaudi_subdir(TrackInspect v0r0)
-
-find_package(EDM4HEP REQUIRED) 
-find_package(AIDA REQUIRED)
-find_package(ROOT REQUIRED)
-find_package(CLHEP REQUIRED;CONFIG)
-
-gaudi_depends_on_subdirs(
-    Utilities/DataHelper
-)
-
-set(TrackInspect_srcs src/*.cpp)
 
 # Modules
-gaudi_add_module(TrackInspect ${TrackInspect_srcs}
-    INCLUDE_DIRS AIDA ROOT
-    LINK_LIBRARIES DataHelperLib GaudiKernel EDM4HEP ROOT ${CLHEP_LIBRARIES}
+gaudi_add_module(TrackInspect
+                 SOURCES src/TrackInspectAlg.cpp
+                 LINK DataHelperLib 
+                      Gaudi::GaudiKernel 
+                      EDM4HEP::edm4hep 
+                      ${ROOT_LIBRARIES}
+                      ${CLHEP_LIBRARIES}
 )
+
+install(TARGETS TrackInspect
+  EXPORT CEPCSWTargets
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
+  COMPONENT dev)

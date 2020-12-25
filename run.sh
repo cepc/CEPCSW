@@ -62,8 +62,8 @@ function run-job() {
 ##############################################################################
 
 # The current default platform
-lcg_platform=x86_64-slc6-gcc8-opt
-lcg_version=97.0.2
+lcg_platform=x86_64-centos7-gcc8-opt
+lcg_version=98.0.0
 
 check-cepcsw-envvar || exit -1
 

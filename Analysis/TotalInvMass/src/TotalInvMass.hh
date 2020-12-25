@@ -2,7 +2,7 @@
 #define _TotalInvMass_hh_
 
 #include "GaudiAlg/GaudiAlgorithm.h"
-#include "GaudiKernel/Property.h"
+#include <Gaudi/Property.h>
 
 #include "k4FWCore/DataHandle.h"
 

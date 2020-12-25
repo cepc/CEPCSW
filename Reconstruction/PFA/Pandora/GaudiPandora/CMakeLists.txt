@@ -1,48 +1,36 @@
-gaudi_subdir(GaudiPandora v0r0)
 
-find_package(LCIO REQUIRED ) 
-find_package(DD4hep COMPONENTS DDG4 REQUIRED)
-find_package(GEAR REQUIRED)
-find_package(CLHEP REQUIRED;CONFIG)
-message("ENV GEAR: $ENV{GEAR}")
-
-find_package(EDM4HEP REQUIRED )
-include_directories(${EDM4HEP_INCLUDE_DIR})
-
-find_package(PandoraSDK REQUIRED ) 
-include_directories(${PandoraSDK_INCLUDE_DIRS})
-link_libraries(${PandoraSDK_LIBRARIES})
-find_package(LCContent REQUIRED ) 
-include_directories(${LCContent_INCLUDE_DIRS})
-link_libraries(${LCContent_LIBRARIES})
-
-
-find_package(ROOT COMPONENTS MathCore Physics GenVector Geom REQUIRED)
-
-
-gaudi_depends_on_subdirs(
-    Service/EventSeeder
-    Service/GearSvc
-    Utilities/DataHelper
-    Detector/DetInterface
-)
-
-set(dir_srcs
-    src/PandoraPFAlg.cpp
-    src/MCParticleCreator.cpp
-    src/GeometryCreator.cpp
-    src/CaloHitCreator.cpp
-    src/TrackCreator.cpp
-    src/PfoCreator.cpp
-    src/Utility.cpp
-)
-set(dir_include include)
 # Modules
-gaudi_add_module(GaudiPandora ${dir_srcs}
-    INCLUDE_DIRS ${dir_include} GaudiKernel k4FWCore CLHEP  ${LCIO_INCLUDE_DIRS} ROOT gear DD4hep 
-    LINK_LIBRARIES GaudiKernel k4FWCore CLHEP ROOT ${LCIO_LIBRARIES} ${GEAR_LIBRARIES} DataHelperLib DD4hep ${DD4hep_COMPONENT_LIBRARIES} DDRec 
-      -Wl,--no-as-needed 
-      EDM4HEP::edm4hep EDM4HEP::edm4hepDict
-      -Wl,--as-needed 
-
+gaudi_add_module(GaudiPandora
+                 SOURCES src/PandoraPFAlg.cpp
+                         src/MCParticleCreator.cpp
+                         src/GeometryCreator.cpp
+                         src/CaloHitCreator.cpp
+                         src/TrackCreator.cpp
+                         src/PfoCreator.cpp
+                         src/Utility.cpp
+                 LINK EventSeeder
+                      GearSvc
+                      DataHelperLib
+                      DetInterface
+                      Gaudi::GaudiKernel
+                      k4FWCore::k4FWCore
+                      ${PandoraSDK_LIBRARIES}
+                      ${LCContent_LIBRARIES}
+                      ${CLHEP_LIBRARIES} 
+                      ${ROOT_LIBRARIES}
+                      ${LCIO_LIBRARIES}
+                      ${GEAR_LIBRARIES}
+                      ${DD4hep_COMPONENT_LIBRARIES}
+                      EDM4HEP::edm4hep EDM4HEP::edm4hepDict
 )
+
+target_include_directories(GaudiPandora PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+install(TARGETS GaudiPandora
+  EXPORT CEPCSWTargets
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
+  COMPONENT dev)
+
