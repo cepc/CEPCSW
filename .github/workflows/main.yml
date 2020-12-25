@@ -22,6 +22,7 @@ jobs:
     strategy:
       matrix:
         LCG_RELEASE: [LCG_98, KEY4HEP_STACK]
+        CEPCSW_BLDTOOL: [make, ninja]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -44,3 +45,4 @@ jobs:
           bash ./.build.ci.sh
         env:
           LCG_RELEASE: ${{matrix.LCG_RELEASE}}
+          CEPCSW_BLDTOOL: ${{matrix.CEPCSW_BLDTOOL}}
