@@ -70,8 +70,8 @@ namespace MarlinTrk{
   
   void MarlinKalTest::init() {
     
-    //streamlog_out( DEBUG4 ) << "  MarlinKalTest - call  this init " << std::endl ;
-    
+    std::cout << "debug: MarlinKalTest - call  this init " << std::endl ;
+    //ILDSITKalDetector* sitdet = new ILDSITKalDetector( *_gearMgr, _geoSvc )  ;
     
     MeasurementSurfaceStore& surfstore = _gearMgr->getMeasurementSurfaceStore();
     
@@ -84,11 +84,9 @@ namespace MarlinTrk{
       
     }
     else {
-      
-      //streamlog_out( DEBUG4 ) << "  MarlinKalTest - MeasurementSurfaceStore is already full. Using store as filled by MeasurementSurfaceStoreFiller " << surfstore.getFillerName() << std::endl ;
-      
+      std::cout << "debug: MarlinKalTest - MeasurementSurfaceStore is already full. Using store as filled by MeasurementSurfaceStoreFiller " << surfstore.getFillerName() << std::endl ;
     }
-
+    
     if (_gearMgr -> getDetectorName() == "LPTPC") {
       try{
         kaldet::LCTPCKalDetector* tpcdet = new kaldet::LCTPCKalDetector( *_gearMgr )  ;
@@ -125,7 +123,6 @@ namespace MarlinTrk{
 	std::cout << "Warning: " << "  MarlinKalTest - VXD missing in gear file: VXD Material Not Built " << std::endl ;
       }
       
-      
       bool SIT_found = false ;
       try{
         ILDSITKalDetector* sitdet = new ILDSITKalDetector( *_gearMgr, _geoSvc )  ;
@@ -160,7 +157,6 @@ namespace MarlinTrk{
 	std::cout << "Warning: " << "  MarlinKalTest - SET missing in gear file: SET Not Built " << std::endl ;
       }
 
-
       bool FTD_found = false ;
       try{
         ILDFTDKalDetector* ftddet = new ILDFTDKalDetector( *_gearMgr, _geoSvc )  ;
@@ -184,7 +180,7 @@ namespace MarlinTrk{
 	  std::cout << "Warning: " << "  MarlinKalTest - Simple Disc Based FTD missing in gear file: Simple Disc Based FTD Not Built " << std::endl ;
         }
       }
-
+      
       try{
         ILDTPCKalDetector* tpcdet = new ILDTPCKalDetector( *_gearMgr, _geoSvc )  ;
         // store the measurement layer id's for the active layers
@@ -194,6 +190,7 @@ namespace MarlinTrk{
       catch( gear::UnknownParameterException& e){   
 	std::cout << "Warning: " << "  MarlinKalTest - TPC missing in gear file: TPC Not Built " << std::endl ;
       }
+      
     }
 
     _det->Close() ;          // close the cradle
