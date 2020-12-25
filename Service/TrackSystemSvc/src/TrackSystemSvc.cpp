@@ -35,7 +35,8 @@ MarlinTrk::IMarlinTrkSystem* TrackSystemSvc::getTrackSystem(void* address){
       return 0;
     }
     debug() << "GearMgr=" << mgr << " GeomSvc=" << _geoSvc << endmsg;
-    MarlinTrk::IMarlinTrkSystem* sys = new MarlinTrk::MarlinKalTest( *mgr, _geoSvc );
+    //MarlinTrk::IMarlinTrkSystem* sys = new MarlinTrk::MarlinKalTest( *mgr, _geoSvc );
+    MarlinTrk::IMarlinTrkSystem* sys = new MarlinTrk::MarlinKalTest(*mgr);
     m_trackSystems[address] = sys;
     debug() << "Track system created successfully for " << address << endmsg;
     return sys;

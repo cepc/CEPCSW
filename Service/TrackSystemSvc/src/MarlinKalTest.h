@@ -48,7 +48,7 @@ namespace MarlinTrk{
     
     
     /** Default c'tor, initializes the geometry from GEAR. */
-    MarlinKalTest( const gear::GearMgr& gearMgr, IGeomSvc* geoSvc) ;
+    MarlinKalTest( const gear::GearMgr& gearMgr, IGeomSvc* geoSvc = 0) ;
     
     /** d'tor */
     ~MarlinKalTest() ;
