@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.15)
 
 project(CEPCSW)
 
@@ -22,6 +22,8 @@ set(CMAKE_CXX_STANDARD 17 CACHE STRING "")
 if(NOT CMAKE_CXX_STANDARD MATCHES "14|17")
   message(FATAL_ERROR "Unsupported C++ standard: ${CMAKE_CXX_STANDARD}")
 endif()
+
+include(cmake/CEPCSWDependencies.cmake)
 
 add_subdirectory(Analysis)
 add_subdirectory(Detector)
