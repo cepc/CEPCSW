@@ -30,6 +30,10 @@ function check-cepcsw-envvar() {
 function build-dir() {
     local blddir=build
 
+    if [ -n "${bldtool}" ]; then
+        blddir=${blddir}.${bldtool}
+    fi
+
     # If detect the extra env var, append it to the build dir
     if [ -n "${lcg_version}" ]; then
         blddir=${blddir}.${lcg_version}
@@ -58,10 +62,20 @@ function run-cmake() {
         error: "Failed to create $blddir"
         return 1
     fi
+    local bldgen
+    if [ -n "$bldtool" ] ; then
+        case $bldtool in
+            ninja)
+                bldgen="-G Ninja"
+                ;;
+            *)
+                ;;
+        esac
+    fi
 
     cd $blddir
 
-    cmake .. -DHOST_BINARY_TAG=${lcg_platform} || {
+    cmake .. -DHOST_BINARY_TAG=${lcg_platform} ${bldgen} || {
         error: "Failed to cmake"
         return 1
     }
@@ -69,7 +83,7 @@ function run-cmake() {
 }
 
 function run-make() {
-    make
+    cmake --build .
 }
 
 ##############################################################################
@@ -79,6 +93,8 @@ function run-make() {
 # The current default platform
 lcg_platform=x86_64-centos7-gcc8-opt
 lcg_version=98.0.0
+
+bldtool=${CEPCSW_BLDTOOL} # make, ninja # set in env var
 
 check-cepcsw-envvar || exit -1
 
