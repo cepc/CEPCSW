@@ -30,6 +30,10 @@ function check-cepcsw-envvar() {
 function build-dir() {
     local blddir=build
 
+    if [ -n "${bldtool}" ]; then
+        blddir=${blddir}.${bldtool}
+    fi
+
     # If detect the extra env var, append it to the build dir
     if [ -n "${k4_version}" ]; then
         blddir=${blddir}.${k4_version}
@@ -58,6 +62,16 @@ function run-cmake() {
         error: "Failed to create $blddir"
         return 1
     fi
+    local bldgen
+    if [ -n "$bldtool" ] ; then
+        case $bldtool in
+            ninja)
+                bldgen="-G Ninja"
+                ;;
+            *)
+                ;;
+        esac
+    fi
 
     cd $blddir
 
@@ -78,7 +92,7 @@ function run-cmake() {
 
     local cmake_modules=${pandorapfa_cmake_modules}
 
-    cmake .. -DHOST_BINARY_TAG=${k4_platform} \
+    cmake .. -DHOST_BINARY_TAG=${k4_platform} ${bldgen} \
           -DCMAKE_MODULE_PATH=${cmake_modules} || {
         error: "Failed to cmake"
         return 1
@@ -87,7 +101,7 @@ function run-cmake() {
 }
 
 function run-make() {
-    make
+    cmake --build .
 }
 
 ##############################################################################
@@ -97,6 +111,7 @@ function run-make() {
 # The current default platform
 k4_platform=x86_64-linux-gcc9-opt
 k4_version=master
+bldtool=${CEPCSW_BLDTOOL} # make, ninja # set in env var
 
 check-cepcsw-envvar || exit -1
 
