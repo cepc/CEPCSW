@@ -22,7 +22,8 @@ jobs:
     strategy:
       matrix:
         LCG_RELEASE: [LCG_98, KEY4HEP_STACK]
-        CEPCSW_BLDTOOL: [make, ninja]
+        # CEPCSW_BLDTOOL: [make, ninja]
+        CEPCSW_BLDTOOL: [ninja]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
