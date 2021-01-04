@@ -22,7 +22,8 @@
 DECLARE_COMPONENT(TruthTrackerAlg)
 
 TruthTrackerAlg::TruthTrackerAlg(const std::string& name, ISvcLocator* svcLoc)
-: GaudiAlgorithm(name, svcLoc), m_dd4hep(nullptr), m_gridDriftChamber(nullptr),m_decoder(nullptr)
+: GaudiAlgorithm(name,svcLoc),m_dd4hep(nullptr),m_gridDriftChamber(nullptr),
+    m_decoder(nullptr)
 {
     declareProperty("MCParticle", m_mcParticleCol,
             "Handle of the input MCParticle collection");
@@ -34,7 +35,8 @@ TruthTrackerAlg::TruthTrackerAlg(const std::string& name, ISvcLocator* svcLoc)
         "Handle of association collection");
     declareProperty("DCRecParticleCollection", m_dcRecParticleCol,
             "Handle of drift chamber reconstructed particle collection");
-    declareProperty("DCRecParticleAssociationCollection", m_dcRecParticleAssociationCol,
+    declareProperty("DCRecParticleAssociationCollection",
+            m_dcRecParticleAssociationCol,
             "Handle of drift chamber reconstructed particle collection");
     declareProperty("debug", m_debug=false);
 }
@@ -90,6 +92,7 @@ StatusCode TruthTrackerAlg::execute()
         debug()<<"TrackerHitCollection not found"<<endmsg;
         //return StatusCode::SUCCESS;
     }
+    if((int) digiDCHitsCol->size()>m_maxDCDigiCut) return StatusCode::SUCCESS;
 
     ///Output Track collection
     edm4hep::TrackCollection* dcTrackCol=m_dcTrackCol.createAndPut();
@@ -112,7 +115,7 @@ StatusCode TruthTrackerAlg::execute()
         //if(fabs(mcParticle.getCharge()<1e-6) continue;//Skip neutral particles
         edm4hep::Vector3d posV= mcParticle.getVertex();
         edm4hep::Vector3f momV= mcParticle.getMomentum();//GeV
-        float pos[3]={posV.x, posV.y, posV.z};
+        float pos[3]={(float) posV.x, (float) posV.y, (float) posV.z};
         float mom[3]={momV.x, momV.y, momV.z};
         //FIXME
         //pivotToFirstLayer(mcPocaPos,mcPocaMom,firstLayerPos,firstLayerMom);
@@ -155,7 +158,7 @@ StatusCode TruthTrackerAlg::execute()
             track.setNdf(digiDCHitsCol->size()-5);
             //track.setDEdx();//TODO
             //track.setRadiusOfInnermostHit();//TODO
-            for(int i=0; i<digiDCHitsCol->size(); i++ ){
+            for(unsigned int i=0; i<digiDCHitsCol->size(); i++ ){
                 edm4hep::TrackerHit digiDC=digiDCHitsCol->at(i);
                 //if(Sim->MCParti!=current) continue;//TODO
                 track.addToTrackerHits(digiDC);

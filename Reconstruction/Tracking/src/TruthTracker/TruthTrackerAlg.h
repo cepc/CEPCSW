@@ -59,7 +59,8 @@ class TruthTrackerAlg: public GaudiAlgorithm
         Gaudi::Property<std::string> m_readout_name{this, "readout",
             "DriftChamberHitsCollection"};
 
-        Gaudi::Property<int>  m_debug{ this, "debug", false};
+        Gaudi::Property<int> m_debug{this, "debug", false};
+        Gaudi::Property<int> m_maxDCDigiCut{this, "maxDCDigiCut",150};
 };
 
 #endif
