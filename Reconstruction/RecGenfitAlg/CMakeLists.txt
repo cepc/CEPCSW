@@ -28,7 +28,6 @@ target_include_directories(RecGenfitAlg PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
         $<BUILD_INTERFACE:$ENV{GENFIT_ROOT}>/include
-        $<INSTALL_INTERFACE:$ENV{GENFIT_ROOT}>/lib64
 )
 
 install(TARGETS RecGenfitAlg
