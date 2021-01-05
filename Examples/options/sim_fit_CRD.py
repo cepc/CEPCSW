@@ -248,9 +248,9 @@ truthTrackerAlg.SiSubsetTrackCollection = "SubsetTracks"
 ##############################################################################
 # RecGenfitAlgSDT
 ##############################################################################
-#from Configurables import RecGenfitAlgSDT
-#recGenfitAlgSDT = RecGenfitAlgSDT("RecGenfitAlgSDT")
-#recGenfitAlgSDT.debug=10
+from Configurables import RecGenfitAlgSDT
+recGenfitAlgSDT = RecGenfitAlgSDT("RecGenfitAlgSDT")
+recGenfitAlgSDT.debug=10
 
 ##############################################################################
 # NTupleSvc
