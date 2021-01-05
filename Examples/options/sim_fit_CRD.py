@@ -269,8 +269,7 @@ from Configurables import ApplicationMgr
 ApplicationMgr(
     TopAlg = [genalg, detsimalg, digiVXD, digiSIT, digiSET, digiFTD, spSIT,
     spFTD, tracking, forward, subset, dCHDigiAlg, truthTrackerAlg,
-    #recGenfitAlgSDT,
-    out],
+    recGenfitAlgSDT, out],
     EvtSel = 'NONE',
     EvtMax = 1,
     ExtSvc = [rndmengine, dsvc, ntsvc, evtseeder, geosvc, gearsvc, tracksystemsvc],
