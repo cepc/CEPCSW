@@ -46,6 +46,8 @@ const int GenfitTrack::s_PDG[2][5]
     bool
 sortDCHit(edm4hep::ConstSimTrackerHit hit1,edm4hep::ConstSimTrackerHit hit2)
 {
+    std::cout<<"hit1"<<hit1<<std::endl;
+    std::cout<<"hit2"<<hit2<<std::endl;
     bool isEarly=hit1.getTime()<hit2.getTime();
     return isEarly;
 }
@@ -200,14 +202,29 @@ bool GenfitTrack::addSpacePointTrakerHit(edm4hep::ConstTrackerHit& hit,
 {
     edm4hep::Vector3d pos=hit.getPosition();
     TVectorD p(3);
-    p[0]=pos.x;
-    p[1]=pos.y;
-    p[2]=pos.z;
+    p[0]=pos.x*dd4hep::mm;
+    p[1]=pos.y*dd4hep::mm;
+    p[2]=pos.z*dd4hep::mm;
 
+    GenfitMsg::get()<<MSG::DEBUG<<m_name<<" addSpacePointMeasurement "<<hitID
+        <<"pos "<<p[0]<<" "<<p[1]<<" "<<p[2]<<" cm"<<endmsg;
     /// New a SpacepointMeasurement
-    double data[6];
-    for(int i=0;i<6;i++) data[i]=hit.getCovMatrix(i);
-    TMatrixDSym hitCov(3,data,"F");//?FIXME
+    double cov[6];
+    for(int i=0;i<6;i++) {
+        cov[i]=hit.getCovMatrix(i);
+        GenfitMsg::get()<<MSG::DEBUG<<"cov "<<cov[i]<<endmsg;
+    }
+    TMatrixDSym hitCov(3);//FIXME?
+    //in SimpleDigi/src/PlanarDigiAlg.cpp
+    //cov[0] = u_direction[0];
+    //cov[1] = u_direction[1];
+    //cov[2] = resU;
+    //cov[3] = v_direction[0];
+    //cov[4] = v_direction[1];
+    //cov[5] = resV;
+    hitCov(0,0)=cov[2]*dd4hep::mm*dd4hep::mm;
+    hitCov(1,1)=cov[2]*dd4hep::mm*dd4hep::mm;
+    hitCov(2,2)=cov[2]*dd4hep::mm*dd4hep::mm;
 
     genfit::SpacepointMeasurement* sMeas =
         new genfit::SpacepointMeasurement(p,hitCov,(int) hit.getCellID(),hitID,
@@ -215,6 +232,7 @@ bool GenfitTrack::addSpacePointTrakerHit(edm4hep::ConstTrackerHit& hit,
     genfit::TrackPoint* trackPoint = new genfit::TrackPoint(sMeas,m_track);
     m_track->insertPoint(trackPoint);
 
+    GenfitMsg::get()<<MSG::DEBUG<<"end of addSpacePointMeasurement"<<endmsg;
     return true;
 }
 
@@ -237,6 +255,7 @@ bool GenfitTrack::addSpacePointMeasurement(const TVectorD& pos,
 
     /// New a SpacepointMeasurement
     TMatrixDSym hitCov(3);
+    sigma=sigma*dd4hep::mm;
     hitCov(0,0)=sigma*sigma;
     hitCov(1,1)=sigma*sigma;
     hitCov(2,2)=sigma*sigma;
@@ -626,14 +645,14 @@ double GenfitTrack::extrapolateToHit( TVector3& poca, TVector3& pocaDir,
 
 
 ///Add space point measurement from edm4hep::Track to genfit track
-int GenfitTrack::addSimTrakerHits(const edm4hep::Track& track,
+int GenfitTrack::addSimTrackerHits(const edm4hep::Track& track,
         const edm4hep::MCRecoTrackerAssociationCollection* assoHits,
         float sigma){
 
     //A TrakerHit collection
     std::vector<edm4hep::ConstSimTrackerHit> sortedDCTrackHitCol;
 
-    GenfitMsg::get()<<MSG::DEBUG<<" VXD "
+    GenfitMsg::get()<<MSG::DEBUG<<m_name<<" VXD "
         <<lcio::ILDDetID::VXD<<" SIT "
         <<lcio::ILDDetID::SIT<<" SET "
         <<lcio::ILDDetID::SET<<" FTD "
@@ -646,41 +665,48 @@ int GenfitTrack::addSimTrakerHits(const edm4hep::Track& track,
         UTIL::BitField64 encoder(lcio::ILDCellID0::encoder_string);
         encoder.setValue(hit.getCellID());
         int detID=encoder[lcio::ILDCellID0::subdet];
-        GenfitMsg::get()<<MSG::DEBUG<<"detID "<<detID<<std::endl;
+        //GenfitMsg::get()<<MSG::DEBUG<<m_name<<" "<<iHit<<" hit "<<hit
+            //<<" detID "<<detID<<endmsg;
 
-        if (detID==lcio::ILDDetID::VXD || detID==lcio::ILDDetID::SIT ||
+        if(detID==lcio::ILDDetID::VXD || detID==lcio::ILDDetID::SIT ||
                 detID==lcio::ILDDetID::SET || detID==lcio::ILDDetID::FTD){
-            if(addSpacePointTrakerHit(hit,hitID)){
-                GenfitMsg::get()<<MSG::DEBUG<<"add slicon space point"<<endmsg;
-                hitID++;
-            }else{
-                GenfitMsg::get()<<MSG::ERROR<<"addSpacePointMeasurementOnTrack "
-                    <<detID<<" "<<hit.getCellID()<<" faieled"<<endmsg;
+            //if(addSpacePointTrakerHit(hit,hitID)){
+            //    GenfitMsg::get()<<MSG::DEBUG<<"add slicon space point"<<endmsg;
+            //    hitID++;
+            //}else{
+            //    GenfitMsg::get()<<MSG::ERROR<<"addSpacePointTrakerHit"
+            //        <<detID<<" "<<hit.getCellID()<<" faieled"<<endmsg;
+            //}
+        }else if(detID==7){
+            //if(addSpacePointMeasurement(p,sigma,hit.getCellID(),hitID)){
+            //    GenfitMsg::get()<<MSG::DEBUG<<"add DC space point"<<endmsg;
+            //    hitID++;
+            //}else{
+            //    GenfitMsg::get()<<MSG::ERROR<<"addSpacePointMeasurement"
+            //        <<detID<<" faieled" <<endmsg;
+            //}
+            float minTime=FLT_MAX;
+            edm4hep::ConstSimTrackerHit minTimeSimHit;
+            //Select the SimTrakerHit with least time
+            for(int iSimHit=0;iSimHit<(int) assoHits->size();iSimHit++){
+                if(assoHits->at(iSimHit).getRec()==hit &&
+                        assoHits->at(iSimHit).getSim().getTime()<minTime){
+                    minTimeSimHit=assoHits->at(iSimHit).getSim();
+                }
             }
+            //std::cout<<"minTimeSimHit "<<minTimeSimHit<<std::endl;
+            sortedDCTrackHitCol.push_back(minTimeSimHit);
         }else{
-            GenfitMsg::get()<<MSG::INFO
-                <<"skip hit with detector ID = "<< detID<<" CellID = "
-                <<hit.getCellID()<<endmsg;
+            GenfitMsg::get()<<MSG::DEBUG<<" Skip add this hit!"<<endmsg;
         }
-        float minTime=FLT_MAX;
-        edm4hep::ConstSimTrackerHit minTimeSimHit;
-        //Select the SimTrakerHit with least time
-        for(int iSimHit=0;iSimHit<assoHits->size();iSimHit++){
-            if(assoHits->at(iSimHit).getRec()==hit &&
-                    assoHits->at(iSimHit).getSim().getTime()<minTime){
-                minTimeSimHit=assoHits->at(iSimHit).getSim();
-            }
-        }
-        sortedDCTrackHitCol.push_back(minTimeSimHit);
-    }
-    GenfitMsg::get()<<MSG::DEBUG<<"addSpacePointTrakerHit on silicon="<<hitID
-        <<endmsg;
+    }//end loop over hit on track
+
     GenfitMsg::get()<<MSG::DEBUG<<" addSimTrakerHits trackerHits_size="
         <<track.trackerHits_size()<<endmsg;
 
+    ///Add DC hits to track
     //Sort sim DC hits by time
     std::sort(sortedDCTrackHitCol.begin(),sortedDCTrackHitCol.end(),sortDCHit);
-
     for(auto dCTrackerHit: sortedDCTrackHitCol){
         edm4hep::Vector3d pos=dCTrackerHit.getPosition();
         TVectorD p(3);
@@ -692,10 +718,11 @@ int GenfitTrack::addSimTrakerHits(const edm4hep::Track& track,
             GenfitMsg::get()<<MSG::DEBUG<<"add DC space point"<<endmsg;
             hitID++;
         }else{
-            GenfitMsg::get()<<MSG::ERROR<<"addSpacePointMeasurementOnTrack "
+            GenfitMsg::get()<<MSG::ERROR<<"addSpacePointMeasurement"
                 <<detID<<" faieled" <<endmsg;
         }
     }
+
     GenfitMsg::get()<<MSG::DEBUG<<"GenfitTrack nHitAdded "<<hitID<<endmsg;
     return hitID;
 }

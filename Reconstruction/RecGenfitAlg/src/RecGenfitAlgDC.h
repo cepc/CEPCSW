@@ -68,7 +68,7 @@ class RecGenfitAlgDC:public GaudiAlgorithm {
             "EventHeaderCol", Gaudi::DataHandle::Reader, this};
         //Drift chamber rec hit and trac
         DataHandle<edm4hep::TrackerHitCollection> m_digiDCHitsCol{
-            "DigiDCHitsCollection", Gaudi::DataHandle::Reader, this};
+            "DigiDCHitCollection", Gaudi::DataHandle::Reader, this};
         DataHandle<edm4hep::TrackCollection> m_dcTrackCol{
             "DCTrackCollection", Gaudi::DataHandle::Reader, this};
         //Mc truth
@@ -95,7 +95,7 @@ class RecGenfitAlgDC:public GaudiAlgorithm {
         Gaudi::Property<std::string> m_readout_name{this,
             "readout", "DriftChamberHitsCollection"};
         Gaudi::Property<int> m_debug{this,"debug",false};
-        Gaudi::Property<float> m_sigmaHit{this,"sigmaHit",0.011};
+        Gaudi::Property<float> m_sigmaHit{this,"sigmaHit",0.11};//mm
         Gaudi::Property<float> m_nSigmaHit{this,"nSigmaHit",5};
         Gaudi::Property<double> m_initCovResPos{this,"initCovResPos",1};
         Gaudi::Property<double> m_initCovResMom{this,"initCovResMom",0.1};

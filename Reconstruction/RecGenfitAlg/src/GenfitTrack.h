@@ -113,7 +113,7 @@ class GenfitTrack {
     virtual bool addWireMeasurementOnTrack(edm4hep::Track& track, double sigma);
 
     ///Add space point from truth to track
-    int addSimTrakerHits(const edm4hep::Track& track,
+    int addSimTrackerHits(const edm4hep::Track& track,
         const edm4hep::MCRecoTrackerAssociationCollection* assoHits,
         float sigma);// float nSigmaSelection
 

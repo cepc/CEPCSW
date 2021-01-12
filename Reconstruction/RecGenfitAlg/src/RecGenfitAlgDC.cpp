@@ -194,6 +194,7 @@ StatusCode RecGenfitAlgDC::initialize()
 
 StatusCode RecGenfitAlgDC::execute()
 {
+    StatusCode sc;
     m_timer=clock();
     info()<<" RecGenfitAlgDC in execute()"<<endmsg;
 
@@ -215,7 +216,7 @@ StatusCode RecGenfitAlgDC::execute()
     const edm4hep::TrackerHitCollection* didiDCHitsCol=nullptr;
     didiDCHitsCol=m_digiDCHitsCol.get();
     if(nullptr==didiDCHitsCol) {
-        debug()<<"DigiDCHitsCollection not found"<<endmsg;
+        debug()<<"DigiDCHitCollection not found"<<endmsg;
         return StatusCode::SUCCESS;
     }
     ///retrieve DC Hit Association
@@ -242,13 +243,13 @@ StatusCode RecGenfitAlgDC::execute()
             double eventStartTime=0;
             if(!genfitTrack->createGenfitTrackFromEDM4HepTrack(pidType,dcTrack,
                         eventStartTime)){
-                debug()<<"createGenfitTrack failed!"<<endmsg;
+                debug()<<"createGenfitTrackFromEDM4HepTrack failed!"<<endmsg;
                 return StatusCode::SUCCESS;
             }
             if(m_useTruthHit){
-                if(0==genfitTrack->addSimTrakerHits(dcTrack,assoDCHitsCol,
+                if(0==genfitTrack->addSimTrackerHits(dcTrack,assoDCHitsCol,
                             m_sigmaHit.value())){
-                    debug()<<"addSpacePointMeasurementOnTrack failed!"<<endmsg;
+                    debug()<<"addSimTrackerHits failed!"<<endmsg;
                     return StatusCode::FAILURE;
                 }
             }else{
@@ -293,7 +294,7 @@ StatusCode RecGenfitAlgDC::execute()
     //    //system ("pause");
     //}
 
-    if(m_tuple) m_tuple->write();
+    if(m_tuple) sc=m_tuple->write();
 
     return StatusCode::SUCCESS;
 }

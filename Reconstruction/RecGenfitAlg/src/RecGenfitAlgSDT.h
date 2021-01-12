@@ -67,7 +67,7 @@ class RecGenfitAlgSDT:public GaudiAlgorithm {
             "EventHeaderCol", Gaudi::DataHandle::Reader, this};
         //Drift chamber rec hit and trac
         DataHandle<edm4hep::TrackerHitCollection> m_DCDigiCol{
-            "DigiDCHitsCollection", Gaudi::DataHandle::Reader, this};
+            "DigiDCHitCollection", Gaudi::DataHandle::Reader, this};
         DataHandle<edm4hep::SimTrackerHitCollection> m_DCSimHitCol{
             "DCSimHitsCollection", Gaudi::DataHandle::Reader, this};
         DataHandle<edm4hep::TrackCollection> m_DCTrackCol{
@@ -97,8 +97,8 @@ class RecGenfitAlgSDT:public GaudiAlgorithm {
         dd4hep::DDSegmentation::BitFieldCoder* m_decoder;
         Gaudi::Property<std::string> m_readout_name{this,
             "readout", "DriftChamberHitsCollection"};
-        Gaudi::Property<int> m_debug{this,"debug",false};
-        Gaudi::Property<float> m_sigmaHit{this,"sigmaHit",0.011};
+        Gaudi::Property<int> m_debug{this,"debug",0};
+        Gaudi::Property<float> m_sigmaHit{this,"sigmaHit",0.11};//mm
         Gaudi::Property<float> m_nSigmaHit{this,"nSigmaHit",5};
         Gaudi::Property<double> m_initCovResPos{this,"initCovResPos",1};
         Gaudi::Property<double> m_initCovResMom{this,"initCovResMom",0.1};

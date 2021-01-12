@@ -197,6 +197,7 @@ StatusCode RecGenfitAlgSDT::initialize()
 
 StatusCode RecGenfitAlgSDT::execute()
 {
+    StatusCode sc=StatusCode::SUCCESS;
     m_timer=clock();
     info()<<" RecGenfitAlgSDT in execute()"<<endmsg;
 
@@ -218,7 +219,7 @@ StatusCode RecGenfitAlgSDT::execute()
     //const edm4hep::TrackerHitCollection* dcDigiCol=nullptr;
     //dcDigiCol=m_DCDigiCol.get();
     //if(nullptr==dcDigiCol) {
-    //    debug()<<"DigiDCHitsCollection not found"<<endmsg;
+    //    debug()<<"DigiDCHitCollection not found"<<endmsg;
     //    return StatusCode::SUCCESS;
     //}
     ///retrieve DC Hit Association
@@ -249,9 +250,9 @@ StatusCode RecGenfitAlgSDT::execute()
                 debug()<<"createGenfitTrack failed!"<<endmsg;
                 return StatusCode::SUCCESS;
             }
-            if(0==genfitTrack->addSimTrakerHits(sdtTrack,dcHitAssociationCol,
+            if(0==genfitTrack->addSimTrackerHits(sdtTrack,dcHitAssociationCol,
                         m_sigmaHit.value())){
-                debug()<<"addSpacePointMeasurementOnTrack failed!"<<endmsg;
+                debug()<<"addSimTrackerHits failed!"<<endmsg;
                 return StatusCode::SUCCESS;
             }
             if(m_debug) genfitTrack->printSeed();
@@ -280,6 +281,7 @@ StatusCode RecGenfitAlgSDT::execute()
             ++m_fitSuccess[pidType];
         }//end loop over particle type
     }//end loop over a track
+    m_nRecTrack++;
 
     if(m_tuple) debugEvent();
 
@@ -289,7 +291,7 @@ StatusCode RecGenfitAlgSDT::execute()
     //    //system ("pause");
     //}
 
-    if(m_tuple) m_tuple->write();
+    if(m_tuple) sc=m_tuple->write();
 
     return StatusCode::SUCCESS;
 }
@@ -334,7 +336,7 @@ void RecGenfitAlgSDT::debugTrack(int pidType,const GenfitTrack* genfitTrack)
     TMatrixDSym fittedCov;
     TLorentzVector fittedPos;
     TVector3 fittedMom;
-    int fittedState=genfitTrack->getFittedState(fittedPos,fittedMom,fittedCov);
+    genfitTrack->getFittedState(fittedPos,fittedMom,fittedCov);
     HelixClass helix;//mm and GeV
     float pos[3]={float(fittedPos.X()/dd4hep::mm),float(fittedPos.Y()/dd4hep::mm),
         float(fittedPos.Z()/dd4hep::mm)};

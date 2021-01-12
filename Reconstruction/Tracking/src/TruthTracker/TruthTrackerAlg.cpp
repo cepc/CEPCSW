@@ -117,39 +117,40 @@ StatusCode TruthTrackerAlg::execute()
 
     ///Retrieve silicon Track
     const edm4hep::TrackCollection* siTrackCol=nullptr;
-    siTrackCol=m_siSubsetTrackCol.get();
-
-    ///New SDT track
-    for(auto siTrack:*siTrackCol){
-        edm4hep::Track sdtTrack=sdtTrackCol->create();
-        edm4hep::TrackState sdtTrackState;
-        edm4hep::TrackState siTrackStat=siTrack.getTrackStates(0);//FIXME?
-        sdtTrackState.location=siTrackStat.location;
-        sdtTrackState.D0=siTrackStat.D0;
-        sdtTrackState.phi=siTrackStat.phi;
-        sdtTrackState.omega=siTrackStat.omega;
-        sdtTrackState.Z0=siTrackStat.Z0;
-        sdtTrackState.tanLambda=siTrackStat.tanLambda;
-        sdtTrackState.referencePoint=siTrackStat.referencePoint;
-        for(int k=0;k<15;k++){
-            sdtTrackState.covMatrix[k]=siTrackStat.covMatrix[k];
-        }
-        sdtTrack.addToTrackStates(sdtTrackState);
-        sdtTrack.setType(siTrack.getType());
-        sdtTrack.setChi2(siTrack.getChi2());
-        sdtTrack.setNdf(siTrack.getNdf());
-        sdtTrack.setDEdx(siTrack.getDEdx());
-        sdtTrack.setDEdxError(siTrack.getDEdxError());
-        sdtTrack.setRadiusOfInnermostHit(siTrack.getRadiusOfInnermostHit());
-        debug()<<"siTrack trackerHits_size="<<siTrack.trackerHits_size()<<endmsg;
-        for(unsigned int iSiTackerHit=0;iSiTackerHit<siTrack.trackerHits_size();
-                iSiTackerHit++){
-            sdtTrack.addToTrackerHits(siTrack.getTrackerHits(iSiTackerHit));
-        }
-        //TODO tracks
-        for(auto digiDC:*digiDCHitsCol){
-            //if(Sim->MCParti!=current) continue;//TODO
-            sdtTrack.addToTrackerHits(digiDC);
+    if(m_siSubsetTrackCol.exist()) siTrackCol=m_siSubsetTrackCol.get();
+    if(nullptr!=siTrackCol) {
+        ///New SDT track
+        for(auto siTrack:*siTrackCol){
+            edm4hep::Track sdtTrack=sdtTrackCol->create();
+            edm4hep::TrackState sdtTrackState;
+            edm4hep::TrackState siTrackStat=siTrack.getTrackStates(0);//FIXME?
+            sdtTrackState.location=siTrackStat.location;
+            sdtTrackState.D0=siTrackStat.D0;
+            sdtTrackState.phi=siTrackStat.phi;
+            sdtTrackState.omega=siTrackStat.omega;
+            sdtTrackState.Z0=siTrackStat.Z0;
+            sdtTrackState.tanLambda=siTrackStat.tanLambda;
+            sdtTrackState.referencePoint=siTrackStat.referencePoint;
+            for(int k=0;k<15;k++){
+                sdtTrackState.covMatrix[k]=siTrackStat.covMatrix[k];
+            }
+            sdtTrack.addToTrackStates(sdtTrackState);
+            sdtTrack.setType(siTrack.getType());
+            sdtTrack.setChi2(siTrack.getChi2());
+            sdtTrack.setNdf(siTrack.getNdf());
+            sdtTrack.setDEdx(siTrack.getDEdx());
+            sdtTrack.setDEdxError(siTrack.getDEdxError());
+            sdtTrack.setRadiusOfInnermostHit(siTrack.getRadiusOfInnermostHit());
+            debug()<<"siTrack trackerHits_size="<<siTrack.trackerHits_size()<<endmsg;
+            for(unsigned int iSiTackerHit=0;iSiTackerHit<siTrack.trackerHits_size();
+                    iSiTackerHit++){
+                sdtTrack.addToTrackerHits(siTrack.getTrackerHits(iSiTackerHit));
+            }
+            //TODO tracks
+            for(auto digiDC:*digiDCHitsCol){
+                //if(Sim->MCParti!=current) continue;//TODO
+                sdtTrack.addToTrackerHits(digiDC);
+            }
         }
     }
 
@@ -211,7 +212,7 @@ StatusCode TruthTrackerAlg::execute()
         //dcTrack.setDEdx();//TODO
         //set hits
         double radiusOfInnermostHit=1e9;
-        debug()<<digiDCHitsCol->size()<<endmsg;
+        debug()<<"digiDCHitsCol size"<<digiDCHitsCol->size()<<endmsg;
         for(auto digiDC : *digiDCHitsCol){
             //if(Sim->MCParti!=current) continue;//TODO
             edm4hep::Vector3d digiPos=digiDC.getPosition();
