@@ -94,7 +94,7 @@
 
   <constant name="Hcal_inner_radius"    value="Ecal_outer_radius+Hcal_Ecal_gap"/>
   <!--constant name="Hcal_outer_radius"    value="(Hcal_inner_radius+Hcal_barrel_thickness)/cos(pi/Hcal_outer_symmetry)"/--> <!-- cos(pi/16)   -->
-  <constant name="Hcal_outer_radius"    value="3144.43*mm"/>
+  <constant name="Hcal_outer_radius"    value="3144.43*mm + 0.00244676*mm"/>
   <constant name="Hcal_half_length"     value="TPC_Ecal_Hcal_barrel_halfZ"/>
   <constant name="Hcal_inner_symmetry"  value="Ecal_Hcal_symmetry"/>
 
@@ -120,7 +120,8 @@
   <constant name="Coil_outer_radius"    value="Hcal_outer_radius+Hcal_Coil_additional_gap+Coil_thickness"/>
   <constant name="Coil_half_length"     value="TPC_Ecal_Hcal_barrel_halfZ+Coil_extra_size"/>
 
-  <constant name="Yoke_inner_radius"    value="Coil_outer_radius+top_Hcal_Yoke_gap"/>
+  <!--constant name="Yoke_inner_radius"    value="Hcal_outer_radius+top_Hcal_Yoke_gap"/--><!--two ways to obtain Yoke_inner_radius--> 
+  <constant name="Yoke_inner_radius"    value="Coil_outer_radius+Coil_Yoke_radial_clearance"/>
   <constant name="Yoke_outer_radius"    value="Yoke_inner_radius+top_Yoke_thickness"/>
   <constant name="Yoke_half_length"     value="top_Yoke_half_length"/>
   <constant name="Yoke_symmetry"        value="top_Yoke_symmetry"/>

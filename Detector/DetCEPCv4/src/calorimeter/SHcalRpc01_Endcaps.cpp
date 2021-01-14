@@ -82,6 +82,7 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   double Hcal_stave_gaps              = theDetector.constant<double>("Hcal_stave_gaps");
   int    Hcal_nlayers                 = theDetector.constant<int>("Hcal_endcap_nlayers");
   double Hcal_start_z                 = theDetector.constant<double>("Hcal_endcap_zmin");
+  double Hcal_end_z                   = theDetector.constant<double>("HcalEndcap_max_z");
   double Hcal_back_plate_thickness    = theDetector.constant<double>("Hcal_back_plate_thickness");
   double Hcal_lateral_plate_thickness = theDetector.constant<double>("Hcal_lateral_structure_thickness");
   double Hcal_endcap_center_box_size  = theDetector.constant<double>("Hcal_endcap_center_box_size");
@@ -102,6 +103,11 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   int numSide = Hcal_endcap_outer_symmetry;
   double Hcal_endcap_thickness = Hcal_nlayers*layerThickness + Hcal_back_plate_thickness;
   double Hcal_endcap_rmax = Hcal_outer_radius * cos(pi/numSide);
+  cout << " module thickness = " << Hcal_endcap_thickness << endl; 
+  if(Hcal_end_z!=Hcal_start_z+Hcal_endcap_thickness){
+    cout << "Hcal_end_z input != Hcal_start_z + Hcal_endcap_thickness: " << "Hcal_end_z=" << Hcal_end_z
+	 << " but Hcal_start_z=" << Hcal_start_z << " and calculate as " << Hcal_start_z+Hcal_endcap_thickness << endl;
+  }
 
   LayeredCalorimeterData* caloData = new LayeredCalorimeterData;
   caloData->layoutType = LayeredCalorimeterData::EndcapLayout;

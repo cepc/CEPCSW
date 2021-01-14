@@ -160,12 +160,12 @@
   <type_flags type="DetType_SUPPORT + DetType_BEAMPIPE "/>
 
   <section start="TUBE_QD0_Lstar-20*mm" end="TUBE_QD0_Lstar+TUBE_QD0_cryostat_length"
-	   rMin="235.*mm" rMax="250.*mm"
+	   rMin="170.*mm" rMax="185.*mm"
 	   material="stainless_steel"
 	   name="qd0_cryostat"/>
 
   <section start="TUBE_QD0_Lstar-20*mm" end="TUBE_QD0_Lstar+TUBE_QD0_cryostat_length"
-	   rMin="235.*mm" rMax="250.*mm"
+	   rMin="205.*mm" rMax="210.*mm"
 	   material="stainless_steel"
 	   name="qd0_cryostat_wall"/>
 
@@ -183,7 +183,7 @@
 
 </detector>
 
-<detector name="QD0_support" type="BoxSupport_o1_v01" vis="BeamPipeVis" id="ILDDetID_NOTUSED" reflect="true">
+<detector name="QD0_support" type="TubeSupport_o1_v01" vis="BeamPipeVis" id="ILDDetID_NOTUSED" reflect="true">
 
   <envelope vis="BlueVis">
     <shape type="Assembly"/>
@@ -191,18 +191,19 @@
 
   <type_flags type="DetType_SUPPORT + DetType_BEAMPIPE "/>
 
-  <section start="TUBE_QD0_Lstar+20*mm" end="TUBE_QD0_Lstar+TUBE_QD0_cryostat_length"
-	   rMin="275.*mm" rMax="300*mm"
+  <section start="TUBE_QD0_Lstar-20*mm" end="TUBE_QD0_Lstar+TUBE_QD0_cryostat_length"
+	   rMin="240.*mm" rMax="310*mm"
 	   material="stainless_steel"
 	   name="qd0_support"/>
 
-  <section start="Ecal_endcap_zmin" end="Ecal_endcap_zmin+Ecal_barrel_thickness"
+  <!--section start="Ecal_endcap_zmin" end="Ecal_endcap_zmin+Ecal_barrel_thickness"
 	   rMin="EcalEndcapRing_outer_radius + 2*env_safety" rMax="EcalEndcap_inner_radius - 2*env_safety"
 	   material="stainless_steel"
-	   name="forward_support_tube"/>
+	   name="forward_support_tube"/-->
 
-  <section start="top_LHCal_min_z + top_LHCal_thickness+10*mm" end="BeamCal_min_z + top_BeamCal_thickness+4600*mm"
-	   rMin="305*mm" rMax="325*mm"
+  <!--section start="top_LHCal_min_z + top_LHCal_thickness+10*mm" end="BeamCal_min_z + top_BeamCal_thickness+4600*mm"-->
+  <section start="top_LHCal_min_z + top_LHCal_thickness+10*mm" end="TUBE_QD0_Lstar-20*mm"
+	   rMin="175*mm" rMax="240*mm"
 	   material="stainless_steel"
 	   name="forward_support_tube"/>
 

@@ -98,6 +98,22 @@ private:
             "HcalEndcapRingContributionCollection", 
             Gaudi::DataHandle::Writer, this};
 
+    // Coil
+    DataHandle<edm4hep::SimTrackerHitCollection> m_COILCol{"COILCollection",
+	Gaudi::DataHandle::Writer, this};
+
+    // Muon
+    DataHandle<edm4hep::SimCalorimeterHitCollection> m_MuonBarrelCol{"MuonBarrelCollection",
+	Gaudi::DataHandle::Writer, this};
+    DataHandle<edm4hep::CaloHitContributionCollection> m_MuonBarrelContributionCol{
+      "MuonBarrelContributionCollection",
+	Gaudi::DataHandle::Writer, this};
+    DataHandle<edm4hep::SimCalorimeterHitCollection> m_MuonEndcapsCol{"MuonEndcapsCollection",
+	Gaudi::DataHandle::Writer, this};
+    DataHandle<edm4hep::CaloHitContributionCollection> m_MuonEndcapsContributionCol{
+      "MuonEndcapsContributionCollection",
+	Gaudi::DataHandle::Writer, this};
+
     // Drift Chamber
     // - DriftChamberHitsCollection
     DataHandle<edm4hep::SimTrackerHitCollection> m_DriftChamberHitsCol{
