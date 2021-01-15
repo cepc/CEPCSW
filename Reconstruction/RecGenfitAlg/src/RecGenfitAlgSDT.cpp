@@ -336,7 +336,7 @@ void RecGenfitAlgSDT::debugTrack(int pidType,const GenfitTrack* genfitTrack)
     TMatrixDSym fittedCov;
     TLorentzVector fittedPos;
     TVector3 fittedMom;
-    genfitTrack->getFittedState(fittedPos,fittedMom,fittedCov);
+    int fittedState=genfitTrack->getFittedState(fittedPos,fittedMom,fittedCov);
     HelixClass helix;//mm and GeV
     float pos[3]={float(fittedPos.X()/dd4hep::mm),float(fittedPos.Y()/dd4hep::mm),
         float(fittedPos.Z()/dd4hep::mm)};
@@ -344,6 +344,28 @@ void RecGenfitAlgSDT::debugTrack(int pidType,const GenfitTrack* genfitTrack)
     helix.Initialize_VP(pos,mom,charge,m_genfitField->getBz(fittedPos.Vect()));
     m_pocaMomKalP[pidType]=fittedMom.Mag();
 
+    if(m_debug>0){
+        /// Get fit status
+        debug()<<"evt "<<m_evt<<" fit result: get status OK? pidType "
+            <<pidType<<" fittedState "<<fittedState<<" isFitted "
+            <<m_isFitted[pidType]<<" isConverged "<<m_isFitConverged[pidType]
+            <<" isFitConvergedFully "<<m_isFitConvergedFully[pidType]
+            <<" ndf "<<m_nDofKal[pidType]
+            <<" chi2 "<<m_chi2Kal[pidType]<<endmsg;
+        if((0!=fittedState)||(!m_isFitted[pidType])||(m_nDofKal[pidType]<m_ndfCut)){
+            debug()<<"fitting failed"<<endmsg;
+        }else{
+            debug()<<"evt "<<m_evt<<" fit result: Pos("<<
+                fittedPos.X()<<" "<<
+                fittedPos.Y()<<" "<<
+                fittedPos.Z()<<") mom("<<
+                fittedMom.X()<<" "<<
+                fittedMom.Y()<<" "<<
+                fittedMom.Z()<<") p_tot "<<
+                fittedMom.Mag()<<" pt "<<
+                fittedMom.Perp()<<endmsg;
+        }
+    }
 }
 
 void RecGenfitAlgSDT::debugEvent()

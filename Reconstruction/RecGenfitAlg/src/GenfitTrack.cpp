@@ -46,8 +46,8 @@ const int GenfitTrack::s_PDG[2][5]
     bool
 sortDCHit(edm4hep::ConstSimTrackerHit hit1,edm4hep::ConstSimTrackerHit hit2)
 {
-    std::cout<<"hit1"<<hit1<<std::endl;
-    std::cout<<"hit2"<<hit2<<std::endl;
+    //std::cout<<"hit1"<<hit1<<std::endl;
+    //std::cout<<"hit2"<<hit2<<std::endl;
     bool isEarly=hit1.getTime()<hit2.getTime();
     return isEarly;
 }
@@ -206,7 +206,7 @@ bool GenfitTrack::addSpacePointTrakerHit(edm4hep::ConstTrackerHit& hit,
     p[1]=pos.y*dd4hep::mm;
     p[2]=pos.z*dd4hep::mm;
 
-    GenfitMsg::get()<<MSG::DEBUG<<m_name<<" addSpacePointMeasurement "<<hitID
+    GenfitMsg::get()<<MSG::DEBUG<<m_name<<" addSpacePointTrakerHit"<<hitID
         <<"pos "<<p[0]<<" "<<p[1]<<" "<<p[2]<<" cm"<<endmsg;
     /// New a SpacepointMeasurement
     double cov[6];
@@ -232,7 +232,7 @@ bool GenfitTrack::addSpacePointTrakerHit(edm4hep::ConstTrackerHit& hit,
     genfit::TrackPoint* trackPoint = new genfit::TrackPoint(sMeas,m_track);
     m_track->insertPoint(trackPoint);
 
-    GenfitMsg::get()<<MSG::DEBUG<<"end of addSpacePointMeasurement"<<endmsg;
+    GenfitMsg::get()<<MSG::DEBUG<<"end of addSpacePointTrakerHit"<<endmsg;
     return true;
 }
 
@@ -248,22 +248,22 @@ bool GenfitTrack::addSpacePointMeasurement(const TVectorD& pos,
     pos_t(2)=pos(2)*dd4hep::mm;
 
     /// smear hit position with same weight
-    TVectorD pos_smeared(pos_t);
+    TVectorD pos_smeared(3);
     for (int i=0;i<3;i++){
-        pos_smeared[i] += gRandom->Gaus(0, sigma/TMath::Sqrt(3.));
+        pos_smeared[i] = pos_t(i)+gRandom->Gaus(0, sigma/TMath::Sqrt(3.));
     }
 
     /// New a SpacepointMeasurement
     TMatrixDSym hitCov(3);
-    sigma=sigma*dd4hep::mm;
-    hitCov(0,0)=sigma*sigma;
-    hitCov(1,1)=sigma*sigma;
-    hitCov(2,2)=sigma*sigma;
+    double sigma_t=sigma*dd4hep::mm;
+    hitCov(0,0)=sigma_t*sigma_t;
+    hitCov(1,1)=sigma_t*sigma_t;
+    hitCov(2,2)=sigma_t*sigma_t;
 
     GenfitMsg::get()<< MSG::DEBUG<<m_name<<" addSpacePointMeasurement detID "
         <<detID<<" hitId "<<hitID<<" " <<pos_t[0]<<" "<<pos_t[1]<<" "<<pos_t[2]
         <<" cm smeared "<<pos_smeared[0]<<" "<<pos_smeared[1]<<" "
-        <<pos_smeared[2]<<" sigma "<<sigma<<" cm"<<endmsg;
+        <<pos_smeared[2]<<" sigma_t "<<sigma_t<<" cm"<<endmsg;
 
     genfit::SpacepointMeasurement* sMeas =
         new genfit::SpacepointMeasurement(pos_smeared,hitCov,detID,hitID,nullptr);
@@ -648,7 +648,6 @@ double GenfitTrack::extrapolateToHit( TVector3& poca, TVector3& pocaDir,
 int GenfitTrack::addSimTrackerHits(const edm4hep::Track& track,
         const edm4hep::MCRecoTrackerAssociationCollection* assoHits,
         float sigma){
-
     //A TrakerHit collection
     std::vector<edm4hep::ConstSimTrackerHit> sortedDCTrackHitCol;
 
@@ -665,18 +664,18 @@ int GenfitTrack::addSimTrackerHits(const edm4hep::Track& track,
         UTIL::BitField64 encoder(lcio::ILDCellID0::encoder_string);
         encoder.setValue(hit.getCellID());
         int detID=encoder[lcio::ILDCellID0::subdet];
-        //GenfitMsg::get()<<MSG::DEBUG<<m_name<<" "<<iHit<<" hit "<<hit
-            //<<" detID "<<detID<<endmsg;
+        GenfitMsg::get()<<MSG::DEBUG<<m_name<<" "<<iHit<<" hit "<<hit
+            <<" detID "<<detID<<endmsg;
 
         if(detID==lcio::ILDDetID::VXD || detID==lcio::ILDDetID::SIT ||
                 detID==lcio::ILDDetID::SET || detID==lcio::ILDDetID::FTD){
-            //if(addSpacePointTrakerHit(hit,hitID)){
-            //    GenfitMsg::get()<<MSG::DEBUG<<"add slicon space point"<<endmsg;
-            //    hitID++;
-            //}else{
-            //    GenfitMsg::get()<<MSG::ERROR<<"addSpacePointTrakerHit"
-            //        <<detID<<" "<<hit.getCellID()<<" faieled"<<endmsg;
-            //}
+            if(addSpacePointTrakerHit(hit,hitID)){
+                GenfitMsg::get()<<MSG::DEBUG<<"add slicon space point"<<endmsg;
+                hitID++;
+            }else{
+                GenfitMsg::get()<<MSG::ERROR<<"silicon addSpacePointTrakerHit"
+                    <<detID<<" "<<hit.getCellID()<<" faieled"<<endmsg;
+            }
         }else if(detID==7){
             //if(addSpacePointMeasurement(p,sigma,hit.getCellID(),hitID)){
             //    GenfitMsg::get()<<MSG::DEBUG<<"add DC space point"<<endmsg;
