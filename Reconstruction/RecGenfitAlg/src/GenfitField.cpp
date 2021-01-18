@@ -43,7 +43,6 @@ GenfitField::get(const double& posX, const double& posY, const double& posZ,
             dd4hep::Position(posX/dd4hep::cm,posY/dd4hep::cm,posZ/dd4hep::cm));
     //m_dd4hepField.magneticField(pos,B);
 
-    double factor = 1./dd4hep::kilogauss;
     Bx=field.X()/dd4hep::kilogauss;
     By=field.Y()/dd4hep::kilogauss;
     Bz=field.Z()/dd4hep::kilogauss;

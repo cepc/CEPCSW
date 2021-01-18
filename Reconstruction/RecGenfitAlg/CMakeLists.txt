@@ -18,13 +18,12 @@ gaudi_add_module(RecGenfitAlg
              DataHelperLib
              EDM4HEP::edm4hep
              EDM4HEP::edm4hepDict
-             $ENV{GenFit}/lib64/libgenfit2.so
+             GenFit::genfit2
 )
 
 target_include_directories(RecGenfitAlg PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-        $<BUILD_INTERFACE:$ENV{GenFit}>/include
 )
 
 install(TARGETS RecGenfitAlg
