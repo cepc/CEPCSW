@@ -19,7 +19,7 @@ gaudi_add_module(Examples
 )
 
 if (GenFit_FOUND)
-  target_link_library(Examples GenFit::genfit2)
+  target_link_libraries(Examples PUBLIC GenFit::genfit2)
 endif()
 
 target_include_directories(Examples PUBLIC
