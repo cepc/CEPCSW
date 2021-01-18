@@ -111,6 +111,7 @@ void GeometryCreator::SetMandatorySubDetectorParameters(SubDetectorTypeMap &subD
         trackerParameters.m_innerRCoordinate = tpcParameters.getPadLayout().getPlaneExtent()[0];
         trackerParameters.m_outerRCoordinate = tpcParameters.getPadLayout().getPlaneExtent()[1];
         trackerParameters.m_outerZCoordinate = tpcParameters.getMaxDriftLength();
+        std::cout<<"Gear m_innerRCoordinate="<<trackerParameters.m_innerRCoordinate.Get()<<",m_outerRCoordinate="<<trackerParameters.m_outerRCoordinate.Get()<<",m_outerZCoordinate="<<trackerParameters.m_outerZCoordinate.Get()<<std::endl;
     }
     trackerParameters.m_innerZCoordinate = 0.f;
     trackerParameters.m_innerPhiCoordinate = 0.f;

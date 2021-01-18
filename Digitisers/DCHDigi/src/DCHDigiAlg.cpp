@@ -8,6 +8,7 @@
 
 #include "DD4hep/Detector.h"
 #include <DD4hep/Objects.h>
+#include "DD4hep/DD4hepUnits.h"
 #include "DDRec/Vector3D.h"
 
 #include "GaudiKernel/INTupleSvc.h"
@@ -109,9 +110,10 @@ StatusCode DCHDigiAlg::execute()
           id_hits_map[id] = vhit ;
       }
   }
-
-  m_n_sim = 0;
-  m_n_digi = 0 ;
+  if(m_WriteAna){
+      m_n_sim = 0;
+      m_n_digi = 0 ;
+  }
   for(std::map<unsigned long long, std::vector<edm4hep::SimTrackerHit> >::iterator iter = id_hits_map.begin(); iter != id_hits_map.end(); iter++)
   {
     unsigned long long wcellid = iter->first;
@@ -133,8 +135,10 @@ StatusCode DCHDigiAlg::execute()
     TVector3 Wstart(0,0,0);
     TVector3 Wend  (0,0,0);
     m_segmentation->cellposition(wcellid, Wstart, Wend);
-    Wstart = 10*Wstart;// from DD4HEP cm to mm
-    Wend   = 10*Wend  ;
+    float dd4hep_mm = dd4hep::mm;
+    //std::cout<<"dd4hep_mm="<<dd4hep_mm<<std::endl;
+    Wstart =(1/dd4hep_mm)* Wstart;// from DD4HEP cm to mm
+    Wend   =(1/dd4hep_mm)* Wend  ;
     //std::cout<<"wcellid="<<wcellid<<",chamber="<<chamber<<",layer="<<layer<<",cellID="<<cellID<<",s_x="<<Wstart.x()<<",s_y="<<Wstart.y()<<",s_z="<<Wstart.z()<<",E_x="<<Wend.x()<<",E_y="<<Wend.y()<<",E_z="<<Wend.z()<<std::endl;
 
     TVector3  denominator = (Wend-Wstart) ;

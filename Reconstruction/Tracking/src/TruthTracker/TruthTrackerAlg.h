@@ -3,13 +3,11 @@
 
 #include "GaudiAlg/GaudiAlgorithm.h"
 #include "k4FWCore/DataHandle.h"
-#include "GaudiKernel/NTuple.h"
 #include "DD4hep/Fields.h"
 
 class IGeomSvc;
 namespace dd4hep {
     class Detector;
-    //class rec::CellIDPositionConverter;
     namespace DDSegmentation{
         class GridDriftChamber;
         class BitFieldCoder;
@@ -37,7 +35,6 @@ class TruthTrackerAlg: public GaudiAlgorithm
         SmartIF<IGeomSvc> m_geomSvc;
         dd4hep::Detector* m_dd4hep;
         dd4hep::OverlayedField m_dd4hepField;
-        //dd4hep::rec::CellIDPositionConverter* m_cellIDConverter;
         dd4hep::DDSegmentation::GridDriftChamber* m_gridDriftChamber;
         dd4hep::DDSegmentation::BitFieldCoder* m_decoder;
 
@@ -62,18 +59,7 @@ class TruthTrackerAlg: public GaudiAlgorithm
         Gaudi::Property<std::string> m_readout_name{this, "readout",
             "DriftChamberHitsCollection"};
 
-        int m_debug;
-        //strore all the id for later analysis
-        NTuple::Tuple* m_tuple_id = nullptr;
-
-        NTuple::Item<int> m_id_system;
-        NTuple::Item<int> m_id_module;
-        NTuple::Item<int> m_id_stave;
-        NTuple::Item<int> m_id_tower;
-        NTuple::Item<int> m_id_layer;
-        NTuple::Item<int> m_id_wafer;
-        NTuple::Item<int> m_id_cellX;
-        NTuple::Item<int> m_id_cellY;
+        Gaudi::Property<int>  m_debug{ this, "debug", false};
 };
 
 #endif

@@ -1,34 +1,37 @@
-gaudi_subdir(TrackSystemSvc v0r0)
+# gaudi_subdir(TrackSystemSvc v0r0)
 
-find_package(CLHEP REQUIRED;CONFIG)
-find_package(ROOT 6.14 REQUIRED COMPONENTS Matrix Physics)
-find_package(GEAR REQUIRED)
-find_package(LCIO REQUIRED)
-find_package(EDM4HEP REQUIRED)
-#find_package(KalTest REQUIRED)
-#find_package(KalDet REQUIRED)
-find_package(DD4hep COMPONENTS DDCore DDRec REQUIRED)
+gaudi_add_library(TrackSystemSvcLib
+                  SOURCES src/HelixFit.cc
+                          src/HelixTrack.cc
+                          src/IMarlinTrack.cc
+                          src/IMarlinTrkSystem.cc
+                          src/LCIOTrackPropagators.cc
+                          src/MarlinKalTest.cc
+                          src/MarlinKalTestTrack.cc
+                          src/MarlinTrkUtils.cc
 
-gaudi_depends_on_subdirs(Service/GearSvc Detector/DetInterface Utilities/DataHelper Utilities/KalTest Utilities/KalDet)
-
-set(TrackSystemSvc_srcs src/*.cpp)
-set(TrackSystemSvcLib_srcs src/*.cc)
-
-gaudi_install_headers(TrackSystemSvc)
-
-#message( "${INCLUDE_DIRS}" )
-#message( "${LINK_LIBRARIES}" )
-
-gaudi_add_library(TrackSystemSvcLib ${TrackSystemSvcLib_srcs}
-    PUBLIC_HEADERS TrackSystemSvc
-    INCLUDE_DIRS GaudiKernel ROOT ${CLHEP_INCLUDE_DIR} gear ${LCIO_INCLUDE_DIRS} ${EDM4HEP_INCLUDE_DIRS}
-    LINK_LIBRARIES DataHelperLib KalTestLib KalDetLib GaudiKernel ROOT ${CLHEP_LIBRARIES} ${GEAR_LIBRARIES} ${LCIO_LIBRARIES}
-     -Wl,--no-as-needed
-     EDM4HEP::edm4hep EDM4HEP::edm4hepDict
-     -Wl,--as-needed
+                  LINK DataHelperLib 
+                       KalTestLib 
+                       KalDetLib 
+                       GearSvc
+                       Gaudi::GaudiKernel 
+                       ${ROOT_LIBRARIES}
+                       ${CLHEP_LIBRARIES} 
+                       ${GEAR_LIBRARIES}
+                       ${LCIO_LIBRARIES}
+                       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
 )
 
-gaudi_add_module(TrackSystemSvc ${TrackSystemSvc_srcs}
-				INCLUDE_DIRS GaudiKernel gear 
-				LINK_LIBRARIES TrackSystemSvcLib GaudiKernel ${GEAR_LIBRARIES}
+gaudi_add_module(TrackSystemSvc 
+                 SOURCES src/TrackSystemSvc.cpp
+		 LINK TrackSystemSvcLib 
+                      Gaudi::GaudiKernel
+                      ${GEAR_LIBRARIES}
 )
+
+install(TARGETS TrackSystemSvcLib TrackSystemSvc
+  EXPORT CEPCSWTargets
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
+  COMPONENT dev)
+

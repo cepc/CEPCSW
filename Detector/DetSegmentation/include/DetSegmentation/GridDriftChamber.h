@@ -66,13 +66,10 @@ public:
 
   inline void setWiresInLayer(int layer, int numWires)
   {
-    double phi0;
     updateParams(layer);
     for (int i = 0; i<numWires; ++i) {
 
-      double phi0 = m_offset;
-
-      auto phi_start = _currentLayerphi * i + phi0;
+      auto phi_start = _currentLayerphi * (i+0.5) + m_offset;
       auto phi_end = phi_start + _currentLayerphi;
 
       TVector3 Wstart = returnWirePosition(phi_start, 1);

@@ -132,10 +132,15 @@ protected:
 
   Gaudi::Property< std::vector<std::string> > m_TrackCollections{ this, "TrackCollections", {"MarlinTrkTracks"} };
   Gaudi::Property< std::vector<std::string> > m_ECalCaloHitCollections{ this, "ECalCaloHitCollections", {"ECALBarrel","ECALEndcap","ECALOther"} };
+  Gaudi::Property< std::vector<std::string> > m_ECalReadOutNames      { this, "ECalReadOutNames", {"EcalBarrelCollection","EcalEndcapsCollection","ECALOther"} };
   Gaudi::Property< std::vector<std::string> > m_HCalCaloHitCollections{ this, "HCalCaloHitCollections", {"HCALBarrel","HCALEndcap","HCALOther"} };
+  Gaudi::Property< std::vector<std::string> > m_HCalReadOutNames      { this, "HCalReadOutNames", {"HcalBarrelCollection","HcalEndcapsCollection","HCALOther"} };
   Gaudi::Property< std::vector<std::string> > m_LCalCaloHitCollections{ this, "LCalCaloHitCollections", {"LCAL"} };
+  Gaudi::Property< std::vector<std::string> > m_LCalReadOutNames      { this, "LCalReadOutNames", {"LcalBarrelCollection"} };
   Gaudi::Property< std::vector<std::string> > m_LHCalCaloHitCollections{ this, "LHCalCaloHitCollections", {"LHCAL"} };
+  Gaudi::Property< std::vector<std::string> > m_LHCalReadOutNames      { this, "LHCalReadOutNames", {"LHcalBarrelCollection"} };
   Gaudi::Property< std::vector<std::string> > m_MuonCaloHitCollections{ this, "MuonCaloHitCollections", {"MUON"} };
+  Gaudi::Property< std::vector<std::string> > m_MuonCalReadOutNames      { this, "MuonCalReadOutNames", {"MuonCollection"} };
   Gaudi::Property< std::vector<std::string> > m_MCParticleCollections{ this, "MCParticleCollections", {"MCParticle"} };
   Gaudi::Property< std::vector<std::string> > m_RelCaloHitCollections{ this, "RelCaloHitCollections", {"RelationCaloHit","RelationMuonHit"} };
   Gaudi::Property< std::vector<std::string> > m_RelTrackCollections{ this, "RelTrackCollections", {"MarlinTrkTracksMCTruthLink"} };
@@ -257,6 +262,7 @@ protected:
   NTuple::Item<long>   m_n_mc;
   NTuple::Item<long>   m_n_rec;
   NTuple::Item<int>   m_hasConversion;
+  NTuple::Item<int>   m_marlinTrack;
   NTuple::Array<int  > m_pReco_PID;    
   NTuple::Array<float> m_pReco_mass;
   NTuple::Array<float> m_pReco_energy;
@@ -275,6 +281,7 @@ protected:
 
 
   
+  Gaudi::Property<bool> m_debug {this, "debug", false,"if do debug"};
   Gaudi::Property<bool> m_WriteAna {this, "WriteAna", false,"if do ana"};
   Gaudi::Property<bool> m_use_dd4hep_geo{this, "use_dd4hep_geo", false,"choose if use geo info from dd4hep"};
   Gaudi::Property<bool> m_use_dd4hep_decoder {this, "use_dd4hep_decoder", true,"if use decoder from dd4hep"};

@@ -36,7 +36,7 @@ dsvc = k4DataSvc("EventDataSvc")
 geometry_option = "det.xml"
 
 if not os.getenv("DETDRIFTCHAMBERROOT"):
-    print("Can't find the geometry. Please setup envvar DETCEPCV4ROOT." )
+    print("Can't find the geometry. Please setup envvar DETDRIFTCHAMBERROOT." )
     sys.exit(-1)
 
 geometry_path = os.path.join(os.getenv("DETDRIFTCHAMBERROOT"), "compact", geometry_option)
@@ -116,6 +116,13 @@ if int(os.environ.get("VIS", 0)):
 
 detsimalg.RunCmds = [
 #    "/tracking/verbose 1",
+]
+
+from Configurables import DummyFastSimG4Tool
+dummy_fastsim_tool = DummyFastSimG4Tool("DummyFastSimG4Tool")
+
+detsimalg.FastSimG4Tools = [
+    "DummyFastSimG4Tool"
 ]
 detsimalg.AnaElems = [
     # example_anatool.name()

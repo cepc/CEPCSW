@@ -22,17 +22,17 @@
     <constant name="world_z" value="world_size"/>
 
     <!-- SDT -->
-    <constant name="SDT_radius_min" value="235*mm"/>
-    <constant name="SDT_radius_max" value="1716*mm"/>
+    <constant name="SDT_radius_min" value="234*mm"/>
+    <constant name="SDT_radius_max" value="1720*mm"/>
     <constant name="SDT_half_length" value="2225*mm"/>
     <constant name="SDT_length" value="SDT_half_length*2"/>
 
-    <constant name="SDT_inner_chamber_radius_min" value="SDT_radius_min"/>
-    <constant name="SDT_inner_chamber_radius_max" value="909*mm"/>
+    <constant name="SDT_inner_chamber_radius_min" value="235*mm"/>
+    <constant name="SDT_inner_chamber_radius_max" value="906*mm"/>
     <constant name="SDT_inner_chamber_length" value="SDT_length"/>
 
     <constant name="SDT_outer_chamber_radius_min" value="1085*mm"/>
-    <constant name="SDT_outer_chamber_radius_max" value="SDT_radius_max"/>
+    <constant name="SDT_outer_chamber_radius_max" value="1715*mm"/>
     <constant name="SDT_outer_chamber_length" value="SDT_length"/>
 
     <constant name="SDT_inner_chamber_layer_number" value="67"/>
@@ -40,24 +40,48 @@
     <constant name="SDT_chamber_layer_width" value="10*mm"/>
     <constant name="Epsilon" value="0*deg"/>
 
+    <constant name="SDT_inner_chamber_inner_wall_radius_min" value="234.8*mm"/>
+    <constant name="SDT_inner_chamber_inner_wall_radius_max" value="235*mm"/>
+    <constant name="SDT_inner_chamber_outer_wall_radius_min" value="906*mm"/>
+    <constant name="SDT_inner_chamber_outer_wall_radius_max" value="908.8*mm"/>
+    <constant name="SDT_outer_chamber_inner_wall_radius_min" value="1084.8*mm"/>
+    <constant name="SDT_outer_chamber_inner_wall_radius_max" value="1085*mm"/>
+    <constant name="SDT_outer_chamber_outer_wall_radius_min" value="1715*mm"/>
+    <constant name="SDT_outer_chamber_outer_wall_radius_max" value="1717.8*mm"/>
+
   </define>
 
   <display>
     <vis name="Invisible" showDaughters="false" visible="false"/>
     <vis name="InvisibleWithChildren" showDaughters="true" visible="false"/>
     <vis name="VisibleRed"  r="1.0" g="0.0" b="0.0" showDaughters="true" visible="true"/>
-    <vis name="VisibleBlue" r="0.0" g="0.0" b="1.0" showDaughters="false" visible="true"/>
+    <vis name="VisibleBlue" r="0.0" g="0.0" b="1.0" showDaughters="true" visible="true"/>
     <vis name="VisibleGreen" alpha="1.0" r="0.0" g="1.0" b="0.0" drawingStyle="solid" lineStyle="solid" showDaughters="true" visible="true"/>
   </display>
 
+  <regions>
+    <region name="DriftChamberRegion">
+    </region>
+  </regions>
+
   <detectors>
-    <detector id="1" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="VisibleBlue" sensitive="true">
+    <detector id="1" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="VisibleBlue" sensitive="true" region="DriftChamberRegion">
       <envelope vis="SeeThrough">
         <shape type="BooleanShape" operation="Union" material="Air">
-          <shape type="Tube" rmin="SDT_inner_chamber_radius_min" rmax="SDT_inner_chamber_radius_max" dz="SDT_half_length" />
-          <shape type="Tube" rmin="SDT_outer_chamber_radius_min" rmax="SDT_outer_chamber_radius_max" dz="SDT_half_length" />
+          <shape type="Tube" rmin="SDT_radius_min" rmax="909*mm" dz="SDT_half_length" />
+          <shape type="Tube" rmin="1084.8*mm" rmax="SDT_radius_max" dz="SDT_half_length" />
         </shape>
       </envelope>
+
+      <module id="0" name="SignalWire" type="Tube" rmin="0*mm" rmax="0.01*mm" vis="VisibleRed">
+          <tubs name="W" type="Tube" rmin="0*mm" rmax="0.007*mm" material="Tungsten"/>
+          <tubs name="Au" type="Tube" rmin="0.007*mm" rmax="0.01*mm" material="Gold"/>
+      </module>
+
+      <module id="1" name="FieldWire" type="Tube" rmin="0*mm" rmax="0.02*mm" vis="VisibleGreen">
+          <tubs name="Al" type="Tube" rmin="0*mm" rmax="0.017*mm" material="Aluminum"/>
+          <tubs name="Ag" type="Tube" rmin="0.017*mm" rmax="0.02*mm" material="Silver"/>
+      </module>
 
       <type_flags type="DetType_TRACKER + DetType_BARREL + DetType_GASEOUS + DetType_WIRE"/>
       <!-- Use cm as unit if you want to use Pandora for reconstruction -->

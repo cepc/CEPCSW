@@ -71,29 +71,6 @@ StatusCode TruthTrackerAlg::initialize()
         return StatusCode::FAILURE;
     }
 
-    //  Book N-tuple 1
-    NTuplePtr nt1(ntupleSvc(), "TruthTrackerAlg/1");
-    if ( nt1 ) {
-        m_tuple_id = nt1;
-    } else {
-        m_tuple_id = ntupleSvc()->book( "TruthTrackerAlg/1", CLID_RowWiseTuple, "Row-wise N-Tuple example" );
-        if ( m_tuple_id ) {
-            m_tuple_id->addItem( "system", m_id_system ).ignore();
-            m_tuple_id->addItem( "module", m_id_module ).ignore();
-            m_tuple_id->addItem( "stave", m_id_stave ).ignore();
-            m_tuple_id->addItem( "tower", m_id_tower ).ignore();
-            m_tuple_id->addItem( "layer", m_id_layer ).ignore();
-            m_tuple_id->addItem( "wafer", m_id_wafer ).ignore();
-            m_tuple_id->addItem( "cellX", m_id_cellX ).ignore();
-            m_tuple_id->addItem( "cellY", m_id_cellY ).ignore();
-
-        } else { // did not manage to book the N tuple....
-            error() << "    Cannot book N-tuple:" << long( m_tuple_id ) << endmsg;
-            return StatusCode::FAILURE;
-        }
-    }
-
-
     return GaudiAlgorithm::initialize();
 }
 

@@ -10,11 +10,11 @@
   <constant name="CepC_Main_Crossing_Angle" value="33*mrad"/>
 
   <!-- the field inside and outside the solenoid -->
-  <constant name="outerField_nominal_value" value="-1.5*tesla"/>
-
+  <constant name="Field_outer_nominal_value" value="-1.33716*tesla"/>
+  <constant name="Field_outer_thickness" value="2550*mm"/>
 
   <!-- VXD -->
-  <constant name="top_VXD_inner_radius"   value="15.95*mm "/>
+  <constant name="top_VXD_inner_radius"   value="15*mm "/>
   <constant name="top_VXD_outer_radius"   value="101*mm "/>
   <constant name="top_VXD_half_length"    value="200*mm "/>
 
@@ -58,16 +58,17 @@
   <constant name="Ecal_EC_Ring_gap" value="10*mm"/>
 
   <!-- HCAL -->
-  <constant name="Hcal_barrel_thickness" value="1272.3*mm"/>
+  <!--constant name="Hcal_barrel_thickness" value="1086.43*mm"/-->
   <constant name="Hcal_Coil_additional_gap" value="29.5*mm"/>
   <!--constant name="Hcal_outer_symmetry" value="16"/-->
   <constant name="Hcal_outer_symmetry" value="8"/>
 
   <constant name="Hcal_endcap_center_box_size" value="700.0*mm"/>
   <constant name="Hcal_endcap_zmin" value="2650*mm" />
-  <constant name="Hcal_endcap_thickness" value="1287.0*mm"/>
+  <constant name="Hcal_endcap_thickness" value="1084.2*mm"/>
   <constant name="Hcal_radial_ring_inner_gap" value="50*mm"/>
-  <constant name="Hcal_endcap_cryostat_gap" value="170*mm"/>
+  <constant name="Hcal_endcap_cryostat_gap" value="0*mm"/>
+  <constant name="Hcal_endcap_ecal_gap" value="15*mm"/>
 
   <!-- coil -->
   <constant name="Coil_extra_size" value="1522*mm"/>
@@ -80,8 +81,9 @@
        <constant name="top_Yoke_inner_radius"    value="4424.0*mm"/>
        <constant name="top_Yoke_outer_radius"    value="7725.0*mm"/>
        -->
-  <constant name="top_Hcal_Yoke_gap"       value="300*mm"/>
-  <constant name="top_Yoke_thickness"      value="2550*mm"/>
+  <constant name="Coil_Yoke_radial_clearance" value="250*mm"/>
+  <constant name="top_Hcal_Yoke_gap"       value="Hcal_Coil_additional_gap+Coil_thickness+Coil_Yoke_radial_clearance"/>
+  <constant name="top_Yoke_thickness"      value="3241*mm"/>
 
   <constant name="top_Yoke_half_length"     value="4047.0*mm"/>
   <constant name="Yoke_Z_start_endcaps"     value="4072.0*mm"/>

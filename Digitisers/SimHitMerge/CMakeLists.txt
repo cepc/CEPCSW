@@ -1,20 +1,18 @@
-gaudi_subdir(SimHitMergeAlg v0r0)
-
-find_package(DD4hep COMPONENTS DDG4 REQUIRED)
-find_package(EDM4HEP REQUIRED)
-find_package(podio REQUIRED ) 
-find_package(k4FWCore REQUIRED)
-
-include_directories(${EDM4HEP_INCLUDE_DIR})
-
-gaudi_depends_on_subdirs(
-    Detector/DetInterface
-)
-set(SimHitMergeAlg_srcs src/*.cpp)
 
 # Modules
-gaudi_add_module(SimHitMerge ${SimHitMergeAlg_srcs}
-    INCLUDE_DIRS k4FWCore GaudiKernel GaudiAlgLib DD4hep  
-    LINK_LIBRARIES k4FWCore GaudiKernel GaudiAlgLib DD4hep DDRec
-    EDM4HEP::edm4hep EDM4HEP::edm4hepDict
+gaudi_add_module(SimHitMerge
+                 SOURCES src/SimHitMergeAlg.cpp
+                 LINK DetInterface
+                      k4FWCore::k4FWCore
+                      Gaudi::GaudiKernel
+                      Gaudi::GaudiAlgLib
+                      ${DD4hep_COMPONENT_LIBRARIES}
+                      EDM4HEP::edm4hep EDM4HEP::edm4hepDict
 )
+
+install(TARGETS SimHitMerge
+  EXPORT CEPCSWTargets
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
+  COMPONENT dev)
+

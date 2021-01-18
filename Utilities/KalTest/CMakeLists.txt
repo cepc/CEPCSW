@@ -3,15 +3,9 @@
 #    Desc: import from ILCSoft
 ##############################################################################
 
-gaudi_subdir(KalTest v0r0)
-
-find_package(ROOT REQUIRED COMPONENTS MathCore)
-
-gaudi_depends_on_subdirs()
-
 set( DICT_CINT_DEFINITIONS "HANDLE_DICT_EXCEPTIONS=IGNORED_FOR_CINT" )
 set( DICT_INPUT_DIRS geomlib kallib kaltracklib utils )
-set( DICT_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/rootdict )
+set( DICT_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/rootdict )
 
 foreach( DICT ${DICT_INPUT_DIRS} )
   list( APPEND DICT_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src/${DICT} )
@@ -54,7 +48,18 @@ include_directories( ${ROOT_INCLUDE_DIRS} )
 
 set(KalTestLib_srcs ${LIB_SOURCES})
 
-gaudi_add_library(KalTestLib ${KalTestLib_srcs}
-			     PUBLIC_HEADERS kaltest
-			     LINK_LIBRARIES GaudiKernel ROOT
+gaudi_add_library(KalTestLib 
+                  SOURCES ${KalTestLib_srcs}
+		  LINK Gaudi::GaudiKernel
+                       ${ROOT_LIBRARIES}
 )
+
+target_include_directories(KalTestLib PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+install(TARGETS KalTestLib
+  EXPORT CEPCSWTargets
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
+  COMPONENT dev)

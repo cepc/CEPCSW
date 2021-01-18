@@ -1,0 +1,3 @@
+add_subdirectory(EventSeeder)
+add_subdirectory(GearSvc)
+add_subdirectory(TrackSystemSvc)

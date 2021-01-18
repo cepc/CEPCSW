@@ -22,3 +22,9 @@ double DummyDedxSimTool::dedx(const G4Step* aStep) {
 
     return result;
 }
+double DummyDedxSimTool::dedx(const edm4hep::MCParticle& mc) {
+    return -1;
+}
+double DummyDedxSimTool::dndx(double betagamma) {
+    return -1;
+}

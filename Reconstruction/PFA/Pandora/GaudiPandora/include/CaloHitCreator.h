@@ -50,10 +50,15 @@ public:
         Settings();
 
         StringVector    m_eCalCaloHitCollections;               ///< The ecal calorimeter hit collections
+        StringVector    m_eCalCaloReadOuts;                     ///< The ecal calorimeter ReadOut
         StringVector    m_hCalCaloHitCollections;               ///< The hcal calorimeter hit collections
+        StringVector    m_hCalCaloReadOuts;                     ///< The hcal calorimeter ReadOut
         StringVector    m_lCalCaloHitCollections;               ///< The lcal calorimeter hit collections
+        StringVector    m_lCalCaloReadOuts;                     ///< The lcal calorimeter ReadOut
         StringVector    m_lHCalCaloHitCollections;              ///< The lhcal calorimeter hit collections
+        StringVector    m_lHCalCaloReadOuts;                     ///< The lhcal calorimeter ReadOut
         StringVector    m_muonCaloHitCollections;               ///< The muon calorimeter hit collections
+        StringVector    m_muonCalCaloReadOuts;                     ///< The muon calorimeter ReadOut
 
         float           m_absorberRadLengthECal;                ///< The absorber radiation length in the ECal
         float           m_absorberIntLengthECal;                ///< The absorber interaction length in the ECal
@@ -100,6 +105,7 @@ public:
         bool            m_use_dd4hep_geo;                       /// 
         bool            m_use_dd4hep_decoder;                       /// 
         bool            m_use_preshower;                       /// 
+        bool            m_debug;
     };
 
     /**

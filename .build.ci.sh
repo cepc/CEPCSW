@@ -2,7 +2,7 @@
 # This is wrapper to run the build.sh on CI
 
 echo "LCG_RELEASE: ${LCG_RELEASE}"
-
+echo "CEPCSW_BLDTOOL: ${CEPCSW_BLDTOOL}"
 buildpid=
 logfile=mylog.txt
 

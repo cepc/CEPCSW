@@ -1,15 +1,13 @@
 # [CEPCSW](https://cepc.github.io/CEPCSW/)
 
 [![Build Status](https://www.travis-ci.com/cepc/CEPCSW.svg?branch=master)](https://www.travis-ci.com/cepc/CEPCSW)
+[![CI](https://github.com/cepc/CEPCSW/workflows/CI/badge.svg?branch=master)](https://github.com/cepc/CEPCSW/actions)
 
 CEPC offline software prototype based on [Key4hep](https://github.com/key4hep).
 
 ## Quick start
 
-Start an SL6 container in lxslc7 (OS: CentOS7):
-```
-$ /cvmfs/container.ihep.ac.cn/bin/hep_container shell SL6
-```
+SSH to lxslc7 (CentOS 7).
 
 Before run following commands, please make sure you setup the CVMFS:
 
