@@ -74,14 +74,12 @@ StatusCode DCHDigiAlg::initialize()
             m_tuple->addItem( "dca"      , m_n_digi,m_dca       ).ignore();
             m_tuple->addItem( "hit_dE"   , m_n_digi,m_hit_dE    ).ignore();
             m_tuple->addItem( "hit_dE_dx", m_n_digi,m_hit_dE_dx ).ignore();
-          } 
-          else { // did not manage to book the N tuple....
-            error() << "    Cannot book N-tuple:" << long( m_tuple ) << endmsg;
-            return StatusCode::FAILURE;
+          } else { // did not manage to book the N tuple....
+            info() << "    Cannot book N-tuple:" << long( m_tuple ) << endmsg;
           }
       }
   }
-  std::cout<<"DCHDigiAlg::initialized"<< std::endl;
+  info()<<"DCHDigiAlg::initialized"<<endmsg;
   return GaudiAlgorithm::initialize();
 }
 
@@ -93,7 +91,7 @@ StatusCode DCHDigiAlg::execute()
   edm4hep::TrackerHitCollection* Vec   = w_DigiDCHCol.createAndPut();
   edm4hep::MCRecoTrackerAssociationCollection* AssoVec   = w_AssociationCol.createAndPut();
   const edm4hep::SimTrackerHitCollection* SimHitCol =  r_SimDCHCol.get();
-  std::cout<<"input sim hit size="<< SimHitCol->size() <<std::endl;
+  debug()<<"input sim hit size="<< SimHitCol->size() <<endmsg;
   for( int i = 0; i < SimHitCol->size(); i++ ) 
   {
       edm4hep::SimTrackerHit SimHit = SimHitCol->at(i);
@@ -110,7 +108,7 @@ StatusCode DCHDigiAlg::execute()
           id_hits_map[id] = vhit ;
       }
   }
-  if(m_WriteAna){
+  if(m_WriteAna && (nullptr!=m_tuple)){
       m_n_sim = 0;
       m_n_digi = 0 ;
   }
@@ -164,7 +162,7 @@ StatusCode DCHDigiAlg::execute()
         asso.setSim(iter->second.at(i));
         asso.setWeight(iter->second.at(i).getEDep()/tot_edep);
 
-        if(m_WriteAna){
+        if(m_WriteAna && (nullptr!=m_tuple)){
             m_simhit_x[m_n_sim] = pos.x();
             m_simhit_y[m_n_sim] = pos.y();
             m_simhit_z[m_n_sim] = pos.z();
@@ -178,7 +176,7 @@ StatusCode DCHDigiAlg::execute()
     trkHit.setPosition (edm4hep::Vector3d(pos_x, pos_y, pos_z));//position of closest sim hit
     trkHit.setCovMatrix(std::array<float, 6>{m_res_x, 0, m_res_y, 0, 0, m_res_z});//cov(x,x) , cov(y,x) , cov(y,y) , cov(z,x) , cov(z,y) , cov(z,z) in mm
 
-    if(m_WriteAna){
+    if(m_WriteAna && (nullptr!=m_tuple)){
         m_chamber  [m_n_digi] = chamber;
         m_layer    [m_n_digi] = layer  ;
         m_cell     [m_n_digi] = cellID;
@@ -195,10 +193,10 @@ StatusCode DCHDigiAlg::execute()
   }
 
 
-  std::cout<<"output digi DCHhit size="<< Vec->size() <<std::endl;
+  debug()<<"output digi DCHhit size="<< Vec->size() <<endmsg;
   _nEvt ++ ;
 
-  if(m_WriteAna){
+  if(m_WriteAna && (nullptr!=m_tuple)){
       StatusCode status = m_tuple->write();
       if ( status.isFailure() ) {
         error() << "    Cannot fill N-tuple:" << long( m_tuple ) << endmsg;

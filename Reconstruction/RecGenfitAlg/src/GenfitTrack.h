@@ -41,7 +41,9 @@ namespace edm4hep{
     class MCParticle;
     class SimTrackerHitCollection;
     class ReconstructedParticle;
+    class MCRecoTrackerAssociationCollection;
     class Track;
+    class ConstTrackerHit;
     class Vector3d;
     class Vector3f;
 }
@@ -96,8 +98,11 @@ class GenfitTrack {
     //  int PrepareHits();//TODO
 
     /// Add a space point measurement, return number of hits on track
-    virtual bool addSpacePointMeasurementOnTrack(const TVectorD&, bool, double,
-            int detID=-1, int hitID=-1);
+    bool addSpacePointTrakerHit(edm4hep::ConstTrackerHit& hit, int hitID);
+
+    /// Add a space point measurement, return number of hits on track
+    virtual bool addSpacePointMeasurement(const TVectorD&, double,
+            int detID=-1, int hitID=-1, bool smear=false);
 
     /// Add a WireMeasurement with MC truth position smeared by sigma
     virtual void addWireMeasurement(double driftDistance,
@@ -108,13 +113,13 @@ class GenfitTrack {
     virtual bool addWireMeasurementOnTrack(edm4hep::Track& track, double sigma);
 
     ///Add space point from truth to track
-    int addSpacePointMeasurementOnTrack(const edm4hep::MCParticle& mcParticle,
-            const edm4hep::SimTrackerHitCollection*& simDCHitCol,bool smear=true,
-            double resolution=0.01);
+    int addSimTrackerHits(const edm4hep::Track& track,
+        const edm4hep::MCRecoTrackerAssociationCollection* assoHits,
+        float sigma,bool smear=false);// float nSigmaSelection
 
     ///Store track to ReconstructedParticle
     bool storeTrack(edm4hep::ReconstructedParticle& dcRecParticle,int pidType,
-            int ndfCut, double chi2Cut);
+            int ndfCut=1e9, double chi2Cut=1.e9);
 
     ///A tool to convert track to the first layer of DC
     void pivotToFirstLayer(edm4hep::Vector3d& pos,edm4hep::Vector3f& mom,

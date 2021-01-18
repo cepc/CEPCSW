@@ -3,7 +3,8 @@
 /// This is an algorithm for track fitting for CEPC track with genfit.
 ///
 /// In this file, including:
-///   An algorithm for drift chamber track fitting with genfit with 5 hypothesis
+///   An algorithm for combined silicon and drift chamber track fitting
+///   with genfit for 5 particle hypothesis
 ///
 ///   Units are following DD4hepUnits
 ///
@@ -12,8 +13,8 @@
 ///
 /////////////////////////////////////////////////////////////////////
 
-#ifndef RECGENFITALG_RECGENFITALGDC_H
-#define RECGENFITALG_RECGENFITALGDC_H
+#ifndef RECGENFITALG_RECGENFITALGSDT_H
+#define RECGENFITALG_RECGENFITALGSDT_H
 
 #include "GaudiAlg/GaudiAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
@@ -50,12 +51,10 @@ namespace edm4hep{
 
 /////////////////////////////////////////////////////////////////////////////
 
-class RecGenfitAlgDC:public GaudiAlgorithm {
+class RecGenfitAlgSDT:public GaudiAlgorithm {
     public:
-        RecGenfitAlgDC (const std::string& name, ISvcLocator* pSvcLocator);
-        StatusCode initialize() override;
-        StatusCode execute() override;
-        StatusCode finalize() override;
+        RecGenfitAlgSDT (const std::string& name, ISvcLocator* pSvcLocator);
+        StatusCode initialize() override; StatusCode execute() override; StatusCode finalize() override;
 
     private:
         GenfitFitter* m_genfitFitter;//The pointer to a GenfitFitter
@@ -64,27 +63,31 @@ class RecGenfitAlgDC:public GaudiAlgorithm {
         void debugTrack(int pidType,const GenfitTrack* genfitTrack);
         void debugEvent();
 
-        DataHandle<edm4hep::EventHeaderCollection> _headerCol{
+        DataHandle<edm4hep::EventHeaderCollection> m_headerCol{
             "EventHeaderCol", Gaudi::DataHandle::Reader, this};
         //Drift chamber rec hit and trac
-        DataHandle<edm4hep::TrackerHitCollection> m_digiDCHitsCol{
+        DataHandle<edm4hep::TrackerHitCollection> m_DCDigiCol{
             "DigiDCHitCollection", Gaudi::DataHandle::Reader, this};
-        DataHandle<edm4hep::TrackCollection> m_dcTrackCol{
+        DataHandle<edm4hep::SimTrackerHitCollection> m_DCSimHitCol{
+            "DCSimHitsCollection", Gaudi::DataHandle::Reader, this};
+        DataHandle<edm4hep::TrackCollection> m_DCTrackCol{
             "DCTrackCollection", Gaudi::DataHandle::Reader, this};
         //Mc truth
         DataHandle<edm4hep::MCParticleCollection> m_mcParticleCol{
             "MCParticle", Gaudi::DataHandle::Reader, this};
         DataHandle<edm4hep::SimTrackerHitCollection> m_simDCHitCol{
             "DriftChamberHitsCollection" , Gaudi::DataHandle::Reader, this};
-
         DataHandle<edm4hep::MCRecoTrackerAssociationCollection>
-            m_dcHitAssociationCol{"DCHitAssociationCollection",
+            m_DCHitAssociationCol{"DCHitAssociationCollection",
                 Gaudi::DataHandle::Reader, this};
-        //output hits and particles
-        DataHandle<edm4hep::TrackerHitCollection> m_dcFitRecHitCol{
-            "DCFitRecHitsCollection", Gaudi::DataHandle::Writer, this};
-        DataHandle<edm4hep::ReconstructedParticleCollection> m_dcRecParticleCol{
-            "DCRecParticleCollection", Gaudi::DataHandle::Writer, this};
+
+        //Track from silicon detectors
+        DataHandle<edm4hep::TrackCollection> m_SDTTrackCol{"SDTTrackCollection",
+            Gaudi::DataHandle::Reader, this};
+
+        //Output hits and particles
+        DataHandle<edm4hep::ReconstructedParticleCollection> m_SDTRecParticleCol{
+            "SDTRecParticleCollection", Gaudi::DataHandle::Writer, this};
 
         const unsigned int m_nPDG;//5:e,mu,pi,K,proton
         SmartIF<IGeomSvc> m_geomSvc;
@@ -94,8 +97,7 @@ class RecGenfitAlgDC:public GaudiAlgorithm {
         dd4hep::DDSegmentation::BitFieldCoder* m_decoder;
         Gaudi::Property<std::string> m_readout_name{this,
             "readout", "DriftChamberHitsCollection"};
-        Gaudi::Property<int> m_debug{this,"debug",false};
-        Gaudi::Property<bool> m_smearHit{this,"smearHit",true};
+        Gaudi::Property<int> m_debug{this,"debug",0};
         Gaudi::Property<float> m_sigmaHit{this,"sigmaHit",0.11};//mm
         Gaudi::Property<float> m_nSigmaHit{this,"nSigmaHit",5};
         Gaudi::Property<double> m_initCovResPos{this,"initCovResPos",1};
@@ -111,7 +113,7 @@ class RecGenfitAlgDC:public GaudiAlgorithm {
         Gaudi::Property<int> m_resortHits{this,"resortHits",true};
         Gaudi::Property<double> m_bStart{this,"bStart",100};
         Gaudi::Property<double> m_bFinal{this,"bFinal",0.01};
-        Gaudi::Property<double> m_dcCornerCuts{this,"dcCornerCuts",-999};
+        Gaudi::Property<double> m_DCCornerCuts{this,"dcCornerCuts",-999};
         Gaudi::Property<double> m_ndfCut{this,"ndfCut",1};
         Gaudi::Property<double> m_chi2Cut{this,"chi2Cut",1000};
         //-1,chargedGeantino;0,1,2,3,4:e,mu,pi,K,proton
@@ -122,7 +124,7 @@ class RecGenfitAlgDC:public GaudiAlgorithm {
             "genfitHistRootName",""};
         Gaudi::Property<bool> m_showDisplay{this,"showDisplay",false};
         int m_fitSuccess[5];
-        int m_nDCTrack;
+        int m_nRecTrack;
         //bool m_useRecLRAmbig;
 
         genfit::EventDisplay* m_genfitDisplay;

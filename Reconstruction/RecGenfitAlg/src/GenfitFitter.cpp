@@ -116,9 +116,7 @@ int GenfitFitter::init(bool deleteOldFitter)
         return -1;
     }
     GenfitMsg::get()<<MSG::DEBUG<<"Fitter type is "<<m_fitterType<<endmsg;
-std::cout<<__FILE__<<"   "<<__LINE__<<m_absKalman<<std::endl;
     m_absKalman->setDebugLvl(m_debug);
-std::cout<<__FILE__<<"   "<<__LINE__<<std::endl;
 
     return 0;
 }

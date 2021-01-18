@@ -16,7 +16,7 @@
   </includes>
 
   <define>
-    <constant name="world_size" value="30*m"/>
+    <constant name="world_size" value="2226*mm"/>
     <constant name="world_x" value="world_size"/>
     <constant name="world_y" value="world_size"/>
     <constant name="world_z" value="world_size"/>
@@ -65,7 +65,7 @@
   </regions>
 
   <detectors>
-    <detector id="1" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="VisibleBlue" sensitive="true" region="DriftChamberRegion">
+    <detector id="7" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="VisibleBlue" sensitive="true" region="DriftChamberRegion">
       <envelope vis="SeeThrough">
         <shape type="BooleanShape" operation="Union" material="Air">
           <shape type="Tube" rmin="SDT_radius_min" rmax="909*mm" dz="SDT_half_length" />
