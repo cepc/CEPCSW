@@ -8,8 +8,6 @@ gaudi_add_module(RecGenfitAlg
                 src/GenfitMaterialInterface.cpp
                 src/GenfitMsg.cpp
         LINK GearSvc
-#             EventSeeder
-#             TrackSystemSvcLib
              Gaudi::GaudiAlgLib
              Gaudi::GaudiKernel
              ${GEAR_LIBRARIES}
@@ -20,14 +18,13 @@ gaudi_add_module(RecGenfitAlg
              DataHelperLib
              EDM4HEP::edm4hep
              EDM4HEP::edm4hepDict
-             $ENV{GENFIT_ROOT}/lib64/libgenfit2.so
-
+             $ENV{GenFit}/lib64/libgenfit2.so
 )
 
 target_include_directories(RecGenfitAlg PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-        $<BUILD_INTERFACE:$ENV{GENFIT_ROOT}>/include
+        $<BUILD_INTERFACE:$ENV{GenFit}>/include
 )
 
 install(TARGETS RecGenfitAlg

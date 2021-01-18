@@ -199,7 +199,7 @@ StatusCode RecGenfitAlgSDT::execute()
 {
     StatusCode sc=StatusCode::SUCCESS;
     m_timer=clock();
-    info()<<" RecGenfitAlgSDT in execute()"<<endmsg;
+    info()<<"RecGenfitAlgSDT in execute()"<<endmsg;
 
     /////retrieve EventHeader
     //auto header = _headerCol.get()->at(0);

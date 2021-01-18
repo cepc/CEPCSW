@@ -187,10 +187,15 @@ StatusCode TruthTrackerAlg::execute()
         double B[3]={1e9,1e9,1e9};
         m_dd4hepField.magneticField({0.,0.,0.},B);
         HelixClass helix;
-        float pos[3]={mcParticleVertexSmeared.x,
-            mcParticleVertexSmeared.y,mcParticleVertexSmeared.z};
-        float mom[3]={mcParticleMomSmeared.x,mcParticleMomSmeared.y,
-            mcParticleMomSmeared.z};
+        //float pos[3]={mcParticleVertexSmeared.x,
+        //    mcParticleVertexSmeared.y,mcParticleVertexSmeared.z};
+        //float mom[3]={mcParticleMomSmeared.x,mcParticleMomSmeared.y,
+        //    mcParticleMomSmeared.z};
+        ////FIXME DEBUG
+        float pos[3]={(float)mcParticleVertex.x,
+            (float)mcParticleVertex.y,(float)mcParticleVertex.z};
+        float mom[3]={(float)mcParticleMom.x,(float)mcParticleMom.y,
+            (float)mcParticleMom.z};
         helix.Initialize_VP(pos,mom,mcParticle.getCharge(),B[2]/dd4hep::tesla);
 
         ///new Track

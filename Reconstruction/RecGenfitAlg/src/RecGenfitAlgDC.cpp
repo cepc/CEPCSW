@@ -61,7 +61,7 @@ RecGenfitAlgDC::RecGenfitAlgDC(const std::string& name, ISvcLocator* pSvcLocator
 StatusCode RecGenfitAlgDC::initialize()
 {
     MsgStream log(msgSvc(), name());
-    info()<<" RecGenfitAlgDC initialize()"<<endmsg;
+    info()<<"RecGenfitAlgDC initialize()"<<endmsg;
 
     ///Get GeomSvc
     m_geomSvc=Gaudi::svcLocator()->service("GeomSvc");
@@ -196,7 +196,7 @@ StatusCode RecGenfitAlgDC::execute()
 {
     StatusCode sc;
     m_timer=clock();
-    info()<<" RecGenfitAlgDC in execute()"<<endmsg;
+    info()<<"RecGenfitAlgDC in execute()"<<endmsg;
 
     /////retrieve EventHeader
     //auto header = _headerCol.get()->at(0);
@@ -248,7 +248,7 @@ StatusCode RecGenfitAlgDC::execute()
             }
             if(m_useTruthHit){
                 if(0==genfitTrack->addSimTrackerHits(dcTrack,assoDCHitsCol,
-                            m_sigmaHit.value())){
+                            m_sigmaHit.value(),m_smearHit)){
                     debug()<<"addSimTrackerHits failed!"<<endmsg;
                     return StatusCode::FAILURE;
                 }
@@ -304,7 +304,7 @@ StatusCode RecGenfitAlgDC::execute()
 StatusCode RecGenfitAlgDC::finalize()
 {
     MsgStream log(msgSvc(), name());
-    info()<< " RecGenfitAlgDC in finalize()" << endmsg;
+    info()<< "RecGenfitAlgDC in finalize()" << endmsg;
 
     m_genfitFitter->writeHist();
     delete m_genfitFitter;

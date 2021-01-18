@@ -102,7 +102,7 @@ class GenfitTrack {
 
     /// Add a space point measurement, return number of hits on track
     virtual bool addSpacePointMeasurement(const TVectorD&, double,
-            int detID=-1, int hitID=-1);
+            int detID=-1, int hitID=-1, bool smear=false);
 
     /// Add a WireMeasurement with MC truth position smeared by sigma
     virtual void addWireMeasurement(double driftDistance,
@@ -115,7 +115,7 @@ class GenfitTrack {
     ///Add space point from truth to track
     int addSimTrackerHits(const edm4hep::Track& track,
         const edm4hep::MCRecoTrackerAssociationCollection* assoHits,
-        float sigma);// float nSigmaSelection
+        float sigma,bool smear=false);// float nSigmaSelection
 
     ///Store track to ReconstructedParticle
     bool storeTrack(edm4hep::ReconstructedParticle& dcRecParticle,int pidType,

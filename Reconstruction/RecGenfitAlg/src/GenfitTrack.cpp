@@ -238,9 +238,9 @@ bool GenfitTrack::addSpacePointTrakerHit(edm4hep::ConstTrackerHit& hit,
 
 /// Add a 3d SpacepointMeasurement with MC truth position smeared by sigma
 bool GenfitTrack::addSpacePointMeasurement(const TVectorD& pos,
-        double sigma, int detID, int hitID)
+        double sigma, int detID, int hitID, bool smear)
 {
-
+    double sigma_t=sigma*dd4hep::mm;
     /// Convert from CEPCSW unit to genfit unit, cm
     TVectorD pos_t(3);
     pos_t(0)=pos(0)*dd4hep::mm;
@@ -250,12 +250,12 @@ bool GenfitTrack::addSpacePointMeasurement(const TVectorD& pos,
     /// smear hit position with same weight
     TVectorD pos_smeared(3);
     for (int i=0;i<3;i++){
-        pos_smeared[i] = pos_t(i)+gRandom->Gaus(0, sigma/TMath::Sqrt(3.));
+        pos_smeared[i]=pos_t(i);
+        if(smear) pos_smeared[i]+=gRandom->Gaus(0,sigma_t/TMath::Sqrt(3.));
     }
 
     /// New a SpacepointMeasurement
     TMatrixDSym hitCov(3);
-    double sigma_t=sigma*dd4hep::mm;
     hitCov(0,0)=sigma_t*sigma_t;
     hitCov(1,1)=sigma_t*sigma_t;
     hitCov(2,2)=sigma_t*sigma_t;
@@ -647,7 +647,7 @@ double GenfitTrack::extrapolateToHit( TVector3& poca, TVector3& pocaDir,
 ///Add space point measurement from edm4hep::Track to genfit track
 int GenfitTrack::addSimTrackerHits(const edm4hep::Track& track,
         const edm4hep::MCRecoTrackerAssociationCollection* assoHits,
-        float sigma){
+        float sigma,bool smear){
     //A TrakerHit collection
     std::vector<edm4hep::ConstSimTrackerHit> sortedDCTrackHitCol;
 
@@ -691,6 +691,7 @@ int GenfitTrack::addSimTrackerHits(const edm4hep::Track& track,
                 if(assoHits->at(iSimHit).getRec()==hit &&
                         assoHits->at(iSimHit).getSim().getTime()<minTime){
                     minTimeSimHit=assoHits->at(iSimHit).getSim();
+                    minTime=assoHits->at(iSimHit).getSim().getTime();
                 }
             }
             //std::cout<<"minTimeSimHit "<<minTimeSimHit<<std::endl;
@@ -705,7 +706,7 @@ int GenfitTrack::addSimTrackerHits(const edm4hep::Track& track,
 
     ///Add DC hits to track
     //Sort sim DC hits by time
-    std::sort(sortedDCTrackHitCol.begin(),sortedDCTrackHitCol.end(),sortDCHit);
+    //std::sort(sortedDCTrackHitCol.begin(),sortedDCTrackHitCol.end(),sortDCHit);
     for(auto dCTrackerHit: sortedDCTrackHitCol){
         edm4hep::Vector3d pos=dCTrackerHit.getPosition();
         TVectorD p(3);
@@ -713,7 +714,7 @@ int GenfitTrack::addSimTrackerHits(const edm4hep::Track& track,
         p[1]=pos.y;
         p[2]=pos.z;
         unsigned long long detID = dCTrackerHit.getCellID();
-        if(addSpacePointMeasurement(p,sigma,detID,hitID)){
+        if(addSpacePointMeasurement(p,sigma,detID,hitID,smear)){
             GenfitMsg::get()<<MSG::DEBUG<<"add DC space point"<<endmsg;
             hitID++;
         }else{
