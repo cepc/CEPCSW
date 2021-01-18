@@ -18,6 +18,10 @@ gaudi_add_module(Examples
                       ${podio_LIBRARIES} podio::podioRootIO
 )
 
+if (GenFit_FOUND)
+  target_link_libraries(Examples PUBLIC GenFit::genfit2)
+endif()
+
 target_include_directories(Examples PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
