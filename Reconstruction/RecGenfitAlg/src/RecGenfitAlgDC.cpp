@@ -406,5 +406,4 @@ void RecGenfitAlgDC::debugEvent()
     }
     m_mcIndex=iHit;
 
-    if(m_tuple) m_tuple->write();
 }
