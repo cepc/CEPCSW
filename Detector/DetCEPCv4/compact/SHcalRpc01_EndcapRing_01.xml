@@ -9,7 +9,7 @@
             <shape type="Box" dx="HcalEndcapRing_outer_radius + 2.0*env_safety" dy="HcalEndcapRing_outer_radius + 2.0*env_safety"
                    dz="HcalEndcapRing_max_z + 2.0*env_safety"/>
             <shape type="PolyhedraRegular" numsides="Hcal_ring_inner_symmetry" rmin="HcalEndcapRing_inner_radius - env_safety"
-                   rmax="HcalEndcapRing_outer_radius + env_safety" dz="2.0*HcalEndcapRing_max_z + env_safety" material="Air"/>
+                   rmax="HcalEndcapRing_outer_radius*cos(pi/Hcal_ring_outer_symmetry) + env_safety" dz="2.0*HcalEndcapRing_max_z + env_safety" material="Air"/>
             <rotation x="0" y="0" z="90*deg-180*deg/Hcal_ring_inner_symmetry"/>
           </shape>
           <shape type="Box" dx="HcalEndcapRing_outer_radius + 2.0*env_safety" dy="HcalEndcapRing_outer_radius + 2.0*env_safety"
