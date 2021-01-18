@@ -27,6 +27,7 @@ if(NOT CMAKE_CXX_STANDARD MATCHES "14|17")
   message(FATAL_ERROR "Unsupported C++ standard: ${CMAKE_CXX_STANDARD}")
 endif()
 
+list(PREPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake") # (Find*.cmake)
 include(cmake/CEPCSWDependencies.cmake)
 
 add_subdirectory(Analysis)
