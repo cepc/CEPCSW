@@ -49,8 +49,6 @@ void HelixClass::Initialize_VP(float * pos, float * mom, float q, float B) {
     else {
       d0 = double(q)*radius + double(sqrt(xCentre*xCentre+yCentre*yCentre));
     }
-    std::cout<<__FILE__<<"   "<<__LINE__<<" d0 "<<d0<<" r "<<radius<<" q "<<q<<" xCentre "<<xCentre<<" yCentre "<<yCentre<<std::endl;
-    std::cout<<__FILE__<<"   "<<__LINE__<<" pxy "<<_pxy<<" FCT "<<_FCT<<" B "<<B<<std::endl;
 
     _d0 = float(d0);
 

@@ -8,5 +8,6 @@ It's incudingg the interface to genfit fitter, track and measurement:
 * GenfitField: implementation of genfit AbsField
 * GenfitGeoMaterialInterface: implementation of genfit AbsMaterialInterface
 * GenfitMsg: a class to get Gaudi message instance in Genfit classes.
-* HelixTrackModel: a class to get Gaudi message instance in Genfit classes.
+* GenfitAlgDC: a class to fit drift chamber
+* GenfitAlgSDT: a class to fit drift chamber+silicon
 
