@@ -1,4 +1,6 @@
 # RecGenfitAlg
+
+if (GenFit_FOUND)
 gaudi_add_module(RecGenfitAlg
         SOURCES src/RecGenfitAlgSDT.cpp
                 src/RecGenfitAlgDC.cpp
@@ -31,3 +33,4 @@ install(TARGETS RecGenfitAlg
             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
             LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
             COMPONENT dev)
+endif()
