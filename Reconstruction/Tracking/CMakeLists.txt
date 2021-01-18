@@ -1,4 +1,3 @@
-
 # Modules
 gaudi_add_module(Tracking
                  SOURCES src/Clupatra/ClupatraAlg.cpp

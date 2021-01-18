@@ -27,9 +27,9 @@ class TruthTrackerAlg: public GaudiAlgorithm
     public:
         TruthTrackerAlg(const std::string& name, ISvcLocator* svcLoc);
 
-        virtual StatusCode initialize();
-        virtual StatusCode execute();
-        virtual StatusCode finalize();
+        virtual StatusCode initialize() override;
+        virtual StatusCode execute() override;
+        virtual StatusCode finalize() override;
 
     private:
         SmartIF<IGeomSvc> m_geomSvc;
@@ -41,25 +41,38 @@ class TruthTrackerAlg: public GaudiAlgorithm
         //reader
         DataHandle<edm4hep::MCParticleCollection> m_mcParticleCol{
             "MCParticle", Gaudi::DataHandle::Reader, this};
-        DataHandle<edm4hep::TrackerHitCollection> m_digiDCHitsCol{
-            "DigiDCHitsCollection", Gaudi::DataHandle::Reader, this};
+        DataHandle<edm4hep::TrackerHitCollection> m_DCDigiCol{
+            "DigiDCHitCollection", Gaudi::DataHandle::Reader, this};
         DataHandle<edm4hep::MCRecoTrackerAssociationCollection>
-            m_dcHitAssociationCol{ "DCHitAssociationCollection",
+            m_DCHitAssociationCol{ "DCHitAssociationCollection",
+                Gaudi::DataHandle::Reader, this};
+        DataHandle<edm4hep::TrackCollection>
+            m_siSubsetTrackCol{ "SiSubsetTrackCollection",
                 Gaudi::DataHandle::Reader, this};
         //writer
-        DataHandle<edm4hep::TrackCollection> m_dcTrackCol{"DCTrackCollection",
-            Gaudi::DataHandle::Writer, this};
-        DataHandle<edm4hep::ReconstructedParticleCollection> m_dcRecParticleCol{
+        DataHandle<edm4hep::TrackCollection> m_DCTrackCol{
+            "DCTrackCollection", Gaudi::DataHandle::Writer, this};
+        DataHandle<edm4hep::TrackCollection> m_SDTTrackCol{
+            "SDTTrackCollection", Gaudi::DataHandle::Writer, this};
+        DataHandle<edm4hep::ReconstructedParticleCollection> m_DCRecParticleCol{
             "DCRecParticleCollection", Gaudi::DataHandle::Writer, this};
         DataHandle<edm4hep::MCRecoParticleAssociationCollection>
-            m_dcRecParticleAssociationCol{"DCRecMCRecoParticleAssociationCollection",
+            m_DCRecParticleAssociationCol{
+                "DCRecMCRecoParticleAssociationCollection",
                 Gaudi::DataHandle::Writer, this};
 
         //readout for getting segmentation
         Gaudi::Property<std::string> m_readout_name{this, "readout",
             "DriftChamberHitsCollection"};
-
-        Gaudi::Property<int>  m_debug{ this, "debug", false};
+        Gaudi::Property<bool> m_writeRecParticle{this,"writeRecParticle",false};
+        Gaudi::Property<float> m_resPT{this,"resPT",0};//ratio
+        Gaudi::Property<float> m_resPz{this,"resPz",0};//ratio
+        Gaudi::Property<float> m_resMomPhi{this,"resMomPhi",0};//radian
+        Gaudi::Property<float> m_resMomTheta{this,"resMomTheta",0};//radian
+        Gaudi::Property<float> m_resVertexX{this,"resVertexX",0.003};//3um
+        Gaudi::Property<float> m_resVertexY{this,"resVertexY",0.003};//3um
+        Gaudi::Property<float> m_resVertexZ{this,"resVertexZ",0.003};//3um
+        Gaudi::Property<int> m_maxDCDigiCut{this,"maxDigiCut",1e6};
 };
 
 #endif

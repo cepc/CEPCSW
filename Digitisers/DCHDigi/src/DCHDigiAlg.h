@@ -81,7 +81,7 @@ protected:
   // Input collections
   DataHandle<edm4hep::SimTrackerHitCollection> r_SimDCHCol{"DriftChamberHitsCollection", Gaudi::DataHandle::Reader, this};
   // Output collections
-  DataHandle<edm4hep::TrackerHitCollection>    w_DigiDCHCol{"DigiDCHitsCollection", Gaudi::DataHandle::Writer, this};
+  DataHandle<edm4hep::TrackerHitCollection>    w_DigiDCHCol{"DigiDCHitCollection", Gaudi::DataHandle::Writer, this};
   DataHandle<edm4hep::MCRecoTrackerAssociationCollection>    w_AssociationCol{"DCHitAssociationCollection", Gaudi::DataHandle::Writer, this};
 };
 
