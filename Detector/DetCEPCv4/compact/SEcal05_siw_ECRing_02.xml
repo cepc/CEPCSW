@@ -1,0 +1,62 @@
+<lccdd>
+
+  <detectors>
+    <detector name="EcalPlug" type="SEcal05_ECRing" id="ILDDetID_ECAL_PLUG" readout="EcalEndcapRingCollection" vis="BlueVis" >
+      <comment>EM Calorimeter Endcaps</comment>
+
+      <envelope vis="ILD_ECALVis">
+        <shape type="BooleanShape" operation="Subtraction" material="ECCableMix">
+          <shape type="BooleanShape" operation="Subtraction" material="Air">
+            <shape type="Box" dx="Ecal_endcap_center_box_size/2.0" dy="Ecal_endcap_center_box_size/2.0"
+                   dz="EcalEndcapRing_max_z"/>
+            <shape type="Tube" rmin="0" rmax="EcalEndcapRing_inner_radius - env_safety" dz="2.0*EcalEndcapRing_max_z + env_safety"/>
+
+            <position x="0.5*(EcalEndcapRing_min_z + EcalEndcapRing_max_z)*tan(Ecal_ECRing_Crossing_Angle/2)" y="0" z="0"/>
+            <!-- position x="0" y="0" z="0"/ -->
+
+          </shape>
+          <shape type="Box" dx="Ecal_endcap_center_box_size/2 + env_safety" dy="Ecal_endcap_center_box_size/2 + env_safety"
+                 dz="EcalEndcapRing_min_z"/>
+        </shape>
+      </envelope>
+
+      <type_flags type=" DetType_CALORIMETER + DetType_ENDCAP + DetType_ELECTROMAGNETIC + DetType_AUXILIARY " />
+
+      <staves  material = "G4_W"  vis="GreenVis"/>
+
+      <layer repeat="Ecal_nlayers1/2" vis="SeeThrough" >
+	<slice material = "g10"         thickness = "Ecal_ECRing_structure_thickness"                    vis="Invisible" />
+        <slice material = "Si"          thickness = "Ecal_Si_thickness" sensitive = "yes"     limits="cal_limits" vis="RedVis"    />
+        <slice material = "g10"         thickness = "Ecal_ECRing_structure_thickness"                    vis="Invisible" />
+	<slice material = "g10"         thickness = "Ecal_fiber_thickness_slabAbs"                    vis="Invisible" />
+        <slice material = "G4_W"        thickness = "Ecal_radiator_layers_set1_thickness"   vis="GreenVis"   />
+	<slice material = "g10"         thickness = "Ecal_fiber_thickness_slabAbs"                    vis="Invisible" />
+        <slice material = "g10"         thickness = "Ecal_ECRing_structure_thickness"                    vis="Invisible" />
+	<slice material = "Si"          thickness = "Ecal_Si_thickness" sensitive = "yes"     limits="cal_limits" vis="RedVis"    />
+	<slice material = "g10"         thickness = "Ecal_ECRing_structure_thickness"                    vis="Invisible" />
+      </layer>
+      <layer repeat="(Ecal_nlayers2+1)/2" vis="SeeThrough">
+	<slice material = "g10"         thickness = "Ecal_ECRing_structure_thickness"                    vis="Invisible" />
+        <slice material = "Si"          thickness = "Ecal_Si_thickness" sensitive = "yes"     limits="cal_limits" vis="RedVis"    />
+	<slice material = "g10"         thickness = "Ecal_ECRing_structure_thickness"                    vis="Invisible" />
+        <slice material = "g10"         thickness = "Ecal_fiber_thickness_slabAbs"                    vis="Invisible" />
+        <slice material = "G4_W"        thickness = "Ecal_radiator_layers_set2_thickness"   vis="GreenVis"   />
+	<slice material = "g10"         thickness = "Ecal_fiber_thickness_slabAbs"                    vis="Invisible" />
+	<slice material = "g10"         thickness = "Ecal_ECRing_structure_thickness"                    vis="Invisible" />
+        <slice material = "Si"          thickness = "Ecal_Si_thickness" sensitive = "yes"     limits="cal_limits" vis="RedVis"    />
+	<slice material = "g10"         thickness = "Ecal_ECRing_structure_thickness"                    vis="Invisible" />
+      </layer>
+    </detector>
+  </detectors>
+
+  <readouts>
+    <readout name="EcalEndcapRingCollection">
+      <segmentation type="CartesianGridXY" grid_size_x="Ecal_cells_size" grid_size_y="Ecal_cells_size"/>
+      <id>system:5,module:3,stave:4,tower:3,layer:6,x:32:-16,y:-16</id>
+    </readout>
+  </readouts>
+
+
+
+</lccdd>
+

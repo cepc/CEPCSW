@@ -207,7 +207,8 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   caloData->extent[2] = EcalEndcapRing_min_z ;
   caloData->extent[3] = EcalEndcapRing_max_z ;
 
-
+  cout << "  Z: " << EcalEndcapRing_min_z << " -> " << EcalEndcapRing_max_z << endl;
+  cout << "  R: " << EcalEndcapRing_inner_radius << " -> " << EcalEndcapRing_outer_radius << endl; 
   //====================================================================
   //
   // general calculated parameters

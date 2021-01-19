@@ -1,36 +1,33 @@
-<!--
-   FTD parameters for ILD_o1_v5
-   from database : ftd_simple_staggered_02
-  -->
-
+<!-- FTD parameters for updating new MDI on CEPCv4, only envelope changed-->
 <lccdd>
+  <define>
+    <constant name="FTD_inner_radius_new" value="BeamPipe_VertexRegion_rmax+env_safety"/>
+    <constant name="FTD_cone_radius_new"  value="FTD_half_length*tan(CepC_Main_Crossing_Angle/2.)+BeamPipe_Dnstream_inner_radius+BeamPipe_Cu_thickness+env_safety"/>
+  </define>
+
   <detectors>
-
-
     <detector name="FTD" type="FTD_cepc" vis="FTDVis" id="ILDDetID_FTD" limits="Tracker_limits" readout="FTDCollection" insideTrackingVolume="true">
 
       <envelope vis="ILD_FTDVis">
-
         <shape type="BooleanShape" operation="Subtraction" material="Air" >
           <shape type="BooleanShape" operation="Subtraction" material="Air" >
             <shape type="BooleanShape" operation="Subtraction" material="Air" >
               <shape type="BooleanShape" operation="Subtraction" material="Air" >
                 <shape type="BooleanShape" operation="Subtraction" material="Air" >
-                  <shape type="Tube" rmin="FTD_inner_radius"   rmax="FTD_outer_radius" dz="FTD_half_length"  />
+                  <shape type="Tube" rmin="FTD_inner_radius_new"   rmax="FTD_outer_radius" dz="FTD_half_length"  />
                   <shape type="Tube" rmin="0." rmax="FTD_outer_radius+env_safety" dz="FTD_min_z_0" />
                 </shape>
-                <!--shape type="Tube" rmin="FTD_outer_radius_1" rmax="FTD_outer_radius+env_safety" dz="FTD_min_z_2-petal_cp_support_thickness-petal_support_zoffset" /-->
 		<shape type="Tube" rmin="FTD_outer_radius_1" rmax="FTD_outer_radius+env_safety" dz="FTD_min_z_2-FTD_layer_shift"/>
               </shape>
               <shape type="Tube" rmin="FTD_outer_radius_2" rmax="FTD_outer_radius+env_safety" dz="FTD_min_z_2" />
             </shape>
-            <shape type="Cone" rmin1="0" rmax1="FTD_inner_radius" rmin2="0" rmax2="FTD_cone_radius"
-                   z="(FTD_half_length-FTD_cone_min_z)/2. + env_safety "/>
-            <position x="0" y="0" z="FTD_cone_min_z+(FTD_half_length-FTD_cone_min_z)/2."/>
+            <shape type="Cone" rmin1="0" rmax1="FTD_inner_radius_new" rmin2="0" rmax2="FTD_cone_radius_new"
+                   z="(FTD_half_length-BeamPipe_CentralAl_zmax)/2. + env_safety "/>
+            <position x="0" y="0" z="BeamPipe_CentralAl_zmax+(FTD_half_length-BeamPipe_CentralAl_zmax)/2."/>
           </shape>
-          <shape type="Cone" rmin1="0" rmax1="FTD_inner_radius" rmin2="0" rmax2="FTD_cone_radius"
-                 z="(FTD_half_length-FTD_cone_min_z)/2. + env_safety "/>
-          <position x="0" y="0" z="-FTD_cone_min_z-(FTD_half_length-FTD_cone_min_z)/2."/>
+          <shape type="Cone" rmin1="0" rmax1="FTD_inner_radius_new" rmin2="0" rmax2="FTD_cone_radius_new"
+                 z="(FTD_half_length-BeamPipe_CentralAl_zmax)/2. + env_safety "/>
+          <position x="0" y="0" z="-BeamPipe_CentralAl_zmax-(FTD_half_length-BeamPipe_CentralAl_zmax)/2."/>
           <rotation x="0" y="180.*deg" z="0" />
         </shape>
       </envelope>
@@ -57,7 +54,6 @@
       <!--disk disk_number="7" z_position_ReltoTPCLength="0"                            disk_si_thickness="0.20*mm" petal_cp_support_dxMax="122.49*mm" padUp_Si_dxMax="118.46*mm" petal_cp_support_thickness="2*mm" petal_support_zoffset="1.5*mm" sensor_is_pixel="0" double_sided="1"  /-->
 
     </detector>
-
   </detectors>
 
   <readouts>
@@ -65,6 +61,4 @@
       <id>system:5,side:-2,layer:9,module:8,sensor:8</id>
     </readout>
   </readouts>
-
-
 </lccdd>

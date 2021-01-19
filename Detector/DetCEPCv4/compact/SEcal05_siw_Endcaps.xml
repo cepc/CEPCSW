@@ -12,8 +12,8 @@
             <shape type="PolyhedraRegular"  numsides="EcalEndcap_symmetry" rmin="0"
                    rmax="EcalEndcap_outer_radius + 2.*env_safety" dz="2.0*EcalEndcap_min_z - env_safety"/>
           </shape>
-          <shape type="Box" dx="EcalEndcap_inner_radius - env_safety"
-                 dy="EcalEndcap_inner_radius - env_safety" dz="(EcalEndcap_max_z + env_safety )"/>
+          <shape type="Box" dx="EcalEndcap_inner_radius"
+                 dy="EcalEndcap_inner_radius" dz="(EcalEndcap_max_z + env_safety )"/>
           <rotation x="0*deg" y="0*deg" z="-180*deg/EcalEndcap_symmetry"/>
         </shape>
         <rotation x="0*deg" y="0*deg" z="180*deg/EcalEndcap_symmetry"/>

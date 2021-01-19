@@ -1,0 +1,87 @@
+<lccdd>
+  <info name="CRD" title="CRD Beam pipe" author="Chengdong Fu" url="no" status="development" version="1.0">
+    <comment>A beampipe for CRD</comment>
+  </info>
+
+  <define>
+    <constant name="BeamPipe_Be_inner_thickness"   value="0.5*mm"/>
+    <constant name="BeamPipe_Cooling_thickness"    value="0.5*mm"/>
+    <constant name="BeamPipe_Be_outer_thickness"   value="0.3*mm"/>
+    <constant name="BeamPipe_Be_total_thickness"   value="BeamPipe_Be_inner_thickness+BeamPipe_Cooling_thickness+BeamPipe_Be_outer_thickness"/>
+    <constant name="BeamPipe_Al_thickness"         value="BeamPipe_Be_total_thickness"/>
+    <constant name="BeamPipe_Cu_thickness"         value="2.0*mm"/>
+
+    <constant name="BeamPipe_CentralBe_zmax"       value="120*mm"/>
+    <constant name="BeamPipe_CentralAl_zmax"       value="205*mm"/>
+    <constant name="BeamPipe_ConeAl_zmax"          value="655*mm"/>
+    <constant name="BeamPipe_LinkerAl_zmax"        value="700*mm"/>
+    <constant name="BeamPipe_LinkerCu_zmax"        value="780*mm"/>
+    <constant name="BeamPipe_Waist_zmax"           value="805*mm"/>
+    <constant name="BeamPipe_Crotch_zmax"          value="855*mm"/>
+    <constant name="BeamPipe_FirstSeparated_zmax"  value="1110*mm"/>
+    <constant name="BeamPipe_SecondSeparated_zmax" value="2200*mm"/>
+    <constant name="BeamPipe_end_z"                value="12*m"/>
+    
+    <constant name="BeamPipe_Central_inner_radius"  value="14*mm"/>
+    <constant name="BeamPipe_Expanded_inner_radius" value="20*mm"/>
+    <constant name="BeamPipe_Upstream_inner_radius" value="6*mm"/>
+    <constant name="BeamPipe_Dnstream_inner_radius" value="10*mm"/>
+    <constant name="BeamPipe_Crotch_hole_height"    value="30.67*mm"/>
+    <constant name="BeamPipe_VertexRegion_rmax"     value="BeamPipe_Central_inner_radius+BeamPipe_Al_thickness"/>
+    <constant name="BeamPipe_ForwardRegion_rmax"    value="BeamPipe_Expanded_inner_radius+BeamPipe_Cu_thickness"/>
+
+    <constant name="ForkAsymThickness" value="BeamPipe_Dnstream_inner_radius+BeamPipe_Cu_thickness-BeamPipe_Upstream_inner_radius"/>
+  </define>
+
+  <detectors>        
+    <detector name="BeamPipe" type="DD4hep_CRDBeamPipe_v01" vis="BeamPipeVis">
+      <parameter crossingangle="CepC_Main_Crossing_Angle" />
+      <envelope vis="BlueVis">
+	<shape type="Assembly"/>
+      </envelope>
+
+      <section type ="Center" name="IPInnerTube" zStart="0" zEnd="BeamPipe_CentralBe_zmax" rStart="0">
+	<layer material="beam" thickness="BeamPipe_Central_inner_radius"/>
+	<layer material="G4_Be" thickness="BeamPipe_Be_inner_thickness"/>
+	<layer material="G4_PARAFFIN" thickness="BeamPipe_Cooling_thickness"/>
+	<layer material="G4_Be" thickness="BeamPipe_Be_outer_thickness"/>
+      </section>
+      <section type="Center" name="IPAl" zStart="BeamPipe_CentralBe_zmax" zEnd="BeamPipe_CentralAl_zmax" rStart="0">
+	<layer material="beam" thickness="BeamPipe_Central_inner_radius"/>
+	<layer material="G4_Al" thickness="BeamPipe_Al_thickness"/>
+      </section>
+      <section type="Center" name="ExpandPipe" zStart="BeamPipe_CentralAl_zmax" zEnd="BeamPipe_ConeAl_zmax" rStart="0">
+	<layer material="beam" thickness="BeamPipe_Central_inner_radius" thicknessEnd="BeamPipe_Expanded_inner_radius"/>
+	<layer material="G4_Al" thickness="BeamPipe_Al_thickness" thicknessEnd="BeamPipe_Al_thickness"/>
+      </section>
+      <section type="Center" name="ThickPipe" zStart="BeamPipe_ConeAl_zmax" zEnd="BeamPipe_LinkerAl_zmax" rStart="0">
+	<layer material="beam" thickness="BeamPipe_Expanded_inner_radius"/>
+	<layer material="G4_Al" thickness="BeamPipe_Al_thickness"/>
+      </section>
+      <section type="CenterSide" name="OutsideLink" zStart="BeamPipe_LinkerAl_zmax" zEnd="BeamPipe_LinkerCu_zmax" rStart="0">
+	<layer material="beam" thickness="BeamPipe_Expanded_inner_radius"/>
+	<layer material="G4_Cu" thickness="BeamPipe_Cu_thickness"/>
+      </section>
+      <section type="FatWaist" name="Waist" zStart="BeamPipe_LinkerCu_zmax" zEnd="BeamPipe_Waist_zmax" rStart="BeamPipe_Expanded_inner_radius" size="BeamPipe_Crotch_hole_height">
+	<layer material="G4_Cu" thickness="BeamPipe_Cu_thickness"/>
+      </section>
+      <!--CrotchAsymUp&CrotchAsymDn not work to fix, because of problem on convert from TGeo to Geant4--> 
+      <!--section type="CrotchAsymUp" name="Fork" zStart="BeamPipe_Waist_zmax" zEnd="BeamPipe_Crotch_zmax"
+	       rStart="BeamPipe_Expanded_inner_radius" rEnd="BeamPipe_Upstream_inner_radius" size="BeamPipe_Crotch_hole_height">
+	<layer material="G4_Cu" thickness="BeamPipe_Cu_thickness" thicknessEnd="ForkAsymThickness"/>
+      </section>
+      <section type="CrotchAsymDn" name="Fork" zStart="BeamPipe_Waist_zmax" zEnd="BeamPipe_Crotch_zmax"
+	       rStart="BeamPipe_Expanded_inner_radius" rEnd="BeamPipe_Dnstream_inner_radius" size="BeamPipe_Crotch_hole_height">
+        <layer material="G4_Cu" thickness="BeamPipe_Cu_thickness"/>
+      </section-->
+      <section type="FlareLegUp" name="FirstDoublePipe" zStart="BeamPipe_Crotch_zmax" zEnd="BeamPipe_FirstSeparated_zmax" rStart="0">
+	<layer material="beam" thickness="BeamPipe_Upstream_inner_radius" thicknessEnd="BeamPipe_Dnstream_inner_radius"/>
+	<layer material="G4_Cu" thickness="ForkAsymThickness" thicknessEnd="BeamPipe_Cu_thickness"/>
+      </section>
+      <section type="FlareLegDn" name="FirstDoublePipe" zStart="BeamPipe_Crotch_zmax" zEnd="BeamPipe_FirstSeparated_zmax" rStart="0">
+        <layer material="beam" thickness="BeamPipe_Dnstream_inner_radius"/>
+        <layer material="G4_Cu" thickness="BeamPipe_Cu_thickness"/>
+      </section>
+    </detector>
+  </detectors>        
+</lccdd>
