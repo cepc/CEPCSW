@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<lccdd>
+<lccdd xmlns:compact="http://www.lcsim.org/schemas/compact/1.0"
+       xmlns:xs="http://www.w3.org/2001/XMLSchema"
+       xs:noNamespaceSchemaLocation="http://www.lcsim.org/schemas/compact/1.0/compact.xsd">
 
   <info name="DriftChamber"
     title="Test with Drift Chamber"
@@ -15,13 +17,15 @@
     <gdmlFile  ref="materials.xml"/>
   </includes>
 
+
   <define>
-    <constant name="world_size" value="2226*mm"/>
+    <constant name="world_size" value="30*m"/>
     <constant name="world_x" value="world_size"/>
     <constant name="world_y" value="world_size"/>
     <constant name="world_z" value="world_size"/>
 
     <!-- SDT -->
+    <constant name="DetID_DC"  value="7"/>
     <constant name="SDT_radius_min" value="234*mm"/>
     <constant name="SDT_radius_max" value="1720*mm"/>
     <constant name="SDT_half_length" value="2225*mm"/>
