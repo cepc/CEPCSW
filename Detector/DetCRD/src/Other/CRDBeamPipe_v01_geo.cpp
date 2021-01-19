@@ -161,7 +161,7 @@ static Ref_t create_detector(Detector& theDetector,
 	dd4hep::Transform3D transmirror(dd4hep::RotationY(180*dd4hep::degree), dd4hep::RotateY(dd4hep::Position(0, 0, zCenter), 180*dd4hep::degree));
 	envelope.placeVolume(subLayerLog,  transformer);
 	envelope.placeVolume(subLayerLog,  transmirror);
-
+	std::cout << "fucd debug: radL = " << material.radLength()/dd4hep::mm << " intL = " << material.intLength()/dd4hep::mm << std::endl; 
 	if(material.radLength()<10000*dd4hep::mm) subLayerLog.setVisAttributes(theDetector, "TubeVis");
 	else                                      subLayerLog.setVisAttributes(theDetector, "VacVis");
 	
