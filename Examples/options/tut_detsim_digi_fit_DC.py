@@ -70,8 +70,8 @@ gun.Particles = ["e-"]
 # gun.PositionZs = [0.] # mm
 
 
-gun.EnergyMins = [10.] # GeV
-gun.EnergyMaxs = [10.] # GeV
+gun.EnergyMins = [100.] # GeV
+gun.EnergyMaxs = [100.] # GeV
 
 gun.ThetaMins = [90] # rad; 45deg
 gun.ThetaMaxs = [90] # rad; 45deg
@@ -195,5 +195,5 @@ ApplicationMgr( TopAlg = [genalg, detsimalg, dCHDigiAlg, truthTrackerAlg,
                 EvtMax = 10,
                 ExtSvc = [rndmengine, dsvc, geosvc, ntsvc],
                 HistogramPersistency = "ROOT",
-                OutputLevel=DEBUG
+                OutputLevel=ERROR
 )
