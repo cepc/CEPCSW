@@ -130,7 +130,7 @@ const std::map<std::string,double>& GeomSvc::getDetParameters(std::string name){
   }
 }
 
-const double GeomSvc::getDetParameter(std::string set_name, std::string par_name){
+double GeomSvc::getDetParameter(std::string set_name, std::string par_name){
   std::map<std::string, std::map<std::string,double> >::iterator it=m_detParameters.find(set_name);
   if(it!=m_detParameters.end()){
     if(it->second.find(par_name)!=it->second.end()) return it->second[par_name];  

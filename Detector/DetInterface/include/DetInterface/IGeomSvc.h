@@ -56,7 +56,7 @@ public:
   virtual const dd4hep::rec::ConicalSupportData* getBeamPipeData() =0;
 
   virtual const std::map<std::string,double>& getDetParameters(std::string s) = 0;
-  virtual const double getDetParameter(std::string set_name, std::string par_name) = 0;
+  virtual double getDetParameter(std::string set_name, std::string par_name) = 0;
   virtual TMaterial* getMaterial(std::string s) = 0;
 
   virtual ~IGeomSvc() {}
