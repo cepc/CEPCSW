@@ -19,7 +19,7 @@
 
 
   <define>
-    <constant name="world_size" value="30*m"/>
+    <constant name="world_size" value="2226*mm"/>
     <constant name="world_x" value="world_size"/>
     <constant name="world_y" value="world_size"/>
     <constant name="world_z" value="world_size"/>
