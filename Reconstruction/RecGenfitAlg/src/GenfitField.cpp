@@ -1,5 +1,4 @@
 #include "GenfitField.h"
-#include "GenfitMsg.h"
 
 //External
 #include "DD4hep/DD4hepUnits.h"
