@@ -11,10 +11,15 @@ from Gaudi.Configuration import *
 ##############################################################################
 from Configurables import RndmGenSvc, HepRndm__Engine_CLHEP__RanluxEngine_
 
+seed = [42]
+
 # rndmengine = HepRndm__Engine_CLHEP__RanluxEngine_() # The default engine in Gaudi
-rndmengine = HepRndm__Engine_CLHEP__HepJamesRandom_() # The default engine in Geant4
+rndmengine = HepRndm__Engine_CLHEP__HepJamesRandom_("RndmGenSvc.Engine") # The default engine in Geant4
 rndmengine.SetSingleton = True
-rndmengine.Seeds = [42]
+rndmengine.Seeds = seed
+
+rndmgensvc = RndmGenSvc("RndmGenSvc")
+rndmgensvc.Engine = rndmengine.name()
 
 ##############################################################################
 # Event Data Svc
@@ -90,6 +95,7 @@ detsimsvc = DetSimSvc("DetSimSvc")
 from Configurables import DetSimAlg
 
 detsimalg = DetSimAlg("DetSimAlg")
+detsimalg.RandomSeeds = seed
 
 # detsimalg.VisMacs = ["vis.mac"]
 
@@ -217,7 +223,7 @@ ApplicationMgr(
         TopAlg = [genalg, detsimalg, simHitMerge, caloDigi, pandoralg, write],
         EvtSel = 'NONE',
         EvtMax = 10,
-        ExtSvc = [rndmengine, dsvc, geosvc, gearSvc,detsimsvc],
+        ExtSvc = [rndmengine, rndmgensvc, dsvc, geosvc, gearSvc,detsimsvc],
         HistogramPersistency = "ROOT",
         OutputLevel=INFO
 )
