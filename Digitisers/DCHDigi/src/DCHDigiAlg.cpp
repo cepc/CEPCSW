@@ -109,7 +109,6 @@ StatusCode DCHDigiAlg::execute()
       }
   }
   if(m_WriteAna && (nullptr!=m_tuple)){
-  if(m_WriteAna){
       m_n_sim = 0;
       m_n_digi = 0 ;
   }
