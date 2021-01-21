@@ -108,11 +108,8 @@ StatusCode DCHDigiAlg::execute()
           id_hits_map[id] = vhit ;
       }
   }
-<<<<<<< HEAD
   if(m_WriteAna && (nullptr!=m_tuple)){
-=======
   if(m_WriteAna){
->>>>>>> f65db69923e45779cd7bd84de28520c5b26a4b4a
       m_n_sim = 0;
       m_n_digi = 0 ;
   }
