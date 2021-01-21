@@ -143,6 +143,14 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
       }
   }
 
+    // End cap
+    double Endcap_rmin = theDetector.constant<double>("SDT_Endcap_rmin");
+    double Endcap_rmax = theDetector.constant<double>("SDT_Endcap_rmax");
+    double Endcap_z = theDetector.constant<double>("SDT_Endcap_dz");
+    dd4hep::Tube det_Endcap_solid(Endcap_rmin,Endcap_rmax,Endcap_z);
+    dd4hep::Volume det_Endcap_vol(det_name+"Endcap",det_Endcap_solid,det_mat);
+    det_Endcap_vol.setVisAttributes(theDetector,"VisibleRed");
+
     //Initialize the segmentation
     dd4hep::Readout readout = sd.readout();
     dd4hep::Segmentation geomseg = readout.segmentation();
@@ -255,6 +263,14 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
        wall_vol.setVisAttributes(theDetector,"VisibleGreen");
        dd4hep::PlacedVolume wall_phy = envelope.placeVolume(wall_vol,transform);
     }
+
+    // - place Endcap
+    double endcap_pos[2] = {chamber_length*0.5+Endcap_z*0.5,-chamber_length*0.5-Endcap_z*0.5};
+    dd4hep::PlacedVolume endcap_phy;
+    for(int i=0; i<2; i++) {
+        dd4hep::Transform3D Endcap_transform(dd4hep::Rotation3D(),dd4hep::Position(0,0,endcap_pos[i]));
+        endcap_phy = envelope.placeVolume(det_Endcap_vol,Endcap_transform);
+   }
 
     if ( x_det.hasAttr(_U(id)) )  {
         phv.addPhysVolID("system",x_det.id());

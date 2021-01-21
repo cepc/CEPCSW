@@ -53,6 +53,10 @@
     <constant name="SDT_outer_chamber_outer_wall_radius_min" value="1715*mm"/>
     <constant name="SDT_outer_chamber_outer_wall_radius_max" value="1717.8*mm"/>
 
+    <constant name="SDT_Endcap_rmin" value="SDT_radius_min"/>
+    <constant name="SDT_Endcap_rmax" value="SDT_radius_max"/>
+    <constant name="SDT_Endcap_dz" value="0.1*mm"/>
+
   </define>
 
   <display>
@@ -72,8 +76,8 @@
     <detector id="7" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="VisibleBlue" sensitive="true" region="DriftChamberRegion">
       <envelope vis="SeeThrough">
         <shape type="BooleanShape" operation="Union" material="Air">
-          <shape type="Tube" rmin="SDT_radius_min" rmax="909*mm" dz="SDT_half_length" />
-          <shape type="Tube" rmin="1084.8*mm" rmax="SDT_radius_max" dz="SDT_half_length" />
+          <shape type="Tube" rmin="SDT_radius_min" rmax="909*mm" dz="SDT_half_length+SDT_Endcap_dz" />
+          <shape type="Tube" rmin="1084.8*mm" rmax="SDT_radius_max" dz="SDT_half_length+SDT_Endcap_dz" />
         </shape>
       </envelope>
 
