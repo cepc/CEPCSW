@@ -211,4 +211,3 @@ StatusCode DCHDigiAlg::finalize()
   info() << "Processed " << _nEvt << " events " << endmsg;
   return GaudiAlgorithm::finalize();
 }
-
