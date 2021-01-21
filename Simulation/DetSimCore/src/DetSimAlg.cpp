@@ -39,7 +39,7 @@ DetSimAlg::initialize() {
 
     info() << "Random Seed is initialized to "
            << G4Random::getTheSeed()
-           << " in Geant4" << std::endl;
+           << " in Geant4" << endmsg;
 
     m_detsimsvc = service("DetSimSvc");
     if (!m_detsimsvc) {
