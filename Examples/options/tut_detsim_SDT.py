@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import os
-print(os.environ["DD4HEP_LIBRARY_PATH"])
 import sys
 # sys.exit(0)
 
@@ -12,13 +11,15 @@ from Gaudi.Configuration import *
 ##############################################################################
 from Configurables import RndmGenSvc, HepRndm__Engine_CLHEP__RanluxEngine_
 
-# rndmengine = HepRndm__Engine_CLHEP__RanluxEngine_() # The default engine in Gaudi
-rndmengine = HepRndm__Engine_CLHEP__HepJamesRandom_() # The default engine in Geant4
-rndmengine.SetSingleton = True
-rndmengine.Seeds = [42]
+seed = [42]
 
-# rndmgensvc = RndmGenSvc("RndmGenSvc")
-# rndmgensvc.Engine = rndmengine.name()
+# rndmengine = HepRndm__Engine_CLHEP__RanluxEngine_() # The default engine in Gaudi
+rndmengine = HepRndm__Engine_CLHEP__HepJamesRandom_("RndmGenSvc.Engine") # The default engine in Geant4
+rndmengine.SetSingleton = True
+rndmengine.Seeds = seed
+
+rndmgensvc = RndmGenSvc("RndmGenSvc")
+rndmgensvc.Engine = rndmengine.name()
 
 
 ##############################################################################
@@ -110,6 +111,7 @@ detsimsvc = DetSimSvc("DetSimSvc")
 from Configurables import DetSimAlg
 
 detsimalg = DetSimAlg("DetSimAlg")
+detsimalg.RandomSeeds = seed
 
 if int(os.environ.get("VIS", 0)):
     detsimalg.VisMacs = ["vis.mac"]
@@ -173,5 +175,5 @@ from Configurables import ApplicationMgr
 ApplicationMgr( TopAlg = [genalg, detsimalg, out],
                 EvtSel = 'NONE',
                 EvtMax = 10,
-                ExtSvc = [rndmengine, dsvc, geosvc],
+                ExtSvc = [rndmengine, rndmgensvc, dsvc, geosvc],
 )
