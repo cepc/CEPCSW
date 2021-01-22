@@ -144,12 +144,12 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
   }
 
     // End cap
-    double Endcap_rmin = theDetector.constant<double>("SDT_Endcap_rmin");
-    double Endcap_rmax = theDetector.constant<double>("SDT_Endcap_rmax");
-    double Endcap_z = theDetector.constant<double>("SDT_Endcap_dz");
+    double Endcap_rmin = theDetector.constant<double>("DC_Endcap_rmin");
+    double Endcap_rmax = theDetector.constant<double>("DC_Endcap_rmax");
+    double Endcap_z = theDetector.constant<double>("DC_Endcap_dz");
     dd4hep::Tube det_Endcap_solid(Endcap_rmin,Endcap_rmax,Endcap_z);
     dd4hep::Volume det_Endcap_vol(det_name+"Endcap",det_Endcap_solid,det_mat);
-    det_Endcap_vol.setVisAttributes(theDetector,"VisibleRed");
+    det_Endcap_vol.setVisAttributes(theDetector,"YellowVis");
 
     //Initialize the segmentation
     dd4hep::Readout readout = sd.readout();
@@ -203,7 +203,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         //    |                     |
         //    |   F0    F1   F2   F3|
         //    -----------------------
-//     if(layer_id == 1|| layer_id == 2 || layer_id ==3) {
+     if(layer_id == -1) {
         for(int icell=0; icell< numWire; icell++) {
             double wire_phi = (icell+0.5)*layer_Phi + offset;
             // - signal wire
@@ -221,7 +221,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
                 Module_phy = layer_vol.placeVolume(Module_vol,transform_Module);
             }
         }
-//  }
+  }
 
         dd4hep::Transform3D transform_layer(dd4hep::Rotation3D(),dd4hep::Position(0.,0.,0.));
         dd4hep::PlacedVolume layer_phy = (*current_vol_ptr).placeVolume(layer_vol, transform_layer);
