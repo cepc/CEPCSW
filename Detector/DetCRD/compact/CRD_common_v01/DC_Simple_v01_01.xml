@@ -14,19 +14,17 @@
     <constant name="SDT_radius_min" value="InnerTracker_inner_radius"/>
     <constant name="SDT_radius_max" value="OuterTracker_outer_radius"/>
 
-    <constant name="DC_Endcap_dz" value="0.1*mm"/>
-
-    <constant name="SDT_half_length" value="MainTracker_half_length+DC_Endcap_dz"/>
+    <constant name="SDT_half_length" value="MainTracker_half_length"/>
     <constant name="SDT_length" value="SDT_half_length*2"/>
-    <constant name="DC_length" value="SDT_length-DC_Endcap_dz*2"/>
+    <constant name="DC_length" value="DC_half_length*2"/>
 
     <constant name="SDT_inner_chamber_radius_min" value="235*mm"/>
     <constant name="SDT_inner_chamber_radius_max" value="InnerTracker_outer_radius"/>
-    <constant name="SDT_inner_chamber_length" value="SDT_length"/>
+    <constant name="SDT_inner_chamber_length" value="DC_length"/>
 
     <constant name="SDT_outer_chamber_radius_min" value="OuterTracker_inner_radius"/>
     <constant name="SDT_outer_chamber_radius_max" value="1715*mm"/>
-    <constant name="SDT_outer_chamber_length" value="SDT_length"/>
+    <constant name="SDT_outer_chamber_length" value="DC_length"/>
 
     <constant name="SDT_inner_chamber_layer_number" value="67"/>
     <constant name="SDT_outer_chamber_layer_number" value="63"/>
@@ -44,6 +42,7 @@
 
     <constant name="DC_Endcap_rmin" value="SDT_radius_min"/>
     <constant name="DC_Endcap_rmax" value="SDT_radius_max"/>
+    <constant name="DC_Endcap_dz" value="DC_Endcap_z"/>
 
   </define>
 
@@ -74,7 +73,7 @@
 
   <readouts>
     <readout name="DriftChamberHitsCollection">
-      <segmentation type="GridDriftChamber" cell_size="10*mm" epsilon0="Epsilon" detector_length="SDT_length" identifier_phi="cellID" />
+      <segmentation type="GridDriftChamber" cell_size="10*mm" epsilon0="Epsilon" detector_length="DC_length" identifier_phi="cellID" />
 
       <id>system:8,chamber:1,layer:8,cellID:16</id>
     </readout>
