@@ -13,16 +13,18 @@
   <define>
     <constant name="SDT_radius_min" value="InnerTracker_inner_radius"/>
     <constant name="SDT_radius_max" value="OuterTracker_outer_radius"/>
+
     <constant name="SDT_half_length" value="MainTracker_half_length"/>
     <constant name="SDT_length" value="SDT_half_length*2"/>
+    <constant name="DC_length" value="DC_half_length*2"/>
 
     <constant name="SDT_inner_chamber_radius_min" value="235*mm"/>
     <constant name="SDT_inner_chamber_radius_max" value="InnerTracker_outer_radius"/>
-    <constant name="SDT_inner_chamber_length" value="SDT_length"/>
+    <constant name="SDT_inner_chamber_length" value="DC_length"/>
 
     <constant name="SDT_outer_chamber_radius_min" value="OuterTracker_inner_radius"/>
     <constant name="SDT_outer_chamber_radius_max" value="1715*mm"/>
-    <constant name="SDT_outer_chamber_length" value="SDT_length"/>
+    <constant name="SDT_outer_chamber_length" value="DC_length"/>
 
     <constant name="SDT_inner_chamber_layer_number" value="67"/>
     <constant name="SDT_outer_chamber_layer_number" value="63"/>
@@ -38,13 +40,17 @@
     <constant name="SDT_outer_chamber_outer_wall_radius_min" value="1715*mm"/>
     <constant name="SDT_outer_chamber_outer_wall_radius_max" value="1717.8*mm"/>
 
+    <constant name="DC_Endcap_rmin" value="SDT_radius_min"/>
+    <constant name="DC_Endcap_rmax" value="SDT_radius_max"/>
+    <constant name="DC_Endcap_dz" value="DC_Endcap_z"/>
+
   </define>
 
   <detectors>
     <detector id="DetID_DC" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="BlueVis" sensitive="true" insideTrackingVolume="true">
       <envelope vis="SeeThrough">
         <shape type="BooleanShape" operation="Union" material="Air">
-	  <shape type="Tube" rmin="SDT_radius_min" rmax="909*mm" dz="SDT_half_length" />
+          <shape type="Tube" rmin="SDT_radius_min" rmax="909*mm" dz="SDT_half_length" />
           <shape type="Tube" rmin="1084.8*mm" rmax="SDT_radius_max" dz="SDT_half_length" />
         </shape>
       </envelope>
@@ -67,7 +73,7 @@
 
   <readouts>
     <readout name="DriftChamberHitsCollection">
-      <segmentation type="GridDriftChamber" cell_size="10*mm" epsilon0="Epsilon" detector_length="SDT_length" identifier_phi="cellID" />
+      <segmentation type="GridDriftChamber" cell_size="10*mm" epsilon0="Epsilon" detector_length="DC_length" identifier_phi="cellID" />
 
       <id>system:8,chamber:1,layer:8,cellID:16</id>
     </readout>

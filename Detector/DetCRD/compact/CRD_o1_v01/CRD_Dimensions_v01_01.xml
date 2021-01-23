@@ -80,8 +80,10 @@
     <constant name="Vertex_inner_radius" value="BeamPipe_Central_inner_radius+BeamPipe_Be_total_thickness"/>
     <constant name="Vertex_outer_radius" value="101*mm"/>
     <constant name="Vertex_half_length"  value="200*mm"/>
-    
-    <constant name="MainTracker_half_length"  value="2225*mm" />
+
+    <constant name="DC_Endcap_z" value="0.1*mm"/>
+    <constant name="DC_half_length"  value="2225*mm" />
+    <constant name="MainTracker_half_length"  value="DC_half_length+DC_Endcap_z" />
     <constant name="InnerTracker_half_length"  value="MainTracker_half_length" />
     <constant name="InnerTracker_inner_radius" value="234*mm"/>
     <constant name="InnerTracker_outer_radius" value="906*mm"/>
