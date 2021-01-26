@@ -97,6 +97,7 @@ private:
      *  @param  subDetectorNameMap the sub detector name map (for smaller sub detectors, identified uniquely only by name)
      */
     void SetAdditionalSubDetectorParameters(SubDetectorNameMap &subDetectorNameMap) const;
+    void SetAdditionalSubDetectorParametersDD(SubDetectorNameMap &subDetectorNameMap) const;
 
     /**
      *  @brief  Set sub detector parameters to their gear default values

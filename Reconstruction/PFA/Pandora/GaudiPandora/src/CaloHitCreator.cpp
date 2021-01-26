@@ -54,45 +54,155 @@ CaloHitCreator::CaloHitCreator(const Settings &settings, const pandora::Pandora 
         if (!sc) throw "Failed to find GeomSvc.";
     }
     if(m_settings.m_use_dd4hep_geo){
-        const dd4hep::rec::LayeredCalorimeterData * eCalBarrelExtension= PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::BARREL),
-										     ( dd4hep::DetType::AUXILIARY  |  dd4hep::DetType::FORWARD ) );
-        m_eCalBarrelOuterZ        = eCalBarrelExtension->extent[3]/dd4hep::mm;
-        m_eCalBarrelInnerPhi0     = eCalBarrelExtension->inner_phi0/dd4hep::rad;
-        m_eCalBarrelInnerSymmetry = eCalBarrelExtension->inner_symmetry;
+        const dd4hep::rec::LayeredCalorimeterData * eCalBarrelExtension= PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::BARREL), ( dd4hep::DetType::AUXILIARY  |  dd4hep::DetType::FORWARD ) );
+        if(eCalBarrelExtension){ 
+            m_eCalBarrelOuterZ        = eCalBarrelExtension->extent[3]/dd4hep::mm;
+            m_eCalBarrelInnerPhi0     = eCalBarrelExtension->inner_phi0/dd4hep::rad;
+            m_eCalBarrelInnerSymmetry = eCalBarrelExtension->inner_symmetry;
+        }
+        else{
+            /*
+            std::cout<<"CaloHitCreator:WARNING, Can't get ECAL geo info from dd4hep, set it to dummy value. "<<std::endl;
+            m_eCalBarrelOuterZ        = 2400;
+            m_eCalBarrelInnerPhi0     = 0;
+            m_eCalBarrelInnerSymmetry = 8;
+            */
+            std::cout<<"CaloHitCreator:WARNING, Can't get ECAL geo info from dd4hep, get it from Gear. "<<std::endl;
+            m_eCalBarrelOuterZ        = (_GEAR->getEcalBarrelParameters().getExtent()[3]);
+            m_eCalBarrelInnerPhi0     = (_GEAR->getEcalBarrelParameters().getPhi0());
+            m_eCalBarrelInnerSymmetry = (_GEAR->getEcalBarrelParameters().getSymmetryOrder());
+        }
+        //Get HCal Barrel extension by type, ignore plugs and rings 
+        const dd4hep::rec::LayeredCalorimeterData * hCalBarrelExtension= PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::HADRONIC | dd4hep::DetType::BARREL),( dd4hep::DetType::AUXILIARY |  dd4hep::DetType::FORWARD ) );
+        //Get HCal Endcap extension by type, ignore plugs and rings 
+        const dd4hep::rec::LayeredCalorimeterData * hCalEndcapExtension= PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::HADRONIC | dd4hep::DetType::ENDCAP),( dd4hep::DetType::AUXILIARY |  dd4hep::DetType::FORWARD ) );
+        if(hCalBarrelExtension){
+            m_hCalBarrelOuterZ             =   hCalBarrelExtension->extent[3]/dd4hep::mm;
+            m_hCalBarrelInnerPhi0          =   hCalBarrelExtension->inner_phi0/dd4hep::rad;
+            m_hCalBarrelInnerSymmetry      =   hCalBarrelExtension->inner_symmetry;
+            m_hCalBarrelOuterR             =   hCalBarrelExtension->extent[1]/dd4hep::mm;
+            m_hCalBarrelOuterPhi0          =   hCalBarrelExtension->outer_phi0/dd4hep::rad;
+            m_hCalBarrelOuterSymmetry      =   hCalBarrelExtension->outer_symmetry;
+            const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer>& barrelLayers= hCalBarrelExtension->layers;
+            //Take thicknesses from last layer (was like that before with gear)
+            m_hCalBarrelLayerThickness =(barrelLayers.back().inner_thickness+barrelLayers.back().outer_thickness)/dd4hep::mm;
+        }
+        else{
+            /*
+            std::cout<<"CaloHitCreator:WARNING, Can't get HCAL Barrel geo info from dd4hep, set it to dummy value. "<<std::endl;
+            m_hCalBarrelOuterZ             =   0;
+            m_hCalBarrelInnerPhi0          =   0;
+            m_hCalBarrelInnerSymmetry      =   0;
+            m_hCalBarrelOuterR             =   0;
+            m_hCalBarrelOuterPhi0          =   0;
+            m_hCalBarrelOuterSymmetry      =   0;
+            m_hCalBarrelLayerThickness     =   1;
+            */
+            std::cout<<"CaloHitCreator:WARNING, Can't get HCAL Barrel geo info from dd4hep, get it from Gear"<<std::endl;
+            m_hCalBarrelOuterZ        = (_GEAR->getHcalBarrelParameters().getExtent()[3]);
+            m_hCalBarrelInnerPhi0     = (_GEAR->getHcalBarrelParameters().getPhi0());
+            m_hCalBarrelInnerSymmetry = (_GEAR->getHcalBarrelParameters().getSymmetryOrder());
+            m_hCalBarrelOuterR        = (_GEAR->getHcalBarrelParameters().getExtent()[1]);
+            m_hCalBarrelOuterPhi0     = ((std::find(_GEAR->getHcalBarrelParameters().getIntKeys().begin(),
+                _GEAR->getHcalBarrelParameters().getIntKeys().end(),
+                "Hcal_outer_polygon_phi0") != _GEAR->getHcalBarrelParameters().getIntKeys().end() ?
+                _GEAR->getHcalBarrelParameters().getIntVal("Hcal_outer_polygon_phi0")
+                : 0));
+            m_hCalBarrelOuterSymmetry = ((std::find(_GEAR->getHcalBarrelParameters().getIntKeys().begin(),
+                _GEAR->getHcalBarrelParameters().getIntKeys().end(),
+                "Hcal_outer_polygon_order") != _GEAR->getHcalBarrelParameters().getIntKeys().end() ?
+                _GEAR->getHcalBarrelParameters().getIntVal("Hcal_outer_polygon_order")
+                : 0));
+            const gear::LayerLayout &hCalBarrelLayerLayout(_GEAR->getHcalBarrelParameters().getLayerLayout()); 
+            m_hCalBarrelLayerThickness = hCalBarrelLayerLayout.getThickness(hCalBarrelLayerLayout.getNLayers() - 1);
+        }
+        if(hCalEndcapExtension){
+            m_hCalEndCapOuterR             =   hCalEndcapExtension->extent[1]/dd4hep::mm;
+            m_hCalEndCapOuterZ             =   hCalEndcapExtension->extent[3]/dd4hep::mm;
+            const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer>& endcapLayers= hCalEndcapExtension->layers;
+            //Take thicknesses from last layer (was like that before with gear)
+            m_hCalEndCapLayerThickness =(endcapLayers.back().inner_thickness+endcapLayers.back().outer_thickness)/dd4hep::mm;
+        }
+        else{
+            /*
+            std::cout<<"CaloHitCreator:WARNING, Can't get HCAL Endcap geo info from dd4hep, set it to dummy value. "<<std::endl;
+            m_hCalEndCapOuterR             =   0;
+            m_hCalEndCapOuterZ             =   0;
+            m_hCalEndCapLayerThickness     =   1;
+            */
+            std::cout<<"CaloHitCreator:WARNING, Can't get HCAL Endcap geo info from dd4hep, get it from Gear. "<<std::endl;
+            m_hCalEndCapOuterR        = (_GEAR->getHcalEndcapParameters().getExtent()[1]);
+            m_hCalEndCapOuterZ        = (_GEAR->getHcalEndcapParameters().getExtent()[3]);
+            const gear::LayerLayout &hCalEndCapLayerLayout(_GEAR->getHcalEndcapParameters().getLayerLayout());
+            m_hCalEndCapLayerThickness = hCalEndCapLayerLayout.getThickness(hCalEndCapLayerLayout.getNLayers() - 1);
+
+        }
+        //Get Muon Barrel extension by type, ignore plugs and rings 
+        const dd4hep::rec::LayeredCalorimeterData * muonBarrelExtension= PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::MUON | dd4hep::DetType::BARREL),( dd4hep::DetType::AUXILIARY |  dd4hep::DetType::FORWARD ) );
+        //fg: muon endcap is not used :
+        //Get Muon Endcap extension by type, ignore plugs and rings 
+        // const dd4hep::rec::LayeredCalorimeterData * muonEndcapExtension= getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::MUON | dd4hep::DetType::ENDCAP), ( dd4hep::DetType::AUXILIARY ) );
+        if(muonBarrelExtension){
+            m_muonBarrelOuterZ             =   muonBarrelExtension->extent[3]/dd4hep::mm;
+            m_muonBarrelInnerPhi0          =   muonBarrelExtension->inner_phi0/dd4hep::rad;
+            m_muonBarrelInnerSymmetry      =   muonBarrelExtension->inner_symmetry;
+        }
+        else{
+            /*
+            std::cout<<"CaloHitCreator:WARNING, Can't get Muon Barrel geo info from dd4hep, set it to dummy value. "<<std::endl;
+            m_muonBarrelOuterZ             =   0;
+            m_muonBarrelInnerPhi0          =   0;
+            m_muonBarrelInnerSymmetry      =   0;
+            */
+            std::cout<<"CaloHitCreator:WARNING, Can't get Muon Barrel geo info from dd4hep, get it from Gear. "<<std::endl;
+            m_muonBarrelInnerPhi0     = (_GEAR->getYokeBarrelParameters().getPhi0());
+            m_muonBarrelOuterZ        = (_GEAR->getYokeBarrelParameters().getExtent()[3]);
+            m_muonBarrelInnerSymmetry = (_GEAR->getYokeBarrelParameters().getSymmetryOrder());
+        }
+        //Get COIL extension
+        const dd4hep::rec::LayeredCalorimeterData * coilExtension= PanUtil::getExtension( ( dd4hep::DetType::COIL ) );
+        if(coilExtension){
+            m_coilOuterR                   =   coilExtension->extent[1]/dd4hep::mm;
+        }
+        else{
+            /*
+            std::cout<<"CaloHitCreator:WARNING, Can't get Coil geo info from dd4hep, set it to dummy value. "<<std::endl;
+            m_coilOuterR = 0;
+            */
+            std::cout<<"CaloHitCreator:WARNING, Can't get Coil geo info from dd4hep, get it from Gear. "<<std::endl;
+            m_coilOuterR              = (_GEAR->getGearParameters("CoilParameters").getDoubleVal("Coil_cryostat_outer_radius"));
+        }
     }
     else{
         m_eCalBarrelOuterZ        = (_GEAR->getEcalBarrelParameters().getExtent()[3]);
         m_eCalBarrelInnerPhi0     = (_GEAR->getEcalBarrelParameters().getPhi0());
         m_eCalBarrelInnerSymmetry = (_GEAR->getEcalBarrelParameters().getSymmetryOrder());
+        m_hCalBarrelOuterZ        = (_GEAR->getHcalBarrelParameters().getExtent()[3]);
+        m_hCalBarrelInnerPhi0     = (_GEAR->getHcalBarrelParameters().getPhi0());
+        m_hCalBarrelInnerSymmetry = (_GEAR->getHcalBarrelParameters().getSymmetryOrder());
+        m_hCalBarrelOuterR        = (_GEAR->getHcalBarrelParameters().getExtent()[1]);
+        m_hCalBarrelOuterPhi0     = ((std::find(_GEAR->getHcalBarrelParameters().getIntKeys().begin(),
+            _GEAR->getHcalBarrelParameters().getIntKeys().end(),
+            "Hcal_outer_polygon_phi0") != _GEAR->getHcalBarrelParameters().getIntKeys().end() ?
+            _GEAR->getHcalBarrelParameters().getIntVal("Hcal_outer_polygon_phi0")
+            : 0));
+        m_hCalBarrelOuterSymmetry = ((std::find(_GEAR->getHcalBarrelParameters().getIntKeys().begin(),
+            _GEAR->getHcalBarrelParameters().getIntKeys().end(),
+            "Hcal_outer_polygon_order") != _GEAR->getHcalBarrelParameters().getIntKeys().end() ?
+            _GEAR->getHcalBarrelParameters().getIntVal("Hcal_outer_polygon_order")
+            : 0));
+        const gear::LayerLayout &hCalBarrelLayerLayout(_GEAR->getHcalBarrelParameters().getLayerLayout()); 
+        m_hCalBarrelLayerThickness = hCalBarrelLayerLayout.getThickness(hCalBarrelLayerLayout.getNLayers() - 1);
+        m_hCalEndCapOuterR        = (_GEAR->getHcalEndcapParameters().getExtent()[1]);
+        m_hCalEndCapOuterZ        = (_GEAR->getHcalEndcapParameters().getExtent()[3]);
+        const gear::LayerLayout &hCalEndCapLayerLayout(_GEAR->getHcalEndcapParameters().getLayerLayout());
+        m_hCalEndCapLayerThickness = hCalEndCapLayerLayout.getThickness(hCalEndCapLayerLayout.getNLayers() - 1);
+        m_coilOuterR              = (_GEAR->getGearParameters("CoilParameters").getDoubleVal("Coil_cryostat_outer_radius"));
+        m_muonBarrelInnerPhi0     = (_GEAR->getYokeBarrelParameters().getPhi0());
+        m_muonBarrelOuterZ        = (_GEAR->getYokeBarrelParameters().getExtent()[3]);
+        m_muonBarrelInnerSymmetry = (_GEAR->getYokeBarrelParameters().getSymmetryOrder());
     }
 
-
-    m_hCalBarrelOuterZ        = (_GEAR->getHcalBarrelParameters().getExtent()[3]);
-    m_muonBarrelOuterZ        = (_GEAR->getYokeBarrelParameters().getExtent()[3]);
-    m_coilOuterR              = (_GEAR->getGearParameters("CoilParameters").getDoubleVal("Coil_cryostat_outer_radius"));
-    m_hCalBarrelInnerPhi0     = (_GEAR->getHcalBarrelParameters().getPhi0());
-    m_hCalBarrelInnerSymmetry = (_GEAR->getHcalBarrelParameters().getSymmetryOrder());
-    m_muonBarrelInnerPhi0     = (_GEAR->getYokeBarrelParameters().getPhi0());
-    m_muonBarrelInnerSymmetry = (_GEAR->getYokeBarrelParameters().getSymmetryOrder());
-    m_hCalEndCapOuterR        = (_GEAR->getHcalEndcapParameters().getExtent()[1]);
-    m_hCalEndCapOuterZ        = (_GEAR->getHcalEndcapParameters().getExtent()[3]);
-    m_hCalBarrelOuterR        = (_GEAR->getHcalBarrelParameters().getExtent()[1]);
-    m_hCalBarrelOuterPhi0     =((std::find(_GEAR->getHcalBarrelParameters().getIntKeys().begin(),
-        _GEAR->getHcalBarrelParameters().getIntKeys().end(),
-        "Hcal_outer_polygon_phi0") != _GEAR->getHcalBarrelParameters().getIntKeys().end() ?
-        _GEAR->getHcalBarrelParameters().getIntVal("Hcal_outer_polygon_phi0")
-        : 0));
-    m_hCalBarrelOuterSymmetry = ((std::find(_GEAR->getHcalBarrelParameters().getIntKeys().begin(),
-        _GEAR->getHcalBarrelParameters().getIntKeys().end(),
-        "Hcal_outer_polygon_order") != _GEAR->getHcalBarrelParameters().getIntKeys().end() ?
-        _GEAR->getHcalBarrelParameters().getIntVal("Hcal_outer_polygon_order")
-        : 0));
-
-
-    const gear::LayerLayout &hCalEndCapLayerLayout(_GEAR->getHcalEndcapParameters().getLayerLayout());
-    const gear::LayerLayout &hCalBarrelLayerLayout(_GEAR->getHcalBarrelParameters().getLayerLayout()); 
-    m_hCalEndCapLayerThickness = hCalEndCapLayerLayout.getThickness(hCalEndCapLayerLayout.getNLayers() - 1);
-    m_hCalBarrelLayerThickness = hCalBarrelLayerLayout.getThickness(hCalBarrelLayerLayout.getNLayers() - 1);
     if ((m_hCalEndCapLayerThickness < std::numeric_limits<float>::epsilon()) || (m_hCalBarrelLayerThickness < std::numeric_limits<float>::epsilon()))
         throw pandora::StatusCodeException(pandora::STATUS_CODE_INVALID_PARAMETER);
 
@@ -126,7 +236,7 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
     for (unsigned int k = 0; k < m_settings.m_eCalCaloHitCollections.size(); k++)
     {
         std::string tmp_col_name = m_settings.m_eCalCaloHitCollections.at(k);
-        if(collectionMaps.collectionMap_CaloHit.find(tmp_col_name) == collectionMaps.collectionMap_CaloHit.end()) { std::cout<<"not find "<<tmp_col_name<<std::endl; continue;}
+        if(collectionMaps.collectionMap_CaloHit.find(tmp_col_name) == collectionMaps.collectionMap_CaloHit.end()) { if(m_settings.m_debug) std::cout<<"not find "<<tmp_col_name<<std::endl; continue;}
         try
         {
             if(m_settings.m_debug) std::cout<<"CaloHitCreator for "<<tmp_col_name<<std::endl;
@@ -136,8 +246,6 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
             if (0 == nElements)
                 continue;
 
-            const gear::LayerLayout &endcapLayerLayout(_GEAR->getEcalEndcapParameters().getLayerLayout());
-            const gear::LayerLayout &barrelLayerLayout(_GEAR->getEcalBarrelParameters().getLayerLayout()); 
 
             ID_UTIL::CellIDDecoder<const edm4hep::CalorimeterHit> cellIdDecoder(m_encoder_str);
             const std::string layerCodingString(m_encoder_str);
@@ -149,6 +257,18 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
             if( m_settings.m_use_dd4hep_decoder ){
                 m_decoder = m_geosvc->getDecoder(name_readout);
                 if (!m_decoder) throw "Failed to get the decoder. ";
+            }
+            const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer>* barrelLayers=nullptr;
+            const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer>* endcapLayers=nullptr;
+            const gear::LayerLayout* barrelLayerLayout=nullptr;
+            const gear::LayerLayout* endcapLayerLayout=nullptr;
+            if(m_settings.m_use_dd4hep_geo){
+                barrelLayers= &(PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::BARREL), ( dd4hep::DetType::AUXILIARY  |  dd4hep::DetType::FORWARD ) )->layers);
+                endcapLayers= &(PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::ENDCAP), ( dd4hep::DetType::AUXILIARY  |  dd4hep::DetType::FORWARD ) )->layers);
+            }
+            else{
+                barrelLayerLayout = &(_GEAR->getEcalBarrelParameters().getLayerLayout()); 
+                endcapLayerLayout = &(_GEAR->getEcalEndcapParameters().getLayerLayout());
             }
 
             for (int i = 0; i < nElements; ++i)
@@ -214,27 +334,15 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
 
                     if (std::fabs(pCaloHit->getPosition()[2]) < m_eCalBarrelOuterZ)
                     {
-                        if(m_settings.m_use_dd4hep_geo){
-                            const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer>& barrelLayers= PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::BARREL), ( dd4hep::DetType::AUXILIARY  |  dd4hep::DetType::FORWARD ) )->layers;
-                            this->GetBarrelCaloHitProperties(pCaloHit, barrelLayers, m_eCalBarrelInnerSymmetry, m_eCalBarrelInnerPhi0,
-                            Stave, caloHitParameters, absorberCorrection);
-                        }
-                        else{
-                            this->GetBarrelCaloHitProperties(pCaloHit, barrelLayerLayout, m_eCalBarrelInnerSymmetry, m_eCalBarrelInnerPhi0,
-                            Stave, caloHitParameters, absorberCorrection);
-                        }
-
+                        if(m_settings.m_use_dd4hep_geo) this->GetBarrelCaloHitProperties(pCaloHit, *barrelLayers, m_eCalBarrelInnerSymmetry, m_eCalBarrelInnerPhi0, Stave, caloHitParameters, absorberCorrection);
+                        else                            this->GetBarrelCaloHitProperties(pCaloHit, *barrelLayerLayout, m_eCalBarrelInnerSymmetry, m_eCalBarrelInnerPhi0, Stave, caloHitParameters, absorberCorrection);
                         caloHitParameters.m_hadronicEnergy = eCalToHadGeVBarrel * pCaloHit->getEnergy();
                     }
                     else
                     {
-                        if(m_settings.m_use_dd4hep_geo){
-                            const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer>& endcapLayers= PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::ENDCAP), ( dd4hep::DetType::AUXILIARY  |  dd4hep::DetType::FORWARD ) )->layers;
-                            this->GetEndCapCaloHitProperties(pCaloHit, endcapLayers, caloHitParameters, absorberCorrection);
-                        }
-                        else{
-                            this->GetEndCapCaloHitProperties(pCaloHit, endcapLayerLayout, caloHitParameters, absorberCorrection);
-                        }
+                        if(m_settings.m_use_dd4hep_geo) this->GetEndCapCaloHitProperties(pCaloHit, *endcapLayers, caloHitParameters, absorberCorrection);
+                        
+                        else                            this->GetEndCapCaloHitProperties(pCaloHit, *endcapLayerLayout, caloHitParameters, absorberCorrection);
                         caloHitParameters.m_hadronicEnergy = eCalToHadGeVEndCap * pCaloHit->getEnergy();
                     }
 
@@ -280,25 +388,42 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
 
 pandora::StatusCode CaloHitCreator::CreateHCalCaloHits(const CollectionMaps& collectionMaps)
 {
-    for (StringVector::const_iterator iter = m_settings.m_hCalCaloHitCollections.begin(), iterEnd = m_settings.m_hCalCaloHitCollections.end();
-        iter != iterEnd; ++iter)
+    for (unsigned int k = 0; k < m_settings.m_hCalCaloHitCollections.size(); k++)
     {
-        if(collectionMaps.collectionMap_CaloHit.find(*iter) == collectionMaps.collectionMap_CaloHit.end()) { std::cout<<"not find "<<(*iter)<<std::endl; continue;}
+        std::string tmp_col_name = m_settings.m_hCalCaloHitCollections.at(k);
+        if(collectionMaps.collectionMap_CaloHit.find(tmp_col_name) == collectionMaps.collectionMap_CaloHit.end()) { if(m_settings.m_debug) std::cout<<"not find "<<tmp_col_name<<std::endl; continue;}
         try
         {
-            const std::vector<edm4hep::CalorimeterHit>& pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(*iter))->second;
+            const std::vector<edm4hep::CalorimeterHit>& pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(tmp_col_name))->second;
             const int nElements(pCaloHitCollection.size());
 
             if (0 == nElements)
                 continue;
 
-            const gear::LayerLayout &endcapLayerLayout(_GEAR->getHcalEndcapParameters().getLayerLayout());
-            const gear::LayerLayout &barrelLayerLayout(_GEAR->getHcalBarrelParameters().getLayerLayout());
 
             ID_UTIL::CellIDDecoder<const edm4hep::CalorimeterHit> cellIdDecoder(m_encoder_str);
             const std::string layerCodingString(m_encoder_str);
             const std::string layerCoding(this->GetLayerCoding(layerCodingString));
             const std::string staveCoding(this->GetStaveCoding(layerCodingString));
+            // get the DD4hep readout
+            const std::string name_readout = m_settings.m_hCalCaloReadOuts.at(k);
+            if(m_settings.m_debug) std::cout<<"readout= "<<name_readout<<std::endl;
+            if( m_settings.m_use_dd4hep_decoder ){
+                m_decoder = m_geosvc->getDecoder(name_readout);
+                if (!m_decoder) throw "Failed to get the decoder. ";
+            }
+            const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer>* barrelLayers=nullptr;
+            const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer>* endcapLayers=nullptr;
+            const gear::LayerLayout* barrelLayerLayout=nullptr;
+            const gear::LayerLayout* endcapLayerLayout=nullptr;
+            if(m_settings.m_use_dd4hep_geo){
+                barrelLayers= &(PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::HADRONIC | dd4hep::DetType::BARREL),( dd4hep::DetType::AUXILIARY |  dd4hep::DetType::FORWARD ) )->layers);
+                endcapLayers= &(PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::HADRONIC | dd4hep::DetType::ENDCAP),( dd4hep::DetType::AUXILIARY |  dd4hep::DetType::FORWARD ) )->layers);
+            }
+            else{
+                barrelLayerLayout = &(_GEAR->getHcalBarrelParameters().getLayerLayout());
+                endcapLayerLayout = &(_GEAR->getHcalEndcapParameters().getLayerLayout());
+            }
 
             for (int i = 0; i < nElements; ++i)
             {
@@ -313,20 +438,29 @@ pandora::StatusCode CaloHitCreator::CreateHCalCaloHits(const CollectionMaps& col
                     PandoraApi::CaloHit::Parameters caloHitParameters;
                     caloHitParameters.m_hitType = pandora::HCAL;
                     caloHitParameters.m_isDigital = false;// if it is DHCAL or AHCAL
-                    caloHitParameters.m_layer = cellIdDecoder(pCaloHit)[layerCoding.c_str()];
+                    caloHitParameters.m_layer = m_settings.m_use_dd4hep_decoder == false ? cellIdDecoder(pCaloHit)[layerCoding.c_str()] : m_decoder->get(pCaloHit->getCellID(), "layer");
                     caloHitParameters.m_isInOuterSamplingLayer = (this->GetNLayersFromEdge(pCaloHit) <= m_settings.m_nOuterSamplingLayers);
                     this->GetCommonCaloHitProperties(pCaloHit, caloHitParameters);
+                    int Stave = 0 ; 
+                    if (m_settings.m_use_dd4hep_decoder == false){
+                        Stave = cellIdDecoder(pCaloHit)[ staveCoding];
+                    }
+                    else{
+                        Stave = m_decoder->get(pCaloHit->getCellID(), "stave");
+                        Stave = Stave <=2 ? Stave+5 : Stave-3 ;//FIXME , need check!!
+                    }
 
                     float absorberCorrection(1.);
 
                     if (std::fabs(pCaloHit->getPosition()[2]) < m_hCalBarrelOuterZ)
                     {
-                        this->GetBarrelCaloHitProperties(pCaloHit, barrelLayerLayout, m_hCalBarrelInnerSymmetry, m_hCalBarrelInnerPhi0,
-                            m_hCalBarrelInnerSymmetry - int(cellIdDecoder(pCaloHit)[ staveCoding] / 2), caloHitParameters, absorberCorrection);
+                        if(m_settings.m_use_dd4hep_geo) this->GetBarrelCaloHitProperties(pCaloHit, *barrelLayers, m_hCalBarrelInnerSymmetry, m_hCalBarrelInnerPhi0, m_hCalBarrelInnerSymmetry - int(Stave / 2), caloHitParameters, absorberCorrection);
+                        else                            this->GetBarrelCaloHitProperties(pCaloHit, *barrelLayerLayout, m_hCalBarrelInnerSymmetry, m_hCalBarrelInnerPhi0, m_hCalBarrelInnerSymmetry - int(Stave / 2), caloHitParameters, absorberCorrection);
                     }
                     else
                     {
-                        this->GetEndCapCaloHitProperties(pCaloHit, endcapLayerLayout, caloHitParameters, absorberCorrection);
+                        if(m_settings.m_use_dd4hep_geo)   this->GetEndCapCaloHitProperties(pCaloHit, *endcapLayers, caloHitParameters, absorberCorrection);
+                        else                              this->GetEndCapCaloHitProperties(pCaloHit, *endcapLayerLayout, caloHitParameters, absorberCorrection);
                     }
 
                     //caloHitParameters.m_mipEquivalentEnergy = pCaloHit->getEnergy() * m_settings.m_hCalToMip * absorberCorrection;
@@ -353,7 +487,7 @@ pandora::StatusCode CaloHitCreator::CreateHCalCaloHits(const CollectionMaps& col
         }
         catch (...)
         {
-            std::cout << "Failed to extract hcal calo hit collection: " << *iter << std::endl;
+            std::cout << "Failed to extract hcal calo hit collection: " << tmp_col_name << std::endl;
         }
     }
 
@@ -364,26 +498,44 @@ pandora::StatusCode CaloHitCreator::CreateHCalCaloHits(const CollectionMaps& col
 
 pandora::StatusCode CaloHitCreator::CreateMuonCaloHits(const CollectionMaps& collectionMaps)
 {
-    for (StringVector::const_iterator iter = m_settings.m_muonCaloHitCollections.begin(), iterEnd = m_settings.m_muonCaloHitCollections.end();
-        iter != iterEnd; ++iter)
+    for (unsigned int k = 0; k < m_settings.m_muonCaloHitCollections.size(); k++)
     {
-        if(collectionMaps.collectionMap_CaloHit.find(*iter) == collectionMaps.collectionMap_CaloHit.end()) { std::cout<<"not find "<<(*iter)<<std::endl; continue;}
+        std::string tmp_col_name = m_settings.m_muonCaloHitCollections.at(k);
+        if(collectionMaps.collectionMap_CaloHit.find(tmp_col_name) == collectionMaps.collectionMap_CaloHit.end()) {if(m_settings.m_debug) std::cout<<"not find "<<tmp_col_name<<std::endl; continue;}
         try
         {
-            const std::vector<edm4hep::CalorimeterHit>& pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(*iter))->second;
+            const std::vector<edm4hep::CalorimeterHit>& pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(tmp_col_name))->second;
             const int nElements(pCaloHitCollection.size());
 
             if (0 == nElements)
                 continue;
 
-            const gear::LayerLayout &endcapLayerLayout(_GEAR->getYokeEndcapParameters().getLayerLayout());
-            const gear::LayerLayout &barrelLayerLayout(_GEAR->getYokeBarrelParameters().getLayerLayout()); 
-            const gear::LayerLayout &plugLayerLayout(_GEAR->getYokePlugParameters().getLayerLayout());
 
             ID_UTIL::CellIDDecoder<const edm4hep::CalorimeterHit> cellIdDecoder(m_encoder_str_MUON);
             const std::string layerCodingString(m_encoder_str_MUON);
             const std::string layerCoding(this->GetLayerCoding(layerCodingString));
             const std::string staveCoding(this->GetStaveCoding(layerCodingString));
+            // get the DD4hep readout
+            const std::string name_readout = m_settings.m_muonCalCaloReadOuts.at(k);
+            if(m_settings.m_debug) std::cout<<"readout= "<<name_readout<<std::endl;
+            if( m_settings.m_use_dd4hep_decoder ){
+                m_decoder = m_geosvc->getDecoder(name_readout);
+                if (!m_decoder) throw "Failed to get the decoder. ";
+            }
+            const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer>* barrelLayers=nullptr;
+            const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer>* endcapLayers=nullptr;
+            const gear::LayerLayout* barrelLayerLayout=nullptr;
+            const gear::LayerLayout* plugLayerLayout=nullptr;
+            const gear::LayerLayout* endcapLayerLayout=nullptr;
+            if(m_settings.m_use_dd4hep_geo){
+                barrelLayers= &(PanUtil::getExtension(( dd4hep::DetType::CALORIMETER | dd4hep::DetType::MUON| dd4hep::DetType::BARREL), ( dd4hep::DetType::AUXILIARY  |  dd4hep::DetType::FORWARD  ))->layers);
+                endcapLayers = &(PanUtil::getExtension(( dd4hep::DetType::CALORIMETER | dd4hep::DetType::MUON| dd4hep::DetType::ENDCAP), ( dd4hep::DetType::AUXILIARY  |  dd4hep::DetType::FORWARD  ))->layers);
+            }
+            else{
+                plugLayerLayout= &(_GEAR->getYokePlugParameters().getLayerLayout());
+                barrelLayerLayout = &(_GEAR->getYokeBarrelParameters().getLayerLayout()); 
+                endcapLayerLayout = &(_GEAR->getYokeEndcapParameters().getLayerLayout());
+            }
 
             for (int i = 0; i < nElements; ++i)
             {
@@ -397,9 +549,17 @@ pandora::StatusCode CaloHitCreator::CreateMuonCaloHits(const CollectionMaps& col
 
                     PandoraApi::CaloHit::Parameters caloHitParameters;
                     caloHitParameters.m_hitType = pandora::MUON;
-                    caloHitParameters.m_layer = cellIdDecoder(pCaloHit)[layerCoding.c_str()] + 1;
+                    caloHitParameters.m_layer = m_settings.m_use_dd4hep_decoder == false ? cellIdDecoder(pCaloHit)[layerCoding.c_str()] + 1 : m_decoder->get(pCaloHit->getCellID(), "layer");
                     caloHitParameters.m_isInOuterSamplingLayer = true;
                     this->GetCommonCaloHitProperties(pCaloHit, caloHitParameters);
+                    int Stave = 0 ; 
+                    if (m_settings.m_use_dd4hep_decoder == false){
+                        Stave = cellIdDecoder(pCaloHit)[ staveCoding];
+                    }
+                    else{
+                        Stave = m_decoder->get(pCaloHit->getCellID(), "stave");
+                        Stave = Stave <=2 ? Stave+5 : Stave-3 ;//FIXME , need check!!
+                    }
 
                     const float radius(std::sqrt(pCaloHit->getPosition()[0] * pCaloHit->getPosition()[0] +
                         pCaloHit->getPosition()[1] * pCaloHit->getPosition()[1]));
@@ -411,16 +571,17 @@ pandora::StatusCode CaloHitCreator::CreateMuonCaloHits(const CollectionMaps& col
 
                     if (isInBarrelRegion && isWithinCoil)
                     {
-                        this->GetEndCapCaloHitProperties(pCaloHit, plugLayerLayout, caloHitParameters, absorberCorrection);
+                        if(m_settings.m_use_dd4hep_geo) std::cout<<"BIG WARNING: CANNOT HANDLE PLUG HITS (no plug), DO NOTHING!"<<std::endl;
+                        else                            this->GetEndCapCaloHitProperties(pCaloHit, *plugLayerLayout, caloHitParameters, absorberCorrection);
                     }
                     else if (isInBarrelRegion)
-                    {
-                        this->GetBarrelCaloHitProperties(pCaloHit, barrelLayerLayout, m_muonBarrelInnerSymmetry, m_muonBarrelInnerPhi0,
-                            cellIdDecoder(pCaloHit)[ staveCoding ], caloHitParameters, absorberCorrection);
+                    {   if(m_settings.m_use_dd4hep_geo) this->GetBarrelCaloHitProperties(pCaloHit, *barrelLayers     , m_muonBarrelInnerSymmetry, m_muonBarrelInnerPhi0, Stave, caloHitParameters, absorberCorrection);
+                        else                            this->GetBarrelCaloHitProperties(pCaloHit, *barrelLayerLayout, m_muonBarrelInnerSymmetry, m_muonBarrelInnerPhi0, Stave, caloHitParameters, absorberCorrection);
                     }
                     else
                     {
-                        this->GetEndCapCaloHitProperties(pCaloHit, endcapLayerLayout, caloHitParameters, absorberCorrection);
+                        if(m_settings.m_use_dd4hep_geo) this->GetEndCapCaloHitProperties(pCaloHit, *endcapLayers     , caloHitParameters, absorberCorrection);
+                        else                            this->GetEndCapCaloHitProperties(pCaloHit, *endcapLayerLayout, caloHitParameters, absorberCorrection);
                     }
 
                     if (m_settings.m_muonDigitalHits > 0)
@@ -455,7 +616,7 @@ pandora::StatusCode CaloHitCreator::CreateMuonCaloHits(const CollectionMaps& col
         }
         catch (...)
         {
-            std::cout << "Failed to extract muon hit collection: " << *iter  << std::endl;
+            std::cout << "Failed to extract muon hit collection: " << tmp_col_name  << std::endl;
         }
     }
 
@@ -469,7 +630,7 @@ pandora::StatusCode CaloHitCreator::CreateLCalCaloHits(const CollectionMaps& col
     for (StringVector::const_iterator iter = m_settings.m_lCalCaloHitCollections.begin(), iterEnd = m_settings.m_lCalCaloHitCollections.end();
         iter != iterEnd; ++iter)
     {
-        if(collectionMaps.collectionMap_CaloHit.find(*iter) == collectionMaps.collectionMap_CaloHit.end()) { std::cout<<"not find "<<(*iter)<<std::endl; continue;}
+        if(collectionMaps.collectionMap_CaloHit.find(*iter) == collectionMaps.collectionMap_CaloHit.end()) {if(m_settings.m_debug)std::cout<<"not find "<<(*iter)<<std::endl; continue;}
         try
         {
             const std::vector<edm4hep::CalorimeterHit>& pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(*iter))->second;
@@ -542,7 +703,7 @@ pandora::StatusCode CaloHitCreator::CreateLHCalCaloHits(const CollectionMaps& co
     for (StringVector::const_iterator iter = m_settings.m_lHCalCaloHitCollections.begin(), iterEnd = m_settings.m_lHCalCaloHitCollections.end();
         iter != iterEnd; ++iter)
     {
-        if(collectionMaps.collectionMap_CaloHit.find(*iter) == collectionMaps.collectionMap_CaloHit.end()) { std::cout<<"not find "<<(*iter)<<std::endl; continue;}
+        if(collectionMaps.collectionMap_CaloHit.find(*iter) == collectionMaps.collectionMap_CaloHit.end()) {if(m_settings.m_debug) std::cout<<"not find "<<(*iter)<<std::endl; continue;}
         try
         {
             const std::vector<edm4hep::CalorimeterHit>& pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(*iter))->second;
@@ -793,7 +954,7 @@ void CaloHitCreator::GetBarrelCaloHitProperties(const edm4hep::CalorimeterHit *c
     const int physicalLayer(std::min(static_cast<int>(caloHitParameters.m_layer.Get()), static_cast<int>(layers.size()-1)));
     caloHitParameters.m_cellSize0 = layers[physicalLayer].cellSize0/dd4hep::mm;
     caloHitParameters.m_cellSize1 = layers[physicalLayer].cellSize1/dd4hep::mm;
-    //std::cout<<"DD m_cellSize0="<<caloHitParameters.m_cellSize0.Get()<<",m_cellSize1="<<caloHitParameters.m_cellSize1.Get()<<std::endl;
+    if(m_settings.m_debug) std::cout<<"DD m_cellSize0="<<caloHitParameters.m_cellSize0.Get()<<",m_cellSize1="<<caloHitParameters.m_cellSize1.Get()<<std::endl;
     double thickness = (layers[physicalLayer].inner_thickness+layers[physicalLayer].sensitive_thickness/2.0)/dd4hep::mm;
     double nRadLengths = layers[physicalLayer].inner_nRadiationLengths;
     double nIntLengths = layers[physicalLayer].inner_nInteractionLengths;

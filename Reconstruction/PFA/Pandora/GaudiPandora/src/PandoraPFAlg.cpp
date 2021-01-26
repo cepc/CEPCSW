@@ -220,10 +220,10 @@ StatusCode PandoraPFAlg::initialize()
   // Name of PFO collection written by GaudiPandora
   
   m_pfoCreatorSettings.m_debug = m_debug;
-  m_pfoCreatorSettings.m_clusterCollectionName = m_ClusterCollectionName;// not used  
-  m_pfoCreatorSettings.m_pfoCollectionName = m_PFOCollectionName;//
-  m_pfoCreatorSettings.m_startVertexCollectionName = m_StartVertexCollectionName; //
-  m_pfoCreatorSettings.m_startVertexAlgName = m_StartVertexAlgorithmName;//
+  m_pfoCreatorSettings.m_clusterCollectionName = m_ClusterCollectionName; 
+  m_pfoCreatorSettings.m_pfoCollectionName = m_PFOCollectionName;
+  m_pfoCreatorSettings.m_startVertexCollectionName = m_StartVertexCollectionName; 
+  m_pfoCreatorSettings.m_startVertexAlgName = m_StartVertexAlgorithmName;
    
   m_pfoCreatorSettings.m_emStochasticTerm = m_EMStochasticTerm;
   m_pfoCreatorSettings.m_hadStochasticTerm = m_HadStochasticTerm;
@@ -283,6 +283,7 @@ StatusCode PandoraPFAlg::initialize()
   
   
   // Additional geometry parameters
+  m_geometryCreatorSettings.m_use_dd4hep_geo             = m_use_dd4hep_geo;
   m_geometryCreatorSettings.m_eCalEndCapInnerSymmetryOrder = m_ECalEndCapInnerSymmetryOrder;
   m_geometryCreatorSettings.m_eCalEndCapInnerPhiCoordinate = m_ECalEndCapInnerPhiCoordinate;
   m_geometryCreatorSettings.m_eCalEndCapOuterSymmetryOrder = m_ECalEndCapOuterSymmetryOrder;
@@ -295,8 +296,15 @@ StatusCode PandoraPFAlg::initialize()
   m_geometryCreatorSettings.m_hCalRingInnerPhiCoordinate = m_HCalRingInnerPhiCoordinate;
   m_geometryCreatorSettings.m_hCalRingOuterSymmetryOrder = m_HCalRingOuterSymmetryOrder; 
   m_geometryCreatorSettings.m_hCalRingOuterPhiCoordinate = m_HCalRingOuterPhiCoordinate;
-  m_geometryCreatorSettings.m_use_dd4hep_geo             = m_use_dd4hep_geo;
-  
+  if(m_use_dd4hep_geo){
+       std::cout<<"get hCalEndCapInner geo info from dd4hep."<<std::endl;
+       //Get HCal Endcap extension by type, ignore plugs and rings 
+       const dd4hep::rec::LayeredCalorimeterData * hCalEndcapExtension= PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::HADRONIC | dd4hep::DetType::ENDCAP),( dd4hep::DetType::AUXILIARY |  dd4hep::DetType::FORWARD ) );
+       if(hCalEndcapExtension){
+           m_geometryCreatorSettings.m_hCalEndCapInnerSymmetryOrder = hCalEndcapExtension->inner_symmetry;
+           m_geometryCreatorSettings.m_hCalEndCapInnerPhiCoordinate = hCalEndcapExtension->inner_phi0/dd4hep::rad;
+       }
+  }
   // For Strip Splitting method and also for hybrid ECAL
   m_caloHitCreatorSettings.m_stripSplittingOn = m_StripSplittingOn;
   m_caloHitCreatorSettings.m_useEcalScLayers = m_UseEcalScLayers;
@@ -474,11 +482,10 @@ StatusCode PandoraPFAlg::updateMap()
                     std::vector<edm4hep::MCParticle> v_mc;
                     m_CollectionMaps->collectionMap_MC [v.first] = v_mc;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_MC [v.first].push_back(po->at(i));
-                    std::cout<<"saved col name="<<v.first<<std::endl;
+                    if(m_debug) std::cout<<"saved col name="<<v.first<<std::endl;
                 }
-                else{
-                std::cout<<"don't find col name="<<v.first<<std::endl;
-                }
+                else if(m_debug) std::cout<<"don't find col name="<<v.first<<std::endl;
+                
             }
             else if(m_collections[v.first]=="CalorimeterHit"){
                 auto handle = dynamic_cast<DataHandle<edm4hep::CalorimeterHitCollection>*> (v.second);
@@ -487,11 +494,10 @@ StatusCode PandoraPFAlg::updateMap()
                     std::vector<edm4hep::CalorimeterHit> v_cal;
                     m_CollectionMaps->collectionMap_CaloHit[v.first] = v_cal ;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_CaloHit [v.first].push_back(po->at(i));
-                    std::cout<<"saved col name="<<v.first<<std::endl;
+                    if(m_debug) std::cout<<"saved col name="<<v.first<<std::endl;
                 }
-                else{
-                std::cout<<"don't find col name="<<v.first<<std::endl;
-                }
+                else if(m_debug) std::cout<<"don't find col name="<<v.first<<std::endl;
+                
             }
             else if(m_collections[v.first]=="Track"){
                 auto handle = dynamic_cast<DataHandle<edm4hep::TrackCollection>*> (v.second);
@@ -500,12 +506,11 @@ StatusCode PandoraPFAlg::updateMap()
                     std::vector<edm4hep::Track> v_cal;
                     m_CollectionMaps->collectionMap_Track[v.first] = v_cal ;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_Track [v.first].push_back(po->at(i));
-                    std::cout<<"saved col name="<<v.first<<std::endl;
+                    if(m_debug) std::cout<<"saved col name="<<v.first<<std::endl;
                     m_marlinTrack = po->size();
                 }
-                else{
-                std::cout<<"don't find col name="<<v.first<<std::endl;
-                }
+                else if(m_debug) std::cout<<"don't find col name="<<v.first<<std::endl;
+                
             }
             else if(m_collections[v.first]=="Vertex"){
                 auto handle = dynamic_cast<DataHandle<edm4hep::VertexCollection>*> (v.second);
@@ -514,11 +519,10 @@ StatusCode PandoraPFAlg::updateMap()
                     std::vector<edm4hep::Vertex> v_cal;
                     m_CollectionMaps->collectionMap_Vertex[v.first] = v_cal ;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_Vertex [v.first].push_back(po->at(i));
-                    std::cout<<"saved col name="<<v.first<<std::endl;
+                    if(m_debug) std::cout<<"saved col name="<<v.first<<std::endl;
                 }
-                else{
-                std::cout<<"don't find col name="<<v.first<<std::endl;
-                }
+                else if(m_debug) std::cout<<"don't find col name="<<v.first<<std::endl;
+                
             }
             else if(m_collections[v.first]=="MCRecoCaloAssociation"){
                 auto handle = dynamic_cast<DataHandle<edm4hep::MCRecoCaloAssociationCollection>*> (v.second);
@@ -527,11 +531,10 @@ StatusCode PandoraPFAlg::updateMap()
                     std::vector<edm4hep::MCRecoCaloAssociation> v_cal;
                     m_CollectionMaps->collectionMap_CaloRel[v.first] = v_cal ;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_CaloRel [v.first].push_back(po->at(i));
-                    std::cout<<"saved col name="<<v.first<<std::endl;
+                    if(m_debug) std::cout<<"saved col name="<<v.first<<std::endl;
                 }
-                else{
-                std::cout<<"don't find col name="<<v.first<<std::endl;
-                }
+                else if(m_debug) std::cout<<"don't find col name="<<v.first<<std::endl;
+                
             }
             else if(m_collections[v.first]=="MCRecoTrackerAssociation"){
                 auto handle = dynamic_cast<DataHandle<edm4hep::MCRecoTrackerAssociationCollection>*> (v.second);
@@ -540,19 +543,18 @@ StatusCode PandoraPFAlg::updateMap()
                     std::vector<edm4hep::MCRecoTrackerAssociation> v_cal;
                     m_CollectionMaps->collectionMap_TrkRel[v.first] = v_cal ;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_TrkRel [v.first].push_back(po->at(i));
-                    std::cout<<"saved col name="<<v.first<<std::endl;
+                    if(m_debug) std::cout<<"saved col name="<<v.first<<std::endl;
                 }
-                else{
-                std::cout<<"don't find col name="<<v.first<<std::endl;
-                }
+                else if(m_debug) std::cout<<"don't find col name="<<v.first<<std::endl;
+                
             }
             else{
             std::cout<<"wrong type name for col :"<<v.first<<std::endl;
             }
         }//try
         catch(...){
-            std::cout<<"don't find "<<v.first<<"in event"<<std::endl;
-            std::cout<<"don't find  col name="<<v.first<<",with type="<<m_collections[v.first]<<" in this event"<<std::endl;
+            if(m_debug) std::cout<<"don't find "<<v.first<<" in event"<<std::endl;
+            if(m_debug) std::cout<<"don't find  col name="<<v.first<<",with type="<<m_collections[v.first]<<" in this event"<<std::endl;
         }
     }
     return StatusCode::SUCCESS;
