@@ -57,7 +57,6 @@ StatusCode SimHitMergeAlg::initialize() {
 
 StatusCode SimHitMergeAlg::execute()
 {
-     bool sanity_check = true;
      
      for (unsigned int k0 = 0; k0 < m_inputColNames.size(); k0++)
      {
@@ -85,18 +84,13 @@ StatusCode SimHitMergeAlg::execute()
               }
               else id_vconb_map[id] = tmp_vconb;
                   
-              if(sanity_check){
-                  if ( test_id_hits_map.find(id) != test_id_hits_map.end()) test_id_hits_map[id].push_back(Simhit);
-                  else{
-                      std::vector<edm4hep::SimCalorimeterHit> tmp_vec ;
-                      tmp_vec.push_back(Simhit);
-                      test_id_hits_map[id] = tmp_vec;
-                  }
+              if(m_sanity_check){
+                  test_id_hits_map[id].push_back(Simhit);
               }
 
           }
 
-          if(sanity_check){
+          if(m_sanity_check){
               for(std::map<unsigned long long, std::vector<edm4hep::SimCalorimeterHit> >::iterator iter = test_id_hits_map.begin(); iter != test_id_hits_map.end(); iter++){
                   for(unsigned int i=0; i< iter->second.size(); i++){
                      float pos1_x = iter->second.at(i).getPosition()[0];
@@ -107,8 +101,9 @@ StatusCode SimHitMergeAlg::execute()
                          float pos2_y = iter->second.at(j).getPosition()[1];
                          float pos2_z = iter->second.at(j).getPosition()[2];
                          float dis = sqrt( (pos1_x-pos2_x)*(pos1_x-pos2_x) + (pos1_y-pos2_y)*(pos1_y-pos2_y) + (pos1_z-pos2_z)*(pos1_z-pos2_z) );
-                         if( dis > sqrt(10*10 + 10*10 + 1.2*1.2) )
-                         std::cout<<"found id="<<iter->first<<",dis="<<dis<<",x1="<<pos1_x<<",y1="<<pos1_y<<",z1="<<pos1_z<<",x2="<<pos2_x<<",y2="<<pos2_y<<",z2="<<pos2_z<<std::endl;
+                         if( dis > sqrt(m_cell_x*m_cell_x + m_cell_y*m_cell_y + m_cell_z*m_cell_z) ){
+                             std::cout<<"found id="<<iter->first<<",dis="<<dis<<",x1="<<pos1_x<<",y1="<<pos1_y<<",z1="<<pos1_z<<",x2="<<pos2_x<<",y2="<<pos2_y<<",z2="<<pos2_z<<std::endl;
+                         }
                      }
                   }
               }
@@ -119,9 +114,7 @@ StatusCode SimHitMergeAlg::execute()
           {
 	       edm4hep::SimCalorimeterHit Simhit = iter->second ;
                dd4hep::Position position = m_cellIDConverter->position(Simhit.getCellID());//cm
-               float dd4hep_mm = dd4hep::mm;
-	       edm4hep::Vector3f hitPos((1/dd4hep_mm)*position.x(), (1/dd4hep_mm)*position.y(), (1/dd4hep_mm)*position.z());//to mm
-	       //edm4hep::Vector3f hitPos(position.x()*10, position.y()*10, position.z()*10);//to mm
+	       edm4hep::Vector3f hitPos(position.x()/(dd4hep::mm), position.y()/(dd4hep::mm), position.z()/(dd4hep::mm));//to mm
                //std::cout<<"id="<<Simhit.getCellID()<<",hitPos.x="<<hitPos[0]<<",y="<<hitPos[1]<<",z="<<hitPos[2]<<",ori x="<<Simhit.getPosition()[0]<<",y="<<Simhit.getPosition()[1]<<",z="<<Simhit.getPosition()[2]<<std::endl;
 	       auto Mergedhit = mergedCol->create();
 	       Mergedhit.setCellID  (Simhit.getCellID());
