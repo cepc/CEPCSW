@@ -60,6 +60,12 @@
     <constant name="DC_Endcap_rmin" value="SDT_radius_min"/>
     <constant name="DC_Endcap_rmax" value="SDT_radius_max"/>
 
+    <!-- Control the number of drift chambers :
+         0:inner chamber + outer chamber;
+         1:only inner chamber;
+         2:only outer chamber; -->
+    <constant name="DC_num_chamber" value="0"/>
+
   </define>
 
   <display>

@@ -44,6 +44,8 @@
     <constant name="DC_Endcap_rmax" value="SDT_radius_max"/>
     <constant name="DC_Endcap_dz" value="DC_Endcap_z"/>
 
+    <constant name="DC_num_chamber" value="0"/>
+
   </define>
 
   <detectors>
