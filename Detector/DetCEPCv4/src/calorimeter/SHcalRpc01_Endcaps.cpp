@@ -226,21 +226,23 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
 	cout << "Hcal_Endcap:  inner_thickness= " << inner_thickness << endl;
 	cout << "Hcal_Endcap:  outer_thickness= " << thickness_sum << endl;
       }
-      LayeredCalorimeterData::Layer caloLayer ;
-      caloLayer.cellSize0 = cell_sizeX;
-      caloLayer.cellSize1 = cell_sizeY;
-      caloLayer.inner_nRadiationLengths = nRadiationLengthsInside;
-      caloLayer.inner_nInteractionLengths = nInteractionLengthsInside;
-      caloLayer.inner_thickness = inner_thickness;
-      caloLayer.sensitive_thickness = sensitive_thickness;
-      caloLayer.outer_nRadiationLengths = nRadiationLengths;
-      caloLayer.outer_nInteractionLengths = nInteractionLengths;
-      caloLayer.outer_thickness = thickness_sum;
-      
-      caloLayer.distance = Hcal_start_z + (layer_id-1)*layerThickness;
-      caloLayer.absorberThickness = Hcal_radiator_thickness ;
-      
-      caloData->layers.push_back( caloLayer ) ;
+      if(stave_id==1){// only for one stave is good.
+          LayeredCalorimeterData::Layer caloLayer ;
+          caloLayer.cellSize0 = cell_sizeX;
+          caloLayer.cellSize1 = cell_sizeY;
+          caloLayer.inner_nRadiationLengths = nRadiationLengthsInside;
+          caloLayer.inner_nInteractionLengths = nInteractionLengthsInside;
+          caloLayer.inner_thickness = inner_thickness;
+          caloLayer.sensitive_thickness = sensitive_thickness;
+          caloLayer.outer_nRadiationLengths = nRadiationLengths;
+          caloLayer.outer_nInteractionLengths = nInteractionLengths;
+          caloLayer.outer_thickness = thickness_sum;
+          
+          caloLayer.distance = Hcal_start_z + (layer_id-1)*layerThickness;
+          caloLayer.absorberThickness = Hcal_radiator_thickness ;
+          
+          caloData->layers.push_back( caloLayer ) ;
+      }
     }
   }
   
