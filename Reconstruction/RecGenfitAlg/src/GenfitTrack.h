@@ -55,26 +55,26 @@ namespace dd4hep {
 
 class GenfitTrack {
     friend int GenfitFitter::processTrack(
-            GenfitTrack* track, bool resort=false);
+            GenfitTrack* track, bool resort);
 
     friend int GenfitFitter::processTrackWithRep(
-            GenfitTrack* track, int repID=0, bool resort=false);
+            GenfitTrack* track, int repID, bool resort);
 
     friend double GenfitFitter::extrapolateToHit(TVector3& poca,
             TVector3& pocaDir,
             TVector3& pocaOnWire, double& doca, const GenfitTrack* track,
             TVector3 pos, TVector3 mom, TVector3 end0, TVector3 end1, int debug,
-            int repID=0, bool stopAtBoundary=false, bool calcJacobianNoise=false);
+            int repID, bool stopAtBoundary, bool calcJacobianNoise);
 
     friend double GenfitFitter::extrapolateToCylinder(TVector3& pos,
             TVector3& mom,
             GenfitTrack* track, double radius, const TVector3 linePoint,
-            const TVector3 lineDirection, int hitID =0, int repID=0,
-            bool stopAtBoundary=false, bool calcJacobianNoise=false);
+            const TVector3 lineDirection, int hitID, int repID,
+            bool stopAtBoundary, bool calcJacobianNoise);
 
     friend double GenfitFitter::extrapolateToPoint(TVector3& pos, TVector3& mom,
-            const GenfitTrack* genfitTrack, const TVector3& point, int repID=0,
-            bool stopAtBoundary = false, bool calcJacobianNoise = false) const;
+            const GenfitTrack* genfitTrack, const TVector3& point, int repID,
+            bool stopAtBoundary, bool calcJacobianNoise) const;
 
     public:
     GenfitTrack(const GenfitField* field,
