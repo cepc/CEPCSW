@@ -42,16 +42,45 @@ TrackCreator::TrackCreator(const Settings &settings, const pandora::Pandora *con
 {
 
 
+    IGearSvc*  iSvc = 0;
+    StatusCode sc = svcloc->service("GearSvc", iSvc, false);
+    if ( !sc ) throw "Failed to find GearSvc ...";
+    _GEAR = iSvc->getGearMgr();
+
     if(m_settings.m_use_dd4hep_geo){
         m_bField                  = PanUtil::getFieldFromCompact();
         const dd4hep::rec::LayeredCalorimeterData * eCalBarrelExtension= PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::BARREL),
             									     ( dd4hep::DetType::AUXILIARY  |  dd4hep::DetType::FORWARD ) );
         const dd4hep::rec::LayeredCalorimeterData * eCalEndcapExtension= PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::ELECTROMAGNETIC | dd4hep::DetType::ENDCAP),
             									     ( dd4hep::DetType::AUXILIARY |  dd4hep::DetType::FORWARD  ) );
-        m_eCalBarrelInnerPhi0     = eCalBarrelExtension->inner_phi0/dd4hep::rad;
-        m_eCalBarrelInnerSymmetry = eCalBarrelExtension->inner_symmetry;
-        m_eCalBarrelInnerR        = eCalBarrelExtension->extent[0]/dd4hep::mm;
-        m_eCalEndCapInnerZ        = eCalEndcapExtension->extent[2]/dd4hep::mm;
+        if(eCalBarrelExtension){
+            m_eCalBarrelInnerPhi0     = eCalBarrelExtension->inner_phi0/dd4hep::rad;
+            m_eCalBarrelInnerSymmetry = eCalBarrelExtension->inner_symmetry;
+            m_eCalBarrelInnerR        = eCalBarrelExtension->extent[0]/dd4hep::mm;
+        }
+        else{
+            /*
+            std::cout<<"TrackCreator:WARNING: can get ECAL barrel info from dd4hep, set it to dummy"<<std::endl;
+            m_eCalBarrelInnerPhi0     = 0;
+            m_eCalBarrelInnerSymmetry = 0;
+            m_eCalBarrelInnerR        = 1850;
+            */
+            std::cout<<"TrackCreator:WARNING: can get ECAL barrel info from dd4hep, get it from Gear"<<std::endl;
+            m_eCalBarrelInnerSymmetry = (_GEAR->getEcalBarrelParameters().getSymmetryOrder());
+            m_eCalBarrelInnerPhi0     = (_GEAR->getEcalBarrelParameters().getPhi0());
+            m_eCalBarrelInnerR        = (_GEAR->getEcalBarrelParameters().getExtent()[0]);
+        }
+        if(eCalEndcapExtension){
+            m_eCalEndCapInnerZ        = eCalEndcapExtension->extent[2]/dd4hep::mm;
+        }
+        else{
+            /*
+            std::cout<<"TrackCreator:WARNING: can get ECAL endcap info from dd4hep, set it to dummy"<<std::endl;
+            m_eCalEndCapInnerZ        = 100;
+            */
+            std::cout<<"TrackCreator:WARNING: can get ECAL endcap info from dd4hep, get it from Gear"<<std::endl;
+            m_eCalEndCapInnerZ        = (_GEAR->getEcalEndcapParameters().getExtent()[2]);
+        }
 
         dd4hep::Detector & mainDetector = dd4hep::Detector::getInstance();
         try{
@@ -68,25 +97,56 @@ TrackCreator::TrackCreator(const Settings &settings, const pandora::Pandora *con
                   m_tpcMaxRow = theExtension->maxRow;
                   std::cout<<"DD4HEP m_tpcInnerR="<<m_tpcInnerR<<",m_tpcOuterR="<<m_tpcOuterR<<",m_tpcMaxRow="<<m_tpcMaxRow<<",m_tpcZmax="<<m_tpcZmax<<std::endl;
               }
-              else{ 
+              else{
+                  /* 
                   m_tpcInnerR = 100 ;
                   m_tpcOuterR = 1800;
                   m_tpcMaxRow = 100 ;
                   m_tpcZmax   = 2500;
                   std::cout<<"TrackCreator WARNING:Does not find TPC parameter from dd4hep and set it to dummy value"<<std::endl;
+                  */
+                  std::cout<<"TrackCreator WARNING:Does not find TPC parameter from dd4hep and get it from Gear"<<std::endl;
+                  m_tpcInnerR               = (_GEAR->getTPCParameters().getPadLayout().getPlaneExtent()[0]);
+                  m_tpcOuterR               = (_GEAR->getTPCParameters().getPadLayout().getPlaneExtent()[1]);
+                  m_tpcMaxRow               = (_GEAR->getTPCParameters().getPadLayout().getNRows());
+                  m_tpcZmax                 = (_GEAR->getTPCParameters().getMaxDriftLength());
               }
-           }
+        }
         catch (std::runtime_error &exception){
             std::cout<<"TrackCreator WARNING:exception during TPC parameter construction:"<<exception.what()<<std::endl;
         }
         //Instead of gear, loop over a provided list of forward (read: endcap) tracking detectors.
         const std::vector< dd4hep::DetElement>& endcapDets = dd4hep::DetectorSelector(mainDetector).detectors(  ( dd4hep::DetType::TRACKER | dd4hep::DetType::ENDCAP )) ;
         if(endcapDets.size()==0){ 
+            /*
             m_ftdInnerRadii.push_back(100);
             m_ftdOuterRadii.push_back(200);
             m_ftdZPositions.push_back(2000);
             m_nFtdLayers = 1;
             std::cout<<"TrackCreator WARNING:Does not find forward tracking parameter from dd4hep, so set it to dummy value"<<std::endl;
+            */
+            std::cout<<"TrackCreator WARNING:Does not find forward tracking parameter from dd4hep, so get it from Gear"<<std::endl;
+            try{
+                m_ftdInnerRadii = _GEAR->getGearParameters("FTD").getDoubleVals("FTDInnerRadius");
+                m_ftdOuterRadii = _GEAR->getGearParameters("FTD").getDoubleVals("FTDOuterRadius");
+                m_ftdZPositions = _GEAR->getGearParameters("FTD").getDoubleVals("FTDZCoordinate");
+                m_nFtdLayers = m_ftdZPositions.size();
+            }
+            catch (gear::UnknownParameterException &){
+                const gear::FTDLayerLayout &ftdLayerLayout(_GEAR->getFTDParameters().getFTDLayerLayout());
+                std::cout << " Filling FTD parameters from gear::FTDParameters - n layers: " << ftdLayerLayout.getNLayers() << std::endl;
+                for(unsigned int i = 0, N = ftdLayerLayout.getNLayers(); i < N; ++i)
+                {
+                    // Create a disk to represent even number petals front side
+                    m_ftdInnerRadii.push_back(ftdLayerLayout.getSensitiveRinner(i));
+                    m_ftdOuterRadii.push_back(ftdLayerLayout.getMaxRadius(i));
+                    // Take the mean z position of the staggered petals
+                    const double zpos(ftdLayerLayout.getZposition(i));
+                    m_ftdZPositions.push_back(zpos);
+                    std::cout << "Gear: layer " << i << " - mean z position = " << zpos << std::endl;
+                }
+                m_nFtdLayers = m_ftdZPositions.size() ;
+            }
         }
         for (std::vector< dd4hep::DetElement>::const_iterator iter = endcapDets.begin(), iterEnd = endcapDets.end();iter != iterEnd; ++iter){
           try{
@@ -121,10 +181,10 @@ TrackCreator::TrackCreator(const Settings &settings, const pandora::Pandora *con
 
     }// if m_use_dd4hep_geo
     else{
-        IGearSvc*  iSvc = 0;
-        StatusCode sc = svcloc->service("GearSvc", iSvc, false);
-        if ( !sc ) throw "Failed to find GearSvc ...";
-        _GEAR = iSvc->getGearMgr();
+        //IGearSvc*  iSvc = 0;
+        //StatusCode sc = svcloc->service("GearSvc", iSvc, false);
+        //if ( !sc ) throw "Failed to find GearSvc ...";
+        //_GEAR = iSvc->getGearMgr();
         m_bField                  = (_GEAR->getBField().at(gear::Vector3D(0., 0., 0.)).z());
         m_eCalBarrelInnerSymmetry = (_GEAR->getEcalBarrelParameters().getSymmetryOrder());
         m_eCalBarrelInnerPhi0     = (_GEAR->getEcalBarrelParameters().getPhi0());
