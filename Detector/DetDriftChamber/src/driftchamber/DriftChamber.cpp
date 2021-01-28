@@ -65,7 +65,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     // - Control the number of drift chambersr
     int inner_chamber_enabled = theDetector.constant<int>("DC_inner_chamber_enabled");
     int outer_chamber_enabled = theDetector.constant<int>("DC_outer_chamber_enabled");
-    int all_chamber_enabled = theDetector.constant<int>("DC_all_chamber_enabled");
+    int all_chamber_enabled = inner_chamber_enabled + outer_chamber_enabled;
 
     // =======================================================================
     // Detector Construction
@@ -161,7 +161,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 
     // - layer
     double num_layer;
-    if(all_chamber_enabled) num_layer = inner_chamber_layer_number+outer_chamber_layer_number;
+    if(all_chamber_enabled==2) num_layer = inner_chamber_layer_number+outer_chamber_layer_number;
     else if(inner_chamber_enabled) num_layer = inner_chamber_layer_number;
     else if(outer_chamber_enabled) num_layer = outer_chamber_layer_number;
 
@@ -170,19 +170,18 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         std::string layer_name;
         dd4hep::Volume* current_vol_ptr = nullptr;
         dd4hep::Material layer_mat(theDetector.material("GasHe_90Isob_10"));
-//        if( layer_id < inner_chamber_layer_number ) {
-        if((all_chamber_enabled == 1 && layer_id < inner_chamber_layer_number)|| inner_chamber_enabled ==1 ) {
+        if((all_chamber_enabled == 2 && layer_id<inner_chamber_layer_number)|| num_layer== inner_chamber_layer_number) {
            current_vol_ptr = &det_inner_chamber_vol;
            rmin = inner_chamber_radius_min+(layer_id*chamber_layer_width);
            rmax = rmin+chamber_layer_width;
            layer_name = det_name+"_inner_chamber_vol"+_toString(layer_id,"_layer%d");
         }
-        if((all_chamber_enabled == 1 && layer_id >=inner_chamber_layer_number)|| outer_chamber_enabled ==1 ) {
+        if((all_chamber_enabled == 2 && layer_id >=inner_chamber_layer_number)|| num_layer == outer_chamber_layer_number) {
            current_vol_ptr = &det_outer_chamber_vol;
-           if(all_chamber_enabled == 1 && layer_id >= inner_chamber_layer_number) {
+           if(all_chamber_enabled == 2) {
                rmin = outer_chamber_radius_min+((layer_id-inner_chamber_layer_number)*chamber_layer_width);
            }
-           else if(outer_chamber_enabled == 1) rmin = outer_chamber_radius_min+(layer_id*chamber_layer_width);
+           else rmin = outer_chamber_radius_min+(layer_id*chamber_layer_width);
            rmax = rmin+chamber_layer_width;
            layer_name = det_name+"_outer_chamber_vol"+_toString(layer_id,"_layer%d");
         }
@@ -246,7 +245,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     // inner
      dd4hep::Transform3D transform_inner_chamber(dd4hep::Rotation3D(),
             dd4hep::Position(0,0,0));
-     if(all_chamber_enabled == 1 || inner_chamber_enabled ==1) {
+     if(inner_chamber_enabled ==1) {
          dd4hep::PlacedVolume det_inner_chamber_phy = det_vol.placeVolume(det_inner_chamber_vol,
                  transform_inner_chamber);
 
@@ -255,7 +254,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     // outer
     dd4hep::Transform3D transform_outer_chamber(dd4hep::Rotation3D(),
             dd4hep::Position(0,0,0));
-   if(all_chamber_enabled == 1 || outer_chamber_enabled == 1) {
+   if(outer_chamber_enabled == 1) {
        dd4hep::PlacedVolume det_outer_chamber_phy = det_vol.placeVolume(det_outer_chamber_vol,
                transform_inner_chamber);
 

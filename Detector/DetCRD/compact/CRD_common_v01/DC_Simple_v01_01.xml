@@ -44,9 +44,8 @@
     <constant name="DC_Endcap_rmax" value="SDT_radius_max"/>
     <constant name="DC_Endcap_dz" value="DC_Endcap_z"/>
 
-    <constant name="DC_inner_chamber_enabled" value="0"/>
-    <constant name="DC_outer_chamber_enabled" value="0"/>
-    <constant name="DC_all_chamber_enabled" value="1"/>
+    <constant name="DC_inner_chamber_enabled" value="1"/>
+    <constant name="DC_outer_chamber_enabled" value="1"/>
 
   </define>
 
