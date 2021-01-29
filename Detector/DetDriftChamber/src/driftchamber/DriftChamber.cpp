@@ -65,7 +65,6 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     // - Control the number of drift chambersr
     int inner_chamber_enabled = theDetector.constant<int>("DC_inner_chamber_enabled");
     int outer_chamber_enabled = theDetector.constant<int>("DC_outer_chamber_enabled");
-    int all_chamber_enabled = inner_chamber_enabled + outer_chamber_enabled;
 
     // =======================================================================
     // Detector Construction
@@ -160,28 +159,22 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     auto DCHseg = dynamic_cast<dd4hep::DDSegmentation::GridDriftChamber*>(_geoSeg->segmentation());
 
     // - layer
-    int num_layer=0;
-    if(inner_chamber_enabled) num_layer += inner_chamber_layer_number;
-    if(outer_chamber_enabled) num_layer += outer_chamber_layer_number;
-
-    for(int layer_id = 0; layer_id < num_layer; layer_id++) {
+    for(int layer_id = 0; layer_id < (inner_chamber_layer_number+outer_chamber_layer_number); layer_id++) {
         double rmin,rmax,offset=0;
         std::string layer_name;
         dd4hep::Volume* current_vol_ptr = nullptr;
         dd4hep::Material layer_mat(theDetector.material("GasHe_90Isob_10"));
-        if(inner_chamber_enabled && layer_id < inner_chamber_layer_number) {
+        if(inner_chamber_enabled && (layer_id < inner_chamber_layer_number)) {
            current_vol_ptr = &det_inner_chamber_vol;
            rmin = inner_chamber_radius_min+(layer_id*chamber_layer_width);
            rmax = rmin+chamber_layer_width;
            layer_name = det_name+"_inner_chamber_vol"+_toString(layer_id,"_layer%d");
-        } else if(outer_chamber_enabled) {
+        } else if(outer_chamber_enabled && (layer_id > (inner_chamber_layer_number-1))) {
            current_vol_ptr = &det_outer_chamber_vol;
-           if(inner_chamber_enabled) {
-               rmin = outer_chamber_radius_min+((layer_id-inner_chamber_layer_number)*chamber_layer_width);
-           } else rmin = outer_chamber_radius_min+(layer_id*chamber_layer_width);
+           rmin = outer_chamber_radius_min+((layer_id-inner_chamber_layer_number)*chamber_layer_width);
            rmax = rmin+chamber_layer_width;
            layer_name = det_name+"_outer_chamber_vol"+_toString(layer_id,"_layer%d");
-        }
+        } else continue;
 
         //Construction of drift chamber layers
         double rmid = delta_a_func(rmin,rmax);
@@ -220,7 +213,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
             double radius[9] = {rmid-chamber_layer_width*0.5,rmid-chamber_layer_width*0.5,rmid-chamber_layer_width*0.5,rmid-chamber_layer_width*0.5,rmid,rmid+chamber_layer_width*0.5,rmid+chamber_layer_width*0.5,rmid+chamber_layer_width*0.5,rmid+chamber_layer_width*0.5};
             double phi[9] = {wire_phi+layer_Phi*0.25,wire_phi,wire_phi-layer_Phi*0.25,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.25,wire_phi,wire_phi+layer_Phi*0.25};
             int num = 5;
-            if(layer_id==66||layer_id==129) { num = 9; }
+            if(layer_id==(inner_chamber_layer_number-1)||layer_id==(outer_chamber_layer_number-1)) { num = 9; }
             for(int i=0; i<num ; i++) {
                 dd4hep::Position tr3D = Position(radius[i]*std::cos(phi[i]),radius[i]*std::sin(phi[i]),0.);
                 dd4hep::Transform3D transform_Module(dd4hep::Rotation3D(),tr3D);
