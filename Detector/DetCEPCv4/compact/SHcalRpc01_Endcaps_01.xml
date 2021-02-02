@@ -31,7 +31,7 @@
   <readouts>
     <readout name="HcalEndcapsCollection">
       <segmentation type="CartesianGridXY" grid_size_x="Hcal_cells_size" grid_size_y="Hcal_cells_size" offset_x="Hcal_cells_size/2.0" offset_y="Hcal_cells_size/2.0" />
-      <id>system:5,module:3,stave:3,tower:5,layer:6,x:32:-16,y:-16</id>
+      <id>system:5,module:3,stave:3,tower:5,layer:6,y:32:-16,x:-16</id>
     </readout>
   </readouts>
   

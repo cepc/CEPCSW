@@ -197,7 +197,7 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   
   // chamber placements
   for(int stave_id = 1; stave_id <= 4; stave_id++){
-    double angle = pi/2.*(stave_id-1);
+    double angle = -pi/2.*(stave_id-1);
     RotationZYX lrot(angle,0,0);
     for (int layer_id = 1; layer_id <= number_of_chambers; layer_id++){
       double Zoff = -pDz + (layer_id-1)*layerThickness + Hcal_radiator_thickness + Hcal_chamber_thickness/2.;
@@ -217,28 +217,30 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
 	cout << "Hcal_EndcapRing:  inner_thickness= " << inner_thickness << endl;
 	cout << "Hcal_EndcapRing:  outer_thickness= " << thickness_sum << endl;
       }
-      LayeredCalorimeterData::Layer caloLayer ;
-      caloLayer.cellSize0 = cell_sizeX;
-      caloLayer.cellSize1 = cell_sizeY;
-      caloLayer.inner_nRadiationLengths   = nRadiationLengthsInside;
-      caloLayer.inner_nInteractionLengths = nInteractionLengthsInside;
-      caloLayer.inner_thickness           = inner_thickness;
-      caloLayer.sensitive_thickness       = sensitive_thickness;
-      caloLayer.outer_nRadiationLengths   = nRadiationLengths;
-      caloLayer.outer_nInteractionLengths = nInteractionLengths;
-      caloLayer.outer_thickness           = thickness_sum;
+      if(stave_id==1){//only one needed, according to wenxingfang's
+	LayeredCalorimeterData::Layer caloLayer ;
+	caloLayer.cellSize0 = cell_sizeX;
+	caloLayer.cellSize1 = cell_sizeY;
+	caloLayer.inner_nRadiationLengths   = nRadiationLengthsInside;
+	caloLayer.inner_nInteractionLengths = nInteractionLengthsInside;
+	caloLayer.inner_thickness           = inner_thickness;
+	caloLayer.sensitive_thickness       = sensitive_thickness;
+	caloLayer.outer_nRadiationLengths   = nRadiationLengths;
+	caloLayer.outer_nInteractionLengths = nInteractionLengths;
+	caloLayer.outer_thickness           = thickness_sum;
+	
+	caloLayer.distance = start_z + (layer_id-1)*layerThickness;
+	caloLayer.absorberThickness = Hcal_radiator_thickness ;
       
-      caloLayer.distance = start_z + (layer_id-1)*layerThickness;
-      caloLayer.absorberThickness = Hcal_radiator_thickness ;
-      
-      caloData->layers.push_back( caloLayer ) ;
+	caloData->layers.push_back( caloLayer ) ;
+      }
     }
   }
   
   // Placements
   double endcap_z_offset = start_z + pDz;
   for(int side = 0; side <= 1; side++){
-    int module_id = (side==0) ? 0 : 6;
+    int module_id = (side==0) ? 6 : 0;
     double this_module_z_offset = (side==0) ? endcap_z_offset : -endcap_z_offset;
     // use reflect volume for z<0, therefore, same rotation
     // segmentation violation happen if EndCapRingLogical.reflect(), back to rotate Y
