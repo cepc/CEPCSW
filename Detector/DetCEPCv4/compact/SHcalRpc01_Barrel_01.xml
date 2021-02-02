@@ -33,8 +33,10 @@
 
   <readouts>
     <readout name="HcalBarrelCollection">
-      <segmentation type="CartesianGridYZ" grid_size_y="Hcal_cells_size" grid_size_z="Hcal_cells_size" offset_y="-3.20001220703125*mm"/>
-      <id>system:5,module:3,stave:3,tower:5,layer:6,slice:4,y:32:-16,z:-16</id>
+
+      <segmentation type="TiledLayerGridXY" grid_size_x="Hcal_cells_size" grid_size_y="Hcal_cells_size"/>
+      <id>system:5,module:3,stave:3,tower:5,layer:6,slice:4,x:32:-16,y:-16</id>
+
     </readout>
   </readouts>
 

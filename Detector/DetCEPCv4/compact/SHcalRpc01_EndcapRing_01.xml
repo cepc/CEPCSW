@@ -10,7 +10,7 @@
                    dz="HcalEndcapRing_max_z + 2.0*env_safety"/>
             <shape type="PolyhedraRegular" numsides="Hcal_ring_inner_symmetry" rmin="HcalEndcapRing_inner_radius - env_safety"
                    rmax="HcalEndcapRing_outer_radius*cos(pi/Hcal_ring_outer_symmetry) + env_safety" dz="2.0*HcalEndcapRing_max_z + env_safety" material="Air"/>
-            <rotation x="0" y="0" z="90*deg-180*deg/Hcal_ring_inner_symmetry"/>
+            <rotation x="0" y="0" z="-180*deg/Hcal_ring_inner_symmetry"/>
           </shape>
           <shape type="Box" dx="HcalEndcapRing_outer_radius + 2.0*env_safety" dy="HcalEndcapRing_outer_radius + 2.0*env_safety"
                  dz="HcalEndcapRing_min_z - env_safety"/>
@@ -32,8 +32,8 @@
 
   <readouts>
     <readout name="HcalEndcapRingCollection">
-      <segmentation type="CartesianGridXY" grid_size_x="Hcal_cells_size" grid_size_y="Hcal_cells_size"/>
-      <id>system:5,module:3,stave:4,tower:3,layer:6,x:32:-16,y:-16</id>
+      <segmentation type="CartesianGridXY" grid_size_x="Hcal_cells_size" grid_size_y="Hcal_cells_size" offset_x="Hcal_cells_size/2.0" offset_y="Hcal_cells_size/2.0"/>
+      <id>system:5,module:3,stave:4,tower:3,layer:6,y:32:-16,x:-16</id>
     </readout>
   </readouts>
   
