@@ -35,7 +35,7 @@ std::vector<double> PanUtil::getTrackingRegionExtent(){
   return extent;
 }
 
-dd4hep::rec::LayeredCalorimeterData * PanUtil::getExtension(unsigned int includeFlag, unsigned int excludeFlag=0) {
+dd4hep::rec::LayeredCalorimeterData * PanUtil::getExtension(unsigned int includeFlag, unsigned int excludeFlag) {
   
   
   dd4hep::rec::LayeredCalorimeterData * theExtension = 0;
@@ -50,12 +50,12 @@ dd4hep::rec::LayeredCalorimeterData * PanUtil::getExtension(unsigned int include
   if( theDetectors.size()  != 1 ){
     
     std::stringstream es ;
-    es << " getExtension: selection is not unique (or empty)  includeFlag: " << dd4hep::DetType( includeFlag ) << " excludeFlag: " << dd4hep::DetType( excludeFlag )
-       << " --- found detectors : " ;
+    es << "return nullptr!  getExtension: selection is not unique (or empty)  includeFlag: " << dd4hep::DetType( includeFlag ) << " excludeFlag: " << dd4hep::DetType( excludeFlag ) << " --- found detectors : " ;
     for( unsigned i=0, N= theDetectors.size(); i<N ; ++i ){
       es << theDetectors.at(i).name() << ", " ; 
     }
-    throw std::runtime_error( es.str() ) ;
+    //throw std::runtime_error( es.str() ) ;
+    return nullptr;
   }
   
   theExtension = theDetectors.at(0).extension<dd4hep::rec::LayeredCalorimeterData>();

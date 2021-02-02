@@ -226,6 +226,7 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
 	cout << "Hcal_Endcap:  inner_thickness= " << inner_thickness << endl;
 	cout << "Hcal_Endcap:  outer_thickness= " << thickness_sum << endl;
       }
+
       if(stave_id==1){// only for one stave is good. by wenxingfang 
 	LayeredCalorimeterData::Layer caloLayer ;
 	caloLayer.cellSize0 = cell_sizeX;
@@ -242,6 +243,7 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
 	caloLayer.absorberThickness = Hcal_radiator_thickness ;
 	
 	caloData->layers.push_back( caloLayer ) ;
+
       }
     }
   }
