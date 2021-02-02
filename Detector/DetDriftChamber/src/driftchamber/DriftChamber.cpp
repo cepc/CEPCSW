@@ -147,7 +147,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     double Endcap_rmin = theDetector.constant<double>("DC_Endcap_rmin");
     double Endcap_rmax = theDetector.constant<double>("DC_Endcap_rmax");
     double Endcap_z = theDetector.constant<double>("DC_Endcap_dz");
-    dd4hep::Tube det_Endcap_solid(Endcap_rmin,Endcap_rmax,Endcap_z);
+    dd4hep::Tube det_Endcap_solid(Endcap_rmin,Endcap_rmax,0.5*Endcap_z);
     dd4hep::Volume det_Endcap_vol(det_name+"Endcap",det_Endcap_solid,det_mat);
     det_Endcap_vol.setVisAttributes(theDetector,"YellowVis");
 
