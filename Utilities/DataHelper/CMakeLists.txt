@@ -15,6 +15,7 @@ gaudi_add_library(DataHelperLib
                           src/TrackerHitExtended.cc
                           src/TrackExtended.cc
                           src/TrackHitPair.cc
+			  src/TrackerHitHelper.cpp
                   LINK EDM4HEP::edm4hep
                        EDM4HEP::edm4hepDict
                        ${GSL_LIBRARIES}
