@@ -12,7 +12,6 @@
 std::array<float,6> CEPC::GetCovMatrix(edm4hep::TrackerHit& hit){
   if(hit.isAvailable()){
     int type = hit.getType();
-    std::cout << CEPCConf::TrkHitTypeBit::COMPOSITE_SPACEPOINT << " " << CEPCConf::TrkHitTypeBit::PLANAR << " " << std::endl;
     if(std::bitset<32>(type)[CEPCConf::TrkHitTypeBit::COMPOSITE_SPACEPOINT]){
       return hit.getCovMatrix();
     }
@@ -26,7 +25,6 @@ std::array<float,6> CEPC::GetCovMatrix(edm4hep::TrackerHit& hit){
       float dV     = hit.getCovMatrix(5);
     
 #ifndef MethodUsedInSpacePointBuilder
-      std::cout << "======================" << std::endl;
       TMatrixF diffs(2,3);
       TMatrixF diffsT(3,2);
       diffs(0,0) = sin(thetaU)*cos(phiU);
