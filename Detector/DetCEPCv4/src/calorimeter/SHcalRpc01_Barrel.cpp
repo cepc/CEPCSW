@@ -4,6 +4,7 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DD4hep/DD4hepUnits.h"
 #include "DD4hep/DetType.h"
+#include "DDSegmentation/TiledLayerGridXY.h"
 
 #include "DDRec/Surface.h"
 #include "DDRec/DetectorData.h"
@@ -23,6 +24,7 @@ using dd4hep::Volume;
 using dd4hep::PlacedVolume;
 using dd4hep::Position;
 using dd4hep::RotationZYX;
+using dd4hep::RotationZ;
 using dd4hep::Transform3D;
 using dd4hep::Box;
 using dd4hep::Tube;
@@ -63,30 +65,31 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
 
   Readout readout = sens.readout();
   Segmentation seg = readout.segmentation();
+  dd4hep::DDSegmentation::TiledLayerGridXY* tiledSeg = dynamic_cast<dd4hep::DDSegmentation::TiledLayerGridXY*> (seg.segmentation());
+  assert(tiledSeg && "no TiledLayerGridXY found" );
 
   std::vector<double> cellSizeVector = seg.segmentation()->cellDimensions(0);
   double cell_sizeX      = cellSizeVector[0];
   double cell_sizeZ      = cellSizeVector[1];
 
-  double      Hcal_inner_radius   = theDetector.constant<double>("Hcal_inner_radius");
-  double      Hcal_outer_radius_set   = theDetector.constant<double>("Hcal_outer_radius");
-  double      Hcal_half_length    = theDetector.constant<double>("Hcal_half_length");
-  int         Hcal_inner_symmetry = theDetector.constant<int>("Hcal_inner_symmetry");
-  int         Hcal_outer_symmetry = 0;
-  double      Hcal_lateral_plate_thickness     = theDetector.constant<double>("Hcal_lateral_structure_thickness");
-  double      Hcal_modules_gap                 = theDetector.constant<double>("Hcal_modules_gap");
-  int         Hcal_nlayers                     = theDetector.constant<int>("Hcal_nlayers");
-  double      TPC_outer_radius               = theDetector.constant<double>("TPC_outer_radius");
-  double      Ecal_outer_radius               = theDetector.constant<double>("Ecal_outer_radius");
-  int Hcal_barrel_number_modules = theDetector.constant<int>("Hcal_barrel_number_modules");
+  double Hcal_inner_radius            = theDetector.constant<double>("Hcal_inner_radius");
+  double Hcal_outer_radius_set        = theDetector.constant<double>("Hcal_outer_radius");
+  double Hcal_half_length             = theDetector.constant<double>("Hcal_half_length");
+  int    Hcal_inner_symmetry          = theDetector.constant<int>("Hcal_inner_symmetry");
+  int    Hcal_outer_symmetry          = 0;
+  double Hcal_lateral_plate_thickness = theDetector.constant<double>("Hcal_lateral_structure_thickness");
+  double Hcal_modules_gap             = theDetector.constant<double>("Hcal_modules_gap");
+  double Ecal_outer_radius            = theDetector.constant<double>("Ecal_outer_radius");
+  int    Hcal_barrel_number_modules   = theDetector.constant<int>("Hcal_barrel_number_modules");
   
-  double hPrime =    Ecal_outer_radius + theDetector.constant<double>("Hcal_Ecal_gap");
+  double hPrime   = Ecal_outer_radius + theDetector.constant<double>("Hcal_Ecal_gap");
   Hcal_inner_radius = hPrime / cos(pi/8.);
   
   double Hcal_normal_dim_z = (2*Hcal_half_length - (Hcal_barrel_number_modules-1)*Hcal_modules_gap)/Hcal_barrel_number_modules;
 
   xml_coll_t c(x_det,_U(layer));
   xml_comp_t x_layer = c;
+  int         Hcal_nlayers = x_layer.repeat();
 
   double Hcal_radiator_thickness = 0;
   double layerThickness = 0.0;
@@ -95,6 +98,7 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
     layerThickness += x_slice.thickness();
     if(x_slice.materialStr()==Hcal_radiator_material) Hcal_radiator_thickness = x_slice.thickness();
   }
+  cout << " cell size xy = " <<  cell_sizeX << " cell size z = " << cell_sizeZ << endl;
   cout << " layer_thickness (from slices) = " << layerThickness << " and radiator_thickness = " << Hcal_radiator_thickness << endl;
   double Hcal_chamber_thickness = layerThickness - Hcal_radiator_thickness; 
 
@@ -149,27 +153,30 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
   PlacedVolume calo_pv = envelope.placeVolume(logicCalo, Position(0,0,0));
   DetElement calo(det, "envelope", det_id);
   calo.setPlacement(calo_pv);
-
+  if(tiledSeg) tiledSeg->setOffsetY(-(Hcal_regular_chamber_dim_z/2.-RPC_EdgeWidth)+0.5*cell_sizeZ);
   for(int layer_id=1; layer_id<=Hcal_nlayers; layer_id++){
     double yn = sqrt(Hcal_outer_radius*Hcal_outer_radius - (hPrime + layer_id*layerThickness)*(hPrime + layer_id*layerThickness));
     double Yn = 0.5*d_InnerOctoSize - layer_id*layerThickness;
 
     double halfX = Hcal_chamber_thickness/2.;
-    double halfZ = (yn+Yn)/2.;
+    double halfY = (yn+Yn)/2.;
     
     LayeredCalorimeterData::Layer caloLayer ;
     caloLayer.cellSize0 = cell_sizeX;
     caloLayer.cellSize1 = cell_sizeZ;
 
-    //double halfY = Hcal_normal_dim_z / 2.;
-    double halfY = Hcal_regular_chamber_dim_z / 2.;
-
+    //double halfZ = Hcal_normal_dim_z / 2.;
+    double halfZ = Hcal_regular_chamber_dim_z / 2.;
+    
     double localXPos = hPrime + Hcal_radiator_thickness + Hcal_chamber_thickness/2. + (layer_id-1)*layerThickness;
     double localYPos = -Yn + 0.5*(Yn + yn);
-    Box chamberSolid(halfX, halfY, halfZ);
+
+    Box chamberSolid(halfY, halfZ, halfX);
     string chamberLogical_name      = name+_toString(layer_id,"_layer%d");
     Volume chamberLogical(chamberLogical_name, chamberSolid, air);
     chamberLogical.setAttributes(theDetector, x_layer.regionStr(), x_layer.limitsStr(), x_layer.visStr());
+
+    if(tiledSeg) tiledSeg->setLayerOffsetX((-(halfY-RPC_EdgeWidth)+0.5*cell_sizeX)*2/cell_sizeX);
 
     string layer_name      = name+_toString(layer_id,"_layer%d");
 
@@ -196,44 +203,45 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
       thickness_sum       += slice_thickness/2;
 
       // Slice volume & box
-      Box sliceSolid(slice_thickness/2., halfY, halfZ);
+      Box sliceSolid(halfY, halfZ, slice_thickness/2.);
       Volume sliceVol(slice_name, sliceSolid, slice_material);
       
       if ( x_slice.isSensitive() ) {
 	sliceVol.setSensitiveDetector(sens);
 	if(RPC_EdgeWidth>0){
-	  double RPC_GazInlet_In_Y  = halfY - RPC_EdgeWidth - RPCGazInletOuterRadius;
-	  double RPC_GazInlet_In_Z  = halfZ - RPC_EdgeWidth/2;
-	  double RPC_GazInlet_Out_Y = -RPC_GazInlet_In_Y;
-	  double RPC_GazInlet_Out_Z =  RPC_GazInlet_In_Z;
+	  double RPC_GazInlet_In_Z  = halfZ - RPC_EdgeWidth - RPCGazInletOuterRadius;
+	  double RPC_GazInlet_In_Y  = halfY - RPC_EdgeWidth/2;
+	  double RPC_GazInlet_Out_Z = -RPC_GazInlet_In_Z;
+	  double RPC_GazInlet_Out_Y =  RPC_GazInlet_In_Y;
 
 	  string mateialName = x_slice.attr<string>(_Unicode(edge_material));
 	  Material edge_material = theDetector.material(mateialName);
-	  Box solidRPCEdge1(slice_thickness/2.,halfY, halfZ);
-	  Box solidRPCEdge2(slice_thickness/2.,halfY-RPC_EdgeWidth, halfZ-RPC_EdgeWidth);
+	  Box solidRPCEdge1(halfY, halfZ, slice_thickness/2.);
+	  Box solidRPCEdge2(halfY-RPC_EdgeWidth, halfZ-RPC_EdgeWidth, slice_thickness/2.);
 	  SubtractionSolid solidRPCEdge(solidRPCEdge1, solidRPCEdge2, Position(0,0,0));
 	  Volume logicRPCEdge(slice_name+"_edge", solidRPCEdge, edge_material);
 	  logicRPCEdge.setAttributes(theDetector,x_slice.regionStr(),x_slice.limitsStr(),x_slice.visStr());
 	  sliceVol.placeVolume(logicRPCEdge);
 
+	  RotationZYX rotGaz(0, pi/2., 0);
 	  Tube solidRPCGazInlet(RPCGazInletInnerRadius,RPCGazInletOuterRadius,RPC_EdgeWidth/*RPCGazInletLength*//2);
 	  Volume logicRPCGazInlet(slice_name+"_GazInlet", solidRPCGazInlet, edge_material);
 	  logicRPCGazInlet.setAttributes(theDetector,x_slice.regionStr(),x_slice.limitsStr(),x_slice.visStr());
-	  logicRPCEdge.placeVolume(logicRPCGazInlet, Position(0,RPC_GazInlet_In_Y,RPC_GazInlet_In_Z));
-	  logicRPCEdge.placeVolume(logicRPCGazInlet, Position(0,RPC_GazInlet_Out_Y,RPC_GazInlet_Out_Z));
+	  logicRPCEdge.placeVolume(logicRPCGazInlet, Transform3D(rotGaz, Position(RPC_GazInlet_In_Y,RPC_GazInlet_In_Z, 0)));
+	  logicRPCEdge.placeVolume(logicRPCGazInlet, Transform3D(rotGaz, Position(RPC_GazInlet_Out_Y,RPC_GazInlet_Out_Z, 0)));
 	  
 	  Tube solidRPCGazInsideInlet(0,RPCGazInletInnerRadius,RPC_EdgeWidth/*RPCGazInletLength*//2);
 	  Volume logicRPCGazInsideInlet(slice_name+"_GazInsideInlet", solidRPCGazInsideInlet, slice_material);
 	  logicRPCGazInsideInlet.setAttributes(theDetector,x_slice.regionStr(),x_slice.limitsStr(),"SeeThrough");
-	  logicRPCEdge.placeVolume(logicRPCGazInsideInlet, Position(0,RPC_GazInlet_In_Y,RPC_GazInlet_In_Z));
-	  logicRPCEdge.placeVolume(logicRPCGazInsideInlet, Position(0,RPC_GazInlet_Out_Y,RPC_GazInlet_Out_Z));
+	  logicRPCEdge.placeVolume(logicRPCGazInsideInlet, Transform3D(rotGaz, Position(RPC_GazInlet_In_Y,RPC_GazInlet_In_Z, 0)));
+	  logicRPCEdge.placeVolume(logicRPCGazInsideInlet, Transform3D(rotGaz,Position(RPC_GazInlet_Out_Y,RPC_GazInlet_Out_Z, 0)));
 	}
 	if(Hcal_spacer_thickness>0){
 	  Tube solidRPCSpacer(0,Hcal_spacer_thickness/2,slice_thickness/2);
 	  Material space_material = theDetector.material(x_slice.attr<string>(_Unicode(spacer_material)));
 	  Volume logicRPCSpacer(slice_name+"_spacer", solidRPCSpacer, space_material);
 	  logicRPCSpacer.setAttributes(theDetector,x_slice.regionStr(),x_slice.limitsStr(),x_slice.visStr());
-	  RotationZYX rotSpacer(0, pi/2., 0);
+	  RotationZYX rotSpacer(0, 0, 0);
 	  
 	  double gap_hZ = halfZ-RPC_EdgeWidth;
 	  double gap_hY = halfY-RPC_EdgeWidth;
@@ -253,7 +261,7 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
 	    double SpacerY = gap_hY - y_lateral_space - y_counter*Hcal_spacer_separation;
 	    for(int z_counter = 0; z_counter <=z_number_of_separations; z_counter++){
 	      double SpacerZ = gap_hZ - z_lateral_space - z_counter*Hcal_spacer_separation;
-	      PlacedVolume space_pv = sliceVol.placeVolume(logicRPCSpacer, Transform3D(rotSpacer, Position(0,SpacerY,SpacerZ)));
+	      PlacedVolume space_pv = sliceVol.placeVolume(logicRPCSpacer, Transform3D(rotSpacer, Position(SpacerY,SpacerZ,0)));
 	    }
 	  }
 	}
@@ -279,7 +287,7 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
       thickness_sum += slice_thickness/2;
 
       // slice PlacedVolume
-      PlacedVolume slice_phv = chamberLogical.placeVolume(sliceVol,Position(slice_pos_z,0,0));
+      PlacedVolume slice_phv = chamberLogical.placeVolume(sliceVol,Position(0,0,slice_pos_z));
       if ( x_slice.isSensitive() ) {
 	int slice_id  = (layer_id > Hcal_nlayers)? 1:-1;
 	slice_phv.addPhysVolID("layer",layer_id).addPhysVolID("slice",slice_id);
@@ -309,14 +317,17 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
     for(int stave_id = 1; stave_id <= 8; stave_id++){
       double phirot = stave_phi_offset+(stave_id-1)*pi/4.;
 
-      RotationZYX rot(0, phirot, pi*0.5);
-      RotationZYX rotInverse(0,-phirot, -pi*0.5);
+      RotationZYX rot(pi/2, pi/2, 0); //phirot);
+      RotationZ rotZ(phirot);
+      RotationZYX rotAll = rotZ*rot;
+      RotationZYX rotInverse(phirot, 0, 0);
       for(int module_id = 1; module_id <= Hcal_barrel_number_modules; module_id++){
         module_z_offset = - Hcal_half_length + Hcal_normal_dim_z/2. + (module_id-1)*(Hcal_normal_dim_z+Hcal_modules_gap);
 	
-        Position localPos(localXPos,-module_z_offset,localYPos);
+        Position localPos(localXPos,localYPos,module_z_offset);
         Position newPos = rotInverse*localPos;
-	Transform3D tran3D(rot, newPos);
+
+	Transform3D tran3D(rotAll, newPos);
 	PlacedVolume pv = logicCalo.placeVolume(chamberLogical, tran3D);
 	pv.addPhysVolID("stave",stave_id).addPhysVolID("module",module_id).addPhysVolID("layer",layer_id);
 	DetElement layer(calo, name+_toString(stave_id,"_stave%d")+_toString(module_id,"_module%d")+_toString(layer_id,"_layer%d"), det_id);
