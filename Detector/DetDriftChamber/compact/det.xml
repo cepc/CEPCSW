@@ -60,6 +60,9 @@
     <constant name="DC_Endcap_rmin" value="SDT_radius_min"/>
     <constant name="DC_Endcap_rmax" value="SDT_radius_max"/>
 
+    <constant name="DC_inner_chamber_enabled" value="1"/>
+    <constant name="DC_outer_chamber_enabled" value="1"/>
+
   </define>
 
   <display>
