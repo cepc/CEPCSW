@@ -5,7 +5,7 @@
 #include <array>
 
 namespace CEPC{
-  std::array<float, 6> GetCovMatrix(edm4hep::TrackerHit& hit);
+  std::array<float, 6> GetCovMatrix(edm4hep::TrackerHit& hit, bool useSpacePointerBuilderMethod = false);
   float                GetResolutionRPhi(edm4hep::TrackerHit& hit);
   float                GetResolutionZ(edm4hep::TrackerHit& hit);
 }
