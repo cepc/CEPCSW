@@ -6,8 +6,13 @@
     <constant name="ecalbarrel_zlength"      value="Ecal_barrel_half_length*2"/>   <!--Must be n*10*mm! -->
   </define>
 
+  <regions>
+    <region name="EcalBarrelRegion">
+    </region>
+  </regions>
+
   <detectors>
-    <detector id="DetID_ECAL" name="CaloDetector" type="CRDEcalBarrel" readout="EcalBarrelCollection" vis="Invisible" sensitive="true">
+    <detector id="DetID_ECAL" name="CaloDetector" type="CRDEcalBarrel" readout="EcalBarrelCollection" vis="Invisible" sensitive="true" region="EcalBarrelRegion">
       <!-- Use cm as unit if you want to use Pandora for reconstruction -->
     </detector>
   </detectors>
