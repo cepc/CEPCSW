@@ -20,6 +20,7 @@ gaudi_add_library(DataHelperLib
                        EDM4HEP::edm4hepDict
                        ${GSL_LIBRARIES}
                        ${CLHEP_LIBRARIES}
+		       Identifier
 )
 
 install(TARGETS DataHelperLib
