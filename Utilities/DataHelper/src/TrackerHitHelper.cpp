@@ -8,7 +8,7 @@
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/Rotation.h"
 #include <bitset>
- 
+
 std::array<float,6> CEPC::GetCovMatrix(edm4hep::TrackerHit& hit, bool useSpacePointBuilderMethod){
   if(hit.isAvailable()){
     int type = hit.getType();
