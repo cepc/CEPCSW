@@ -67,6 +67,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 	dd4hep::Volume	envelopeVol(det_name, envelope, air);
 	dd4hep::PlacedVolume	envelopePlv = motherVol.placeVolume(envelopeVol, Position(0,0,0));
 	envelopeVol.setVisAttributes(theDetector, "InvisibleWithChildren" );
+    envelopeVol.setRegion(theDetector,x_det.regionStr());
 	ECAL.setPlacement(envelopePlv);
 
     //Define specific material and volumen for detElement

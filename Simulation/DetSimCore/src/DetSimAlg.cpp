@@ -84,6 +84,20 @@ DetSimAlg::initialize() {
         fastsim_physics->ActivateFastSimulation("e-");
         fastsim_physics->ActivateFastSimulation("e+");
         fastsim_physics->ActivateFastSimulation("gamma");
+        fastsim_physics->ActivateFastSimulation("mu-");
+        fastsim_physics->ActivateFastSimulation("pi0");
+        fastsim_physics->ActivateFastSimulation("pi+");
+        fastsim_physics->ActivateFastSimulation("pi-");
+        fastsim_physics->ActivateFastSimulation("tau+");
+        fastsim_physics->ActivateFastSimulation("tau-");
+        fastsim_physics->ActivateFastSimulation("K0");
+        fastsim_physics->ActivateFastSimulation("K-");
+        fastsim_physics->ActivateFastSimulation("K+");
+        fastsim_physics->ActivateFastSimulation("Z0");
+        fastsim_physics->ActivateFastSimulation("W-");
+        fastsim_physics->ActivateFastSimulation("h0");
+        fastsim_physics->ActivateFastSimulation("nu_mu");
+        fastsim_physics->ActivateFastSimulation("nu_ebar");
         modularPhysicsList->RegisterPhysics(fastsim_physics);
 
         physicsList = modularPhysicsList;
