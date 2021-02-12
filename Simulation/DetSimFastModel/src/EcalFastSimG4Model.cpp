@@ -14,7 +14,7 @@ EcalFastSimG4Model::~EcalFastSimG4Model() {
 
 G4bool EcalFastSimG4Model::IsApplicable(const G4ParticleDefinition& aParticle) {
 //    return aParticle.GetPDGCharge() != 0;
-    return 1;
+    return true;
 }
 
 G4bool EcalFastSimG4Model::ModelTrigger(const G4FastTrack& aFastTrack) {
