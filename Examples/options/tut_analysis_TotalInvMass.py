@@ -6,8 +6,8 @@ from Configurables import k4DataSvc
 dsvc = k4DataSvc("EventDataSvc")
 
 # read LCIO files
-from Configurables import k4LCIOInput
-lcioinput = k4LCIOInput("k4LCIOInput")
+from Configurables import LCIOInput
+lcioinput = LCIOInput("LCIOInput")
 
 import glob
 

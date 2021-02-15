@@ -2,6 +2,7 @@ include(CMakeFindDependencyMacro)
 find_dependency(podio REQUIRED)
 find_dependency(Gaudi REQUIRED)
 find_dependency(k4FWCore REQUIRED)
+find_dependency(k4LCIOReader REQUIRED)
 find_dependency(EDM4HEP REQUIRED)
 find_dependency(ROOT REQUIRED)
 
