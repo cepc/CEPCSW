@@ -1,0 +1,47 @@
+<lccdd>
+  <define>
+    <constant name="Hcal_Yoke_plug_gap"      value="25*mm"/>
+    <constant name="YokeEndcapPlug_symmetry" value="Yoke_endcap_outer_symmetry"/>
+  </define>
+  <detectors>
+    <detector name="YokeEndcap" type="Yoke05_Endcaps" id="DetID_YOKE_ENDCAP" readout="MuonEndcapsCollection" vis="YellowVis" insideTrackingVolume="false" >
+      <envelope vis="YOKEVis">
+        <shape type="BooleanShape" operation="Subtraction" material="Air">
+          <shape type="BooleanShape" operation="Subtraction" material="Air">
+            <shape type="BooleanShape" operation="Intersection" material="Air">
+              <shape type="Box" dx="Yoke_endcap_outer_radius + 1.5*env_safety" dy="Yoke_endcap_outer_radius + 1.5*env_safety"
+                     dz="Yoke_endcap_zmax + env_safety"/>
+              <shape type="PolyhedraRegular" numsides="Yoke_endcap_outer_symmetry"  rmin="Yoke_endcap_inner_radius - env_safety"
+                     rmax="Yoke_endcap_outer_radius + env_safety" dz="2.*Yoke_endcap_zmax + env_safety" />
+              <rotation x="0*deg" y="0*deg" z="90*deg-180*deg/Yoke_endcap_outer_symmetry"/>
+            </shape>
+            <shape type="Box" dx="Yoke_endcap_outer_radius + 1.5*env_safety" dy="Yoke_endcap_outer_radius + 1.5*env_safety"
+                   dz="HcalEndcap_max_z + Hcal_Yoke_plug_gap - env_safety"/>
+          </shape>
+	  <!--without Yoke_plug--> 
+          <!--shape type="PolyhedraRegular" numsides="YokeEndcapPlug_symmetry"  rmin="Hcal_barrel_outer_radius*cos(pi/Hcal_endcap_outer_symmetry) + env_safety"
+                 rmax="Yoke_endcap_outer_radius + 2.0*env_safety" dz="2.*Yoke_endcap_zmin - env_safety" />
+          <rotation x="0*deg" y="0*deg" z="90*deg-180*deg/YokeEndcapPlug_symmetry"/-->
+        </shape>
+      </envelope>
+
+      <type_flags type=" DetType_CALORIMETER + DetType_ENDCAP + DetType_MUON " />
+
+      <dimensions numsides="Yoke_endcap_outer_symmetry" rmin="Yoke_endcap_inner_radius" z="Yoke_barrel_half_length" />
+      <material name="Iron"/>
+      <layer repeat="12" vis="SeeThrough">
+        <slice material = "Air"            thickness = "15.0*mm"                    vis="YellowVis" />
+        <slice material = "G4_POLYSTYRENE" thickness = "10.0*mm" sensitive = "yes"  vis="CyanVis"   />
+        <slice material = "Air"            thickness = "15.0*mm"                    vis="YellowVis" />
+      </layer>
+    </detector>
+  </detectors>
+
+  <readouts>
+    <readout name="MuonEndcapsCollection">
+      <segmentation type="CartesianGridXY" grid_size_x="Yoke_cells_size" grid_size_y="Yoke_cells_size"/>
+      <id>system:5,module:3,stave:4,tower:3,layer:6,x:32:-16,y:-16</id>
+    </readout>
+  </readouts>
+
+</lccdd>

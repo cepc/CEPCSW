@@ -1,0 +1,48 @@
+<lccdd>
+  <define>
+    <constant name="Hcal_endcap_nlayers" value="Hcal_nlayers"/>
+    <constant name="Hcal_endcap_center_box_size" value="700*mm"/>
+  </define>
+  <detectors>
+    <detector id="DetID_HCAL_ENDCAP" name="HcalEndcap" type="SHcalRpc01_Endcaps" readout="HcalEndcapsCollection"  vis="SeeThrough" calorimeterType="HAD_ENDCAP">
+      <comment>Hadron Calorimeter Endcap</comment>
+      <envelope vis="HCALVis">    
+	<shape type="BooleanShape" operation="Subtraction" material="Air">
+          <shape type="BooleanShape" operation="Subtraction" material="Air">
+            <shape type="Tube" rmin="0.0" rmax="Hcal_endcap_outer_radius + env_safety" dz="Hcal_endcap_zmax + env_safety"/>
+            <shape type="Tube" rmin="0.0" rmax="Hcal_endcap_outer_radius + 2.0*env_safety" dz="Hcal_endcap_zmin - env_safety"/>
+          </shape>
+          <shape type="Box" dx="Hcal_endcap_inner_radius - env_safety" dy="Hcal_endcap_inner_radius - env_safety" dz="Hcal_endcap_zmax + 2.0*env_safety"/>
+	</shape>
+	<rotation x="0" y="0" z="0"/>
+      </envelope>
+      
+      <type_flags type="DetType_CALORIMETER + DetType_ENDCAP + DetType_HADRONIC " />
+      
+      <staves material="stainless_steel" vis="SeeThrough"/>
+
+      <layer repeat="Hcal_endcap_nlayers" vis="SeeThrough">  
+	<slice material="stainless_steel" thickness="Hcal_radiator_thickness"                    vis="BlueVis"   />
+        <slice material="Air"             thickness="Hcal_airgap_thickness"                      vis="WhiteVis"   />
+        <slice material="mylar"           thickness="Hcal_mylar_cathode_thickness"               vis="MagentaVis" />
+        <slice material="graphite"        thickness="Hcal_graphite_cathode_thickness"            vis="Invisible" />
+        <slice material="FloatGlass"      thickness="Hcal_glass_cathode_thickness"               vis="RedVis" />
+        <slice material="RPCGAS2"         thickness="Hcal_sensitive_gas_gap"   sensitive = "yes" vis="YellowVis"/>
+        <slice material="FloatGlass"      thickness="Hcal_glass_anode_thickness"                 vis="RedVis" />
+        <slice material="graphite"        thickness="Hcal_graphite_anode_thickness"              vis="Invisible" />
+        <slice material="mylar"           thickness="Hcal_mylar_anode_thickness"                 vis="MagentaVis" />
+        <slice material="g10"             thickness="Hcal_PCB_thickness"                         vis="CyanVis" />
+	<slice material="g10"             thickness="Hcal_electronics_mask_thickness"            vis="GreenVis" />
+      </layer>
+      
+    </detector>
+  </detectors>
+  
+  <readouts>
+    <readout name="HcalEndcapsCollection">
+      <segmentation type="CartesianGridXY" grid_size_x="Hcal_cells_size" grid_size_y="Hcal_cells_size" offset_x="Hcal_cells_size/2.0" offset_y="Hcal_cells_size/2.0" />
+      <id>system:5,module:3,stave:3,tower:5,layer:6,x:32:-16,y:-16</id>
+    </readout>
+  </readouts>
+  
+</lccdd>

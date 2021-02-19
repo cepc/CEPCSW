@@ -1,0 +1,21 @@
+<lccdd>
+  <detectors>
+    <detector name="Coil" type="SCoil02" vis="SOLVis" id="DetID_COIL" insideTrackingVolume="false" readout="COILCollection">
+      <envelope vis="SeeThrough">
+	<shape type="Tube" rmin="Solenoid_inner_radius" rmax="Solenoid_outer_radius" dz="Solenoid_half_length" material="Air"/>
+      </envelope>
+  
+      <type_flags type=" DetType_SUPPORT + DetType_COIL " />
+  
+      <!--fg: for now only a simple aluminum cylinder is created inside the envelope -->
+      <tube rmin="Solenoid_inner_radius" rmax="Solenoid_outer_radius" dz="Solenoid_half_length" material="G4_Al"/>
+      
+    </detector>
+  </detectors>
+
+  <readouts>
+    <readout name="COILCollection">
+      <id>system:5,side:-2,layer:9,module:8,sensor:8,barrelside:-2</id>
+    </readout>
+  </readouts>
+</lccdd>
