@@ -79,6 +79,9 @@ protected:
   Gaudi::Property<FloatVec> _resV{ this, "ResolutionV", {0.0040} };
   // whether hits are 1D strip hits
   Gaudi::Property<bool> _isStrip{ this, "IsStrip", false };
+  // whether use Planar tag for type and cov, if true, CEPCConf::TrkHitTypeBit::PLANAR bit is set as true
+  // cov[0]=thetaU, cov[1]=phiU, cov[2]=resU, cov[0]=thetaV, cov[1]=phiV, cov[2]=resV
+  Gaudi::Property<bool> _usePlanarTag{ this, "UsePlanarTag", true };
 
   // Input collections
   DataHandle<edm4hep::EventHeaderCollection> _headerCol{"EventHeaderCol", Gaudi::DataHandle::Reader, this};
