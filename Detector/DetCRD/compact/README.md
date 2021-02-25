@@ -5,11 +5,12 @@ The following CRD detector models are available in CEPCSW
 | Model         |  Description                 | MainTracker |  Ecal   | Hcal | Status         |
 | ------------- | -----------------------------|------------ |---------|------|----------------|
 | CRD_o1_v01    | coil inside simulation model | DC          | crystal | RPC  | developing     |
+| CRD_o1_v02    | pixel SIT                    | DC          | crystal | RPC  | developing     |
 | ------------- | -----------------------------|-------------|---------|------|----------------|
  
 ## Details
 
-### CRD_o1_v01 (first preliminary import, to update)
+### CRD_o1_v01 (to update)
  - coil inside CRD model
  - BeamPipe
          - with center pipe + crotch link to doubly-pipe
@@ -29,12 +30,23 @@ The following CRD detector models are available in CEPCSW
  - Ecal
          - with crystal 
          - Detector/DetCRD/src/Calorimeter/CRDEcal.cpp
- - Hcal (TODO)
-         - with scintillator **and** RPC readout
+         - Endcap (TODO)
+ - Hcal
+         - with RPC readout
          - creates two sets of hit collections
- - Coil (TODO)
- - Yoke (TODO) 
+ - Coil
+         - CEPC_v4 like
+ - Yoke
+         - CEPC_v4 like
  - compact files:
          - [./CRD_o1_v01/CRD_o1_v01.xml](./CRD_o1_v01/CRD_o1_v01.xml)
 
-
+### CRD_o1_v02 (to update)
+ - based on CRD_o1_v01
+ - SIT:   strip -> pixel
+ - SIT12->SIT1: r = 152.90  -> 140.00 mm (pixel SIT1)
+ - SIT34->SIT2: between DCs -> 225.00 mm (pixel SIT2)
+ - SET12: outside DC -> between DCs
+ - SET34: outside DC (added)
+ - compact files:
+         - [./CRD_o1_v02/CRD_o1_v02.xml](./CRD_o1_v02/CRD_o1_v02.xml)
