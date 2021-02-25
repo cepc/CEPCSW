@@ -67,7 +67,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     int outer_chamber_enabled = theDetector.constant<int>("DC_outer_chamber_enabled");
 
     // - safe distance
-    double safe_diatance = theDetector.constant<double>("Salf_distance");
+    double safe_diatance = theDetector.constant<double>("Safe_distance");
 
     // =======================================================================
     // Detector Construction
@@ -205,7 +205,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         //    |                     |
         //    |   F0    F1   F2   F3|
         //    -----------------------
-//     if(layer_id == -1) {
+     if(layer_id == -1) {
         for(int icell=0; icell< numWire; icell++) {
             double wire_phi = (icell+0.5)*layer_Phi + offset;
             // - signal wire
@@ -223,7 +223,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
                 Module_phy = layer_vol.placeVolume(Module_vol,transform_Module);
             }
         }
-//  }
+  }
 
         dd4hep::Transform3D transform_layer(dd4hep::Rotation3D(),dd4hep::Position(0.,0.,0.));
         dd4hep::PlacedVolume layer_phy = (*current_vol_ptr).placeVolume(layer_vol, transform_layer);
