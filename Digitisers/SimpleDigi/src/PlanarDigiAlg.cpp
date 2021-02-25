@@ -1,5 +1,6 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 #include "PlanarDigiAlg.h"
+#include "DataHelper/TrackerHitHelper.h"
 #include "GearSvc/IGearSvc.h"
 #include "EventSeeder/IEventSeeder.h"
 #include "TrackSystemSvc/ITrackSystemSvc.h"
@@ -16,7 +17,7 @@
 #include "UTIL/CellIDEncoder.h"
 #include <UTIL/Operators.h>
 */
-
+#include "Identifier/CEPCConf.h"
 #include "UTIL/ILDConf.h"
 
 // STUFF needed for GEAR
@@ -174,7 +175,7 @@ StatusCode PlanarDigiAlg::execute()
     int module = encoder[lcio::ILDCellID0::module];
     int sensor = encoder[lcio::ILDCellID0::sensor];
 
-    debug() << "Hit = "<< i << " has celId " << celId << endmsg;
+    debug() << "Hit = " << i << " has celId " << celId << endmsg;
     debug() << "side = " << side << endmsg;
     debug() << "layerNumber = " <<  layer << endmsg;
     debug() << "moduleNumber = " << module << endmsg;
@@ -307,15 +308,16 @@ StatusCode PlanarDigiAlg::execute()
     debug() << " U[0] = "<< u_direction[0] << " U[1] = "<< u_direction[1]
             << " V[0] = "<< v_direction[0] << " V[1] = "<< v_direction[1]
             << endmsg ;
-    // fucd
-    std::array<float, 6> cov;
-    cov[0] = u_direction[0];
-    cov[1] = u_direction[1];
-    cov[2] = resU;
-    cov[3] = v_direction[0];
-    cov[4] = v_direction[1];
-    cov[5] = resV;
-    trkHit.setCovMatrix(cov);
+    // fucd: next TODO: cov[0] = resU*reU, cov[2] = resV*resV, cov[5] = 0
+    if(_usePlanarTag){
+      std::array<float, 6> cov;
+      cov[0] = u_direction[0];
+      cov[1] = u_direction[1];
+      cov[2] = resU;
+      cov[3] = v_direction[0];
+      cov[4] = v_direction[1];
+      cov[5] = resV;
+      trkHit.setCovMatrix(cov);
     /* zoujh: TODO - generate TrackerHitPlane with podio
     trkHit->setU( u_direction ) ;
     trkHit->setV( v_direction ) ;
@@ -325,11 +327,17 @@ StatusCode PlanarDigiAlg::execute()
     if( _isStrip ) trkHit->setdV( 0 ); // no error in v direction for strip hits as there is no meesurement information in v direction
     else trkHit->setdV( resV ) ;
     */
-    trkHit.setType(8);
-    if( _isStrip || (resU!=0&&resV==0) ){
-      trkHit.setType( UTIL::set_bit( trkHit.getType() , UTIL::ILDTrkHitTypeBit::ONE_DIMENSIONAL ) ) ;
+      std::bitset<32> type;
+      type.set(CEPCConf::TrkHitTypeBit::PLANAR);
+      trkHit.setType((int)type.to_ulong());
+    }
+    else{
+      trkHit.setCovMatrix(CEPC::ConvertToCovXYZ(resU, u_direction[0], u_direction[1], resV, v_direction[0], v_direction[1]));
     }
 
+    if( _isStrip || (resU!=0&&resV==0) ){
+        trkHit.setType( UTIL::set_bit( trkHit.getType() , UTIL::ILDTrkHitTypeBit::ONE_DIMENSIONAL ) ) ;
+    }
     trkHit.setEDep( SimTHit.getEDep() );
 
     // make the relation
