@@ -41,9 +41,9 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     dd4hep::SensitiveDetector sd = sens;
 
     // - global
-    double chamber_radius_min = theDetector.constant<double>("SDT_radius_min");
-    double chamber_radius_max = theDetector.constant<double>("SDT_radius_max");
-    double chamber_length     = theDetector.constant<double>("SDT_length");
+//    double chamber_radius_min = theDetector.constant<double>("SDT_radius_min");
+//    double chamber_radius_max = theDetector.constant<double>("SDT_radius_max");
+    double chamber_length     = theDetector.constant<double>("DC_length");
 
     // - inner chamber
     double inner_chamber_radius_min = theDetector.constant<double>("SDT_inner_chamber_radius_min");
@@ -65,6 +65,9 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     // - Control the number of drift chambersr
     int inner_chamber_enabled = theDetector.constant<int>("DC_inner_chamber_enabled");
     int outer_chamber_enabled = theDetector.constant<int>("DC_outer_chamber_enabled");
+
+    // - salf distance
+    double salf_diatance = theDetector.constant<double>("Salf_distance");
 
     // =======================================================================
     // Detector Construction
@@ -210,7 +213,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
             dd4hep::PlacedVolume module_phy = layer_vol.placeVolume(module_vol,transform_module);
            // - Field wire
             dd4hep::PlacedVolume Module_phy;
-            double radius[9] = {rmid-chamber_layer_width*0.5,rmid-chamber_layer_width*0.5,rmid-chamber_layer_width*0.5,rmid-chamber_layer_width*0.5,rmid,rmid+chamber_layer_width*0.5,rmid+chamber_layer_width*0.5,rmid+chamber_layer_width*0.5,rmid+chamber_layer_width*0.5};
+            double radius[9] = {rmid-chamber_layer_width*0.5+salf_diatance,rmid-chamber_layer_width*0.5+salf_diatance,rmid-chamber_layer_width*0.5+salf_diatance,rmid-chamber_layer_width*0.5+salf_diatance,rmid,rmid+chamber_layer_width*0.5-salf_diatance,rmid+chamber_layer_width*0.5-salf_diatance,rmid+chamber_layer_width*0.5-salf_diatance,rmid+chamber_layer_width*0.5-salf_diatance};
             double phi[9] = {wire_phi+layer_Phi*0.25,wire_phi,wire_phi-layer_Phi*0.25,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.25,wire_phi,wire_phi+layer_Phi*0.25};
             int num = 5;
             if(layer_id==(inner_chamber_layer_number-1)||layer_id==(outer_chamber_layer_number-1)) { num = 9; }
@@ -255,12 +258,12 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
             dd4hep::Position(0,0,0));
     dd4hep::PlacedVolume phv = envelope.placeVolume(det_vol,transform);
     // - place wall
-//    dd4hep::PlacedVolume wall_phy;
+    dd4hep::PlacedVolume wall_phy;
     for(int i=0; i<4; i++) {
        dd4hep::Tube wall_solid(wall_rmin[i],wall_rmax[i],chamber_length*0.5);
        dd4hep::Volume wall_vol(det_name+"_wall_vol",wall_solid,wall_mat);
        wall_vol.setVisAttributes(theDetector,"VisibleGreen");
-       dd4hep::PlacedVolume wall_phy = envelope.placeVolume(wall_vol,transform);
+       wall_phy = envelope.placeVolume(wall_vol,transform);
     }
 
     // - place Endcap
@@ -282,4 +285,4 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 
 }
 
-DECLARE_DETELEMENT(DriftChamber, create_detector);
+DECLARE_DETELEMENT(DriftChamber, create_detector)
