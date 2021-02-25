@@ -6,7 +6,7 @@
 
 #include "DriftChamberSensitiveDetector.h"
 
-DECLARE_COMPONENT(DriftChamberSensDetTool);
+DECLARE_COMPONENT(DriftChamberSensDetTool)
 
 StatusCode DriftChamberSensDetTool::initialize() {
     StatusCode sc;

@@ -8,7 +8,7 @@
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
-DECLARE_COMPONENT(TimeProjectionChamberSensDetTool);
+DECLARE_COMPONENT(TimeProjectionChamberSensDetTool)
 
 StatusCode TimeProjectionChamberSensDetTool::initialize() {
   StatusCode sc;
