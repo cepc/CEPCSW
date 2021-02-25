@@ -66,8 +66,8 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     int inner_chamber_enabled = theDetector.constant<int>("DC_inner_chamber_enabled");
     int outer_chamber_enabled = theDetector.constant<int>("DC_outer_chamber_enabled");
 
-    // - salf distance
-    double salf_diatance = theDetector.constant<double>("Salf_distance");
+    // - safe distance
+    double safe_diatance = theDetector.constant<double>("Salf_distance");
 
     // =======================================================================
     // Detector Construction
@@ -213,7 +213,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
             dd4hep::PlacedVolume module_phy = layer_vol.placeVolume(module_vol,transform_module);
            // - Field wire
             dd4hep::PlacedVolume Module_phy;
-            double radius[9] = {rmid-chamber_layer_width*0.5+salf_diatance,rmid-chamber_layer_width*0.5+salf_diatance,rmid-chamber_layer_width*0.5+salf_diatance,rmid-chamber_layer_width*0.5+salf_diatance,rmid,rmid+chamber_layer_width*0.5-salf_diatance,rmid+chamber_layer_width*0.5-salf_diatance,rmid+chamber_layer_width*0.5-salf_diatance,rmid+chamber_layer_width*0.5-salf_diatance};
+            double radius[9] = {rmid-chamber_layer_width*0.5+safe_diatance,rmid-chamber_layer_width*0.5+safe_diatance,rmid-chamber_layer_width*0.5+safe_diatance,rmid-chamber_layer_width*0.5+safe_diatance,rmid,rmid+chamber_layer_width*0.5-safe_diatance,rmid+chamber_layer_width*0.5-safe_diatance,rmid+chamber_layer_width*0.5-safe_diatance,rmid+chamber_layer_width*0.5-safe_diatance};
             double phi[9] = {wire_phi+layer_Phi*0.25,wire_phi,wire_phi-layer_Phi*0.25,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.25,wire_phi,wire_phi+layer_Phi*0.25};
             int num = 5;
             if(layer_id==(inner_chamber_layer_number-1)||layer_id==(outer_chamber_layer_number-1)) { num = 9; }
