@@ -67,7 +67,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     int outer_chamber_enabled = theDetector.constant<int>("DC_outer_chamber_enabled");
 
     // - safe distance
-    double safe_diatance = theDetector.constant<double>("Safe_distance");
+    double safe_diatance = theDetector.constant<double>("DC_safe_distance");
 
     // =======================================================================
     // Detector Construction

@@ -63,7 +63,7 @@
     <constant name="DC_inner_chamber_enabled" value="1"/>
     <constant name="DC_outer_chamber_enabled" value="1"/>
 
-    <constant name="Safe_distance" value="0.02*mm"/>
+    <constant name="DC_safe_distance" value="0.02*mm"/>
 
   </define>
 
