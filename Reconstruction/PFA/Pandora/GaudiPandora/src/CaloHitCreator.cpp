@@ -449,6 +449,19 @@ pandora::StatusCode CaloHitCreator::CreateHCalCaloHits(const CollectionMaps& col
                     else{
                         Stave = m_decoder->get(pCaloHit->getCellID(), "stave");
                         Stave = Stave ==0 ? Stave+7 : Stave-1 ;//correct, same with LCIO  
+                        /*
+                                    1                     0
+                                   ****                  ****
+                                2 *    * 0            1 *    * 7
+                                 *      *              *      *
+                                3*      * 7  --->     2*      * 6    
+                                 *      *              *      *
+                                4 *    * 6            3 *    * 5 
+                                   ****                  ****  
+                                    5                     4
+                            
+                            
+                        */
                     }
 
                     float absorberCorrection(1.);
