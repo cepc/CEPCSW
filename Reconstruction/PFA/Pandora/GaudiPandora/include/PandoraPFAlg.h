@@ -279,6 +279,8 @@ protected:
   NTuple::Array<float> m_mc_charge;
 
 
+  Gaudi::Property<int> m_max_mc {this, "max_mc", 1000,""};
+  Gaudi::Property<int> m_max_rec {this, "max_rec", 1000,""};
 
   
   Gaudi::Property<bool> m_debug {this, "debug", false,"if do debug"};

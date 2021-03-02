@@ -438,7 +438,8 @@ pandora::StatusCode CaloHitCreator::CreateHCalCaloHits(const CollectionMaps& col
                     PandoraApi::CaloHit::Parameters caloHitParameters;
                     caloHitParameters.m_hitType = pandora::HCAL;
                     caloHitParameters.m_isDigital = false;// if it is DHCAL or AHCAL
-                    caloHitParameters.m_layer = m_settings.m_use_dd4hep_decoder == false ? cellIdDecoder(pCaloHit)[layerCoding.c_str()] : m_decoder->get(pCaloHit->getCellID(), "layer");
+                    caloHitParameters.m_layer = m_settings.m_use_dd4hep_decoder == false ? cellIdDecoder(pCaloHit)[layerCoding.c_str()]+1 : m_decoder->get(pCaloHit->getCellID(), "layer");//from 1 to 40
+                    //std::cout<<"HCAL layer="<<caloHitParameters.m_layer.Get()<<std::endl;
                     caloHitParameters.m_isInOuterSamplingLayer = (this->GetNLayersFromEdge(pCaloHit) <= m_settings.m_nOuterSamplingLayers);
                     this->GetCommonCaloHitProperties(pCaloHit, caloHitParameters);
                     int Stave = 0 ; 
@@ -447,7 +448,20 @@ pandora::StatusCode CaloHitCreator::CreateHCalCaloHits(const CollectionMaps& col
                     }
                     else{
                         Stave = m_decoder->get(pCaloHit->getCellID(), "stave");
-                        Stave = Stave <=2 ? Stave+5 : Stave-3 ;//FIXME , need check!!
+                        Stave = Stave ==0 ? Stave+7 : Stave-1 ;//correct, same with LCIO  
+                        /*
+                                    1                     0
+                                   ****                  ****
+                                2 *    * 0            1 *    * 7
+                                 *      *              *      *
+                                3*      * 7  --->     2*      * 6    
+                                 *      *              *      *
+                                4 *    * 6            3 *    * 5 
+                                   ****                  ****  
+                                    5                     4
+                            
+                            
+                        */
                     }
 
                     float absorberCorrection(1.);
@@ -550,15 +564,26 @@ pandora::StatusCode CaloHitCreator::CreateMuonCaloHits(const CollectionMaps& col
                     PandoraApi::CaloHit::Parameters caloHitParameters;
                     caloHitParameters.m_hitType = pandora::MUON;
                     caloHitParameters.m_layer = m_settings.m_use_dd4hep_decoder == false ? cellIdDecoder(pCaloHit)[layerCoding.c_str()] + 1 : m_decoder->get(pCaloHit->getCellID(), "layer");
+                    //std::cout<<"Muon layer="<<caloHitParameters.m_layer.Get()<<std::endl;
                     caloHitParameters.m_isInOuterSamplingLayer = true;
                     this->GetCommonCaloHitProperties(pCaloHit, caloHitParameters);
                     int Stave = 0 ; 
                     if (m_settings.m_use_dd4hep_decoder == false){
                         Stave = cellIdDecoder(pCaloHit)[ staveCoding];
+                        /*
+                        float tmp_x = pCaloHit->getPosition()[0];
+                        float tmp_y = pCaloHit->getPosition()[1];
+                        float tmp_z = pCaloHit->getPosition()[2];
+                        float tmp_phi = atan(tmp_y/tmp_x)*180/acos(-1);
+                        if(tmp_x<0) tmp_phi += 180;
+                        if(tmp_x>0 && tmp_y<0) tmp_phi += 360;
+                        if(abs(tmp_z) < 2000 )std::cout<<"Muon ILC Stave="<<Stave<<",phi="<<tmp_phi<<std::endl;
+                        */
                     }
                     else{
                         Stave = m_decoder->get(pCaloHit->getCellID(), "stave");
-                        Stave = Stave <=2 ? Stave+5 : Stave-3 ;//FIXME , need check!!
+                        Stave = 12 - Stave ;//correct to be same with LCIO
+                        if(Stave<0) throw("throw wrong stave number?");
                     }
 
                     const float radius(std::sqrt(pCaloHit->getPosition()[0] * pCaloHit->getPosition()[0] +
