@@ -80,8 +80,8 @@
 
   <readouts>
     <readout name="EcalEndcapsCollection">
-      <segmentation type="MegatileLayerGridXY" grid_size_x="10.1667*mm" grid_size_y="10.1667*mm"/>
-      <id>system:5,module:3,stave:4,tower:5,layer:6,wafer:6,cellX:32:-16,cellY:-16</id>
+      <segmentation type="WaferGridXY" grid_size_x="10.1667*mm" grid_size_y="10.1667*mm" offset_x="2*mm" offset_y="-1.0999755859375*mm"/>
+      <id>system:5,module:3,stave:4,tower:5,layer:6,wafer:6,x:32:-16,y:-16</id>
     </readout>
   </readouts>
 

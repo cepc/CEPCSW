@@ -2,12 +2,14 @@
 #include "GaudiKernel/IEventProcessor.h"
 #include "GaudiKernel/IAppMgrUI.h"
 #include "GaudiKernel/GaudiException.h"
+#include "GaudiKernel/IRndmEngine.h"
 
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
 
+#include "Randomize.hh"
 #include "DetectorConstruction.h"
 #include "G4PhysListFactory.hh"
 #include "G4EmParameters.hh"
@@ -29,6 +31,15 @@ DetSimAlg::initialize() {
     StatusCode sc;
 
     info() << "Initialize DetSimAlg... " << endmsg;
+
+    // Initialize random seed
+    if (not m_randomSeeds.empty()) {
+        randSvc()->engine()->setSeeds( m_randomSeeds );
+    }
+
+    info() << "Random Seed is initialized to "
+           << G4Random::getTheSeed()
+           << " in Geant4" << endmsg;
 
     m_detsimsvc = service("DetSimSvc");
     if (!m_detsimsvc) {

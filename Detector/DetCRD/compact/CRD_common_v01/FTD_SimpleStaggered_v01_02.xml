@@ -9,7 +9,6 @@
     <constant name="FTD_min_z_2" value="SIT1_half_length   + env_safety"/>
     <constant name="FTD_cone_min_z" value="BeamPipe_CentralAl_zmax"/>
     <constant name="FTD_cone_radius" value="FTD_half_length*tan(CrossingAngle/2) + BeamPipe_Dnstream_inner_radius + BeamPipe_Cu_thickness + FTD_BeamPipe_cable_clearance/2"/>
-    <!--FTD_inner_radius/(BeamPipe_ConeAl_zmax-BeamPipe_CentralAl_zmax)*(FTD_half_length-BeamPipe_CentralAl_zmax)"/-->
     <constant name="petal_cp_support_thickness" value="2.0*mm"/>
     <constant name="petal_support_zoffset" value="1.5*mm"/>
     <constant name="FTD1_vtx3_distance_z" value="95*mm"/>
@@ -56,8 +55,8 @@
       <extended_reconstruction_parameters strip_width="0.001*mm" strip_length="250*mm" strip_pitch="0.01*mm" strip_angle="5*deg"  />
 
       <!-- SQL command: "select * from disks;"  -->
-      <disk disk_number="1" z_position_ReltoTPCLength="0" disk_si_thickness="0.02*mm" petal_cp_support_dxMax="71.8*mm" padUp_Si_dxMax="68*mm" petal_cp_support_thickness="1*mm" petal_support_zoffset="1.5*mm" sensor_is_pixel="1" double_sided="0"  />
-      <disk disk_number="2" z_position_ReltoTPCLength="FTD_disk2_zPosRelToDCLength" disk_si_thickness="0.02*mm" petal_cp_support_dxMax="71.8*mm" padUp_Si_dxMax="68*mm" petal_cp_support_thickness="1*mm" petal_support_zoffset="1.5*mm" sensor_is_pixel="1" double_sided="0"  />
+      <disk disk_number="1" z_position_ReltoTPCLength="0" disk_si_thickness="0.02*mm" petal_cp_support_dxMax="62.*mm" padUp_Si_dxMax="58*mm" petal_cp_support_thickness="1*mm" petal_support_zoffset="1.5*mm" sensor_is_pixel="1" double_sided="0"  />
+      <disk disk_number="2" z_position_ReltoTPCLength="FTD_disk2_zPosRelToDCLength" disk_si_thickness="0.02*mm" petal_cp_support_dxMax="62.*mm" padUp_Si_dxMax="58*mm" petal_cp_support_thickness="1*mm" petal_support_zoffset="1.5*mm" sensor_is_pixel="1" double_sided="0"  />
       <disk disk_number="3" z_position_ReltoTPCLength="FTD_disk3_zPosRelToDCLength" disk_si_thickness="0.2*mm" petal_cp_support_dxMax="103.49*mm" padUp_Si_dxMax="99.46*mm" petal_cp_support_thickness="2*mm" petal_support_zoffset="1.5*mm" sensor_is_pixel="0" double_sided="1"  />
       <disk disk_number="4" z_position_ReltoTPCLength="FTD_disk4_zPosRelToDCLength" disk_si_thickness="0.2*mm" petal_cp_support_dxMax="103.49*mm" padUp_Si_dxMax="99.46*mm" petal_cp_support_thickness="2*mm" petal_support_zoffset="1.5*mm" sensor_is_pixel="0" double_sided="1"  />
       <disk disk_number="5" z_position_ReltoTPCLength="FTD_disk5_zPosRelToDCLength" disk_si_thickness="0.2*mm" petal_cp_support_dxMax="103.49*mm" padUp_Si_dxMax="99.46*mm" petal_cp_support_thickness="2*mm" petal_support_zoffset="1.5*mm" sensor_is_pixel="0" double_sided="1"  />

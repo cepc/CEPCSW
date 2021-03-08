@@ -51,7 +51,10 @@
 
   <readouts>
     <readout name="EcalEndcapRingCollection">
-      <segmentation type="CartesianGridXY" grid_size_x="Ecal_cells_size" grid_size_y="Ecal_cells_size"/>
+
+      <segmentation type="CartesianGridXY" grid_size_x="Ecal_cells_size" grid_size_y="Ecal_cells_size"
+		    offset_x="-0.5*Ecal_ECRing_Siplate_Size+0.5*Ecal_cells_size" offset_y="-0.5*Ecal_ECRing_Siplate_Size+0.5*Ecal_cells_size"/>
+
       <id>system:5,module:3,stave:4,tower:3,layer:6,x:32:-16,y:-16</id>
     </readout>
   </readouts>

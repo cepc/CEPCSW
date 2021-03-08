@@ -11,9 +11,14 @@ from Gaudi.Configuration import *
 ##############################################################################
 from Configurables import RndmGenSvc, HepRndm__Engine_CLHEP__RanluxEngine_
 
-rndmengine = HepRndm__Engine_CLHEP__HepJamesRandom_() # The default engine in Geant4
+seed = [42]
+
+rndmengine = HepRndm__Engine_CLHEP__HepJamesRandom_("RndmGenSvc.Engine") # The default engine in Geant4
 rndmengine.SetSingleton = True
-rndmengine.Seeds = [42]
+rndmengine.Seeds = seed
+
+rndmgensvc = RndmGenSvc("RndmGenSvc")
+rndmgensvc.Engine = rndmengine.name()
 
 ##############################################################################
 # Event Data Svc
@@ -87,7 +92,9 @@ from Configurables import DetSimSvc
 detsimsvc = DetSimSvc("DetSimSvc")
 from Configurables import DetSimAlg
 detsimalg = DetSimAlg("DetSimAlg")
-detsimalg.VisMacs = ["Examples/options/vis.mac"]
+detsimalg.RandomSeeds = seed
+
+# detsimalg.VisMacs = ["Examples/options/vis.mac"]
 detsimalg.RunCmds = [
 #    "/tracking/verbose 1",
 ]
@@ -173,6 +180,6 @@ ApplicationMgr(
         #TopAlg = [genalg, detsimalg, example_CaloDigiAlg, pandoralg],
         EvtSel = 'NONE',
         EvtMax = 50,
-        ExtSvc = [rndmengine, dsvc, geosvc, gearSvc,detsimsvc],
+        ExtSvc = [rndmengine, rndmgensvc, dsvc, geosvc, gearSvc,detsimsvc],
         OutputLevel=INFO
 )

@@ -109,8 +109,8 @@ StatusCode PandoraPFAlg::initialize()
       else {
           m_tuple = ntupleSvc()->book( "MyTuples/Pan_reco_evt", CLID_ColumnWiseTuple, "Pan_reco_evt" );
           if ( m_tuple ) {
-            m_tuple->addItem( "N_mc" , m_n_mc , 0, 1000 ).ignore();
-            m_tuple->addItem( "N_rec", m_n_rec, 0, 1000 ).ignore();
+            m_tuple->addItem( "N_mc" , m_n_mc , 0, m_max_mc.value() ).ignore();
+            m_tuple->addItem( "N_rec", m_n_rec, 0, m_max_rec.value()).ignore();
             m_tuple->addItem( "m_pReco_PID"   , m_n_rec, m_pReco_PID    ).ignore();
             m_tuple->addItem( "m_pReco_mass"  , m_n_rec, m_pReco_mass   ).ignore();
             m_tuple->addItem( "m_pReco_energy", m_n_rec, m_pReco_energy ).ignore();
@@ -220,10 +220,10 @@ StatusCode PandoraPFAlg::initialize()
   // Name of PFO collection written by GaudiPandora
   
   m_pfoCreatorSettings.m_debug = m_debug;
-  m_pfoCreatorSettings.m_clusterCollectionName = m_ClusterCollectionName;// not used  
-  m_pfoCreatorSettings.m_pfoCollectionName = m_PFOCollectionName;//
-  m_pfoCreatorSettings.m_startVertexCollectionName = m_StartVertexCollectionName; //
-  m_pfoCreatorSettings.m_startVertexAlgName = m_StartVertexAlgorithmName;//
+  m_pfoCreatorSettings.m_clusterCollectionName = m_ClusterCollectionName; 
+  m_pfoCreatorSettings.m_pfoCollectionName = m_PFOCollectionName;
+  m_pfoCreatorSettings.m_startVertexCollectionName = m_StartVertexCollectionName; 
+  m_pfoCreatorSettings.m_startVertexAlgName = m_StartVertexAlgorithmName;
    
   m_pfoCreatorSettings.m_emStochasticTerm = m_EMStochasticTerm;
   m_pfoCreatorSettings.m_hadStochasticTerm = m_HadStochasticTerm;
@@ -283,6 +283,7 @@ StatusCode PandoraPFAlg::initialize()
   
   
   // Additional geometry parameters
+  m_geometryCreatorSettings.m_use_dd4hep_geo             = m_use_dd4hep_geo;
   m_geometryCreatorSettings.m_eCalEndCapInnerSymmetryOrder = m_ECalEndCapInnerSymmetryOrder;
   m_geometryCreatorSettings.m_eCalEndCapInnerPhiCoordinate = m_ECalEndCapInnerPhiCoordinate;
   m_geometryCreatorSettings.m_eCalEndCapOuterSymmetryOrder = m_ECalEndCapOuterSymmetryOrder;
@@ -295,8 +296,15 @@ StatusCode PandoraPFAlg::initialize()
   m_geometryCreatorSettings.m_hCalRingInnerPhiCoordinate = m_HCalRingInnerPhiCoordinate;
   m_geometryCreatorSettings.m_hCalRingOuterSymmetryOrder = m_HCalRingOuterSymmetryOrder; 
   m_geometryCreatorSettings.m_hCalRingOuterPhiCoordinate = m_HCalRingOuterPhiCoordinate;
-  m_geometryCreatorSettings.m_use_dd4hep_geo             = m_use_dd4hep_geo;
-  
+  if(m_use_dd4hep_geo){
+       std::cout<<"get hCalEndCapInner geo info from dd4hep."<<std::endl;
+       //Get HCal Endcap extension by type, ignore plugs and rings 
+       const dd4hep::rec::LayeredCalorimeterData * hCalEndcapExtension= PanUtil::getExtension( ( dd4hep::DetType::CALORIMETER | dd4hep::DetType::HADRONIC | dd4hep::DetType::ENDCAP),( dd4hep::DetType::AUXILIARY |  dd4hep::DetType::FORWARD ) );
+       if(hCalEndcapExtension){
+           m_geometryCreatorSettings.m_hCalEndCapInnerSymmetryOrder = hCalEndcapExtension->inner_symmetry;
+           m_geometryCreatorSettings.m_hCalEndCapInnerPhiCoordinate = hCalEndcapExtension->inner_phi0/dd4hep::rad;
+       }
+  }
   // For Strip Splitting method and also for hybrid ECAL
   m_caloHitCreatorSettings.m_stripSplittingOn = m_StripSplittingOn;
   m_caloHitCreatorSettings.m_useEcalScLayers = m_UseEcalScLayers;
@@ -474,11 +482,12 @@ StatusCode PandoraPFAlg::updateMap()
                     std::vector<edm4hep::MCParticle> v_mc;
                     m_CollectionMaps->collectionMap_MC [v.first] = v_mc;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_MC [v.first].push_back(po->at(i));
-                    std::cout<<"saved col name="<<v.first<<std::endl;
+                    debug()<<"saved col name="<<v.first<<endmsg;
                 }
                 else{
-                std::cout<<"don't find col name="<<v.first<<std::endl;
+                    debug()<<"don't find col name="<<v.first<<endmsg;
                 }
+                
             }
             else if(m_collections[v.first]=="CalorimeterHit"){
                 auto handle = dynamic_cast<DataHandle<edm4hep::CalorimeterHitCollection>*> (v.second);
@@ -487,11 +496,12 @@ StatusCode PandoraPFAlg::updateMap()
                     std::vector<edm4hep::CalorimeterHit> v_cal;
                     m_CollectionMaps->collectionMap_CaloHit[v.first] = v_cal ;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_CaloHit [v.first].push_back(po->at(i));
-                    std::cout<<"saved col name="<<v.first<<std::endl;
+                    debug()<<"saved col name="<<v.first<<endmsg;
                 }
                 else{
-                std::cout<<"don't find col name="<<v.first<<std::endl;
+                    debug()<<"don't find col name="<<v.first<<endmsg;
                 }
+                
             }
             else if(m_collections[v.first]=="Track"){
                 auto handle = dynamic_cast<DataHandle<edm4hep::TrackCollection>*> (v.second);
@@ -500,12 +510,13 @@ StatusCode PandoraPFAlg::updateMap()
                     std::vector<edm4hep::Track> v_cal;
                     m_CollectionMaps->collectionMap_Track[v.first] = v_cal ;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_Track [v.first].push_back(po->at(i));
-                    std::cout<<"saved col name="<<v.first<<std::endl;
+                    debug() <<"saved col name="<<v.first<<endmsg;
                     m_marlinTrack = po->size();
                 }
                 else{
-                std::cout<<"don't find col name="<<v.first<<std::endl;
+                    debug()<<"don't find col name="<<v.first<<endmsg;
                 }
+                
             }
             else if(m_collections[v.first]=="Vertex"){
                 auto handle = dynamic_cast<DataHandle<edm4hep::VertexCollection>*> (v.second);
@@ -514,11 +525,12 @@ StatusCode PandoraPFAlg::updateMap()
                     std::vector<edm4hep::Vertex> v_cal;
                     m_CollectionMaps->collectionMap_Vertex[v.first] = v_cal ;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_Vertex [v.first].push_back(po->at(i));
-                    std::cout<<"saved col name="<<v.first<<std::endl;
+                    debug() <<"saved col name="<<v.first<<endmsg;
                 }
                 else{
-                std::cout<<"don't find col name="<<v.first<<std::endl;
+                    debug()<<"don't find col name="<<v.first<<endmsg;
                 }
+                
             }
             else if(m_collections[v.first]=="MCRecoCaloAssociation"){
                 auto handle = dynamic_cast<DataHandle<edm4hep::MCRecoCaloAssociationCollection>*> (v.second);
@@ -527,11 +539,12 @@ StatusCode PandoraPFAlg::updateMap()
                     std::vector<edm4hep::MCRecoCaloAssociation> v_cal;
                     m_CollectionMaps->collectionMap_CaloRel[v.first] = v_cal ;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_CaloRel [v.first].push_back(po->at(i));
-                    std::cout<<"saved col name="<<v.first<<std::endl;
+                    debug() <<"saved col name="<<v.first<<endmsg;
                 }
                 else{
-                std::cout<<"don't find col name="<<v.first<<std::endl;
+                    debug()<<"don't find col name="<<v.first<<endmsg;
                 }
+                
             }
             else if(m_collections[v.first]=="MCRecoTrackerAssociation"){
                 auto handle = dynamic_cast<DataHandle<edm4hep::MCRecoTrackerAssociationCollection>*> (v.second);
@@ -540,19 +553,20 @@ StatusCode PandoraPFAlg::updateMap()
                     std::vector<edm4hep::MCRecoTrackerAssociation> v_cal;
                     m_CollectionMaps->collectionMap_TrkRel[v.first] = v_cal ;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_TrkRel [v.first].push_back(po->at(i));
-                    std::cout<<"saved col name="<<v.first<<std::endl;
+                    debug() <<"saved col name="<<v.first<<endmsg;
                 }
                 else{
-                std::cout<<"don't find col name="<<v.first<<std::endl;
+                    debug()<<"don't find col name="<<v.first<<endmsg;
                 }
+                
             }
             else{
             std::cout<<"wrong type name for col :"<<v.first<<std::endl;
             }
         }//try
         catch(...){
-            std::cout<<"don't find "<<v.first<<"in event"<<std::endl;
-            std::cout<<"don't find  col name="<<v.first<<",with type="<<m_collections[v.first]<<" in this event"<<std::endl;
+            debug() <<"don't find "<<v.first<<" in event"<<endmsg;
+            debug() <<"don't find  col name="<<v.first<<",with type="<<m_collections[v.first]<<" in this event"<<endmsg;
         }
     }
     return StatusCode::SUCCESS;
@@ -569,6 +583,7 @@ StatusCode PandoraPFAlg::Ana()
     const edm4hep::MCRecoParticleAssociationCollection* reco_associa_col = m_MCRecoParticleAssociation_w.get();
     for(int i=0; i<reco_col->size();i++)
     {
+        if( m_n_rec >= m_max_rec) break;
         const edm4hep::ReconstructedParticle pReco = reco_col->at(i);
         const float px = pReco.getMomentum()[0];
         const float py = pReco.getMomentum()[1];
@@ -585,11 +600,11 @@ StatusCode PandoraPFAlg::Ana()
         m_pReco_py    [m_n_rec]=py;
         m_pReco_pz    [m_n_rec]=pz;
         m_n_rec ++ ;
-        if(m_debug) std::cout<<"rec type="<<type<<",energy="<<energy<<std::endl;
+        debug() <<"rec type="<<type<<",energy="<<energy<<endmsg;
         for(int j=0; j < reco_associa_col->size(); j++)
         {
             if(reco_associa_col->at(j).getRec().id() != pReco.id() ) continue;
-            if(m_debug) std::cout<<"MC pid ="<<reco_associa_col->at(j).getSim().getPDG()<<",weight="<<reco_associa_col->at(j).getWeight()<<", px="<<reco_associa_col->at(j).getSim().getMomentum()[0]<<", py="<<reco_associa_col->at(j).getSim().getMomentum()[1]<<",pz="<<reco_associa_col->at(j).getSim().getMomentum()[2]<<std::endl;
+            debug() <<"MC pid ="<<reco_associa_col->at(j).getSim().getPDG()<<",weight="<<reco_associa_col->at(j).getWeight()<<", px="<<reco_associa_col->at(j).getSim().getMomentum()[0]<<", py="<<reco_associa_col->at(j).getSim().getMomentum()[1]<<",pz="<<reco_associa_col->at(j).getSim().getMomentum()[2]<<endmsg;
         }
     }
     const edm4hep::MCParticleCollection*     MCParticle = nullptr;
@@ -598,6 +613,8 @@ StatusCode PandoraPFAlg::Ana()
     { 
         for(unsigned int i=0 ; i< MCParticle->size(); i++)
         {
+            if( m_n_mc >= m_max_mc) break;
+            if( MCParticle->at(i).parents_size() !=0 ) continue;// only save primary
             m_mc_p_size[m_n_mc] = MCParticle->at(i).parents_size();
             m_mc_pid   [m_n_mc] = MCParticle->at(i).getPDG();
             m_mc_mass  [m_n_mc] = MCParticle->at(i).getMass();
@@ -606,7 +623,7 @@ StatusCode PandoraPFAlg::Ana()
             m_mc_pz    [m_n_mc] = MCParticle->at(i).getMomentum()[2];
             m_mc_charge[m_n_mc] = MCParticle->at(i).getCharge();
             float mc_E = sqrt( MCParticle->at(i).getMass()*MCParticle->at(i).getMass() + MCParticle->at(i).getMomentum()[0]*MCParticle->at(i).getMomentum()[0] + MCParticle->at(i).getMomentum()[1]*MCParticle->at(i).getMomentum()[1] + MCParticle->at(i).getMomentum()[2]*MCParticle->at(i).getMomentum()[2]);
-            if(m_debug) std::cout<<"mc type="<<MCParticle->at(i).getPDG()<<",energy="<<mc_E<<std::endl;
+            //debug() <<"mc type="<<MCParticle->at(i).getPDG()<<",energy="<<mc_E<<",m_mc_p_size="<<m_mc_p_size->size()<<endmsg;
             m_n_mc ++ ;
             if (MCParticle->at(i).getPDG() != 22) continue;
             int hasEm = 0;

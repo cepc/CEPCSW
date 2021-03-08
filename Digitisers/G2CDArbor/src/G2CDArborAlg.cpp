@@ -494,8 +494,8 @@ StatusCode G2CDArborAlg::execute()
               // get the DD4hep readout
               m_decoder = m_geosvc->getDecoder(tmp_readout);
               if (!m_decoder) {
-                error() << "Failed to get the decoder. " << endmsg;
-                return StatusCode::FAILURE;
+                error() << "Failed to get the decoder. Skip this collection:"<<m_ecalColNames.value().at(k0)<< endmsg;
+                continue;
               }
           }
 
@@ -618,7 +618,7 @@ StatusCode G2CDArborAlg::execute()
      	  for(auto SimHcalhit: *Hcalcol){
      	  //      SimCalorimeterHit * SimHcalhit = dynamic_cast<SimCalorimeterHit*>( Hcalcol->getElementAt( k4 ) ) ;
 
-     	       cout<<"hcal"<<endl;
+     	       //cout<<"hcal"<<endl;
      	       currTime = 0;
      	       EmaxStep = 0;
      	       HitStepEn = 0;

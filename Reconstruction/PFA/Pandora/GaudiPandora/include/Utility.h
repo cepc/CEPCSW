@@ -9,7 +9,7 @@
 #include "DD4hep/DetectorSelector.h"
 namespace PanUtil{
     std::string Convert (float number);
-    dd4hep::rec::LayeredCalorimeterData * getExtension(unsigned int includeFlag, unsigned int excludeFlag) ;
+    dd4hep::rec::LayeredCalorimeterData * getExtension(unsigned int includeFlag, unsigned int excludeFlag=0) ;
     void line_a_b(float x1, float y1, float x2, float y2, float& a, float& b);
     float getPhi(float x, float y);
     int partition(float x, float y);

@@ -40,7 +40,7 @@ class GeomSvc: public extends<Service, IGeomSvc> {
   const dd4hep::rec::ConicalSupportData* getBeamPipeData() override {return m_beamPipeData;};
 
   const std::map<std::string,double>& getDetParameters(std::string name) override;
-  const double getDetParameter(std::string set_name, std::string par_name) override;
+  double getDetParameter(std::string set_name, std::string par_name) override;
   TMaterial* getMaterial(std::string name);
   
  private:

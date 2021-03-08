@@ -12,13 +12,15 @@ from Gaudi.Configuration import *
 ##############################################################################
 from Configurables import RndmGenSvc, HepRndm__Engine_CLHEP__RanluxEngine_
 
-# rndmengine = HepRndm__Engine_CLHEP__RanluxEngine_() # The default engine in Gaudi
-rndmengine = HepRndm__Engine_CLHEP__HepJamesRandom_() # The default engine in Geant4
-rndmengine.SetSingleton = True
-rndmengine.Seeds = [42]
+seed = [42]
 
-# rndmgensvc = RndmGenSvc("RndmGenSvc")
-# rndmgensvc.Engine = rndmengine.name()
+# rndmengine = HepRndm__Engine_CLHEP__RanluxEngine_() # The default engine in Gaudi
+rndmengine = HepRndm__Engine_CLHEP__HepJamesRandom_("RndmGenSvc.Engine") # The default engine in Geant4
+rndmengine.SetSingleton = True
+rndmengine.Seeds = seed
+
+rndmgensvc = RndmGenSvc("RndmGenSvc")
+rndmgensvc.Engine = rndmengine.name()
 
 
 ##############################################################################
@@ -112,6 +114,7 @@ detsimsvc = DetSimSvc("DetSimSvc")
 from Configurables import DetSimAlg
 
 detsimalg = DetSimAlg("DetSimAlg")
+detsimalg.RandomSeeds = seed
 
 if int(os.environ.get("VIS", 0)):
     detsimalg.VisMacs = ["vis.mac"]
@@ -176,7 +179,7 @@ dCHDigiAlg.WriteAna  = True
 from Configurables import TruthTrackerAlg
 truthTrackerAlg = TruthTrackerAlg("TruthTrackerAlg")
 truthTrackerAlg.DCHitAssociationCollection="DCHAssociationCollectio"
-truthTrackerAlg.debug = 1
+# truthTrackerAlg.debug = 1
 
 ##############################################################################
 # POD I/O
@@ -194,7 +197,7 @@ from Configurables import ApplicationMgr
 ApplicationMgr( TopAlg = [genalg, detsimalg, dCHDigiAlg, truthTrackerAlg, out],
                 EvtSel = 'NONE',
                 EvtMax = 10,
-                ExtSvc = [rndmengine, dsvc, geosvc],
+                ExtSvc = [rndmengine, rndmgensvc, dsvc, geosvc],
                 HistogramPersistency = "ROOT",
                 OutputLevel=INFO
 )
