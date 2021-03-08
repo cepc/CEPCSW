@@ -42,6 +42,7 @@ public:
   virtual ~GridDriftChamber() = default;
 
   virtual Vector3D position(const CellID& aCellID) const;
+//  virtual int LayerID(const Vector3D& aGlobalPosition) const;
   virtual CellID cellID(const Vector3D& aLocalPosition, const Vector3D& aGlobalPosition,
                         const VolumeID& aVolumeID) const;
   virtual double distanceTrackWire(const CellID& cID, const TVector3& hit_start, const TVector3& hit_end) const;
@@ -51,7 +52,12 @@ public:
   inline double cell_Size() const { return m_cellSize; }
   inline double epsilon0() const { return m_epsilon0; }
   inline double detectorLength() const { return m_detectorLength; }
+  inline double DC_inner_rmin() const { return m_DC_inner_rmin; }
+  inline double DC_inner_rmax() const { return m_DC_inner_rmax; }
+  inline double DC_outer_rmin() const { return m_DC_outer_rmin; }
+  inline double DC_outer_rmax() const { return m_DC_outer_rmax; }
   inline const std::string& fieldNamePhi() const { return m_phiID; }
+  inline const std::string& Layerid() const { return layer_id; }
   // Setters
 
   inline double phiFromXY(const Vector3D& aposition) const {
@@ -113,11 +119,6 @@ public:
     m_offset = offset;
  }
 
-// inline double returnAlpha() const {
-//   double alpha = 2 * std::asin(m_detectorLength * std::tan(m_epsilon0)/(2 * _currentRadius));
-//   return alpha;
-// }
-
 protected:
 
   double phi(const CellID& cID) const;
@@ -140,7 +141,12 @@ protected:
   double m_cellSize;
   double m_epsilon0;
   double m_detectorLength;
+  double m_DC_inner_rmin;
+  double m_DC_inner_rmax;
+  double m_DC_outer_rmin;
+  double m_DC_outer_rmax;
   std::string m_phiID;
+  std::string layer_id;
 
   // Current parameters of the layer: sizePhi
   mutable double _currentLayerphi;

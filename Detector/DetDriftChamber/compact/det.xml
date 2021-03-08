@@ -35,12 +35,14 @@
     <constant name="SDT_length" value="SDT_half_length*2"/>
     <constant name="DC_length" value="SDT_length-DC_Endcap_dz*2"/>
 
-    <constant name="SDT_inner_chamber_radius_min" value="235*mm"/>
+    <constant name="DC_safe_distance" value="0.02*mm"/>
+
+    <constant name="SDT_inner_chamber_radius_min" value="235*mm-DC_safe_distance"/>
     <constant name="SDT_inner_chamber_radius_max" value="906*mm"/>
     <constant name="SDT_inner_chamber_length" value="DC_length"/>
 
-    <constant name="SDT_outer_chamber_radius_min" value="1085*mm"/>
-    <constant name="SDT_outer_chamber_radius_max" value="1715*mm"/>
+    <constant name="SDT_outer_chamber_radius_min" value="1085*mm-DC_safe_distance"/>
+    <constant name="SDT_outer_chamber_radius_max" value="1715*mm+DC_safe_distance"/>
     <constant name="SDT_outer_chamber_length" value="DC_length"/>
 
     <constant name="SDT_inner_chamber_layer_number" value="67"/>
@@ -48,14 +50,14 @@
     <constant name="SDT_chamber_layer_width" value="10*mm"/>
     <constant name="Epsilon" value="0*deg"/>
 
-    <constant name="SDT_inner_chamber_inner_wall_radius_min" value="234.8*mm"/>
-    <constant name="SDT_inner_chamber_inner_wall_radius_max" value="235*mm"/>
+    <constant name="SDT_inner_chamber_inner_wall_radius_min" value="234.6*mm"/>
+    <constant name="SDT_inner_chamber_inner_wall_radius_max" value="234.8*mm"/>
     <constant name="SDT_inner_chamber_outer_wall_radius_min" value="906*mm"/>
     <constant name="SDT_inner_chamber_outer_wall_radius_max" value="908.8*mm"/>
-    <constant name="SDT_outer_chamber_inner_wall_radius_min" value="1084.8*mm"/>
-    <constant name="SDT_outer_chamber_inner_wall_radius_max" value="1085*mm"/>
-    <constant name="SDT_outer_chamber_outer_wall_radius_min" value="1715*mm"/>
-    <constant name="SDT_outer_chamber_outer_wall_radius_max" value="1717.8*mm"/>
+    <constant name="SDT_outer_chamber_inner_wall_radius_min" value="1084*mm"/>
+    <constant name="SDT_outer_chamber_inner_wall_radius_max" value="1084.2*mm"/>
+    <constant name="SDT_outer_chamber_outer_wall_radius_min" value="1716*mm"/>
+    <constant name="SDT_outer_chamber_outer_wall_radius_max" value="1718.8*mm"/>
 
     <constant name="DC_Endcap_rmin" value="SDT_radius_min"/>
     <constant name="DC_Endcap_rmax" value="SDT_radius_max"/>
@@ -86,7 +88,7 @@
       <envelope vis="SeeThrough">
         <shape type="BooleanShape" operation="Union" material="Air">
           <shape type="Tube" rmin="SDT_radius_min" rmax="909*mm" dz="SDT_half_length" />
-          <shape type="Tube" rmin="1084.8*mm" rmax="SDT_radius_max" dz="SDT_half_length" />
+          <shape type="Tube" rmin="SDT_outer_chamber_inner_wall_radius_min" rmax="SDT_radius_max" dz="SDT_half_length" />
         </shape>
       </envelope>
 
@@ -108,7 +110,7 @@
 
   <readouts>
     <readout name="DriftChamberHitsCollection">
-      <segmentation type="GridDriftChamber" cell_size="10*mm" epsilon0="Epsilon" detector_length="DC_length" identifier_phi="cellID" />
+      <segmentation type="GridDriftChamber" cell_size="10*mm" epsilon0="Epsilon" detector_length="DC_length" identifier_phi="cellID" DC_inner_rmin="SDT_inner_chamber_radius_min" DC_inner_rmax="SDT_inner_chamber_radius_max" DC_outer_rmin="SDT_outer_chamber_radius_min" DC_outer_rmax="SDT_outer_chamber_radius_max" layerID="layer"/>
 
       <id>system:8,chamber:1,layer:8,cellID:16</id>
     </readout>
