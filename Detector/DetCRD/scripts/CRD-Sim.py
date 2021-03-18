@@ -5,10 +5,15 @@ from Configurables import k4DataSvc
 dsvc = k4DataSvc("EventDataSvc")
 
 from Configurables import RndmGenSvc, HepRndm__Engine_CLHEP__RanluxEngine_
+
+seed = [10]
 # rndmengine = HepRndm__Engine_CLHEP__RanluxEngine_() # The default engine in Gaudi
-rndmengine = HepRndm__Engine_CLHEP__HepJamesRandom_() # The default engine in Geant4
+rndmengine = HepRndm__Engine_CLHEP__HepJamesRandom_("RndmGenSvc.Engine") # The default engine in Geant4
 rndmengine.SetSingleton = True
-rndmengine.Seeds = [10]
+rndmengine.Seeds = seed
+
+rndmgensvc = RndmGenSvc("RndmGenSvc")
+rndmgensvc.Engine = rndmengine.name()
 
 #geometry_option = "CRD_o1_v01/CRD_o1_v01.xml"
 geometry_option = "CRD_o1_v02/CRD_o1_v02.xml"
@@ -72,6 +77,7 @@ detsimsvc = DetSimSvc("DetSimSvc")
 
 from Configurables import DetSimAlg
 detsimalg = DetSimAlg("DetSimAlg")
+detsimalg.RandomSeeds = seed
 # detsimalg.VisMacs = ["vis.mac"]
 detsimalg.RunCmds = [
 #    "/tracking/verbose 1",
@@ -95,6 +101,6 @@ ApplicationMgr(
     TopAlg = [genalg, detsimalg, out],
     EvtSel = 'NONE',
     EvtMax = 100,
-    ExtSvc = [rndmengine, dsvc, geosvc],
+    ExtSvc = [rndmengine, rndmgensvc, dsvc, geosvc],
     OutputLevel=INFO
 )

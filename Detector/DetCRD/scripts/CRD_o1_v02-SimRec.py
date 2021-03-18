@@ -5,10 +5,14 @@ from Configurables import k4DataSvc
 dsvc = k4DataSvc("EventDataSvc")
 
 from Configurables import RndmGenSvc, HepRndm__Engine_CLHEP__RanluxEngine_
+seed = [10]
 # rndmengine = HepRndm__Engine_CLHEP__RanluxEngine_() # The default engine in Gaudi
-rndmengine = HepRndm__Engine_CLHEP__HepJamesRandom_() # The default engine in Geant4
+rndmengine = HepRndm__Engine_CLHEP__HepJamesRandom_("RndmGenSvc.Engine") # The default engine in Geant4
 rndmengine.SetSingleton = True
-rndmengine.Seeds = [10]
+rndmengine.Seeds = seed
+
+rndmgensvc = RndmGenSvc("RndmGenSvc")
+rndmgensvc.Engine = rndmengine.name()
 
 geometry_option = "CRD_o1_v02/CRD_o1_v02.xml"
 
@@ -66,6 +70,7 @@ detsimsvc = DetSimSvc("DetSimSvc")
 
 from Configurables import DetSimAlg
 detsimalg = DetSimAlg("DetSimAlg")
+detsimalg.RandomSeeds = seed
 # detsimalg.VisMacs = ["vis.mac"]
 detsimalg.RunCmds = [
 #    "/tracking/verbose 1",
@@ -200,7 +205,8 @@ full.FTDRawHits     = ftdhitname
 full.TPCTracks = "NULL" # add standalone TPC or DC track here
 full.SiTracks  = "SubsetTracks"
 full.OutputTracks  = "MarlinTrkTracks"
-full.OutputLevel = DEBUG
+full.SETHitToTrackDistance = 5.
+#full.OutputLevel = DEBUG
 
 #TODO: more reconstruction, PFA etc.
 
@@ -216,7 +222,7 @@ ApplicationMgr(
     TopAlg = [genalg, detsimalg, digiVXD, digiSIT, digiSET, digiFTD, spSET, spFTD, tracking, forward, subset, full, out],
     EvtSel = 'NONE',
     EvtMax = 10,
-    ExtSvc = [rndmengine, dsvc, evtseeder, geosvc, gearsvc, tracksystemsvc],
+    ExtSvc = [rndmengine, rndmgensvc, dsvc, evtseeder, geosvc, gearsvc, tracksystemsvc],
     HistogramPersistency = 'ROOT',
     OutputLevel = INFO
 )
