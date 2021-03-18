@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 from Gaudi.Configuration import *
 
-from Configurables import K4DataSvc
-dsvc = K4DataSvc("EventDataSvc")
+from Configurables import k4DataSvc
+dsvc = k4DataSvc("EventDataSvc")
 
 from Configurables import RndmGenSvc, HepRndm__Engine_CLHEP__RanluxEngine_
 # rndmengine = HepRndm__Engine_CLHEP__RanluxEngine_() # The default engine in Gaudi
@@ -10,7 +10,9 @@ rndmengine = HepRndm__Engine_CLHEP__HepJamesRandom_() # The default engine in Ge
 rndmengine.SetSingleton = True
 rndmengine.Seeds = [10]
 
-geometry_option = "CRD_o1_v01/CRD_o1_v01.xml"
+#geometry_option = "CRD_o1_v01/CRD_o1_v01.xml"
+geometry_option = "CRD_o1_v02/CRD_o1_v02.xml"
+#...
 
 if not os.getenv("DETCRDROOT"):
     print("Can't find the geometry. Please setup envvar DETCRDROOT." )
@@ -36,6 +38,10 @@ from Configurables import HepMCRdr
 from Configurables import GenPrinter
 gun = GtGunTool("GtGunTool")
 gun.Particles = ["mu-"]
+#gun.Particles = ["nu_e"]
+#gun.PositionXs = [0]
+#gun.PositionYs = [0]
+#gun.PositionZs = [0]
 gun.EnergyMins = [100.] # GeV
 gun.EnergyMaxs = [100.] # GeV
 gun.ThetaMins  = [0]    # deg
@@ -72,14 +78,15 @@ detsimalg.RunCmds = [
 ]
 detsimalg.AnaElems = [
     # example_anatool.name()
-    # "ExampleAnaElemTool"
+#    "ExampleAnaElemTool",
     "Edm4hepWriterAnaElemTool"
 ]
 detsimalg.RootDetElem = "WorldDetElemTool"
 
+# output
 from Configurables import PodioOutput
 out = PodioOutput("outputalg")
-out.filename = "CRD-o1-v01-sim00.root"
+out.filename = "CRD-oi-v0j-Sim00.root"
 out.outputCommands = ["keep *"]
 
 # ApplicationMgr
