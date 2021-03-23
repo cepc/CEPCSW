@@ -57,6 +57,10 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     int inner_chamber_layer_number = theDetector.constant<int>("SDT_inner_chamber_layer_number");
     int outer_chamber_layer_number = theDetector.constant<int>("SDT_outer_chamber_layer_number");
     double chamber_layer_width  = theDetector.constant<double>("SDT_chamber_layer_width");
+    double inner_chamber_layer_rbegin = theDetector.constant<double>("DC_inner_chamber_layer_rbegin");
+    double inner_chamber_layer_rend = theDetector.constant<double>("DC_inner_chamber_layer_rend");
+    double outer_chamber_layer_rbegin = theDetector.constant<double>("DC_outer_chamber_layer_rbegin");
+    double outer_chamber_layer_rend = theDetector.constant<double>("DC_outer_chamber_layer_rend");
 
     double epsilon = theDetector.constant<double>("Epsilon");
 
@@ -64,8 +68,6 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     int inner_chamber_enabled = theDetector.constant<int>("DC_inner_chamber_enabled");
     int outer_chamber_enabled = theDetector.constant<int>("DC_outer_chamber_enabled");
 
-    // - safe distance
-    double safe_diatance = theDetector.constant<double>("DC_safe_distance");
 
     // =======================================================================
     // Detector Construction
@@ -89,10 +91,21 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     // - inner
     dd4hep::Tube det_inner_chamber_solid(inner_chamber_radius_min, inner_chamber_radius_max, inner_chamber_length*0.5);
     dd4hep::Volume det_inner_chamber_vol(det_name+"_inner_chamber_vol", det_inner_chamber_solid, chamber_mat);
+    if ( x_det.isSensitive() )   {
+       det_inner_chamber_vol.setRegion(theDetector,x_det.regionStr());
+       det_inner_chamber_vol.setLimitSet(theDetector,x_det.limitsStr());
+       det_inner_chamber_vol.setSensitiveDetector(sens);
+       sd.setType("tracker");
+    }
 
-    // - outer
-    dd4hep::Tube det_outer_chamber_solid(outer_chamber_radius_min, outer_chamber_radius_max, outer_chamber_length*0.5);
-    dd4hep::Volume det_outer_chamber_vol(det_name+"_outer_chamber_vol", det_outer_chamber_solid, chamber_mat);
+     // - outer
+     dd4hep::Tube det_outer_chamber_solid(outer_chamber_radius_min, outer_chamber_radius_max, outer_chamber_length*0.5);
+     dd4hep::Volume det_outer_chamber_vol(det_name+"_outer_chamber_vol", det_outer_chamber_solid, chamber_mat);
+     if ( x_det.isSensitive() )   {
+        det_outer_chamber_vol.setRegion(theDetector,x_det.regionStr());
+        det_outer_chamber_vol.setSensitiveDetector(sens);
+        sd.setType("tracker");
+     }
 
     // - wall
     double inner_chamber_inner_wall_rmin = theDetector.constant<double>("SDT_inner_chamber_inner_wall_radius_min");
@@ -163,19 +176,15 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     // - layer
     for(int layer_id = 0; layer_id < (inner_chamber_layer_number+outer_chamber_layer_number); layer_id++) {
         double rmin,rmax,offset=0;
-        std::string layer_name;
         dd4hep::Volume* current_vol_ptr = nullptr;
-        dd4hep::Material layer_mat(theDetector.material("GasHe_90Isob_10"));
         if(inner_chamber_enabled && (layer_id < inner_chamber_layer_number)) {
            current_vol_ptr = &det_inner_chamber_vol;
-           rmin = inner_chamber_radius_min+safe_diatance+(layer_id*chamber_layer_width);
+           rmin = inner_chamber_layer_rbegin+(layer_id*chamber_layer_width);
            rmax = rmin+chamber_layer_width;
-           layer_name = det_name+"_inner_chamber_vol"+_toString(layer_id,"_layer%d");
-        } else if(outer_chamber_enabled && (layer_id > (inner_chamber_layer_number-1))) {
+        } else if(outer_chamber_enabled && (layer_id >= inner_chamber_layer_number)) {
            current_vol_ptr = &det_outer_chamber_vol;
-           rmin = outer_chamber_radius_min+safe_diatance+((layer_id-inner_chamber_layer_number)*chamber_layer_width);
+           rmin = outer_chamber_layer_rbegin+((layer_id-inner_chamber_layer_number)*chamber_layer_width);
            rmax = rmin+chamber_layer_width;
-           layer_name = det_name+"_outer_chamber_vol"+_toString(layer_id,"_layer%d");
         } else continue;
 
         //Construction of drift chamber layers
@@ -208,7 +217,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
             dd4hep::PlacedVolume module_phy = (*current_vol_ptr).placeVolume(module_vol,transform_module);
            // - Field wire
             dd4hep::PlacedVolume Module_phy;
-            double radius[9] = {rmid-chamber_layer_width*0.5+safe_diatance,rmid-chamber_layer_width*0.5+safe_diatance,rmid-chamber_layer_width*0.5+safe_diatance,rmid-chamber_layer_width*0.5+safe_diatance,rmid,rmid+chamber_layer_width*0.5-safe_diatance,rmid+chamber_layer_width*0.5-safe_diatance,rmid+chamber_layer_width*0.5-safe_diatance,rmid+chamber_layer_width*0.5-safe_diatance};
+            double radius[9] = {rmid-chamber_layer_width*0.5,rmid-chamber_layer_width*0.5,rmid-chamber_layer_width*0.5,rmid-chamber_layer_width*0.5,rmid,rmid+chamber_layer_width*0.5,rmid+chamber_layer_width*0.5,rmid+chamber_layer_width*0.5,rmid+chamber_layer_width*0.5};
             double phi[9] = {wire_phi+layer_Phi*0.25,wire_phi,wire_phi-layer_Phi*0.25,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.25,wire_phi,wire_phi+layer_Phi*0.25};
             int num = 5;
             if(layer_id==(inner_chamber_layer_number-1)||layer_id==(inner_chamber_layer_number+outer_chamber_layer_number-1)) { num = 9; }
@@ -219,9 +228,9 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
                 Module_phy = (*current_vol_ptr).placeVolume(Module_vol,transform_Module);
             }
         }
-//  }
+  }
 
-    }
+//  }
 
     // - place in det
     // inner
@@ -232,8 +241,6 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
                  transform_inner_chamber);
 
          det_inner_chamber_phy.addPhysVolID("chamber", 0);
-         det_inner_chamber_vol.setSensitiveDetector(sens);
-         sd.setType("tracker");
     }
     // outer
     dd4hep::Transform3D transform_outer_chamber(dd4hep::Rotation3D(),
@@ -243,8 +250,6 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
                transform_inner_chamber);
 
        det_outer_chamber_phy.addPhysVolID("chamber", 1);
-       det_outer_chamber_vol.setSensitiveDetector(sens);
-       sd.setType("tracker");
     }
     // - place in world
     dd4hep::Transform3D transform(dd4hep::Rotation3D(),
