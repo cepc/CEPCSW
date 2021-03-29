@@ -32,6 +32,7 @@
     <constant name="DC_Endcap_dz" value="0.1*mm"/>
 
     <constant name="SDT_half_length" value="2225*mm+DC_Endcap_dz"/>
+    <constant name="DC_half_length" value="2225*mm"/>
     <constant name="SDT_length" value="SDT_half_length*2"/>
     <constant name="DC_length" value="SDT_length-DC_Endcap_dz*2"/>
 
@@ -51,11 +52,11 @@
 
     <constant name="SDT_inner_chamber_radius_min" value="DC_inner_chamber_layer_rbegin-DC_safe_distance"/>
     <constant name="SDT_inner_chamber_radius_max" value="DC_inner_chamber_radius_max"/>
-    <constant name="SDT_inner_chamber_length" value="DC_length"/>
+    <constant name="SDT_inner_chamber_half_length" value="DC_half_length"/>
 
     <constant name="SDT_outer_chamber_radius_min" value="DC_outer_chamber_layer_rbegin-DC_safe_distance"/>
     <constant name="SDT_outer_chamber_radius_max" value="DC_outer_chamber_radius_max"/>
-    <constant name="SDT_outer_chamber_length" value="DC_length"/>
+    <constant name="SDT_outer_chamber_half_length" value="DC_half_length"/>
 
     <constant name="SDT_inner_chamber_layer_number" value="67"/>
     <constant name="SDT_outer_chamber_layer_number" value="63"/>
@@ -131,7 +132,8 @@
     <readout name="DriftChamberHitsCollection">
       <segmentation type="GridDriftChamber" cell_size="10*mm" epsilon0="Epsilon" detector_length="DC_length" identifier_phi="cellID" DC_inner_rbegin="DC_inner_chamber_layer_rbegin" DC_inner_rend="DC_inner_chamber_layer_rend" DC_outer_rbegin="DC_outer_chamber_layer_rbegin" DC_outer_rend="DC_outer_chamber_layer_rend" DC_inner_rmin="SDT_inner_chamber_radius_min" DC_inner_rmax="SDT_inner_chamber_radius_max" DC_outer_rmin="SDT_outer_chamber_radius_min" DC_outer_rmax="SDT_outer_chamber_radius_max" DC_inner_layer_number="SDT_inner_chamber_layer_number" DC_outer_layer_number="SDT_outer_chamber_layer_number" safe_distance="DC_safe_distance" layerID="layer" layer_width="SDT_chamber_layer_width"/>
 
-      <id>system:8,chamber:1,layer:8,cellID:16</id>
+      <!-- <id>system:8,chamber:1,layer:8,cellID:16</id> -->
+      <id>system:5,side:-2,layer:9,chamber:8,sensor:8,cellID:16</id>
     </readout>
   </readouts>
 

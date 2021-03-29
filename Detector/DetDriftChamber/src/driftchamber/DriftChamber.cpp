@@ -41,17 +41,17 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     dd4hep::SensitiveDetector sd = sens;
 
     // - global
-    double chamber_length     = theDetector.constant<double>("DC_length");
+    double chamber_half_length     = theDetector.constant<double>("DC_half_length");
 
     // - inner chamber
     double inner_chamber_radius_min = theDetector.constant<double>("SDT_inner_chamber_radius_min");
     double inner_chamber_radius_max = theDetector.constant<double>("SDT_inner_chamber_radius_max");
-    double inner_chamber_length     = theDetector.constant<double>("SDT_inner_chamber_length");
+    double inner_chamber_half_length     = theDetector.constant<double>("SDT_inner_chamber_half_length");
 
     // - outer chamber
     double outer_chamber_radius_min = theDetector.constant<double>("SDT_outer_chamber_radius_min");
     double outer_chamber_radius_max = theDetector.constant<double>("SDT_outer_chamber_radius_max");
-    double outer_chamber_length     = theDetector.constant<double>("SDT_outer_chamber_length");
+    double outer_chamber_half_length     = theDetector.constant<double>("SDT_outer_chamber_half_length");
 
     // - layer
     int inner_chamber_layer_number = theDetector.constant<int>("SDT_inner_chamber_layer_number");
@@ -89,7 +89,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     Assembly det_vol( det_name+"_assembly" ) ;
 
     // - inner
-    dd4hep::Tube det_inner_chamber_solid(inner_chamber_radius_min, inner_chamber_radius_max, inner_chamber_length*0.5);
+    dd4hep::Tube det_inner_chamber_solid(inner_chamber_radius_min, inner_chamber_radius_max, inner_chamber_half_length);
     dd4hep::Volume det_inner_chamber_vol(det_name+"_inner_chamber_vol", det_inner_chamber_solid, chamber_mat);
     if ( x_det.isSensitive() )   {
        det_inner_chamber_vol.setRegion(theDetector,x_det.regionStr());
@@ -99,10 +99,11 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     }
 
      // - outer
-     dd4hep::Tube det_outer_chamber_solid(outer_chamber_radius_min, outer_chamber_radius_max, outer_chamber_length*0.5);
+     dd4hep::Tube det_outer_chamber_solid(outer_chamber_radius_min, outer_chamber_radius_max, outer_chamber_half_length);
      dd4hep::Volume det_outer_chamber_vol(det_name+"_outer_chamber_vol", det_outer_chamber_solid, chamber_mat);
      if ( x_det.isSensitive() )   {
         det_outer_chamber_vol.setRegion(theDetector,x_det.regionStr());
+        det_outer_chamber_vol.setLimitSet(theDetector,x_det.limitsStr());
         det_outer_chamber_vol.setSensitiveDetector(sens);
         sd.setType("tracker");
      }
@@ -130,7 +131,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
       double  module_rmin = x_module.rmin();
       double  module_rmax = x_module.rmax();
       std::string module_name = x_module.nameStr();
-      dd4hep::Tube module_solid(module_rmin,module_rmax,chamber_length*0.5);
+      dd4hep::Tube module_solid(module_rmin,module_rmax,chamber_half_length);
       if(x_module.id()==0) {
          module_vol = dd4hep::Volume(module_name,module_solid,det_mat);
          module_vol.setVisAttributes(theDetector.visAttributes(x_module.visStr()));
@@ -146,7 +147,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
          std::string tube_name = x_tube.nameStr();
          std::string wire_name= module_name + tube_name;
          dd4hep::Material tube_mat = theDetector.material(x_tube.materialStr());
-         dd4hep::Tube wire_solid(tube_rmin,tube_rmax,chamber_length*0.5);
+         dd4hep::Tube wire_solid(tube_rmin,tube_rmax,chamber_half_length);
          dd4hep::Volume wire_vol(wire_name,wire_solid,tube_mat);
          dd4hep::Transform3D transform_wire(dd4hep::Rotation3D(),dd4hep::Position(0.,0.,0.));
          dd4hep::PlacedVolume wire_phy;
@@ -174,6 +175,8 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     auto DCHseg = dynamic_cast<dd4hep::DDSegmentation::GridDriftChamber*>(_geoSeg->segmentation());
 
     // - layer
+    int chamber_id = -1;
+    int layerIndex = -1;
     for(int layer_id = 0; layer_id < (inner_chamber_layer_number+outer_chamber_layer_number); layer_id++) {
         double rmin,rmax,offset=0;
         dd4hep::Volume* current_vol_ptr = nullptr;
@@ -181,10 +184,14 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
            current_vol_ptr = &det_inner_chamber_vol;
            rmin = inner_chamber_layer_rbegin+(layer_id*chamber_layer_width);
            rmax = rmin+chamber_layer_width;
+           chamber_id = 0;
+           layerIndex = layer_id;
         } else if(outer_chamber_enabled && (layer_id >= inner_chamber_layer_number)) {
            current_vol_ptr = &det_outer_chamber_vol;
            rmin = outer_chamber_layer_rbegin+((layer_id-inner_chamber_layer_number)*chamber_layer_width);
            rmax = rmin+chamber_layer_width;
+           chamber_id = 1;
+           layerIndex = layer_id - inner_chamber_layer_number;
         } else continue;
 
         //Construction of drift chamber layers
@@ -198,8 +205,8 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         if(layer_id %2 ==0){ offset = 0.; }
         else { offset = 0.5 * layer_Phi; }
 
-        DCHseg->setGeomParams(layer_id, layer_Phi, rmid, epsilon, offset);
-        DCHseg->setWiresInLayer(layer_id, numWire);
+        DCHseg->setGeomParams(chamber_id, layerIndex, layer_Phi, rmid, epsilon, offset);
+        DCHseg->setWiresInLayer(chamber_id, layerIndex, numWire);
 
         // - wire vol
         //phi <-------------------> -phi
@@ -209,7 +216,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         //    |                     |
         //    |   F0    F1   F2   F3|
         //    -----------------------
-//     if(layer_id == -1) {
+     if(layer_id == -1) {
         for(int icell=0; icell< numWire; icell++) {
             double wire_phi = (icell+0.5)*layer_Phi + offset;
             // - signal wire
@@ -230,7 +237,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         }
   }
 
-//  }
+  }
 
     // - place in det
     // inner
@@ -258,14 +265,14 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     // - place wall
     dd4hep::PlacedVolume wall_phy;
     for(int i=0; i<4; i++) {
-       dd4hep::Tube wall_solid(wall_rmin[i],wall_rmax[i],chamber_length*0.5);
+       dd4hep::Tube wall_solid(wall_rmin[i],wall_rmax[i],chamber_half_length);
        dd4hep::Volume wall_vol(det_name+"_wall_vol",wall_solid,wall_mat);
        wall_vol.setVisAttributes(theDetector,"VisibleGreen");
        wall_phy = envelope.placeVolume(wall_vol,transform);
     }
 
     // - place Endcap
-    double endcap_pos[2] = {chamber_length*0.5+Endcap_z*0.5,-chamber_length*0.5-Endcap_z*0.5};
+    double endcap_pos[2] = {chamber_half_length+Endcap_z*0.5,-chamber_half_length-Endcap_z*0.5};
     dd4hep::PlacedVolume endcap_phy;
     for(int i=0; i<2; i++) {
         dd4hep::Transform3D Endcap_transform(dd4hep::Rotation3D(),dd4hep::Position(0,0,endcap_pos[i]));
