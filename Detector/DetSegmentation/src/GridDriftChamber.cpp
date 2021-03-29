@@ -54,6 +54,8 @@ CellID GridDriftChamber::cellID(const Vector3D& /*localPosition*/, const Vector3
 
   CellID cID = vID;
 
+  int chamberID = _decoder->get(cID, "chamber");
+
   double posx = globalPosition.X;
   double posy = globalPosition.Y;
   double radius = sqrt(posx*posx+posy*posy);
@@ -64,18 +66,19 @@ CellID GridDriftChamber::cellID(const Vector3D& /*localPosition*/, const Vector3
   if( radius<= m_DC_inner_rend && radius>= m_DC_inner_rbegin) {
       layerid = floor((radius - m_DC_inner_rbegin)/DC_layerdelta);
   } else if ( radius<= m_DC_outer_rend && radius>= m_DC_outer_rbegin ) {
-      layerid = floor((radius - m_DC_outer_rbegin)/DC_layerdelta)+m_DC_inner_layer_number;
+      layerid = floor((radius - m_DC_outer_rbegin)/DC_layerdelta);
   } else if ( radius>= (m_DC_inner_rmin-m_safe_distance) && radius < m_DC_inner_rbegin) {
       layerid = 0;
   } else if ( radius> m_DC_inner_rend && radius <= (m_DC_inner_rmax+m_safe_distance)) {
       layerid = m_DC_inner_layer_number-1;
   } else if ( radius>= (m_DC_outer_rmin-m_safe_distance) && radius < m_DC_outer_rbegin) {
-      layerid = m_DC_inner_layer_number;
+      layerid = 0;
   } else if ( radius> m_DC_outer_rend && radius <= (m_DC_outer_rmax+m_safe_distance)) {
-      layerid = m_DC_inner_layer_number+ m_DC_outer_layer_number-1;
+      layerid = m_DC_outer_layer_number-1;
   }
 
-  updateParams(layerid);
+
+  updateParams(chamberID,layerid);
 
   double phi_hit = phiFromXY(globalPosition);
   double offsetphi= m_offset;
@@ -103,8 +106,9 @@ double GridDriftChamber::phi(const CellID& cID) const {
 void GridDriftChamber::cellposition(const CellID& cID, TVector3& Wstart,
                                     TVector3& Wend) const {
 
+  auto chamberIndex = _decoder->get(cID, "chamber");
   auto layerIndex = _decoder->get(cID, "layer");
-  updateParams(layerIndex);
+  updateParams(chamberIndex,layerIndex);
 
   double phi_start = phi(cID);
   double phi_mid = phi_start + _currentLayerphi/2.;

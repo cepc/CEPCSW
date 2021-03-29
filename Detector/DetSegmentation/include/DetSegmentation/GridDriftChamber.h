@@ -30,6 +30,20 @@ typedef struct Layer
    }
  } LAYER;
 
+typedef struct CID
+ {
+   int chamberID;
+   int layerID;
+//   CID(){}
+   CID(int i, int j): chamberID(i),layerID(j){}
+   // the operator < defines the operation used in map
+   friend bool operator < (const CID &c1, const CID &c2);
+ } vID;
+
+inline bool operator < (const struct CID &c1, const struct CID &c2) {
+    return c1.chamberID < c2.chamberID || (c1.chamberID == c2.chamberID && c1.layerID < c2.layerID);
+}
+
 namespace dd4hep {
 namespace DDSegmentation {
 class GridDriftChamber : public Segmentation {
@@ -74,13 +88,15 @@ public:
     return hit_phi;
   }
 
-  inline void setGeomParams(int layer, double layerphi, double R, double eps, double offset) {
-    layer_params.insert(std::pair<int,LAYER>(layer,LAYER(layerphi,R,eps,offset)));
+  inline void setGeomParams(int chamberID, int layerID, double layerphi, double R, double eps, double offset) {
+
+    layer_params.insert(std::pair<vID,LAYER>(vID(chamberID,layerID),LAYER(layerphi,R,eps,offset)));
+
    }
 
-  inline void setWiresInLayer(int layer, int numWires)
+  inline void setWiresInLayer(int chamber, int layer, int numWires)
   {
-    updateParams(layer);
+    updateParams(chamber,layer);
     for (int i = 0; i<numWires; ++i) {
 
       auto phi_start = _currentLayerphi * (i+0.5) + m_offset;
@@ -106,31 +122,33 @@ public:
 //    return w;
 //  }
 
-  void updateParams(int layer)  const{
+  void updateParams(int chamber, int layer)  const{
     auto it_end = layer_params.cend();
     --it_end;
-    double layerphi = it_end->second.layerphi;
-    double radius = it_end->second.R;
-    double eps = it_end->second.eps;
-    double offset = it_end->second.offset;
+    double LayerPhi = it_end->second.layerphi;
+    double Radius = it_end->second.R;
+    double Eps = it_end->second.eps;
+    double Offset = it_end->second.offset;
 
-    auto map_it = layer_params.find(layer);
+    CID v1(chamber,layer);
+    auto map_it = layer_params.find(v1);
     if (map_it != layer_params.cend()) {
-     layerphi = map_it->second.layerphi;
-     radius = map_it->second.R;
-     eps = map_it->second.eps;
-     offset = map_it->second.offset;
-    }
-    _currentLayerphi = layerphi;
-    _currentRadius = radius;
-    m_epsilon = eps;
-    m_offset = offset;
+     LayerPhi = map_it->second.layerphi;
+     Radius = map_it->second.R;
+     Eps = map_it->second.eps;
+     Offset = map_it->second.offset;
+    } else { std::cout << " Sorry, pair with  key " << layer << " not in map" << std::endl; }
+
+    _currentLayerphi = LayerPhi;
+    _currentRadius = Radius;
+    m_epsilon = Eps;
+    m_offset = Offset;
  }
 
 protected:
 
   double phi(const CellID& cID) const;
-  std::map<int,LAYER> layer_params; // <layer, {layerphi, R, eps, offset}>
+  std::map<vID,LAYER> layer_params; // <{chamberID,layerID}, {layerphi, R, eps, offset}>
   std::map<int, std::vector<std::pair<TVector3, TVector3> >> m_wiresPositions; // < layer, vec<WireMidpoint, WireDirection> >
 
   inline TVector3 returnWirePosition(double angle, int sign) const {
