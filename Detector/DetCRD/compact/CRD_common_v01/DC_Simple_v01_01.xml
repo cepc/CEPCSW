@@ -19,10 +19,10 @@
     <constant name="DC_length" value="DC_half_length*2"/>
 
     <constant name="SDT_inner_chamber_radius_min" value="DC_inner_chamber_layer_rbegin-DC_safe_distance"/>
-    <constant name="SDT_inner_chamber_radius_max" value="InnerTracker_outer_radius"/>
+    <constant name="SDT_inner_chamber_radius_max" value="InnerTracker_outer_radius-SDT_outer_wall_thickness"/>
     <constant name="SDT_inner_chamber_half_length" value="DC_half_length"/>
 
-    <constant name="SDT_outer_chamber_radius_min" value="OuterTracker_inner_radius"/>
+    <constant name="SDT_outer_chamber_radius_min" value="DC_outer_chamber_radius_min-DC_safe_distance"/>
     <constant name="SDT_outer_chamber_radius_max" value="DC_outer_chamber_radius_max"/>
     <constant name="SDT_outer_chamber_half_length" value="DC_half_length"/>
 
@@ -30,9 +30,6 @@
     <constant name="SDT_outer_chamber_layer_number" value="63"/>
     <constant name="SDT_chamber_layer_width" value="10*mm"/>
     <constant name="Epsilon" value="0*deg"/>
-
-    <constant name="SDT_inner_wall_thickness" value="0.2*mm"/>
-    <constant name="SDT_outer_wall_thickness" value="2.8*mm"/>
 
     <constant name="SDT_inner_chamber_inner_wall_radius_min" value="SDT_inner_chamber_radius_min-SDT_inner_wall_thickness"/>
     <constant name="SDT_inner_chamber_inner_wall_radius_max" value="SDT_inner_chamber_radius_min"/>
@@ -50,8 +47,6 @@
     <constant name="DC_inner_chamber_enabled" value="1"/>
     <constant name="DC_outer_chamber_enabled" value="1"/>
 
-    <constant name="DC_safe_distance" value="0.02*mm"/>
-
   </define>
 
   <limits>
@@ -68,9 +63,13 @@
   <detectors>
     <detector id="DetID_DC" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="BlueVis" sensitive="true" insideTrackingVolume="true" limits="DC_limits">
       <envelope vis="SeeThrough">
-        <shape type="BooleanShape" operation="Union" material="Air">
+<!--        <shape type="BooleanShape" operation="Union" material="Air">
           <shape type="Tube" rmin="SDT_radius_min" rmax="OuterTracker_inner_radius" dz="SDT_half_length" />
           <shape type="Tube" rmin="SDT_outer_chamber_inner_wall_radius_min" rmax="SDT_radius_max" dz="SDT_half_length" />
+        </shape> -->
+        <shape type="BooleanShape" operation="Subtraction" material="Air">
+          <shape type="Tube" rmin="SDT_radius_min" rmax="SDT_radius_max" dz="SDT_half_length" />
+          <shape type="Tube" rmin="InnerTracker_outer_radius" rmax="SDT_outer_chamber_inner_wall_radius_min" dz="DC_half_length"/>
         </shape>
       </envelope>
 
