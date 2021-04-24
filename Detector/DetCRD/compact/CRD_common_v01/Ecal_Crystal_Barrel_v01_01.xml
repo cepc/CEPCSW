@@ -12,7 +12,7 @@
   </regions>
 
   <detectors>
-    <detector id="DetID_ECAL" name="CaloDetector" type="CRDEcalBarrel" readout="EcalBarrelCollection" vis="Invisible" sensitive="true" region="EcalBarrelRegion">
+    <detector id="DetID_ECAL" name="CaloDetector" type="CRDEcalBarrel_v01" readout="EcalBarrelCollection" vis="Invisible" sensitive="true" region="EcalBarrelRegion">
       <!-- Use cm as unit if you want to use Pandora for reconstruction -->
     </detector>
   </detectors>
