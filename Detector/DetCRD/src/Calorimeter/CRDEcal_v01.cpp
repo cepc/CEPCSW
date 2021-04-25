@@ -86,6 +86,36 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
   dd4hep::Volume det_stave("stave_vol", subtrap, mat_BGO);
   det_stave.setVisAttributes(theDetector, "InvisibleWithChildren");  
 
+  // Create extension objects for reconstruction
+  LayeredCalorimeterData* caloData = new LayeredCalorimeterData ;
+  for(int il=0;il<Nlayers; il++){
+    //used for reconstruction, so write a 1*1*2 layer cell size. No absorber or dead-meaterial.
+    dd4hep::rec::LayeredCalorimeterData::Layer _caloLayer;
+    _caloLayer.distance                        = R0+il*2*barx;
+    _caloLayer.phi0                               = 0;
+    _caloLayer.absorberThickness            = 0;
+    _caloLayer.inner_nRadiationLengths   = 0.01;
+    _caloLayer.inner_nInteractionLengths = 0.01;
+    _caloLayer.outer_nRadiationLengths   = 0.01;
+    _caloLayer.outer_nInteractionLengths = 0.01;
+    _caloLayer.inner_thickness              = barx;    //1cm
+    _caloLayer.outer_thickness              = barx;    //1cm
+    _caloLayer.sensitive_thickness       = 2*barx; //2cm
+    _caloLayer.cellSize0                         = barx;    //1cm
+    _caloLayer.cellSize1                         = barx;    //1cm
+  caloData->layers.push_back(_caloLayer);
+  }
+
+  caloData->layoutType = LayeredCalorimeterData::BarrelLayout ;
+  caloData->inner_symmetry = 8  ;
+  caloData->outer_symmetry = 8  ;
+  caloData->phi0 = 0 ; // hardcoded
+
+  // extent of the calorimeter in the r-z-plane [ rmin, rmax, zmin, zmax ] in mm.
+  caloData->extent[0] = R0 ;
+  caloData->extent[1] = R0+h0;
+  caloData->extent[2] = 0. ;
+  caloData->extent[3] = Z0 ;
 
 
   //Loop to place crystalls in one part
@@ -154,7 +184,8 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
   }
   
   sens.setType("calorimeter");
-  
+  ECAL.addExtension< LayeredCalorimeterData >( caloData ) ; 
+
   MYDEBUG("create_detector DONE. ");
   return ECAL;
 }
