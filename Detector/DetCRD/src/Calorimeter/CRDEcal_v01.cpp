@@ -140,7 +140,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     	  dd4hep::DetElement sd(stavedet, blockname, detid);
     
         //sub-layer 0: bars along phi. length=barz_s0. Bar num=Nbar_z
-/*      for(int ibar0=1;ibar0<=Nbar_z;ibar0++){
+      for(int ibar0=1;ibar0<=Nbar_z;ibar0++){
     	    dd4hep::PlacedVolume plv_bar0 = block.placeVolume(bar_s0, Position(0,(2*ibar0-1)*bary/2-barz_s1/2, -barx/2));
     	    plv_bar0.addPhysVolID("slayer",0).addPhysVolID("bar",ibar0);
     	    std::string barname0 = "CrystalBar_s0_"+std::to_string(ibar0);	
@@ -156,7 +156,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     	  	 dd4hep::DetElement bardet1(sd, barname1, detid);
     	  	 bardet1.setPlacement(plv_bar1);
     	  }
-*/    
+    
     	  //dd4hep::PlacedVolume plv = det_vol.placeVolume(block, Position(lx-(2*iphi-1)*barz_s0/2, (2*iz-1)*barz_s1/2-dim_y, (2*ilayer-1)*bary-dim_z));
     	  dd4hep::PlacedVolume plv = det_stave.placeVolume(block, Position(lx-(2*iphi-1)*barz_s0/2, 0, (2*ilayer-1)*bary-dim_z));
     	  plv.addPhysVolID("dlayer", ilayer).addPhysVolID("part", iphi);
