@@ -94,7 +94,8 @@
       <segmentation type="GridDriftChamber" cell_size="10*mm" epsilon0="Epsilon" detector_length="DC_length" identifier_phi="cellID" DC_inner_rbegin="DC_inner_chamber_layer_rbegin" DC_inner_rend="DC_inner_chamber_layer_rend" DC_outer_rbegin="DC_outer_chamber_layer_rbegin" DC_outer_rend="DC_outer_chamber_layer_rend" DC_inner_rmin="SDT_inner_chamber_radius_min" DC_inner_rmax="SDT_inner_chamber_radius_max" DC_outer_rmin="SDT_outer_chamber_radius_min" DC_outer_rmax="SDT_outer_chamber_radius_max" DC_inner_layer_number="SDT_inner_chamber_layer_number" DC_outer_layer_number="SDT_outer_chamber_layer_number" safe_distance="DC_safe_distance" layerID="layer" layer_width="SDT_chamber_layer_width"/>
 
       <!--<id>system:8,chamber:1,layer:8,cellID:16</id> -->
-      <id>system:5,side:-2,layer:9,chamber:8,sensor:8,cellID:16</id>
+      <!--<id>system:5,side:-2,layer:9,chamber:8,sensor:8,cellID:16</id> -->
+      <id>system:5,layer:7:9,chamber:8,cellID:32:16</id>
     </readout>
   </readouts>
 

@@ -216,7 +216,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         //    |                     |
         //    |   F0    F1   F2   F3|
         //    -----------------------
-//     if(layer_id == -1) {
+     if(layer_id == 0 || layer_id ==66 || layer_id ==67 || layer_id ==129) {
         for(int icell=0; icell< numWire; icell++) {
             double wire_phi = (icell+0.5)*layer_Phi + offset;
             // - signal wire
@@ -237,7 +237,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         }
   }
 
-//  }
+  }
 
     // - place in det
     // inner
