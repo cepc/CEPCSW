@@ -1,5 +1,7 @@
 #include "GearSvc.h"
 #include "DetInterface/IGeomSvc.h"
+#include "DetSegmentation/GridDriftChamber.h"
+
 #include "gearxml/GearXML.h"
 #include "gearimpl/GearMgrImpl.h"
 #include "gearimpl/ConstantBField.h"
@@ -736,6 +738,11 @@ StatusCode GearSvc::convertDC(dd4hep::DetElement& dc){
   catch(std::runtime_error& e){
     warning() << e.what() << " " << dcData << ", to search volume" << endmsg;
     // before extension ready, force to convert from volumes
+    auto geomSvc = service<IGeomSvc>("GeomSvc");
+    dd4hep::Readout readout = geomSvc->lcdd()->readout("DriftChamberHitsCollection");
+    dd4hep::Segmentation seg = readout.segmentation();
+    dd4hep::DDSegmentation::GridDriftChamber* grid = dynamic_cast< dd4hep::DDSegmentation::GridDriftChamber* > ( seg.segmentation() ) ;
+    
     dcData = new dd4hep::rec::FixedPadSizeTPCData;
     dcData->rMinReadout = 99999;
     dcData->rMaxReadout = 0;
@@ -745,40 +752,68 @@ StatusCode GearSvc::convertDC(dd4hep::DetElement& dc){
     for(int i=0;i<dc_vol->GetNdaughters();i++){
       TGeoNode* daughter = dc_vol->GetNode(i);
       std::string nodeName = daughter->GetName();
-      std::cout << nodeName << std::endl;
-      if(nodeName.find("chamber_vol")!=-1){
-	const TGeoShape* chamber_shape = daughter->GetVolume()->GetShape();
-	if(chamber_shape->TestShapeBit(TGeoTube::kGeoTube)){
-	  const TGeoTube* tube = (const TGeoTube*) chamber_shape;
-	  double innerRadius = tube->GetRmin();
-	  double outerRadius = tube->GetRmax();
-	  double halfLength  = tube->GetDz();
-	  dcData->driftLength = halfLength;
+      //info << nodeName << endmsg;
+      if(nodeName.find("chamber_vol")!=-1||nodeName.find("assembly")!=-1){
+	if(grid){
+	  // if more than one chamber, just use the outer, TODO
+	  dcData->rMinReadout = grid->DC_outer_rbegin();
+	  dcData->rMaxReadout = grid->DC_outer_rend();
+	  dcData->driftLength = grid->detectorLength();
+	  dcData->maxRow      = grid->DC_outer_layer_number();
+	  dcData->padHeight   = grid->layer_width();
+          dcData->padWidth    = dcData->padHeight;
 	}
 	else{
-	  error() << nodeName << " not TGeoTube::kGeoTube" << endmsg;
-	  is_convert = false;
-	}
-
-	dcData->maxRow = daughter->GetNdaughters();
-	for(int i=0;i<daughter->GetNdaughters();i++){
-	  TGeoNode* layer = daughter->GetDaughter(i);
-	  const TGeoShape* shape = layer->GetVolume()->GetShape();
-	  if(shape->TestShapeBit(TGeoTube::kGeoTube)){
-	    const TGeoTube* tube = (const TGeoTube*) shape;
+	  TGeoNode* next = daughter;
+	  if(nodeName.find("assembly")!=-1){
+	    // if more than one chamber, just use the outer, TODO 
+	    next = daughter->GetDaughter(1);
+	    std::string s = next->GetName();
+	    if(s.find("chamber_vol")==-1){
+	      error() << s << " not chamber_vol" << endmsg;
+	      is_convert = false;
+	    }
+	  }
+	  
+	  //info() << next->GetName() << endmsg;
+	  
+	  const TGeoShape* chamber_shape = next->GetVolume()->GetShape();
+	  if(chamber_shape->TestShapeBit(TGeoTube::kGeoTube)){
+	    const TGeoTube* tube = (const TGeoTube*) chamber_shape;
 	    double innerRadius = tube->GetRmin();
 	    double outerRadius = tube->GetRmax();
 	    double halfLength  = tube->GetDz();
-	    if(innerRadius<dcData->rMinReadout) dcData->rMinReadout = innerRadius;
-	    if(outerRadius>dcData->rMaxReadout) dcData->rMaxReadout = outerRadius;
+	    dcData->driftLength = halfLength;
 	  }
 	  else{
-	    error() << layer->GetName() << " not TGeoTube::kGeoTube" << endmsg;
+	    error() << next->GetName() << " not TGeoTube::kGeoTube" << endmsg;
 	    is_convert = false;
 	  }
+	  
+	  dcData->maxRow = next->GetNdaughters();
+	  if(dcData->maxRow>512){
+	    error() << " layer number > 512, something wrong!" << endmsg;
+	    is_convert = false;
+	  }
+	  for(int i=0;i<next->GetNdaughters();i++){
+	    TGeoNode* layer = next->GetDaughter(i);
+	    const TGeoShape* shape = layer->GetVolume()->GetShape();
+	    if(shape->TestShapeBit(TGeoTube::kGeoTube)){
+	      const TGeoTube* tube = (const TGeoTube*) shape;
+	      double innerRadius = tube->GetRmin();
+	      double outerRadius = tube->GetRmax();
+	      double halfLength  = tube->GetDz();
+	      if(innerRadius<dcData->rMinReadout) dcData->rMinReadout = innerRadius;
+	      if(outerRadius>dcData->rMaxReadout) dcData->rMaxReadout = outerRadius;
+	    }
+	    else{
+	      error() << layer->GetName() << " not TGeoTube::kGeoTube" << endmsg;
+	      is_convert = false;
+	    }
+	  }
+	  dcData->padHeight = (dcData->rMaxReadout-dcData->rMinReadout)/dcData->maxRow;
+	  dcData->padWidth  = dcData->padHeight;
 	}
-	dcData->padHeight = (dcData->rMaxReadout-dcData->rMinReadout)/dcData->maxRow;
-	dcData->padWidth  = dcData->padHeight;
       }
       else if(nodeName.find("wall_vol")!=-1){
 	const TGeoShape* wall_shape = daughter->GetVolume()->GetShape();
