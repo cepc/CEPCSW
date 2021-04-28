@@ -2,7 +2,7 @@
   <define>
     <constant name="SET_inner_radius" value="OuterTracker_outer_radius + env_safety"/>
     <constant name="SET_outer_radius" value="Ecal_barrel_inner_radius - env_safety "/>
-    <constant name="SET_half_length"  value="OuterTracker_half_length"/>
+    <constant name="SET_half_length"  value="DC_half_length"/>
     <constant name="SET_inner_distance_from_tpc" value="InnerTracker_outer_radius-OuterTracker_outer_radius+3*mm"/>
   </define>
 

@@ -6,7 +6,7 @@
 #include "G4VFastSimulationModel.hh"
 #include "DummyFastSimG4Model.h"
 
-DECLARE_COMPONENT(DummyFastSimG4Tool);
+DECLARE_COMPONENT(DummyFastSimG4Tool)
 
 StatusCode DummyFastSimG4Tool::initialize() {
     StatusCode sc;

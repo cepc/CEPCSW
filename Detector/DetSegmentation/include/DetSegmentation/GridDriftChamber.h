@@ -30,6 +30,20 @@ typedef struct Layer
    }
  } LAYER;
 
+typedef struct CID
+ {
+   int chamberID;
+   int layerID;
+//   CID(){}
+   CID(int i, int j): chamberID(i),layerID(j){}
+   // the operator < defines the operation used in map
+   friend bool operator < (const CID &c1, const CID &c2);
+ } vID;
+
+inline bool operator < (const struct CID &c1, const struct CID &c2) {
+    return c1.chamberID < c2.chamberID || (c1.chamberID == c2.chamberID && c1.layerID < c2.layerID);
+}
+
 namespace dd4hep {
 namespace DDSegmentation {
 class GridDriftChamber : public Segmentation {
@@ -42,6 +56,7 @@ public:
   virtual ~GridDriftChamber() = default;
 
   virtual Vector3D position(const CellID& aCellID) const;
+//  virtual int LayerID(const Vector3D& aGlobalPosition) const;
   virtual CellID cellID(const Vector3D& aLocalPosition, const Vector3D& aGlobalPosition,
                         const VolumeID& aVolumeID) const;
   virtual double distanceTrackWire(const CellID& cID, const TVector3& hit_start, const TVector3& hit_end) const;
@@ -51,7 +66,20 @@ public:
   inline double cell_Size() const { return m_cellSize; }
   inline double epsilon0() const { return m_epsilon0; }
   inline double detectorLength() const { return m_detectorLength; }
+  inline double DC_inner_rbegin() const { return m_DC_inner_rbegin; }
+  inline double DC_inner_rend() const { return m_DC_inner_rend; }
+  inline double DC_outer_rbegin() const { return m_DC_outer_rbegin; }
+  inline double DC_outer_rend() const { return m_DC_outer_rend; }
+  inline double DC_inner_rmin() const { return m_DC_inner_rmin; }
+  inline double DC_inner_rmax() const { return m_DC_inner_rmax; }
+  inline double DC_outer_rmin() const { return m_DC_outer_rmin; }
+  inline double DC_outer_rmax() const { return m_DC_outer_rmax; }
+  inline double safe_distance() const { return m_safe_distance; }
+  inline double layer_width() const { return m_layer_width; }
+  inline int DC_inner_layer_number() const { return m_DC_inner_layer_number; }
+  inline int DC_outer_layer_number() const { return m_DC_outer_layer_number; }
   inline const std::string& fieldNamePhi() const { return m_phiID; }
+  inline const std::string& Layerid() const { return layer_id; }
   // Setters
 
   inline double phiFromXY(const Vector3D& aposition) const {
@@ -60,13 +88,15 @@ public:
     return hit_phi;
   }
 
-  inline void setGeomParams(int layer, double layerphi, double R, double eps, double offset) {
-    layer_params.insert(std::pair<int,LAYER>(layer,LAYER(layerphi,R,eps,offset)));
+  inline void setGeomParams(int chamberID, int layerID, double layerphi, double R, double eps, double offset) {
+
+    layer_params.insert(std::pair<vID,LAYER>(vID(chamberID,layerID),LAYER(layerphi,R,eps,offset)));
+
    }
 
-  inline void setWiresInLayer(int layer, int numWires)
+  inline void setWiresInLayer(int chamber, int layer, int numWires)
   {
-    updateParams(layer);
+    updateParams(chamber,layer);
     for (int i = 0; i<numWires; ++i) {
 
       auto phi_start = _currentLayerphi * (i+0.5) + m_offset;
@@ -92,36 +122,33 @@ public:
 //    return w;
 //  }
 
-  void updateParams(int layer)  const{
+  void updateParams(int chamber, int layer)  const{
     auto it_end = layer_params.cend();
     --it_end;
-    double layerphi = it_end->second.layerphi;
-    double radius = it_end->second.R;
-    double eps = it_end->second.eps;
-    double offset = it_end->second.offset;
+    double LayerPhi = it_end->second.layerphi;
+    double Radius = it_end->second.R;
+    double Eps = it_end->second.eps;
+    double Offset = it_end->second.offset;
 
-    auto map_it = layer_params.find(layer);
+    CID v1(chamber,layer);
+    auto map_it = layer_params.find(v1);
     if (map_it != layer_params.cend()) {
-     layerphi = map_it->second.layerphi;
-     radius = map_it->second.R;
-     eps = map_it->second.eps;
-     offset = map_it->second.offset;
-    }
-    _currentLayerphi = layerphi;
-    _currentRadius = radius;
-    m_epsilon = eps;
-    m_offset = offset;
- }
+     LayerPhi = map_it->second.layerphi;
+     Radius = map_it->second.R;
+     Eps = map_it->second.eps;
+     Offset = map_it->second.offset;
+    } else { std::cout << " Sorry, pair with  key " << layer << " not in map" << std::endl; }
 
-// inline double returnAlpha() const {
-//   double alpha = 2 * std::asin(m_detectorLength * std::tan(m_epsilon0)/(2 * _currentRadius));
-//   return alpha;
-// }
+    _currentLayerphi = LayerPhi;
+    _currentRadius = Radius;
+    m_epsilon = Eps;
+    m_offset = Offset;
+ }
 
 protected:
 
   double phi(const CellID& cID) const;
-  std::map<int,LAYER> layer_params; // <layer, {layerphi, R, eps, offset}>
+  std::map<vID,LAYER> layer_params; // <{chamberID,layerID}, {layerphi, R, eps, offset}>
   std::map<int, std::vector<std::pair<TVector3, TVector3> >> m_wiresPositions; // < layer, vec<WireMidpoint, WireDirection> >
 
   inline TVector3 returnWirePosition(double angle, int sign) const {
@@ -140,7 +167,21 @@ protected:
   double m_cellSize;
   double m_epsilon0;
   double m_detectorLength;
+  double m_DC_inner_rbegin;
+  double m_DC_inner_rend;
+  double m_DC_outer_rbegin;
+  double m_DC_outer_rend;
+  double m_DC_inner_rmin;
+  double m_DC_inner_rmax;
+  double m_DC_outer_rmin;
+  double m_DC_outer_rmax;
+  double m_layer_width;
+  double m_safe_distance;
+  int m_DC_inner_layer_number;
+  int m_DC_outer_layer_number;
+
   std::string m_phiID;
+  std::string layer_id;
 
   // Current parameters of the layer: sizePhi
   mutable double _currentLayerphi;

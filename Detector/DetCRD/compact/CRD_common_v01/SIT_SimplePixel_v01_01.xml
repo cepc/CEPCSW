@@ -5,7 +5,7 @@
     <constant name="SIT_inner_radius_1"   value="SIT_inner_radius + env_safety"/>
     <constant name="SIT_outer_radius_1" value="SIT_inner_radius_1/cos(pi/8)"/>
     <constant name="SIT_inner_radius_2" value="SIT2_inner_radius"/>
-    <constant name="SIT_outer_radius"   value="InnerTracker_inner_radius"/>
+    <constant name="SIT_outer_radius"   value="OuterTracker_inner_radius"/>
     <constant name="SIT_half_length"    value="SIT2_half_length"/>
     <constant name="SIT_half_length_1"  value="SIT1_half_length"/>
     <constant name="SIT_layer_gap" value="2.5*mm"/>
