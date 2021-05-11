@@ -10,11 +10,11 @@
   <constant name="CepC_Main_Crossing_Angle" value="33*mrad"/>
 
   <!-- the field inside and outside the solenoid -->
-  <constant name="outerField_nominal_value" value="-1.5*tesla"/>
-
+  <constant name="Field_outer_nominal_value" value="-1.33716*tesla"/>
+  <constant name="Field_outer_thickness" value="2550*mm"/>
 
   <!-- VXD -->
-  <constant name="top_VXD_inner_radius"   value="15.95*mm "/>
+  <constant name="top_VXD_inner_radius"   value="15*mm "/>
   <constant name="top_VXD_outer_radius"   value="101*mm "/>
   <constant name="top_VXD_half_length"    value="200*mm "/>
 
@@ -32,7 +32,7 @@
 
   <!-- SIT -->
   <constant name="SIT1_Half_Length_Z" value="368.00*mm"/>
-  <constant name="SIT1_Radius"        value="153.00*mm"/>
+  <constant name="SIT1_Radius"        value="152.90*mm"/>
   <constant name="SIT2_Half_Length_Z" value="644.00*mm"/>
   <constant name="SIT2_Radius"        value="299.90*mm"/>
 
@@ -44,7 +44,8 @@
   <constant name="Ecal_Tpc_gap" value="35*mm"/>
   <constant name="Ecal_Hcal_symmetry"   value="8"/>
 
-  <constant name="Ecal_barrel_thickness" value="196.96*mm"/>
+  <!--constant name="Ecal_barrel_thickness" value="196.96*mm"/-->
+  <constant name="Ecal_barrel_thickness" value="185.*mm"/>
 
   <constant name="Hcal_Ecal_gap" value="30*mm"/>
 
@@ -57,16 +58,17 @@
   <constant name="Ecal_EC_Ring_gap" value="10*mm"/>
 
   <!-- HCAL -->
-  <constant name="Hcal_barrel_thickness" value="1272.3*mm"/>
+  <!--constant name="Hcal_barrel_thickness" value="1086.43*mm"/-->
   <constant name="Hcal_Coil_additional_gap" value="29.5*mm"/>
   <!--constant name="Hcal_outer_symmetry" value="16"/-->
   <constant name="Hcal_outer_symmetry" value="8"/>
 
   <constant name="Hcal_endcap_center_box_size" value="700.0*mm"/>
   <constant name="Hcal_endcap_zmin" value="2650*mm" />
-  <constant name="Hcal_endcap_thickness" value="1287.0*mm"/>
+  <constant name="Hcal_endcap_thickness" value="1084.2*mm"/>
   <constant name="Hcal_radial_ring_inner_gap" value="50*mm"/>
-  <constant name="Hcal_endcap_cryostat_gap" value="170*mm"/>
+  <constant name="Hcal_endcap_cryostat_gap" value="0*mm"/>
+  <constant name="Hcal_endcap_ecal_gap" value="15*mm"/>
 
   <!-- coil -->
   <constant name="Coil_extra_size" value="1522*mm"/>
@@ -79,8 +81,9 @@
        <constant name="top_Yoke_inner_radius"    value="4424.0*mm"/>
        <constant name="top_Yoke_outer_radius"    value="7725.0*mm"/>
        -->
-  <constant name="top_Hcal_Yoke_gap"       value="300*mm"/>
-  <constant name="top_Yoke_thickness"      value="2550*mm"/>
+  <constant name="Coil_Yoke_radial_clearance" value="250*mm"/>
+  <constant name="top_Hcal_Yoke_gap"       value="Hcal_Coil_additional_gap+Coil_thickness+Coil_Yoke_radial_clearance"/>
+  <constant name="top_Yoke_thickness"      value="3241*mm"/>
 
   <constant name="top_Yoke_half_length"     value="4047.0*mm"/>
   <constant name="Yoke_Z_start_endcaps"     value="4072.0*mm"/>
@@ -90,7 +93,7 @@
   <constant name="top_Lcal_inner_radius" value="30.0*mm"/>
   <constant name="Lcal_outer_radius"     value="100.0*mm"/>
   <constant name="LumiCal_tubebulge_overshoot"   value="11.2*mm"/>
-  <constant name="top_Lcal_z_begin"      value="Ecal_endcap_zmin" />
+  <constant name="top_Lcal_z_begin"      value="951.9*mm" />
 
   <!-- lhcal -->
   <constant name="top_LHCal_thickness"               value="480*mm"/>
@@ -112,20 +115,20 @@
   <constant name="BCal_rOuter" value="140*mm"/>
 
   <!-- the beam tube -->
-  <constant name="TUBE_IPInnerTube_end_z"         value="200*mm"/>
+  <constant name="TUBE_IPInnerTube_end_z"         value="230*mm"/>
   <constant name="TUBE_central_inner_radius" value="14*mm"/>
   <constant name="TUBE_central_thickness" value="0.5*mm"/>
 
-  <constant name="TUBE_IPInnerBulge_end_z"        value="500*mm"/>
-  <constant name="TUBE_IPInnerBulge_end_innerradius" value="19.5*mm"/>
+  <constant name="TUBE_IPInnerBulge_end_z"        value="970*mm"/>
+  <constant name="TUBE_IPInnerBulge_end_innerradius" value="14*mm"/>
 
   <constant name="TUBE_IPOuterTube_start_z"       value="500*mm"/>
-  <constant name="TUBE_IPOuterTube_end_z"         value="700*mm"/>
+  <constant name="TUBE_IPOuterTube_end_z"         value="230*mm"/>
 
   <constant name="TUBE_Lcal_clearance" value="20*mm"/>
 
   <!-- space left for envelopes (counting from inner beampipe surface) -->
   <constant name="TUBE_inner_maxthick" value="1.0*mm"/> 
-  <constant name="TUBE_outer_maxthick" value="3.0*mm"/> 
+  <constant name="TUBE_outer_maxthick" value="1.0*mm"/> 
 
 </define>

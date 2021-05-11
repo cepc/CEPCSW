@@ -1,0 +1,76 @@
+
+
+dist: bionic
+
+services:
+  - docker
+
+language: cpp
+
+env:
+  matrix:
+    - COMPILER=gcc;   LCG_RELEASE=LCG_96c_LS; STANDARD=17; COMPILER_VERSION=gcc8;
+    - COMPILER=gcc;   LCG_RELEASE=KEY4HEP_STACK; STANDARD=17; COMPILER_VERSION=gcc8;
+
+before_install:
+  - wget --no-check-certificate https://ecsft.cern.ch/dist/cvmfs/cvmfs-release/cvmfs-release-latest_all.deb
+  - sudo dpkg -i cvmfs-release-latest_all.deb
+  - sudo apt-get update
+  - sudo apt-get install cvmfs cvmfs-config-default
+  - rm -f cvmfs-release-latest_all.deb
+  - sudo mkdir -p /etc/cvmfs
+  - sudo mkdir -p /etc/cvmfs/keys/ihep.ac.cn
+  - sudo curl -o /etc/cvmfs/keys/ihep.ac.cn/ihep.ac.cn.pub http://cvmfs-stratum-one.ihep.ac.cn/cvmfs/software/client_configure/ihep.ac.cn/ihep.ac.cn.pub
+  - sudo curl -o /etc/cvmfs/domain.d/ihep.ac.cn.conf http://cvmfs-stratum-one.ihep.ac.cn/cvmfs/software/client_configure/ihep.ac.cn.conf
+  - echo "CVMFS_QUOTA_LIMIT='32140'"                                | sudo tee     /etc/cvmfs/default.local > /dev/null
+  - echo "CVMFS_HTTP_PROXY=DIRECT"                                  | sudo tee -a  /etc/cvmfs/default.local > /dev/null
+  - echo "CVMFS_CACHE_BASE='/var/lib/cvmfs'"                        | sudo tee -a  /etc/cvmfs/default.local > /dev/null
+  - echo "CVMFS_FORCE_SIGNING='yes'"                                | sudo tee -a  /etc/cvmfs/default.local > /dev/null
+  - echo "CVMFS_REPOSITORIES='sft.cern.ch,sft-nightlies.cern.ch,sw.hsf.org,sw-nightlies.hsf.org,cepcsw.ihep.ac.cn,container.ihep.ac.cn'"    | sudo tee -a  /etc/cvmfs/default.local > /dev/null
+  - echo "CVMFS_SEND_INFO_HEADER=no"                                | sudo tee -a  /etc/cvmfs/default.local > /dev/null
+  - cat /etc/cvmfs/default.local
+  - # change wrt dd4hep setup: don't manually mount cvmfs folders
+  - #sudo /etc/init.d/autofs stop
+  - sudo cvmfs_config setup
+  - sudo cvmfs_config probe
+  - sudo mkdir -p /cvmfs/sft.cern.ch
+  - sudo mkdir -p /cvmfs/sft-nightlies.cern.ch
+  - sudo mkdir -p /cvmfs/geant4.cern.ch
+  - sudo mkdir -p /cvmfs/sw.hsf.org
+  - sudo mkdir -p /cvmfs/sw-nightlies.hsf.org
+  - sudo mkdir -p /cvmfs/cepcsw.ihep.ac.cn
+  - sudo mkdir -p /cvmfs/container.ihep.ac.cn
+  - ls /cvmfs/sft.cern.ch
+  - ls /cvmfs/sft-nightlies.cern.ch
+  - ls /cvmfs/geant4.cern.ch
+  - ls /cvmfs/sw.hsf.org
+  - ls /cvmfs/sw-nightlies.hsf.org
+  - ls /cvmfs/cepcsw.ihep.ac.cn
+  - ls /cvmfs/container.ihep.ac.cn
+  - export CVMFS_REPOS="-v /cvmfs/sft.cern.ch:/cvmfs/sft.cern.ch"
+  - export CVMFS_REPOS="${CVMFS_REPOS} -v /cvmfs/sft-nightlies.cern.ch:/cvmfs/sft-nightlies.cern.ch"
+  - export CVMFS_REPOS="${CVMFS_REPOS} -v /cvmfs/sw.hsf.org:/cvmfs/sw.hsf.org"
+  - export CVMFS_REPOS="${CVMFS_REPOS} -v /cvmfs/sw-nightlies.hsf.org:/cvmfs/sw-nightlies.hsf.org"
+  - export CVMFS_REPOS="${CVMFS_REPOS} -v /cvmfs/geant4.cern.ch:/cvmfs/geant4.cern.ch"
+  - export CVMFS_REPOS="${CVMFS_REPOS} -v /cvmfs/cepcsw.ihep.ac.cn:/cvmfs/cepcsw.ihep.ac.cn"
+  - export CVMFS_REPOS="${CVMFS_REPOS} -v /cvmfs/container.ihep.ac.cn:/cvmfs/container.ihep.ac.cn"
+
+
+# command to install dependencies
+install:
+  - shopt -s extglob dotglob
+  - mkdir package
+  - mv !(package) package
+  - shopt -u dotglob
+  - export PKGDIR=${PWD}/package
+
+# command to run tests
+script:
+  - docker run --privileged -ti --name CI_CONTAINER -v $PKGDIR:/workspace -e COMPILER_TYPE=$COMPILER -e LCG_RELEASE=${LCG_RELEASE} -e STANDARD=${STANDARD} -e COMPILER_VERSION=${COMPILER_VERSION} ${CVMFS_REPOS} -d cepc/cepcsw bash 
+  - docker exec -ti CI_CONTAINER  /bin/bash -c "cd /workspace; bash .build.ci.sh"
+  # If run singularity inside docker:
+  # - docker exec -ti CI_CONTAINER /usr/bin/singularity exec -B /cvmfs -B /workspace /cvmfs/container.ihep.ac.cn/singularity/image//SL69/sl69worknode20200729.sif /bin/bash -c 'cd /workspace; source setup.sh; ./build.sh'
+
+# Don't send e-mail notifications
+notifications:
+  email: false

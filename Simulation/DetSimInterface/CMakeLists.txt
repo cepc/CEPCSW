@@ -1,13 +1,15 @@
 
-gaudi_subdir(DetSimInterface v0r0)
 
 # DetSimInterface (headers only)
-set(DetSimInterface_srcs
-    src/IDetSimSvc.cpp
+
+gaudi_add_library(DetSimInterface
+                 SOURCES src/IDetSimSvc.cpp
+                 LINK Gaudi::GaudiKernel
 )
 
-gaudi_add_library(DetSimInterface ${DetSimInterface_srcs}
-    PUBLIC_HEADERS DetSimInterface
-    LINK_LIBRARIES GaudiKernel
-)
+install(TARGETS DetSimInterface
+  EXPORT CEPCSWTargets
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
+  COMPONENT dev)
 

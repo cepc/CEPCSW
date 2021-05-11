@@ -1,0 +1,41 @@
+<lccdd>
+  <detectors>
+    <detector name="HcalRing" type="SHcalRpc01_EndcapRing" id="ILDDetID_HCAL_RING" readout="HcalEndcapRingCollection" vis="SeeThrough" insideTrackingVolume="false" >
+      <comment>Hadron Calorimeter EndcapRing</comment>
+      <envelope vis="ILD_HCALVis">
+	<!--shape type="Assembly"/-->
+        <shape type="BooleanShape" operation="Subtraction" material="Air">
+          <shape type="BooleanShape" operation="Intersection" material="Air">
+            <shape type="Box" dx="HcalEndcapRing_outer_radius + 2.0*env_safety" dy="HcalEndcapRing_outer_radius + 2.0*env_safety"
+                   dz="HcalEndcapRing_max_z + 2.0*env_safety"/>
+            <shape type="PolyhedraRegular" numsides="Hcal_ring_inner_symmetry" rmin="HcalEndcapRing_inner_radius - env_safety"
+                   rmax="HcalEndcapRing_outer_radius*cos(pi/Hcal_ring_outer_symmetry) + env_safety" dz="2.0*HcalEndcapRing_max_z + env_safety" material="Air"/>
+            <rotation x="0" y="0" z="-180*deg/Hcal_ring_inner_symmetry"/>
+          </shape>
+          <shape type="Box" dx="HcalEndcapRing_outer_radius + 2.0*env_safety" dy="HcalEndcapRing_outer_radius + 2.0*env_safety"
+                 dz="HcalEndcapRing_min_z - env_safety"/>
+        </shape>
+      </envelope>
+
+      <type_flags type=" DetType_CALORIMETER + DetType_ENDCAP + DetType_HADRONIC + DetType_AUXILIARY " />
+      <staves material="stainless_steel" vis="GreenVis"/>
+
+      <layer repeat="HcalEndcapRing_nlayers" vis="SeeThrough">
+	<slice material="stainless_steel" thickness="Hcal_radiator_thickness"                    vis="BlueVis"/>
+	<slice material="FloatGlass"      thickness="Hcal_glass_cathode_thickness"               vis="RedVis"/>
+        <slice material="RPCGAS2"         thickness="Hcal_sensitive_gas_gap"   sensitive = "yes" vis="YellowVis"/>
+        <slice material="FloatGlass"      thickness="Hcal_glass_anode_thickness"                 vis="RedVis"/>
+        <slice material="RPC2ECRMix"      thickness="Hcal_mix_thickness"                         vis="CyanVis"/>
+      </layer>
+    </detector>
+  </detectors>
+
+  <readouts>
+    <readout name="HcalEndcapRingCollection">
+      <segmentation type="CartesianGridXY" grid_size_x="Hcal_cells_size" grid_size_y="Hcal_cells_size" offset_x="Hcal_cells_size/2.0" offset_y="Hcal_cells_size/2.0"/>
+      <id>system:5,module:3,stave:4,tower:3,layer:6,y:32:-16,x:-16</id>
+    </readout>
+  </readouts>
+  
+</lccdd>
+

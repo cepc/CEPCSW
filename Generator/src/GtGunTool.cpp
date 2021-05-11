@@ -15,11 +15,30 @@ GtGunTool::initialize() {
         error() << "Please specify the list of particle names/pdgs" << endmsg;
         return StatusCode::FAILURE;
     }
-    if (m_energies.value().size() != m_particles.value().size()) {
+
+    // Position
+    if (m_positionXs.value().size()
+        && m_positionXs.value().size() != m_particles.value().size()) {
+        error() << "Mismatched PositionXs and particles." << endmsg;
+        return StatusCode::FAILURE;
+    }
+    if (m_positionYs.value().size()
+        && m_positionYs.value().size() != m_particles.value().size()) {
+        error() << "Mismatched PositionYs and particles." << endmsg;
+        return StatusCode::FAILURE;
+    }
+    if (m_positionZs.value().size()
+        && m_positionZs.value().size() != m_particles.value().size()) {
+        error() << "Mismatched PositionZs and particles." << endmsg;
+        return StatusCode::FAILURE;
+    }
+    
+    // Energy
+    if (m_energymins.value().size() != m_particles.value().size()) {
         error() << "Mismatched energies and particles." << endmsg;
         return StatusCode::FAILURE;
     }
-
+    
     // others should be empty or specify
     if (m_thetamins.value().size()
         && m_thetamins.value().size() != m_particles.value().size()) {
@@ -64,11 +83,13 @@ GtGunTool::mutate(MyHepMC::GenEvent& event) {
         const std::string& particle_name = m_particles.value()[i];
         int pdgcode = 0;
         double mass = 0;
+        double charge = 0;
 
         TParticlePDG* particle = db_pdg->GetParticle(particle_name.c_str());
         if (particle) {
             pdgcode = particle->PdgCode();
             mass = particle->Mass(); // GeV
+            charge = particle->Charge()/3; // in ROOT, it is in units of |e|/3
         } else {
             // guess it is pdg code
             pdgcode = atol(particle_name.c_str());
@@ -78,68 +99,43 @@ GtGunTool::mutate(MyHepMC::GenEvent& event) {
             }
         }
 
-        double energy = m_energies.value()[i];
+        double energy = m_energymins.value()[i]==m_energymaxs.value()[i] ? m_energymins.value()[i] : CLHEP::RandFlat::shoot(m_energymins.value()[i], m_energymaxs.value()[i]);
 
         // create the MC particle
-        plcio::MCParticle mcp = event.m_mc_vec.create();
+        edm4hep::MCParticle mcp = event.m_mc_vec.create();
         mcp.setPDG(pdgcode);
         mcp.setGeneratorStatus(1);
         mcp.setSimulatorStatus(1);
-        // mcp.setCharge();
+        mcp.setCharge(static_cast<float>(charge));
         mcp.setTime(0.0);
         mcp.setMass(mass);
-        // mcp.setVertex(); 
+
+        // Unit is mm
+        double x = 0;
+        double y = 0;
+        double z = 0;
+        if (i<m_positionXs.value().size()) { x = m_positionXs.value()[i]; }
+        if (i<m_positionYs.value().size()) { y = m_positionYs.value()[i]; }
+        if (i<m_positionZs.value().size()) { z = m_positionZs.value()[i]; }
+
+        mcp.setVertex(edm4hep::Vector3d(x,y,z)); 
         // mcp.setEndpoint();
 
         // assume energy is momentum
-	// For the moment, treat this "energy" as "momentum" ( 2020/09/02 )
-        double p = energy; // original ! 
+        double p = energy; 
         
         // direction
         // by default, randomize the direction
-        double costheta = CLHEP::RandFlat::shoot(-1, 1);
-        double phi = 360*CLHEP::RandFlat::shoot()*CLHEP::degree;
+        double theta = m_thetamins.value()[i]==m_thetamaxs.value()[i] ? m_thetamins.value()[i] : CLHEP::RandFlat::shoot(m_thetamins.value()[i], m_thetamaxs.value()[i]);
+        double phi =   m_phimins  .value()[i]==m_phimaxs  .value()[i] ? m_phimins  .value()[i] : CLHEP::RandFlat::shoot(m_phimins  .value()[i], m_phimaxs  .value()[i]);
+        double costheta = cos(theta*acos(-1)/180);
+        double phi_  = phi*acos(-1)/180;
         double sintheta = sqrt(1.-costheta*costheta);
-
-        // check if theta min/max is set
-
-        if (i < m_thetamins.value().size() 
-            && i < m_thetamaxs.value().size()) {
-	  //double thetamin = m_thetamins.value()[i]; // original
-	  //double thetamax = m_thetamaxs.value()[i]; // original
-	    
-	  double thetamin = m_thetamins.value()[i] * CLHEP::degree;
-	  double thetamax = m_thetamaxs.value()[i] * CLHEP::degree;
-
-            if (thetamin == thetamax) { // fixed theta
-                costheta = cos(thetamin);
-                sintheta = sin(thetamin);
-                info() << "theta is fixed: " << thetamin << endmsg;
-            }
-        }
-
-        if (i < m_phimins.value().size()
-            && i < m_phimaxs.value().size()) {
-            double phimin = m_phimins.value()[i];
-            double phimax = m_phimaxs.value()[i];
-
-            if (phimin == phimax) { // fixed phi
-                phi = phimin;
-                info() << "phi is fixed: " << phimin << endmsg;
-            }
-        }
-
-	info() << "cos(theta) = " << costheta << ", phi = " << phi << endmsg;
-        debug() << "Direction: "
-                << " cos(theta): " << costheta
-                << " phi: " << phi
-                << endmsg;
-        
-        double px = p*sintheta*cos(phi);
-        double py = p*sintheta*sin(phi);
+        double px = p*sintheta*cos(phi_);
+        double py = p*sintheta*sin(phi_);
         double pz = p*costheta;
-
-        mcp.setMomentum(plcio::FloatThree(px,py,pz));
+        std::cout<<"GenGt p="<<p<<", px="<<px<<",py="<<py<<",pz="<<pz<<",theta="<<theta<<",phi="<<phi<<std::endl;
+        mcp.setMomentum(edm4hep::Vector3f(px,py,pz));
         // mcp.setMomentumAtEndpoint();
         // mcp.setSpin();
         // mcp.setColorFlow();

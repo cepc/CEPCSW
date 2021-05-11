@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lccdd xmlns:compact="http://www.lcsim.org/schemas/compact/1.0"
+       xmlns:xs="http://www.w3.org/2001/XMLSchema"
+       xs:noNamespaceSchemaLocation="http://www.lcsim.org/schemas/compact/1.0/compact.xsd">
+
+  <info name="DriftChamber"
+    title="Test with Drift Chamber"
+    author="Tao Lin"
+    url="http://github.com/cepc/CEPCSW"
+    status="development"
+    version="v0">
+    <comment>Test with Drift Chamber</comment>
+  </info>
+
+  <includes>
+    <gdmlFile  ref="elements.xml"/>
+    <gdmlFile  ref="materials.xml"/>
+  </includes>
+
+
+  <define>
+    <constant name="world_size" value="2226*mm"/>
+    <constant name="world_x" value="world_size"/>
+    <constant name="world_y" value="world_size"/>
+    <constant name="world_z" value="world_size"/>
+
+    <!-- SDT -->
+    <constant name="DetID_DC"  value="7"/>
+    <constant name="SDT_radius_min" value="234*mm"/>
+    <constant name="SDT_radius_max" value="1720*mm"/>
+
+    <constant name="DC_Endcap_dz" value="0.1*mm"/>
+
+    <constant name="SDT_half_length" value="2225*mm+DC_Endcap_dz"/>
+    <constant name="DC_half_length" value="2225*mm"/>
+    <constant name="SDT_length" value="SDT_half_length*2"/>
+    <constant name="DC_length" value="SDT_length-DC_Endcap_dz*2"/>
+
+    <constant name="DC_safe_distance" value="0.2*mm"/>
+
+    <constant name="SDT_inner_wall_thickness" value="0.2*mm"/>
+    <constant name="SDT_outer_wall_thickness" value="2.8*mm"/>
+
+    <constant name="DC_inner_chamber_layer_rbegin" value="235*mm"/>
+    <constant name="DC_inner_chamber_layer_rend" value="905*mm"/>
+
+    <constant name="DC_outer_chamber_layer_rbegin" value="1085*mm"/>
+    <constant name="DC_outer_chamber_layer_rend" value="1715*mm"/>
+
+    <constant name="DC_inner_chamber_radius_min" value="DC_inner_chamber_layer_rbegin"/>
+    <constant name="DC_inner_chamber_radius_max" value="909*mm"/>
+
+    <constant name="DC_outer_chamber_radius_min" value="DC_outer_chamber_layer_rbegin"/>
+    <constant name="DC_outer_chamber_radius_max" value="1716*mm"/>
+
+    <constant name="SDT_inner_chamber_radius_min" value="DC_inner_chamber_layer_rbegin-DC_safe_distance"/>
+    <constant name="SDT_inner_chamber_radius_max" value="DC_inner_chamber_radius_max-SDT_outer_wall_thickness"/>
+    <constant name="SDT_inner_chamber_half_length" value="DC_half_length"/>
+
+    <constant name="SDT_outer_chamber_radius_min" value="DC_outer_chamber_layer_rbegin-DC_safe_distance"/>
+    <constant name="SDT_outer_chamber_radius_max" value="DC_outer_chamber_radius_max"/>
+    <constant name="SDT_outer_chamber_half_length" value="DC_half_length"/>
+
+    <constant name="SDT_inner_chamber_layer_number" value="67"/>
+    <constant name="SDT_outer_chamber_layer_number" value="63"/>
+    <constant name="SDT_chamber_layer_width" value="10*mm"/>
+    <constant name="Epsilon" value="0*deg"/>
+
+    <constant name="SDT_inner_chamber_inner_wall_radius_min" value="SDT_inner_chamber_radius_min-SDT_inner_wall_thickness"/>
+    <constant name="SDT_inner_chamber_inner_wall_radius_max" value="SDT_inner_chamber_radius_min"/>
+    <constant name="SDT_inner_chamber_outer_wall_radius_min" value="SDT_inner_chamber_radius_max"/>
+    <constant name="SDT_inner_chamber_outer_wall_radius_max" value="SDT_inner_chamber_radius_max+SDT_outer_wall_thickness"/>
+    <constant name="SDT_outer_chamber_inner_wall_radius_min" value="SDT_outer_chamber_radius_min-SDT_inner_wall_thickness"/>
+    <constant name="SDT_outer_chamber_inner_wall_radius_max" value="SDT_outer_chamber_radius_min"/>
+    <constant name="SDT_outer_chamber_outer_wall_radius_min" value="SDT_outer_chamber_radius_max"/>
+    <constant name="SDT_outer_chamber_outer_wall_radius_max" value="SDT_outer_chamber_radius_max+SDT_outer_wall_thickness"/>
+
+    <constant name="DC_Endcap_rmin" value="SDT_radius_min"/>
+    <constant name="DC_Endcap_rmax" value="SDT_radius_max"/>
+
+    <constant name="DC_inner_chamber_enabled" value="1"/>
+    <constant name="DC_outer_chamber_enabled" value="1"/>
+
+  </define>
+
+  <display>
+    <vis name="Invisible" showDaughters="false" visible="false"/>
+    <vis name="InvisibleWithChildren" showDaughters="true" visible="false"/>
+    <vis name="VisibleRed"  r="1.0" g="0.0" b="0.0" showDaughters="true" visible="true"/>
+    <vis name="VisibleBlue" r="0.0" g="0.0" b="1.0" showDaughters="true" visible="true"/>
+    <vis name="VisibleGreen" alpha="1.0" r="0.0" g="1.0" b="0.0" drawingStyle="solid" lineStyle="solid" showDaughters="true" visible="true"/>
+    <vis name="YellowVis" alpha="1.0" r="1.0" g="1.0"  b="0.0"   showDaughters="true"  visible="true"/>
+  </display>
+
+  <limits>
+    <limitset name="DC_limits">
+      <limit name="step_length_max" particles="*" value="0.5" unit="mm" />
+    </limitset>
+  </limits>
+
+  <regions>
+    <region name="DriftChamberRegion">
+    </region>
+  </regions>
+
+  <detectors>
+    <detector id="7" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="VisibleBlue" sensitive="true" region="DriftChamberRegion" limits="DC_limits">
+      <envelope vis="SeeThrough">
+<!--        <shape type="BooleanShape" operation="Union" material="Air">
+          <shape type="Tube" rmin="SDT_radius_min" rmax="SDT_inner_chamber_outer_wall_radius_max" dz="SDT_half_length" />
+          <shape type="Tube" rmin="SDT_outer_chamber_inner_wall_radius_min" rmax="SDT_radius_max" dz="SDT_half_length" />
+        </shape> -->
+        <shape type="BooleanShape" operation="Subtraction" material="Air">
+          <shape type="Tube" rmin="SDT_radius_min" rmax="SDT_radius_max" dz="SDT_half_length" />
+          <shape type="Tube" rmin="DC_inner_chamber_radius_max" rmax="SDT_outer_chamber_inner_wall_radius_min" dz="DC_half_length"/>
+        </shape>
+      </envelope>
+
+      <module id="0" name="SignalWire" type="Tube" rmin="0*mm" rmax="0.01*mm" vis="VisibleRed">
+          <tubs name="W" type="Tube" rmin="0*mm" rmax="0.007*mm" material="Tungsten"/>
+          <tubs name="Au" type="Tube" rmin="0.007*mm" rmax="0.01*mm" material="Gold"/>
+      </module>
+
+      <module id="1" name="FieldWire" type="Tube" rmin="0*mm" rmax="0.02*mm" vis="VisibleGreen">
+          <tubs name="Al" type="Tube" rmin="0*mm" rmax="0.017*mm" material="Aluminum"/>
+          <tubs name="Ag" type="Tube" rmin="0.017*mm" rmax="0.02*mm" material="Silver"/>
+      </module>
+
+      <type_flags type="DetType_TRACKER + DetType_BARREL + DetType_GASEOUS + DetType_WIRE"/>
+      <!-- Use cm as unit if you want to use Pandora for reconstruction -->
+     <sensitive type="SimpleDriftChamber"/>
+     </detector>
+  </detectors>
+
+  <readouts>
+    <readout name="DriftChamberHitsCollection">
+      <segmentation type="GridDriftChamber" cell_size="10*mm" epsilon0="Epsilon" detector_length="DC_length" identifier_phi="cellID" DC_inner_rbegin="DC_inner_chamber_layer_rbegin" DC_inner_rend="DC_inner_chamber_layer_rend" DC_outer_rbegin="DC_outer_chamber_layer_rbegin" DC_outer_rend="DC_outer_chamber_layer_rend" DC_inner_rmin="SDT_inner_chamber_radius_min" DC_inner_rmax="SDT_inner_chamber_radius_max" DC_outer_rmin="SDT_outer_chamber_radius_min" DC_outer_rmax="SDT_outer_chamber_radius_max" DC_inner_layer_number="SDT_inner_chamber_layer_number" DC_outer_layer_number="SDT_outer_chamber_layer_number" safe_distance="DC_safe_distance" layerID="layer" layer_width="SDT_chamber_layer_width"/>
+
+      <!-- <id>system:8,chamber:1,layer:8,cellID:16</id> -->
+      <id>system:5,side:-2,layer:9,chamber:8,sensor:8,cellID:16</id>
+    </readout>
+  </readouts>
+
+  <fields>
+
+    <field name="MagnetFields_Constant" type="ConstantField" field="magnetic">
+      <strength x="0" y="0" z="3.0*tesla"/>
+    </field>
+
+  </fields>
+
+</lccdd>

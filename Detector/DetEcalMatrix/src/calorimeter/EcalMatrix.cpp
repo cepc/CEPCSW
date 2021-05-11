@@ -16,6 +16,7 @@
 #define MYDEBUG(x) std::cout << __FILE__ << ":" << __LINE__ << ": " << x << std::endl;
 #define MYDEBUGVAL(x) std::cout << __FILE__ << ":" << __LINE__ << ": " << #x << ": " << x << std::endl;
 
+using dd4hep::rec::LayeredCalorimeterData;
 static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
                                      xml_h e,
                                      dd4hep::SensitiveDetector sens) {
@@ -40,6 +41,51 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     dd4hep::Transform3D transform(dd4hep::Rotation3D(),
                                   dd4hep::Position(pos.x(),pos.y(),pos.z()));
     dd4hep::PlacedVolume phv = motherVol.placeVolume(det_vol,transform);
+    //Create caloData object to extend driver with data required for reconstruction
+    LayeredCalorimeterData* caloData = new LayeredCalorimeterData ;
+    caloData->layoutType = LayeredCalorimeterData::BarrelLayout ;
+    caloData->inner_symmetry = 8 ;//nsides
+    caloData->outer_symmetry = 8; //nsides;
+    caloData->inner_phi0 = 0.;
+    caloData->outer_phi0 = 0.; 
+    caloData->gap0 = 0.; //FIXME
+    caloData->gap1 = 0.; //FIXME
+    caloData->gap2 = 0.; //FIXME
+    // extent of the calorimeter in the r-z-plane [ rmin, rmax, zmin, zmax ] in mm.
+    caloData->extent[0] = 10*( pos.x()-dim.dx() );// from cm to mm
+    caloData->extent[1] = 10*( pos.x()+dim.dx() );// from cm to mm
+    caloData->extent[2] = 0 ;
+    caloData->extent[3] = 10*( pos.z()+dim.dz() );// from cm to mm
+    std::cout<<"rmin="<<caloData->extent[0]<<",rmax="<<caloData->extent[1]<<",zmin="<<caloData->extent[2]<<",zmax="<<caloData->extent[3]<<std::endl;
+    dd4hep::Readout readout = sens.readout();
+    dd4hep::Segmentation seg = readout.segmentation();
+
+    std::cout << "TAO: "
+              << " field description: " << seg.segmentation()->fieldDescription()
+              // << " grid size x/y/z: "
+              // << seg.segmentation()->parameter("grid_size_x")->toString()
+              // << seg.segmentation()->parameter("grid_size_x")->toString()
+              // << seg.segmentation()->parameter("grid_size_x")->toString()
+              << std::endl;
+
+
+    double cellSize_x = ::atof( seg.segmentation()->parameter("grid_size_x")->value().c_str() ) * 10;// from cm to mm
+    double cellSize_y = ::atof( seg.segmentation()->parameter("grid_size_y")->value().c_str() ) * 10;// from cm to mm
+    double cellSize_z = ::atof( seg.segmentation()->parameter("grid_size_z")->value().c_str() ) * 10;// from cm to mm
+    int n_layer = int(2*dim.dx()*10/cellSize_x) ; // here the calorimeter is placed in barrel, so x direaction is layer direction
+    std::cout<<"cellx="<<cellSize_x<<",celly="<<cellSize_y<<",cellz="<<cellSize_z<<",dx="<<dim.dx()*10<<"mm,n_layer="<<n_layer<<std::endl;
+    for(int i=1 ; i <= n_layer; i++)
+    {
+        LayeredCalorimeterData::Layer caloLayer ;
+        caloLayer.distance = caloData->extent[0] + (i-0.5)*cellSize_x; //NEED TO START FROM ORIGIN, to mm
+        caloLayer.sensitive_thickness = cellSize_x ;
+        caloLayer.inner_thickness = cellSize_x ;
+        caloLayer.outer_thickness = cellSize_x ;
+        caloLayer.absorberThickness = cellSize_x;
+        caloLayer.cellSize0 = cellSize_y;
+        caloLayer.cellSize1 = cellSize_z;
+        caloData->layers.push_back(caloLayer); 
+    }
 
     if ( x_det.isSensitive() )   {
         dd4hep::SensitiveDetector sd = sens;
@@ -50,7 +96,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         phv.addPhysVolID("system",x_det.id());
     }
     sdet.setPlacement(phv);
-    
+    sdet.addExtension< LayeredCalorimeterData >(caloData) ; 
     MYDEBUG("create_detector DONE. ");
     return sdet;
 }

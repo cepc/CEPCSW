@@ -15,31 +15,31 @@
   
   <!-- central tube -->
   <section type ="Center"                
-	   start="0*mm"                                  end="TUBE_innerCylinder_zEnd"
+	   start="0*mm"                                  end="TUBE_innerCylinder_zEnd_real"
            rMin1="TUBE_innerCylinder_rInner"  rMin2="TUBE_innerCylinder_rInner"       
 	   rMax1="TUBE_innerCylinder_rInner+TUBE_innerCylinder_thickness"        rMax2="TUBE_innerCylinder_rInner+TUBE_innerCylinder_thickness"
 	   material="G4_Be" name="IPInnerTube" />
 
   <!-- first cone -->
   <section type ="Center"
-           start="TUBE_firstCone_zStart"                               end="TUBE_firstCone_zEnd"
-           rMin1="TUBE_firstCone_rInnerStart"                          rMin2="TUBE_firstCone_rInnerEnd"
-           rMax1="TUBE_firstCone_rInnerStart+TUBE_firstCone_RadThickness" rMax2="TUBE_firstCone_rInnerEnd+TUBE_firstCone_RadThickness"
-           material="G4_Cu" name="IPInnerBulge" />
+           start="TUBE_innerCylinder_zEnd_real"                               end="TUBE_firstCone_zEnd_real"
+           rMin1="TUBE_innerCylinder_rInner"                          rMin2="TUBE_firstCone_rInnerEnd_real"
+           rMax1="TUBE_innerCylinder_rInner+TUBE_innerCylinder_thickness" rMax2="TUBE_firstCone_rInnerEnd_real+TUBE_firstCone_thickness"
+           material="G4_Be" name="IPInnerBulge" />
 
   <!-- second cylinder -->
-  <section type ="Center"  
+  <!--section type ="Center"  
            start="TUBE_secondCylinder_zStart"                               end="TUBE_secondCylinder_zEnd" 
            rMin1="TUBE_secondCylinder_rInner"                               rMin2="TUBE_secondCylinder_rInner"
            rMax1="TUBE_secondCylinder_rInner+TUBE_secondCylinder_thickness" rMax2="TUBE_secondCylinder_rInner+TUBE_secondCylinder_thickness"
-           material="G4_Cu" name="IPOuterTube" />
+           material="G4_Cu" name="IPOuterTube" /-->
 
   <!-- second cone, split into parts -->
-  <section type ="Center" 
+  <!--section type ="Center" 
            start="TUBE_secondCone_part1_zStart"                                end="TUBE_secondCone_part4_zEnd"
            rMin1="TUBE_secondCone_part1_rInnerStart"                             rMin2="TUBE_secondCone_part4_rInnerEnd"
            rMax1="TUBE_secondCone_part1_rInnerStart+TUBE_secondCone_part1_RadThickness"  rMax2="TUBE_secondCone_part4_rInnerEnd+TUBE_secondCone_part4_RadThickness"
-           material="BeampipeBeCableMix" name="IPOuterTube" />
+           material="BeampipeBeCableMix" name="IPOuterTube" /-->
 
   <!--section type ="Center" 
            start="TUBE_secondCone_part2_zStart"                                end="TUBE_secondCone_part2_zEnd"
@@ -103,17 +103,17 @@
            rMax1="TUBE_incoming_beamcalToQD0_InnerRadius+TUBE_upstream_thickness"  rMax2="TUBE_incoming_QD0andBeyond_InnerRadius+TUBE_upstream_thickness"
            material="stainless_steel" name="BeamCalToQD0UpstreamTrans" />
 
-  <section type ="Upstream"
+  <!--section type ="Upstream"
            start="TUBE_QD0_Lstar"                    end="TUBE_QD0_Lstar+TUBE_QD0_length"
            rMin1="TUBE_incoming_QD0andBeyond_InnerRadius"          rMin2="TUBE_incoming_QD0andBeyond_InnerRadius"
            rMax1="TUBE_incoming_QD0andBeyond_InnerRadius+20*mm"    rMax2="TUBE_incoming_QD0andBeyond_InnerRadius+20*mm"
-           material="stainless_steel" name="QD0CryoUpstream" />
+           material="stainless_steel" name="QD0CryoUpstream" /-->
 
-  <section type ="Upstream"
+  <!--section type ="Upstream"
            start="TUBE_QD0_Lstar+TUBE_QD0_length"    end="10*m"
            rMin1="TUBE_incoming_QD0andBeyond_InnerRadius"          rMin2="TUBE_incoming_QD0andBeyond_InnerRadius"
            rMax1="TUBE_incoming_QD0andBeyond_InnerRadius+TUBE_upstream_thickness"    rMax2="TUBE_incoming_QD0andBeyond_InnerRadius+TUBE_upstream_thickness"
-           material="stainless_steel" name="BeyondQD0Upstream" />
+           material="stainless_steel" name="BeyondQD0Upstream" /-->
 
 
 
@@ -137,17 +137,17 @@
            rMax1="TUBE_outgoing_beamcalToQD0_InnerRadius+TUBE_upstream_thickness"  rMax2="TUBE_outgoing_beamcalToQD0_InnerRadius+TUBE_upstream_thickness"
            material="stainless_steel" name="BeamCalToQDEX1ADnstream" />
 
-  <section type ="Dnstream"
+  <!--section type ="Dnstream"
            start="TUBE_QDEX1A_Lstar"                    end="TUBE_QD0_Lstar+TUBE_QD0_cryostat_length"
            rMin1="TUBE_outgoing_QD0andBeyond_InnerRadius"          rMin2="TUBE_outgoing_QD0andBeyond_InnerRadius"
            rMax1="TUBE_outgoing_QD0andBeyond_InnerRadius+20*mm"    rMax2="TUBE_outgoing_QD0andBeyond_InnerRadius+20*mm"
-           material="stainless_steel" name="QDEX1A" />
+           material="stainless_steel" name="QDEX1A" /-->
 
-  <section type ="Dnstream"
+  <!--section type ="Dnstream"
            start="TUBE_QD0_Lstar+TUBE_QD0_cryostat_length"         end="10*m"
            rMin1="TUBE_outgoing_QD0andBeyond_InnerRadius"          rMin2="TUBE_outgoing_QD0andBeyond_InnerRadius"
            rMax1="TUBE_outgoing_QD0andBeyond_InnerRadius+TUBE_upstream_thickness"    rMax2="TUBE_outgoing_QD0andBeyond_InnerRadius+TUBE_upstream_thickness"
-           material="stainless_steel" name="BeyondQD0Dnstream" />
+           material="stainless_steel" name="BeyondQD0Dnstream" /-->
 
 </detector>
 
@@ -160,12 +160,12 @@
   <type_flags type="DetType_SUPPORT + DetType_BEAMPIPE "/>
 
   <section start="TUBE_QD0_Lstar-20*mm" end="TUBE_QD0_Lstar+TUBE_QD0_cryostat_length"
-	   rMin="235.*mm" rMax="250.*mm"
+	   rMin="170.*mm" rMax="185.*mm"
 	   material="stainless_steel"
 	   name="qd0_cryostat"/>
 
   <section start="TUBE_QD0_Lstar-20*mm" end="TUBE_QD0_Lstar+TUBE_QD0_cryostat_length"
-	   rMin="235.*mm" rMax="250.*mm"
+	   rMin="205.*mm" rMax="210.*mm"
 	   material="stainless_steel"
 	   name="qd0_cryostat_wall"/>
 
@@ -183,7 +183,7 @@
 
 </detector>
 
-<detector name="QD0_support" type="BoxSupport_o1_v01" vis="BeamPipeVis" id="ILDDetID_NOTUSED" reflect="true">
+<detector name="QD0_support" type="TubeSupport_o1_v01" vis="BeamPipeVis" id="ILDDetID_NOTUSED" reflect="true">
 
   <envelope vis="BlueVis">
     <shape type="Assembly"/>
@@ -191,18 +191,19 @@
 
   <type_flags type="DetType_SUPPORT + DetType_BEAMPIPE "/>
 
-  <section start="TUBE_QD0_Lstar+20*mm" end="TUBE_QD0_Lstar+TUBE_QD0_cryostat_length"
-	   rMin="275.*mm" rMax="300*mm"
+  <section start="TUBE_QD0_Lstar-20*mm" end="TUBE_QD0_Lstar+TUBE_QD0_cryostat_length"
+	   rMin="240.*mm" rMax="310*mm"
 	   material="stainless_steel"
 	   name="qd0_support"/>
 
-  <section start="Ecal_endcap_zmin" end="Ecal_endcap_zmin+Ecal_barrel_thickness"
+  <!--section start="Ecal_endcap_zmin" end="Ecal_endcap_zmin+Ecal_barrel_thickness"
 	   rMin="EcalEndcapRing_outer_radius + 2*env_safety" rMax="EcalEndcap_inner_radius - 2*env_safety"
 	   material="stainless_steel"
-	   name="forward_support_tube"/>
+	   name="forward_support_tube"/-->
 
-  <section start="top_LHCal_min_z + top_LHCal_thickness+10*mm" end="BeamCal_min_z + top_BeamCal_thickness+4600*mm"
-	   rMin="305*mm" rMax="325*mm"
+  <!--section start="top_LHCal_min_z + top_LHCal_thickness+10*mm" end="BeamCal_min_z + top_BeamCal_thickness+4600*mm"-->
+  <section start="top_LHCal_min_z + top_LHCal_thickness+10*mm" end="TUBE_QD0_Lstar-20*mm"
+	   rMin="175*mm" rMax="240*mm"
 	   material="stainless_steel"
 	   name="forward_support_tube"/>
 

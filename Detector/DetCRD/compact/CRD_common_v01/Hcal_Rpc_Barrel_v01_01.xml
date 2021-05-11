@@ -1,0 +1,79 @@
+<lccdd>
+  <define>
+    <constant name="Hcal_cells_size" value="10*mm"/>
+    <constant name="Hcal_inner_radius" value="Hcal_barrel_inner_radius"/>
+    <constant name="Hcal_half_length" value="Hcal_barrel_half_length"/>
+    <constant name="Hcal_inner_symmetry" value="Hcal_barrel_symmetry"/>
+    <constant name="Hcal_nlayers" value="40"/>
+    <constant name="Hcal_Ecal_gap" value="Hcal_barrel_inner_radius-Ecal_barrel_outer_radius"/>
+    <constant name="Ecal_outer_radius" value="Ecal_barrel_outer_radius"/>
+    
+    <constant name="Hcal_radiator_thickness" value="20.0*mm"/>
+    <constant name="Hcal_airgap_thickness" value="1*mm"/>
+    <constant name="Hcal_mylar_cathode_thickness" value="0.18*mm"/>
+    <constant name="Hcal_graphite_cathode_thickness" value="0.05*mm"/>
+    <constant name="Hcal_glass_cathode_thickness" value="1.1*mm"/>
+    <constant name="Hcal_sensitive_gas_gap" value="1.2*mm"/>
+    <constant name="Hcal_glass_anode_thickness" value="0.7*mm"/>
+    <constant name="Hcal_graphite_anode_thickness" value="0.05*mm"/>
+    <constant name="Hcal_mylar_anode_thickness" value="0.05*mm"/>
+    <constant name="Hcal_PCB_thickness" value="0.8*mm"/>
+    <constant name="Hcal_electronics_mask_thickness" value="1.6*mm"/>
+    
+    <constant name="Hcal_gas_edge_width" value="1*mm"/>
+    <constant name="Hcal_MinNumCellsInTransvPlane" value="11"/>
+    <constant name="Hcal_barrel_number_modules" value="5"/>
+    <constant name="Hcal_chamber_thickness" value="6.73*mm"/>
+    <constant name="Hcal_back_plate_thickness" value="15*mm"/>
+    <constant name="Hcal_lateral_structure_thickness" value="10*mm"/>
+    <constant name="Hcal_stave_gaps" value="0*mm"/>
+    <constant name="Hcal_modules_gap" value="2*mm"/>
+
+    <constant name="Hcal_pad_separation" value="0*mm"/>
+    <constant name="Hcal_gasInlet_length" value="3.0*mm"/>
+    <constant name="Hcal_spacer_separation" value="100*mm"/>
+    <constant name="Hcal_spacer_thickness" value="8*mm"/>
+    <constant name="Hcal_gasInlet_inner_radius" value="0.4*mm"/>
+    <constant name="Hcal_gasInlet_outer_radius" value="0.5*mm"/>
+  </define>
+
+  <detectors>
+    <detector name="HcalBarrel" type="SHcalRpc01_Barrel" id="DetID_HCAL" readout="HcalBarrelCollection" vis="GreenVis" insideTrackingVolume="false" >
+      <comment>Hadron Calorimeter Barrel</comment>
+      <envelope vis="HCALVis">
+        <shape type="BooleanShape" operation="Subtraction" material="Air" >
+          <shape type="Cone" z="Hcal_barrel_half_length + env_safety/2" rmin1="0.0" rmax1="Hcal_barrel_outer_radius + env_safety"
+		 rmin2="0.0" rmax2="Hcal_barrel_outer_radius + env_safety"/>
+          <shape type="PolyhedraRegular"  numsides="Hcal_barrel_symmetry" rmin="0.0"
+                 rmax="Hcal_barrel_inner_radius - env_safety" dz="2*(Hcal_barrel_half_length + env_safety)"/>
+	  <rotation x="0" y="0" z="-180*deg/Hcal_barrel_symmetry"/>
+        </shape>
+      </envelope>
+      <type_flags type=" DetType_CALORIMETER + DetType_BARREL + DetType_HADRONIC " />
+
+      <staves  material="stainless_steel"  vis="BlueVis"/>
+
+      <layer repeat="Hcal_nlayers" vis="SeeThrough">
+        <slice material="stainless_steel" thickness="Hcal_radiator_thickness"                    vis="BlueVis"   />
+        <slice material="Air"             thickness="Hcal_airgap_thickness"                      vis="WhiteVis"   />
+	<slice material="mylar"           thickness="Hcal_mylar_cathode_thickness"               vis="MagentaVis" />
+	<slice material="graphite"        thickness="Hcal_graphite_cathode_thickness"            vis="Invisible" />
+	<slice material="FloatGlass"      thickness="Hcal_glass_cathode_thickness"               vis="RedVis" />
+	<slice material="RPCGAS2"         thickness="Hcal_sensitive_gas_gap"   sensitive = "yes" vis="YellowVis" edge_material="PEEK-GF30" spacer_material="Nylon"/>
+	<slice material="FloatGlass"      thickness="Hcal_glass_anode_thickness"                 vis="RedVis" />
+	<slice material="graphite"        thickness="Hcal_graphite_anode_thickness"              vis="Invisible" />
+	<slice material="mylar"           thickness="Hcal_mylar_anode_thickness"                 vis="MagentaVis" />
+	<slice material="g10"             thickness="Hcal_PCB_thickness"                         vis="CyanVis" />
+	<slice material="g10"             thickness="Hcal_electronics_mask_thickness"            vis="GreenVis" />
+      </layer>
+    </detector>
+  </detectors>
+
+  <readouts>
+    <readout name="HcalBarrelCollection">
+      <segmentation type="CartesianGridYZ" grid_size_y="Hcal_cells_size" grid_size_z="Hcal_cells_size"/>
+      <id>system:5,module:3,stave:3,tower:5,layer:6,slice:4,y:32:-16,z:-16</id>
+    </readout>
+  </readouts>
+
+</lccdd>

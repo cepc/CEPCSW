@@ -1,0 +1,56 @@
+<lccdd>
+  <define>
+    <constant name="SIT_sensitive_thickness" value="0.2*mm"/>
+    <constant name="SIT_inner_radius"   value="SIT1_inner_radius"/>
+    <constant name="SIT_inner_radius_1"   value="SIT_inner_radius + env_safety"/>
+    <constant name="SIT_outer_radius_1" value="SIT_inner_radius_1/cos(pi/8)"/>
+    <constant name="SIT_inner_radius_2" value="InnerTracker_outer_radius + env_safety"/>
+    <constant name="SIT_outer_radius"   value="OuterTracker_inner_radius"/>
+    <constant name="SIT_half_length"    value="SIT2_half_length"/>
+    <constant name="SIT_half_length_1"  value="SIT1_half_length"/>
+    <constant name="SIT_layer_gap" value="2.5*mm"/>
+  </define>
+
+  <detectors>
+    <detector id="DetID_SIT" name="SIT" type="SIT_Simple_Planar" vis="SITVis" readout="SITCollection" insideTrackingVolume="true">
+      <envelope vis="SeeThrough">
+        <shape type="BooleanShape" operation="Union" material="Air" >
+          <shape type="Tube" rmin="SIT_inner_radius"   rmax="SIT_outer_radius_1" dz="SIT_half_length_1" />
+          <shape type="Tube" rmin="SIT_inner_radius_2" rmax="SIT_outer_radius"   dz="SIT_half_length" />
+        </shape>
+      </envelope>
+
+      <type_flags type="DetType_TRACKER + DetType_BARREL + DetType_STRIP "/>
+
+      <!-- database : sit_simple_planar_sensors_03 -->
+      
+      <!-- SQL command: "select * from extended_reconstruction_parameters;"  -->
+      <reconstruction strip_width="0." strip_length="92*mm" strip_pitch="0." strip_angle="7*deg"  />
+
+      <!-- SQL command: "select * from global;"  -->
+      <global sensitive_thickness="SIT_sensitive_thickness" support_thickness="1*mm" sensor_length="92*mm"
+              sensitive_mat="G4_Si" support_mat="G4_C" sensitive_threshold_KeV="64*keV"  />
+
+      <!-- SQL command: "select * from sit_layers;"  -->
+      <layer layer_id="0" sensitive_radius="SIT_inner_radius_1+0.5*SIT_sensitive_thickness" n_sensors_per_ladder="8" n_ladders="10"
+             ladder_clearance="0.1*mm" faces_IP="1" is_SIT1="1" is_SIT2="0"  />
+
+      <layer layer_id="1" sensitive_radius="SIT_inner_radius_1+0.5*SIT_sensitive_thickness+SIT_layer_gap" n_sensors_per_ladder="8" n_ladders="10"
+             ladder_clearance="0.1*mm" faces_IP="0" is_SIT1="0" is_SIT2="0"  />
+
+      <layer layer_id="2" sensitive_radius="SIT_inner_radius_2+0.5*SIT_sensitive_thickness" n_sensors_per_ladder="48" n_ladders="24"
+             ladder_clearance="0.1*mm" faces_IP="1" is_SIT1="0" is_SIT2="1"  />
+
+      <layer layer_id="3" sensitive_radius="SIT_inner_radius_2+0.5*SIT_sensitive_thickness+SIT_layer_gap" n_sensors_per_ladder="48" n_ladders="24"
+             ladder_clearance="0.1*mm" faces_IP="0" is_SIT1="0" is_SIT2="0"  />
+
+    </detector>
+  </detectors>
+
+  <readouts>
+    <readout name="SITCollection">
+      <id>system:5,side:-2,layer:9,module:8,sensor:8,barrelside:-2</id>
+    </readout>
+  </readouts>
+  
+</lccdd>

@@ -19,7 +19,7 @@
 #include "G4PhysicalVolumeStore.hh"
 #include "G4OpticalSurface.hh"
 
-// Copy directly from main CEPCSW for temporal use
+// Field
 #include "G4UniformMagField.hh"
 #include "G4FieldManager.hh"
 #include "G4TransportationManager.hh"
@@ -97,7 +97,47 @@ AnExampleDetElemTool::ConstructSDandField() {
                << endmsg;
         // continue;
         // Sensitive detectors are deleted in ~G4SDManager
-        G4VSensitiveDetector* g4sd = dd4hep::PluginService::Create<G4VSensitiveDetector*>(typ, nam, lcdd);
+        G4VSensitiveDetector* g4sd = nullptr;
+
+        // try to use SD tool to find the SD
+        if (!g4sd) {
+            if (typ=="calorimeter") {
+                m_calo_sdtool = ToolHandle<ISensDetTool>("CalorimeterSensDetTool");
+                if (m_calo_sdtool) {
+                    info() << "Find the CalorimeterSensDetTool." << endmsg;
+                    g4sd = m_calo_sdtool->createSD(nam);
+                    info() << "create g4SD: " << g4sd << endmsg;
+                }
+            } else if (typ=="tracker") {
+
+                // if drift chamber
+                if (nam == "DriftChamber") {
+                    m_driftchamber_sdtool = ToolHandle<ISensDetTool>("DriftChamberSensDetTool");
+                    if (m_driftchamber_sdtool) {
+                        info() << "Find the DriftChamberSensDetTool" << endmsg;
+                        g4sd = m_driftchamber_sdtool->createSD(nam);
+                    } else {
+                        warning() << "DriftChamberSensDetTool is not found. " << endmsg;
+                    }
+                }
+		else if (nam == "TPC") {
+		  m_tpc_sdtool = ToolHandle<ISensDetTool>("TimeProjectionChamberSensDetTool");
+		  if (m_tpc_sdtool) {
+		    info() << "Find the TimeProjectionChamberSensDetTool" << endmsg;
+		    g4sd = m_tpc_sdtool->createSD(nam);
+		  }
+		  else {
+		    warning() << "TimeProjectionChamberSensDetTool is not found, and default tracker SD will be used" << endmsg;
+		  }
+		}
+
+            }
+        }
+        
+        if (!g4sd) {
+            g4sd = dd4hep::PluginService::Create<G4VSensitiveDetector*>(typ, nam, lcdd);
+        }
+
         if (g4sd == nullptr) {
             std::string tmp = typ;
             tmp[0] = ::toupper(tmp[0]);
@@ -129,8 +169,6 @@ AnExampleDetElemTool::ConstructSDandField() {
         }
     }
 
-// Copy directly from main CEPCSW for temporal use --
-
     // =======================================================================
     // Construct Field
     // =======================================================================
@@ -143,11 +181,11 @@ AnExampleDetElemTool::ConstructSDandField() {
     // - G4: G4GlobalMagFieldMessenger.cc
 
     G4FieldManager* fieldManager
-      = G4TransportationManager::GetTransportationManager()->GetFieldManager();
+        = G4TransportationManager::GetTransportationManager()->GetFieldManager();
 
     // // Below is a uniform B-field
-    //G4ThreeVector value(0,0,3.*tesla);
-    //G4UniformMagField* mag_field = new G4UniformMagField(value);
+    // G4ThreeVector value(0,0,3.*tesla);
+    // G4UniformMagField* mag_field = new G4UniformMagField(value);
 
     // DDG4 based B-field
     dd4hep::OverlayedField fld  = lcdd->field();
@@ -155,17 +193,23 @@ AnExampleDetElemTool::ConstructSDandField() {
 
     fieldManager->SetDetectorField(mag_field);
     fieldManager->CreateChordFinder(mag_field);
+
+
 }
 
 StatusCode
 AnExampleDetElemTool::initialize() {
     StatusCode sc;
 
-    m_geosvc = service<IGeoSvc>("GeoSvc");
+    m_geosvc = service<IGeomSvc>("GeomSvc");
     if (!m_geosvc) {
-        error() << "Failed to find GeoSvc." << endmsg;
+        error() << "Failed to find GeomSvc." << endmsg;
         return StatusCode::FAILURE;
     }
+
+    m_calo_sdtool = ToolHandle<ISensDetTool>("CalorimeterSensDetTool");
+    m_driftchamber_sdtool = ToolHandle<ISensDetTool>("DriftChamberSensDetTool");
+    m_tpc_sdtool = ToolHandle<ISensDetTool>("TimeProjectionChamberSensDetTool");
 
     return sc;
 }

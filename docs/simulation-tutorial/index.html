@@ -1,0 +1,415 @@
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="mobile-web-app-capable" content="yes">
+        
+        
+        <meta name="description" content="  # Tutorial on CEPCSW simulation  Tao Lin IHEP 17 Sept. 2020 [CEPCSW Tutorial, 2020, IHEP](https://">
+        
+        <title>Tutorial on CEPCSW simulation - CodiMD</title>
+        <link rel="icon" type="image/png" href="https://jupyter.ihep.ac.cn/favicon.png">
+        <link rel="apple-touch-icon" href="https://jupyter.ihep.ac.cn/apple-touch-icon.png">
+
+        
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fork-awesome/1.1.7/css/fork-awesome.min.css" integrity="sha256-gsmEoJAws/Kd3CjuOQzLie5Q3yshhvmo7YNtBG7aaEY=" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css" integrity="sha256-3iu9jgsy9TpTwXKb7bNQzqWekRX7pPK+2OLj3R922fo=" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/css/reveal.min.css" integrity="sha256-h2NhWerL2k7KAzo6YqYMo1T5B6+QT2Bb/CprRV2aW20=" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@hackmd/emojify.js@2.1.0/dist/css/basic/emojify.min.css" integrity="sha256-UOrvMOsSDSrW6szVLe8ZDZezBxh5IoIfgTwdNDgTjiU=" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.6.0/leaflet.css" integrity="sha256-SHMGCYmST46SoyGgo4YR/9AlK1vf3ff84Aq9yK4hdqM=" crossorigin="anonymous" />
+        <link href="https://jupyter.ihep.ac.cn/build/font.css" rel="stylesheet"><link href="https://jupyter.ihep.ac.cn/build/slide-styles.css" rel="stylesheet"><link href="https://jupyter.ihep.ac.cn/build/slide.css" rel="stylesheet">
+        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js" integrity="sha256-3Jy/GbSLrg0o9y5Z5n1uw0qxZECH7C6OQpVBgNFYa0g=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js" integrity="sha256-g6iAfvZp+nDQ2TdTR/VVKJf3bGro4ub5fvWSWVRi2NE=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.9/es5-shim.min.js" integrity="sha256-8E4Is26QH0bD52WoQpcB+R/tcWQtpzlCojrybUd7Mxo=" crossorigin="anonymous"></script>
+<![endif]-->
+
+        
+
+        <!-- For reveal.js theme -->
+        
+        <link rel="stylesheet" href="https://jupyter.ihep.ac.cn/build/reveal.js/css/theme/black.css" id="theme">
+        
+        <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="https://jupyter.ihep.ac.cn/build/reveal.js/lib/css/zenburn.css">
+        <!-- For overwrite reveal.js -->
+        <link rel="stylesheet" href="https://jupyter.ihep.ac.cn/css/slide.css">
+
+        <!-- Printing and PDF exports -->
+        <script nonce="840f3704-7c5d-407c-bee3-d2af62757acb">
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = 'https://jupyter.ihep.ac.cn/build/reveal.js/' + (window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css');
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="reveal">
+                <div class="slides">
+
+# Tutorial on CEPCSW simulation
+
+Tao Lin
+IHEP
+17 Sept. 2020
+[CEPCSW Tutorial, 2020, IHEP](https://indico.ihep.ac.cn/event/12341/other-view?view=standard)
+
+---
+
+## What will learn in this Tutorial?
+
+* As Users
+  * Run a simple simulation job in CEPCSW
+  * Understand and Customize the simulation
+  * Analyze the simulation output
+* As Developers
+  * Understand the simulation framework
+  * Learn basics on Geant4 simulation
+  * Simulate with different detector options
+* Note: the emoji :writing_hand: means exercises
+
+---
+
+### CEPCSW Simulation Framework
+
+![](https://jupyter.ihep.ac.cn/uploads/upload_4d21e10bb49b9ec33c22f00c720dbfad.png)
+
+* The simulation chain is driven by Gaudi.
+* Detector description is from DD4hep.
+* Event Data Model is in EDM4hep format.
+* Detector response is done by Geant4.
+
+----
+
+#### Code is on GitHub
+* Detector description: [See Detector](https://github.com/cepc/CEPCSW/tree/master/Detector)
+* Event generator interface: [See Generator](https://github.com/cepc/CEPCSW/tree/master/Generator)
+* Detector simulation: [See Simulation](https://github.com/cepc/CEPCSW/tree/master/Simulation)
+  * [DetSimInterface: Gaudi Tool interface](https://github.com/cepc/CEPCSW/tree/master/Simulation/DetSimInterface)
+  * [DetSimCore: integrate Gaudi and Geant4](https://github.com/cepc/CEPCSW/tree/master/Simulation/DetSimCore)
+  * [DetSimGeom: integrate with DD4hep](https://github.com/cepc/CEPCSW/tree/master/Simulation/DetSimGeom)
+  * [DetSimAna: collect data from Geant4](https://github.com/cepc/CEPCSW/tree/master/Simulation/DetSimAna)
+  * [DetSimSD: detector response](https://github.com/cepc/CEPCSW/tree/master/Simulation/DetSimSD)
+* Job options: [See Examples/options](https://github.com/cepc/CEPCSW/tree/master/Examples/options)
+
+---
+
+### Run simulation in CEPCSW
+
+* The simulation is run by following command:
+```bash
+$ ./run.sh Examples/options/tut_detsim.py
+```
+* The job option: `Examples/options/tut_detsim.py`. &lt;!-- .element: style=&#34;color:yellow; &#34; --&gt;
+* :writing_hand: copy the job option into your current directory. Edit your job option in the later exercises. 
+```bash
+$ cp Examples/options/tut_detsim.py my_detsim.py
+```
+
+---
+
+### What&#39;s inside the job option?
+* Random Number Service
+  * Use `Seeds` option to control the random number sequences.
+* Event Data Service and PODIO writer
+* Geometry Service
+  * Different detector options could be loaded here via `compact` option.
+* Physics generator algorithm
+* Detector simulation algorithm
+
+
+---
+
+#### Save detector response into ROOT file
+```python
+from Configurables import PodioOutput
+out = PodioOutput(&#34;outputalg&#34;)
+out.filename = &#34;test-detsim10-seed42.root&#34;
+out.outputCommands = [&#34;keep *&#34;]
+```
+* The EDM4hep format is used in the detector response.
+* All the collections created in simulation will be saved.
+* :writing_hand: modify the output file name.
+
+---
+
+#### Control how many events to be simulated
+```python
+from Configurables import ApplicationMgr
+ApplicationMgr( TopAlg = [genalg, detsimalg, out],
+                EvtSel = &#39;NONE&#39;,
+                EvtMax = 10,
+                ExtSvc = [rndmengine, dsvc, geosvc],
+)
+```
+* :writing_hand: modify the `EvtMax` property and check the entries in the output.
+
+
+---
+
+#### Random Number 
+```python
+from Configurables import RndmGenSvc, HepRndm__Engine_CLHEP__RanluxEngine_
+
+# rndmengine = HepRndm__Engine_CLHEP__RanluxEngine_() # The default engine in Gaudi
+rndmengine = HepRndm__Engine_CLHEP__HepJamesRandom_() # The default engine in Geant4
+rndmengine.SetSingleton = True
+rndmengine.Seeds = [42]
+
+```
+
+* Seed is used to initialize the state of the random number engine.
+* If two job set the same seed, the outputs will be same.
+* :writing_hand: modify the seed and see the difference.
+
+---
+
+#### Geometry / Detector Description
+```python
+geometry_option = &#34;CepC_v4-onlyVXD.xml&#34;
+
+geometry_path = os.path.join(os.getenv(&#34;DETCEPCV4ROOT&#34;), 
+                             &#34;compact&#34;, geometry_option)
+
+from Configurables import GeomSvc
+geosvc = GeomSvc(&#34;GeomSvc&#34;)
+geosvc.compact = geometry_path
+```
+* The compact file is in XML format, which describes the detector. 
+* :writing_hand: change the geometry path and run simulation again.
+```
+geometry_path = &#34;Detector/DetEcalMatrix/compact/det.xml&#34;
+```
+
+---
+
+#### Customize primary particles
+##### Particle Gun
+```python
+gun = GtGunTool(&#34;GtGunTool&#34;)
+gun.Particles =  [&#34;pi+&#34;, &#34;pi-&#34;]
+gun.EnergyMins = [100.,  100]  # GeV
+gun.EnergyMaxs = [100.,  100]  # GeV
+
+gun.ThetaMins =  [0,     0]    # deg
+gun.ThetaMaxs =  [180.,  180]  # deg
+
+gun.PhiMins =    [0.,    0.]   # deg
+gun.PhiMaxs =    [360.,  360.] # deg
+```
+
+* Particle name can be found in [`$ROOTSYS/etc/pdg_table.txt`](https://github.com/root-project/root/blob/master/etc/pdg_table.txt)
+* :writing_hand: change the particles, energies and directions.
+
+----
+
+##### Event Generators
+```python
+stdheprdr = StdHepRdr(&#34;StdHepRdr&#34;)
+stdheprdr.Input = &#34;/cefs/data/stdhep/CEPC250/2fermions/E250.Pbhabha.e0.p0.whizard195/bhabha.e0.p0.00001.stdhep&#34;
+
+genalg = GenAlgo(&#34;GenAlgo&#34;)
+genalg.GenTools = [&#34;StdHepRdr&#34;]
+
+```
+* There are several readers to read the output of event generators in different formats
+  * StdHep: `StdHepRdr`, lcio: `SLCIORdr`, HepMC: `HepMCRdr`.
+* :writing_hand: use the different readers to load different samples.
+* [The existing samples could be found here.](http://cepcsoft.ihep.ac.cn/guides/Generation/docs/ExistingSamples/)
+
+---
+
+#### Customize Geant4 using [built-in commands](http://geant4-userdoc.web.cern.ch/geant4-userdoc/UsersGuides/ForApplicationDeveloper/html/Control/AllResources/Control/UIcommands/_.html)
+##### :writing_hand: Turn on the verbose during tracking 
+```python
+detsimalg.RunCmds = [
+    &#34;/tracking/verbose 1&#34;,
+]
+# Or
+detsimalg.RunMacs = [
+    &#34;run.mac&#34;,
+]
+```
+```bash
+# Below is the content of run.mac
+/tracking/verbose 1
+```
+
+* Each step will be print out. Remeber to redirect the output to a file.
+```bash
+$ ./run.sh my_detsim.py &gt;&amp; mylog
+```
+
+----
+
+##### Geant4 tracking output
+```
+*********************************************************************************************************
+* G4Track Information:   Particle = gamma,   Track ID = 1,   Parent ID = 0
+*********************************************************************************************************
+
+Step#    X(mm)    Y(mm)    Z(mm) KinE(MeV)  dE(MeV) StepLeng TrackLeng  NextVolume ProcName
+    0        0        0        0     1e+05        0        0         0      pWorld initStep
+    1 1.03e+03  1.8e+04  1.1e-12         0        0  1.8e+04   1.8e+04      pWorld conv
+
+*********************************************************************************************************
+* G4Track Information:   Particle = e+,   Track ID = 4,   Parent ID = 1
+*********************************************************************************************************
+
+Step#    X(mm)    Y(mm)    Z(mm) KinE(MeV)  dE(MeV) StepLeng TrackLeng  NextVolume ProcName
+    0 1.03e+03  1.8e+04  1.1e-12  2.91e+04        0        0         0      pWorld initStep
+    1 1.04e+03  1.8e+04 -0.00523  2.91e+04   0.0117     54.9      54.9      pWorld eIoni
+    2 1.04e+03 1.81e+04 -0.00912  2.91e+04  0.00604     38.7      93.6      pWorld eIoni
+    3 1.06e+03 1.84e+04  -0.0404  2.91e+04   0.0634      321       415      pWorld eIoni
+    4 1.06e+03 1.84e+04  -0.0416  2.91e+04  0.00234     13.1       428      pWorld eIoni
+
+```
+&lt;!-- .element: style=&#34;color:yellow; font-size:small&#34; --&gt;
+
+* From this output, you can see the current track and its stepping information.
+* Particle name, current track ID, parent track ID
+* Step position, deposit energy
+
+----
+
+##### :writing_hand: Visualize using Geant4
+
+* Enable following command in your job option:
+```python
+detsimalg.VisMacs = [&#34;Examples/options/vis.mac&#34;]
+```
+* :warning: If your X Server supports the G4 OpenGL, the detector will be shown.
+  * Try [Xming X Server](https://sourceforge.net/projects/xming/) in Windows.
+* :notebook: [Visualization in Geant4 Documentation](http://geant4-userdoc.web.cern.ch/geant4-userdoc/UsersGuides/ForApplicationDeveloper/html/Visualization/visualization.html)
+  * G4 UI commands during visualization
+```
+/vis/scene/add/axes 0 0 0 3 m
+/vis/scene/add/magneticField
+```
+
+----
+
+
+##### Snapshot: The Qt based Geant4 visualization
+
+![G4Vis](https://jupyter.ihep.ac.cn/uploads/upload_819bd0ffe56fcc8708004cead7c6a3c4.png =600x500)
+
+:writing_hand: Play with Geant4 Visualization  
+&lt;!-- .element: style=&#34;color:yellow&#34; --&gt;
+
+---
+
+### Analyze the simulation output
+* :writing_hand: Modify the geometry option and run the simulation
+```python
+geometry_option = &#34;CepC_v4-onlyECAL.xml&#34;
+```
+* :writing_hand: Plot the `EcalBarrelCollection` in ROOT
+```
+root [] events-&gt;Draw(&#34;EcalBarrelCollection.position.y:EcalBarrelCollection.position.x&#34;)
+root [] events-&gt;Draw(&#34;EcalBarrelCollection.position.y:EcalBarrelCollection.position.x&#34;, &#34;Entry$==0&#34;)
+```
+&lt;!-- .element: style=&#34;color:yellow; font-size:small&#34; --&gt;
+
+----
+
+#### See the branches in the `events` tree
+```
+root [] events-&gt;Print()
+*............................................................................*
+*Br  146 :EcalBarrelCollection.cellID :                                      *
+*         | ULong64_t cellID[EcalBarrelCollection_]                          *
+*Entries :       10 : Total  Size=    1398779 bytes  File Size  =     420214 *
+*Baskets :        4 : Basket Size=      32000 bytes  Compression=   3.33     *
+*............................................................................*
+*Br  147 :EcalBarrelCollection.energy : Float_t energy[EcalBarrelCollection_]*
+*Entries :       10 : Total  Size=     699855 bytes  File Size  =     163107 *
+*Baskets :        3 : Basket Size=      32000 bytes  Compression=   4.29     *
+*............................................................................*
+*Br  148 :EcalBarrelCollection.position.x : Float_t x[EcalBarrelCollection_] *
+*Entries :       10 : Total  Size=     699865 bytes  File Size  =     466951 *
+*Baskets :        3 : Basket Size=      32000 bytes  Compression=   1.50     *
+*............................................................................*
+*Br  149 :EcalBarrelCollection.position.y : Float_t y[EcalBarrelCollection_] *
+*Entries :       10 : Total  Size=     699865 bytes  File Size  =     469393 *
+*Baskets :        3 : Basket Size=      32000 bytes  Compression=   1.49     *
+*............................................................................*
+*Br  150 :EcalBarrelCollection.position.z : Float_t z[EcalBarrelCollection_] *
+*Entries :       10 : Total  Size=     699865 bytes  File Size  =     560229 *
+*Baskets :        3 : Basket Size=      32000 bytes  Compression=   1.25     *
+*............................................................................*
+```
+&lt;!-- .element: style=&#34;color:yellow; font-size:small&#34; --&gt;
+
+
+---
+
+
+# Thank you for your attention
+
+* [Create issue](https://github.com/cepc/CEPCSW/issues): Report a bug
+
+* [Pull Request](https://github.com/cepc/CEPCSW/pulls): Fix a bug or Implement a feature
+
+Your contributions are welcome!
+</div>
+            </div>
+
+            <div id="meta">{&#34;type&#34;:&#34;slide&#34;,&#34;slideOptions&#34;:{&#34;transition&#34;:&#34;slide&#34;,&#34;controls&#34;:true,&#34;showSlideNumber&#34;:&#34;all&#34;,&#34;navigationMode&#34;:&#34;linear&#34;,&#34;center&#34;:false}}</div>
+
+            <div class="footer">
+                <div class="unselectable hidden-print gray-font">
+                    <small>
+                        <span>
+                            
+                                <span class="ui-lastchangeuser">&thinsp;<i class="ui-user-icon small" style="background-image: url(https://www.gravatar.com/avatar/a696972a0dc29e70843f619695acb1e9?s=80&d=identicon);" data-toggle="tooltip" data-placement="right" title="lintao@ihep.ac.cn"></i></span>
+                            
+                            &nbsp;<span class="text-uppercase ui-status-lastchange"></span>
+                            <span class="ui-lastchange text-uppercase" data-createtime="Mon Sep 14 2020 21:17:56 GMT+0800 (China Standard Time)" data-updatetime="Wed Sep 16 2020 23:50:34 GMT+0800 (China Standard Time)"></span>
+                        </span>
+                        <span class="pull-right">230 views <a href="#" class="ui-edit" title="Edit this note"><i class="fa fa-fw fa-pencil"></i></a><a class="ui-print" href="" title="Open print view"><i class="fa fa-fw fa-print"></i></a></span>
+                        <br>
+                        
+                    </small>
+                </div>
+                
+            </div>
+        </div>
+
+        <script src="https://jupyter.ihep.ac.cn/js/mathjax-config-extra.js"></script>
+        
+        <script src="https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/js/reveal.min.js" integrity="sha256-1fq1NvUmkMIWOBgIEzGFr0UUNuwWmOa29YqMkXnYlH4=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/1.5.2/velocity.min.js" integrity="sha256-1HqoI76JGKA17K0C0s9K8L/iy8PAC43KVLt1hRD/Ojc=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.min.js" integrity="sha256-jnOjDTXIPqall8M0MyTSt98JetJuZ7Yu+1Jm7hLTF7U=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.13.1/js-yaml.min.js" integrity="sha256-ry6nlLQ1JmRl5RUPQ4eSuaSp/rGNPvl144WHHs7BiNE=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js" integrity="sha256-yYfngbEKv4RENfGDvNUqJTqGFcKf31NJEe9OTnnMH3Y=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-immzXfCGLhnx3Zfi9F/dUcqxEM8K3o3oTFy9Bh6HCwg=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/config/Safe.js" integrity="sha256-0ygBUDksNDXZS4vm5HMNH1a33KUu6QT1cdNTN+ZLF+4=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js" integrity="sha256-AdQN98MVZs44Eq2yTwtoKufhnU+uZ7v2kXnD5vqzZVo=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/8.4.8/mermaid.min.js" integrity="sha256-lyWCDMnMeZiXRi7Zl54sZGKYmgQs4izcT7+tKc+KUBk=" crossorigin="anonymous" defer></script>
+        <script src="https://cdn.jsdelivr.net/npm/@hackmd/emojify.js@2.1.0/dist/js/emojify-browser.min.js" integrity="sha256-swgfXtqk2bC98KzPoE8tXRz5tmrzpjJWhhXlhYo/wRA=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.1.2/handlebars.min.js" integrity="sha256-ngJY93C4H39YbmrWhnLzSyiepRuQDVKDNCWO2iyMzFw=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js" integrity="sha256-1zu+3BnLYV9LdiY85uXMzii3bdrkelyp37e0ZyTAQh0=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gist-embed/2.6.0/gist-embed.min.js" integrity="sha256-KyF2D6xPIJUW5sUDSs93vWyZm+1RzIpKCexxElmxl8g=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js" integrity="sha256-8RHyK+AFzq9iXwbFo2unqidwPbwHU5FFWe3RwkcVtuU=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js" integrity="sha256-Ogqs510LFnekr9o7OLdpelaaAmNss9egQRTyzCqV2NQ=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/abcjs/3.1.1/abcjs_basic-min.js" integrity="sha256-Sq1r2XXWXQoShQKsS0Wrf5r7fRkErd9Fat9vHYeU68s=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vega/5.9.1/vega.min.js" integrity="sha256-xVmd2OiOTh73s2iPfGy1DNyu/lCKvaDto452MU1O+xs=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vega-lite/4.4.0/vega-lite.min.js" integrity="sha256-ollz/GSuG0/f7aV4v8LGDYxPs4G2DwEk9+hALicqp9I=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vega-embed/6.2.2/vega-embed.min.js" integrity="sha256-AW13lGYqQzWT9PymwqUEJqQHaz9ntM5m5jQVkvtzja4=" crossorigin="anonymous" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.6.0/leaflet.js" integrity="sha256-fNoRrwkP2GuYPbNSJmMJOCyfRB2DhPQe0rGTgzRsyso=" crossorigin="anonymous" defer></script>
+        <script src="https://jupyter.ihep.ac.cn/config"></script><script src="https://jupyter.ihep.ac.cn/build/slide.857c50b01c7ad0375da9.js" defer="defer"></script>
+        
+    </body>
+</html>
+
+
+

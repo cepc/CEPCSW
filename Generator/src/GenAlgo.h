@@ -3,11 +3,11 @@
 
 
 #include <GaudiKernel/Algorithm.h>
-#include "GaudiKernel/Property.h"
+#include <Gaudi/Property.h>
 #include <GaudiKernel/ToolHandle.h>
 
 #include "GaudiAlg/GaudiAlgorithm.h"
-#include "FWCore/DataHandle.h"
+#include "k4FWCore/DataHandle.h"
 
 #include "GenEvent.h"
 
@@ -21,7 +21,6 @@ using namespace std;
 
 class GenAlgo: public GaudiAlgorithm {
 
-    friend class AlgFactory<GenAlgo>;
 public:
     GenAlgo(const std::string& name, ISvcLocator* pSvcLocator);
 
@@ -43,7 +42,7 @@ private:
     int m_evtid;                               
     int m_evtMax;
     //MyHepMC::GenEvent m_event;
-    DataHandle<plcio::MCParticleCollection> m_hdl{"MCParticle", Gaudi::DataHandle::Writer, this};
+    DataHandle<edm4hep::MCParticleCollection> m_hdl{"MCParticle", Gaudi::DataHandle::Writer, this};
 
 
 };

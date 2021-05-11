@@ -1,7 +1,7 @@
 #ifndef TEST_PLCIO_WRITE_ALG_H
 #define TEST_PLCIO_WRITE_ALG_H
 
-#include "FWCore/DataHandle.h"
+#include "k4FWCore/DataHandle.h"
 #include "GaudiAlg/GaudiAlgorithm.h"
 
 namespace plcio {
@@ -11,7 +11,6 @@ namespace plcio {
 
 class PlcioReadAlg : public GaudiAlgorithm
 {
-        friend class AlgFactory<PlcioReadAlg>;
 
     public :
 

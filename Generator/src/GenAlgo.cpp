@@ -5,7 +5,7 @@
 #include "GaudiKernel/GaudiException.h"
 
 
-#include "plcio/MCParticleCollection.h"//plico
+#include "edm4hep/MCParticleCollection.h"//plico
 
 #include <iostream>
 #include <vector>

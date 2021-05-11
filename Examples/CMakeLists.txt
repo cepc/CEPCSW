@@ -1,40 +1,33 @@
-
-gaudi_subdir(Examples v0r0)
-
-find_package(podio REQUIRED)
-find_package(plcio REQUIRED)
-find_package(LCIO REQUIRED)
-
-set(Examples_srcs
-    src/HelloWorld/*.cpp
-    src/FirstSvc/*.cpp
-    src/SecondAlg/*.cpp
-    src/PlcioTest/*.cpp
-)
-
 # Headers and Libraries
 
-gaudi_install_headers(Examples)
-
 # Modules
-gaudi_add_module(Examples ${Examples_srcs}
-    INCLUDE_DIRS GaudiKernel FWCore ${plcio_INCLUDE_DIRS} ${podio_INCLUDE_DIRS} ${LCIO_INCLUDE_DIRS}
-    LINK_LIBRARIES GaudiKernel FWCore ${podio_LIBRARIES} ${LCIO_LIBRARIES} $ENV{PLCIO}/lib/libplcio.so
+gaudi_add_module(Examples
+                 SOURCES src/HelloWorld/HelloAlg.cpp
+                         src/FirstSvc/FirstSvc.cpp
+                         src/SecondAlg/SecondAlg.cpp
+                         src/Edm4hepTest/Edm4hepReadAlg.cpp
+                         src/Edm4hepTest/Edm4hepReadDCAlg.cpp
+                         src/Edm4hepTest/Edm4hepWriteAlg.cpp
+                         src/DumpIDAlg/DumpIDAlg.cpp
+                 LINK DetInterface
+                      k4FWCore::k4FWCore
+                      Gaudi::GaudiAlgLib Gaudi::GaudiKernel
+                      ${LCIO_LIBRARIES} 
+                      ${DD4hep_COMPONENT_LIBRARIES}
+                      EDM4HEP::edm4hep EDM4HEP::edm4hepDict
+                      ${podio_LIBRARIES} podio::podioRootIO
 )
 
-# Unit tests
-gaudi_add_test(HelloAlg
-               FRAMEWORK options/helloalg.py)
+if (GenFit_FOUND)
+  target_link_libraries(Examples PUBLIC GenFit::genfit2)
+endif()
 
-gaudi_add_test(SecondAlg
-               FRAMEWORK options/secondalg.py)
+target_include_directories(Examples PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
-gaudi_add_test(PlcioWriteAlg
-               FRAMEWORK options/plcio_write.py)
-
-gaudi_add_test(PlcioReadAlg
-               FRAMEWORK options/plcio_read.py)
-
-gaudi_add_test(LCIOReadAlg
-               FRAMEWORK options/LCIO_read.py)
-
+install(TARGETS Examples
+  EXPORT CEPCSWTargets
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
+  COMPONENT dev)

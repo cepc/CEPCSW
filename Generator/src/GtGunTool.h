@@ -12,7 +12,7 @@
  */
 
 #include <GaudiKernel/AlgTool.h>
-#include <GaudiKernel/Property.h>
+#include <Gaudi/Property.h>
 #include "IGenTool.h"
 
 #include <vector>
@@ -34,7 +34,13 @@ private:
 
     Gaudi::Property<std::vector<std::string>> m_particles{this, "Particles"};
 
-    Gaudi::Property<std::vector<double>> m_energies{this, "Energies"};
+    Gaudi::Property<std::vector<double>> m_positionXs{this, "PositionXs"};
+    Gaudi::Property<std::vector<double>> m_positionYs{this, "PositionYs"};
+    Gaudi::Property<std::vector<double>> m_positionZs{this, "PositionZs"};
+
+
+    Gaudi::Property<std::vector<double>> m_energymins{this, "EnergyMins"};
+    Gaudi::Property<std::vector<double>> m_energymaxs{this, "EnergyMaxs"};
 
     Gaudi::Property<std::vector<double>> m_thetamins{this, "ThetaMins"};
     Gaudi::Property<std::vector<double>> m_thetamaxs{this, "ThetaMaxs"};

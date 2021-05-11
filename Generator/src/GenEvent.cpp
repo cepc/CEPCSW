@@ -1,12 +1,12 @@
 #include "GenEvent.h" 
-#include "plcio/MCParticleCollection.h"//plico
+#include "edm4hep/MCParticleCollection.h"//plico
 
-using namespace std;
+// using namespace std;
 
 namespace MyHepMC{
 
 //GenEvent::GenEvent(){
-GenEvent::GenEvent(plcio::MCParticleCollection& mcCol)
+GenEvent::GenEvent(edm4hep::MCParticleCollection& mcCol)
     : m_mc_vec(mcCol){
 
     m_event_id=-1;
@@ -17,19 +17,20 @@ GenEvent::GenEvent(plcio::MCParticleCollection& mcCol)
 }
 GenEvent::~GenEvent(){}
 
-void GenEvent::SetEventHeader(long event_id_, long run_id_, float time_, string det_name_){
+void GenEvent::SetEventHeader(long event_id_, long run_id_, float time_, const std::string& det_name_){
     m_event_id = event_id_;
     m_run_id = run_id_;
     m_time = time_;
     m_det_name = det_name_;
 }
 /*
-void GenEvent::SetMCCollection(plcio::MCParticleCollection vec_){
+void GenEvent::SetMCCollection(edm4hep::MCParticleCollection vec_){
 m_mc_vec = vec_;
 }
 */
-plcio::MCParticleCollection GenEvent::getMCVec(){
-return m_mc_vec;
+
+edm4hep::MCParticleCollection& GenEvent::getMCVec(){
+    return m_mc_vec;
 }
 
 long GenEvent::getID(){

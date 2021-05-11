@@ -323,7 +323,8 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
     
     phirot = (2*M_PI)/nb_ladder;
     
-    double ladder_clothest_approch = beryllium_ladder_block_thickness*2 +0.1;
+    //Notice: length unit in here is cm, by fucd
+    double ladder_clothest_approch = beryllium_ladder_block_thickness*2 +0.01;
 
     // calculate optimal offset, such that there is 0.1mm space between to the edge and the surface of two adjacent ladders.
     // in the case of ladders overlapped per superlayer
@@ -333,11 +334,16 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
       +(ladder_clothest_approch+cos(phirot)*2*(foam_spacer_thickness+active_silicon_thickness+flex_cable_thickness+metal_traces_thickness))/sin(phirot));
     */
     // in the case of ladders overlapped per layer
-      
+    /*
     double offset_phi=(1-cos(phirot))/sin(phirot)*layer_radius  
       -((ladder_width+(side_band_electronics_option*side_band_electronics_width/2.))
 	+(ladder_clothest_approch+cos(phirot)*2*(active_silicon_thickness+flex_cable_thickness+metal_traces_thickness-foam_spacer_thickness/2.0))/sin(phirot));
-      
+    */
+    // by fucd: same as CEPC_v4 in MokkaC 
+    double offset_phi=(1-cos(phirot))/sin(phirot)*layer_radius
+      -((ladder_width+(side_band_electronics_option*side_band_electronics_width/2.))
+        +(ladder_clothest_approch+cos(phirot)*2*(active_silicon_thickness+flex_cable_thickness+metal_traces_thickness))/sin(phirot));
+    
     if (LayerId==0||LayerId==2||LayerId==4)  {  //------------------------------------------------------------------------
        
       for (double ladder_loop=0;ladder_loop<nb_ladder;ladder_loop++) {
@@ -581,7 +587,6 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
       beryllium_ladder_block_length2 = beryllium_ladder_block_length + (shell_half_z - (end_electronics_half_z *3.* end_ladd_electronics_option)-ladder_length);
       
       for (double AnnulusBlock_loop=0;AnnulusBlock_loop<nb_ladder;AnnulusBlock_loop++) {
-	
 	Box BerylliumAnnulusBlockSolid( ladder_width, beryllium_ladder_block_length2/2., beryllium_ladder_block_thickness);
 	
 	//**fg: need to create unique string name per Volume object
@@ -755,7 +760,7 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
 	  
 	  //**fg: choose sensor 1 for sensitive electronics side band
 	  if(active_side_band_electronics_option==1)
-	    pv_el_band_pos.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(elec_loop)  ).addPhysVolID("sensor", 1 ).addPhysVolID("side", 1 )   ;
+	    pv_el_band_pos.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(elec_loop)  ).addPhysVolID("sensor", 1 ).addPhysVolID("side", 0 ).addPhysVolID("barrelside", 1 );
 
 	  PlacedVolume pv_el_band_neg = layer_assembly.placeVolume( ElectronicsBandLogical,
 				     Transform3D( rot, Position((layer_radius+(side_band_electronics_thickness/2.)+layer_gap)*sin(phirot2)+side_band_electronic_offset_phi*cos(phirot2),
@@ -763,7 +768,7 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
 								-Z))  );
 
 	  if(active_side_band_electronics_option==1)
-	    pv_el_band_neg.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(elec_loop)  ).addPhysVolID("sensor", 1 ).addPhysVolID("side", -1 )   ;
+	    pv_el_band_neg.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(elec_loop)  ).addPhysVolID("sensor", 1 ).addPhysVolID("side", 0 ).addPhysVolID("barrelside", -1 );
 	  
 	}
 
@@ -786,14 +791,14 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
 								Z))  );
 
 	  if(active_side_band_electronics_option==1)
-	    pv_el_band_pos.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(elec_loop)  ).addPhysVolID("sensor", 1 ).addPhysVolID("side", 1 )   ;
+	    pv_el_band_pos.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(elec_loop)  ).addPhysVolID("sensor", 1 ).addPhysVolID("side", 0 ).addPhysVolID("barrelside", 1 )   ;
 
 	  PlacedVolume pv_el_band_neg = layer_assembly.placeVolume( ElectronicsBandLogical,
 				     Transform3D( rot, Position((layer_radius-(side_band_electronics_thickness/2.))*sin(phirot2)+side_band_electronic_offset_phi*cos(phirot2),
 								-(layer_radius-(side_band_electronics_thickness/2.))*cos(phirot2)+side_band_electronic_offset_phi*sin(phirot2),
 								-Z))  );
 	  if(active_side_band_electronics_option==1)
-	    pv_el_band_neg.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(elec_loop)  ).addPhysVolID("sensor", 1 ).addPhysVolID("side", -1 )   ;
+	    pv_el_band_neg.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(elec_loop)  ).addPhysVolID("sensor", 1 ).addPhysVolID("side", 0 ).addPhysVolID("barrelside", -1 );
 	}
       }      
     }
@@ -1109,7 +1114,7 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
 										     -(layer_radius+(active_silicon_thickness/2.)+layer_gap)*cos(phirot2)+active_offset_phi*sin(phirot2),
 										     Z)) ) ;
 	
-	pv_layer_pos.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(active_loop)  ).addPhysVolID("sensor", 0 ).addPhysVolID("side", 1 )   ;
+	pv_layer_pos.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(active_loop)  ).addPhysVolID("sensor", 0 ).addPhysVolID("side", 0 ).addPhysVolID("barrelside", 1 )   ;
 
 	DetElement   ladderDEposZ( vxd ,  ladderNameP , x_det.id() );
 	ladderDEposZ.setPlacement( pv_layer_pos ) ;
@@ -1120,7 +1125,7 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
 										     -(layer_radius+(active_silicon_thickness/2.)+layer_gap)*cos(phirot2)+active_offset_phi*sin(phirot2),
 										     -Z)) );
 	
-	pv_layer_neg.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(active_loop)  ).addPhysVolID("sensor", 0 ).addPhysVolID("side", -1 )   ;
+	pv_layer_neg.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(active_loop)  ).addPhysVolID("sensor", 0 ).addPhysVolID("side", 0 ).addPhysVolID("barrelside", -1 )   ;
 
 	DetElement   ladderDEnegZ( vxd ,   ladderNameN , x_det.id() );
 	ladderDEnegZ.setPlacement( pv_layer_neg ) ;
@@ -1133,7 +1138,7 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
 										     -(layer_radius-(active_silicon_thickness/2.))*cos(phirot2)+active_offset_phi*sin(phirot2),
 										     Z)) ) ;
 	
-	pv_layer_pos.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(active_loop)  ).addPhysVolID("sensor", 0 ).addPhysVolID("side", 1 )   ;
+	pv_layer_pos.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(active_loop)  ).addPhysVolID("sensor", 0 ).addPhysVolID("side", 0 ).addPhysVolID("barrelside", 1 )   ;
 	
 	DetElement   ladderDEposZ( vxd ,  ladderNameP , x_det.id() );
 	ladderDEposZ.setPlacement( pv_layer_pos ) ;
@@ -1147,7 +1152,7 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
 	ladderDEnegZ.setPlacement( pv_layer_neg ) ;
 	volSurfaceList( ladderDEnegZ )->push_back( surf ) ;
 	
-	pv_layer_neg.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(active_loop)  ).addPhysVolID("sensor", 0 ).addPhysVolID("side", -1 )   ;
+	pv_layer_neg.addPhysVolID("layer", LayerId ).addPhysVolID( "module" , int(active_loop)  ).addPhysVolID("sensor", 0 ).addPhysVolID("side", 0 ).addPhysVolID("barrelside", -1 )    ;
 	
       }		  
 
@@ -1200,7 +1205,9 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
     }
     //Adjusted by Thorben Quast to provide consistency with CLIC while drawing for CED
     //Please check as the prefactor is simply chosen for the geometry to match the hits
-    thisLayer.offsetSensitive    = 0.5*active_offset_phi ;
+    //thisLayer.offsetSensitive    = 0.5*active_offset_phi ;
+    //without CED as first step @CepC, by fucd
+    thisLayer.offsetSensitive    = active_offset_phi ;
     thisLayer.thicknessSensitive = active_silicon_thickness ;
     thisLayer.zHalfSensitive    = ladder_length ;
 

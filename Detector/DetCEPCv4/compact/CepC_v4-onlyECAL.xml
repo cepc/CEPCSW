@@ -1,0 +1,77 @@
+<lccdd xmlns:compact="http://www.lcsim.org/schemas/compact/1.0"
+       xmlns:xs="http://www.w3.org/2001/XMLSchema"
+       xs:noNamespaceSchemaLocation="http://www.lcsim.org/schemas/compact/1.0/compact.xsd">
+  <info name="CepC_v04"
+        title="CepC detctor used for the optimisation"
+        author="C.D.Fu"
+        url="http://cepc.ihep.ac.cn"
+        status="experimental"
+        version="v04">
+    <comment>CepC detector simulation models used for detector optimisation </comment>
+  </info>
+  <includes>
+    <gdmlFile  ref="elements.xml"/>
+    <gdmlFile  ref="materials.xml"/>
+  </includes>
+  <define>
+    <include ref="top_defs_CepC_v04.xml"/>
+    <include ref="top_defs.xml"/>
+    <include ref="basic_defs.xml"/>
+    <include ref="envelope_defs.xml"/>
+    <include ref="tube_defs.xml"/>
+    <include ref="misc_defs.xml"/>
+    <include ref="tracker_defs.xml"/>
+    <include ref="fcal_defs.xml"/>
+    <include ref="ecal_defs.xml"/>
+    <include ref="hcal_defs.xml"/>
+    <include ref="yoke_defs.xml"/>
+    <include ref="services_defs.xml"/>
+    <include ref="${DD4hepINSTALL}/DDDetectors/compact/detector_types.xml"/>
+    <include ref="limits.xml"/>
+    <!-- Readout slice in ecal for reconstruction -->
+    <constant name="Ecal_readout_segmentation_slice0" value="4"/>
+    <constant name="Ecal_readout_segmentation_slice1" value="10"/>
+    <!-- Readout slice in hcal for reconstruction -->
+    <constant name="Hcal_readout_segmentation_slice" value="3"/>
+  </define>
+  <limits>
+    <limitset name="cal_limits">
+      <limit name="step_length_max" particles="*" value="cal_steplimit_val" unit="cal_steplimit_unit" />
+    </limitset>
+    <limitset name="TPC_limits">
+      <limit name="step_length_max" particles="*" value="tpc_steplimit_val" unit="tpc_steplimit_unit" />
+    </limitset>
+    <limitset name="Tracker_limits">
+      <limit name="step_length_max" particles="*" value="tracker_steplimit_val" unit="tracker_steplimit_unit" />
+    </limitset>
+  </limits>
+  <include ref="display.xml"/>
+  <!-- <include ref="Beampipe_o1_v01_01.xml"/> -->
+  <!-- <include ref="vxd07_01.xml"/> -->
+  <!-- <include ref="ftd_simple_staggered_02.xml"/> -->
+  <!-- <include ref="sit_simple_pixel_sensors_01.xml"/> -->
+  <!-- <include ref="tpc10_01.xml"/> -->
+  <!-- <include ref="set_simple_planar_sensors_01.xml"/> -->
+  <include ref="SEcal05_siw_Barrel.xml"/>
+  <include ref="SEcal05_siw_Endcaps.xml"/>
+  <include ref="SEcal05_siw_ECRing_01.xml"/>
+  <!-- <include ref="Hcal_Barrel_SD_v01.xml"/> -->
+  <!-- <include ref="Hcal_Endcaps_SD_v01.xml"/> -->
+  <!-- <include ref="Hcal_EndcapRing_SD_v01.xml"/> -->
+  <!-- <include ref="Yoke05_Barrel.xml"/> -->
+  <!-- <include ref="Yoke05_Endcaps.xml"/> -->
+  <!-- <include ref="LumiCal.xml"/> -->
+
+  <!--include ref="LHCal01.xml"/>
+  <include ref="BeamCal08.xml"/-->
+
+  <!--include ref="coil03.xml"/-->
+  <!--include ref="SServices00.xml"/-->
+  <plugins>
+    <plugin name="DD4hepVolumeManager"/>
+    <plugin name="InstallSurfaceManager"/>
+  </plugins>
+  <!--include ref="Field_Solenoid_Map_s_4.0T.xml"/>
+  <include ref="Field_AntiDID_Map_s.xml"/>
+  <include ref="Field_FwdMagnets_Ideal_1000GeV.xml"/-->
+</lccdd>

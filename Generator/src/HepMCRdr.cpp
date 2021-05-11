@@ -7,12 +7,10 @@
 #include "HepMC/Polarization.h"
 
 
-#include "plcio/MCParticle.h" //plcio
-#include "plcio/MCParticleObj.h"
-#include "plcio/MCParticleCollection.h"
-#include "plcio/DoubleThree.h"
-#include "plcio/FloatThree.h"
-#include "plcio/EventHeaderCollection.h"
+#include "edm4hep/MCParticle.h" //edm4hep
+#include "edm4hep/MCParticleObj.h"
+#include "edm4hep/MCParticleCollection.h"
+#include "edm4hep/EventHeaderCollection.h"
 
 
 
@@ -21,7 +19,7 @@
 #include <fstream>
 
 
-using namespace plcio;
+using namespace edm4hep;
 using namespace std;
 
 DECLARE_COMPONENT(HepMCRdr)
@@ -41,7 +39,7 @@ bool HepMCRdr::mutate(MyHepMC::GenEvent& event){
     int index = 0 ;
     for ( HepMC::GenEvent::particle_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p ) {
         //std::cout<<"start mc "<<index<<std::endl;
-        plcio::MCParticle mcp = event.m_mc_vec.create();
+        edm4hep::MCParticle mcp = event.m_mc_vec.create();
         pmcid_lmcid.insert(std::pair<int, int>((*p)->barcode(),index));
         index++;
         //std::cout<<"map<id,i>:"<<mc->id()<<","<< i <<std::endl;
@@ -55,35 +53,35 @@ bool HepMCRdr::mutate(MyHepMC::GenEvent& event){
         if ( (*p)->production_vertex() ){
             HepMC::GenVertex* vertex_pro =  (*p)->production_vertex();
             double three[3] = {vertex_pro->point3d().x(), vertex_pro->point3d().y(), vertex_pro->point3d().z()};
-            mcp.setVertex             (plcio::DoubleThree (three)); 
+            mcp.setVertex             (edm4hep::Vector3d (three)); 
         }
-        else mcp.setVertex(plcio::DoubleThree()); 
+        else mcp.setVertex(edm4hep::Vector3d()); 
         if ( (*p)->end_vertex() ){
             HepMC::GenVertex* vertex_end =  (*p)->end_vertex();
             double three[3] = {vertex_end->point3d().x(), vertex_end->point3d().y(), vertex_end->point3d().z()};
-            mcp.setEndpoint           (plcio::DoubleThree (three));
+            mcp.setEndpoint           (edm4hep::Vector3d (three));
         } 
-        else mcp.setEndpoint (plcio::DoubleThree());
-        mcp.setMomentum           (plcio::FloatThree(float((*p)->momentum().px()), float((*p)->momentum().py()), float((*p)->momentum().pz()) ));
-        mcp.setMomentumAtEndpoint (plcio::FloatThree(float((*p)->momentum().px()), float((*p)->momentum().py()), float((*p)->momentum().pz()) ));
+        else mcp.setEndpoint (edm4hep::Vector3d());
+        mcp.setMomentum           (edm4hep::Vector3f(float((*p)->momentum().px()), float((*p)->momentum().py()), float((*p)->momentum().pz()) ));
+        mcp.setMomentumAtEndpoint (edm4hep::Vector3f(float((*p)->momentum().px()), float((*p)->momentum().py()), float((*p)->momentum().pz()) ));
         const HepMC::Polarization & polar = (*p)->polarization();
-        mcp.setSpin               (plcio::FloatThree(polar.normal3d().x(), polar.normal3d().y(), polar.normal3d().z()) );
+        mcp.setSpin               (edm4hep::Vector3f(polar.normal3d().x(), polar.normal3d().y(), polar.normal3d().z()) );
         int two[2] = {1, (*p)->flow(1)};
-        mcp.setColorFlow          (plcio::IntTwo (two) );
+        mcp.setColorFlow          (edm4hep::Vector2i (two) );
     }
     // second loop for setting parents and daughters
     index = 0 ;
     for ( HepMC::GenEvent::particle_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p ) {
-        plcio::MCParticle pmc = event.m_mc_vec.at(index);
+        edm4hep::MCParticle pmc = event.m_mc_vec.at(index);
         index++;
         if ( (*p)->production_vertex() ) {
             for ( HepMC::GenVertex::particle_iterator mother = (*p)->production_vertex()-> particles_begin(HepMC::parents); mother != (*p)->production_vertex()-> particles_end(HepMC::parents); ++mother ) {
-                pmc.addParent( event.m_mc_vec.at( pmcid_lmcid.at((*mother)->barcode()) ) );
+                pmc.addToParents( event.m_mc_vec.at( pmcid_lmcid.at((*mother)->barcode()) ) );
             }
         }
         if ( (*p)->end_vertex() ) {
             for ( HepMC::GenVertex::particle_iterator des =(*p)->end_vertex()-> particles_begin(HepMC::descendants); des != (*p)->end_vertex()-> particles_end(HepMC::descendants); ++des ) {
-                pmc.addDaughter( event.m_mc_vec.at( pmcid_lmcid.at((*des)->barcode()) ) );
+                pmc.addToDaughters( event.m_mc_vec.at( pmcid_lmcid.at((*des)->barcode()) ) );
                 }
         }   
     }

@@ -1,0 +1,108 @@
+<lccdd xmlns:compact="http://www.lcsim.org/schemas/compact/1.0"
+       xmlns:xs="http://www.w3.org/2001/XMLSchema"
+       xs:noNamespaceSchemaLocation="http://www.lcsim.org/schemas/compact/1.0/compact.xsd">
+  <info name="CepC_v04"
+        title="CepC detctor used for the optimisation"
+        author="C.D.Fu"
+        url="http://cepc.ihep.ac.cn"
+        status="experimental"
+        version="v04">
+    <comment>CepC detector simulation models used for detector optimisation </comment>
+  </info>
+  <includes>
+    <gdmlFile  ref="elements.xml"/>
+    <gdmlFile  ref="materials.xml"/>
+  </includes>
+  <define>
+    <include ref="top_defs_CepC_v04.xml"/>
+    <include ref="top_defs.xml"/>
+    <include ref="basic_defs.xml"/>
+    <include ref="envelope_defs.xml"/>
+    <include ref="tube_defs.xml"/>
+    <include ref="misc_defs.xml"/>
+    <include ref="tracker_defs.xml"/>
+    <include ref="fcal_defs.xml"/>
+    <include ref="ecal_defs.xml"/>
+    <include ref="hcal_defs.xml"/>
+    <include ref="yoke_defs.xml"/>
+    <include ref="services_defs.xml"/>
+    <include ref="${DD4hepINSTALL}/DDDetectors/compact/detector_types.xml"/>
+    <include ref="limits.xml"/>
+    <!-- Readout slice in ecal for reconstruction -->
+    <constant name="Ecal_readout_segmentation_slice0" value="4"/>
+    <constant name="Ecal_readout_segmentation_slice1" value="10"/>
+    <!-- Readout slice in hcal for reconstruction -->
+    <constant name="Hcal_readout_segmentation_slice" value="3"/>
+  </define>
+  <materials>
+    <material name="G4_PARAFFIN">
+      <D type="density" value="0.93" unit="g/cm3" />
+       <fraction n="0.148605" ref="H" />
+       <fraction n="0.851395" ref="C" />
+    </material>
+    <material name="RPC2ECRMix" state="solid">
+      <D unit="g/cm3" value="Hcal_mix_density"/>
+      <composite n="Hcal_airgap_fraction" ref="Air"/>
+      <composite n="Hcal_graphite_fraction" ref="graphite"/>
+      <composite n="Hcal_mylar_fraction" ref="mylar"/>
+      <composite n="Hcal_g10_fraction" ref="g10"/>
+    </material>
+    <material name="ECCableMix" state="solid">
+      <D unit="g/cm3" value="0.2"/>
+      <composite n="0.001" ref="Air"/>
+      <composite n="0.666" ref="Cu"/>
+      <composite n="0.333" ref="g10"/>
+    </material>
+  </materials>
+  <limits>
+    <limitset name="cal_limits">
+      <limit name="step_length_max" particles="*" value="cal_steplimit_val" unit="cal_steplimit_unit" />
+    </limitset>
+    <limitset name="TPC_limits">
+      <limit name="step_length_max" particles="*" value="tpc_steplimit_val" unit="tpc_steplimit_unit" />
+    </limitset>
+    <limitset name="Tracker_limits">
+      <limit name="step_length_max" particles="*" value="tracker_steplimit_val" unit="tracker_steplimit_unit" />
+    </limitset>
+  </limits>
+  <include ref="display.xml"/>
+  <include ref="CepCBeamPipe_v01_01.xml"/>
+  <include ref="vxd07_02.xml"/>
+  <include ref="ftd_cepc_02.xml"/>
+  <include ref="sit_simple_planar_sensors_01.xml"/>
+  <include ref="tpc10_01.xml"/>
+  <include ref="set_simple_planar_sensors_01.xml"/>
+  <include ref="SEcal05_siw_Barrel.xml"/>
+  <include ref="SEcal05_siw_Endcaps.xml"/>
+  <include ref="SEcal05_siw_ECRing_02.xml"/>
+  <include ref="SHcalRpc01_Barrel_01.xml"/>
+  <include ref="SHcalRpc01_Endcaps_01.xml"/>
+  <include ref="SHcalRpc01_EndcapRing_01.xml"/>
+  <include ref="Yoke05_Barrel.xml"/>
+  <include ref="Yoke05_Endcaps.xml"/>
+  <include ref="coil03.xml"/>
+  <!--include ref="SServices00.xml"/-->
+  <plugins>
+    <plugin name="DD4hepVolumeManager"/>
+    <plugin name="InstallSurfaceManager"/>
+  </plugins>
+  <!--include ref="Field_Solenoid_Map_s_4.0T.xml"/>
+  <include ref="Field_AntiDID_Map_s.xml"/>
+  <include ref="Field_FwdMagnets_Ideal_1000GeV.xml"/-->
+  <fields>
+    <field name="InnerSolenoid" type="solenoid"
+           inner_field="Field_nominal_value"
+           outer_field="0"
+           zmax="Coil_half_length"
+	   inner_radius="Hcal_outer_radius+Coil_thickness/2"
+           outer_radius="Yoke_barrel_inner_radius">
+    </field>
+    <field name="OuterSolenoid" type="solenoid"
+           inner_field="0"
+           outer_field="Field_outer_nominal_value"
+           zmax="Coil_half_length"
+	   inner_radius="Yoke_barrel_inner_radius"
+           outer_radius="Yoke_barrel_inner_radius+Field_outer_thickness">
+    </field>
+  </fields>
+</lccdd>

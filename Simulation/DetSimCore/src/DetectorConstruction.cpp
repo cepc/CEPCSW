@@ -25,8 +25,9 @@
 #include "G4ios.hh"
 
 
-DetectorConstruction::DetectorConstruction(ToolHandle<IDetElemTool>& root_elem) 
-    : m_root_detelem(root_elem) {
+DetectorConstruction::DetectorConstruction(ToolHandle<IDetElemTool>& root_elem,
+                                           ToolHandleArray<IFastSimG4Tool>& fast_simtools) 
+    : m_root_detelem(root_elem), m_fast_simtools(fast_simtools) {
 
 }
 
@@ -59,6 +60,15 @@ DetectorConstruction::Construct() {
                                                       0,               // its mother  volume
                                                       false,           // no boolean operations
                                                       0);              // no field specific to volume
+
+    // =======================================================================
+    // Associate Fast Simulation Model and Regions
+    // =======================================================================
+    for (auto fastsimtool: m_fast_simtools) {
+        G4cout << "Invoke CreateFastSimulationModel of fastsimtool instance "
+               << m_fast_simtools << G4endl;
+        fastsimtool->CreateFastSimulationModel();
+    }
 
     return physiWorld;
 

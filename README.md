@@ -1,20 +1,23 @@
-# CEPCSW
+# [CEPCSW](https://cepc.github.io/CEPCSW/)
 
-CEPC offline software prototype based on Gaudi.
+[![Build Status](https://www.travis-ci.com/cepc/CEPCSW.svg?branch=master)](https://www.travis-ci.com/cepc/CEPCSW)
+[![CI](https://github.com/cepc/CEPCSW/workflows/CI/badge.svg?branch=master)](https://github.com/cepc/CEPCSW/actions)
 
-The core part of this project (CEPCSW/FWCore) is taken from FCCSW/FWCore.
-Please refer to https://github.com/HEP-FCC/FCCSW
+CEPC offline software prototype based on [Key4hep](https://github.com/key4hep).
 
 ## Quick start
 
+SSH to lxslc7 (CentOS 7).
+
+Before run following commands, please make sure you setup the CVMFS:
+
 ```
-$ source /cvmfs/cepcsw.ihep.ac.cn/prototype/setup.sh
-$ git clone git@cepcgit.ihep.ac.cn:cepc-prototype/CEPCSW.git
+$ git clone git@github.com:cepc/CEPCSW.git
 $ cd CEPCSW
-$ mkdir build && cd build
-$ cmake ..
-$ make
-$ ./run gaudirun.py '$EXAMPLESROOT/options/helloalg.py'
+$ git checkout master # branch name
+$ source setup.sh
+$ ./build.sh
+$ ./run.sh Examples/options/helloalg.py
 ```
 
 ## Packages
@@ -27,20 +30,10 @@ $ ./run gaudirun.py '$EXAMPLESROOT/options/helloalg.py'
 
 * Simulation: Detector Simulation
 
+* Digitization: Digitization
+
 * Reconstruction: Reconstruction
 
-* Service: Common Service
-
-* FWCore: Core Software Based on Gaudi
-
-* cepcenv: tools to help developers build packages
-
-## Full Chain
-
-Detector simulation: 
-```
-$ ./run gaudirun.py '$EXAMPLESROOT/options/tut_detsim.py'
-```
 
 ## Conventions for collections
 Keep the collection names compatible between the prototype and the existing CEPC software.

@@ -15,8 +15,7 @@
   </includes>
   <define>
     <include ref="top_defs_CepC_v04.xml"/>
-<!--    <include ref="top_defs.xml"/>        -->
-    <include ref="top_defs_2MDC_R1800.xml"/>
+    <include ref="top_defs.xml"/>
     <include ref="basic_defs.xml"/>
     <include ref="envelope_defs.xml"/>
     <include ref="tube_defs.xml"/>
@@ -48,18 +47,14 @@
   </limits>
   <include ref="display.xml"/>
   <include ref="Beampipe_o1_v01_01.xml"/>
-  <include ref="vxd07.xml"/>
-<!--  <include ref="ftd_simple_staggered_02.xml"/>        -->
-<!--  <include ref="sit_simple_pixel_sensors_01.xml"/>    -->
-<!--  <include ref="sit_simple_pixel_sensors_01_2MDC_R1800.xml"/>  -->
-  <include ref="sit_simple_pixel_sensors_01_2MDC_R1800.xml"/>
-  <!-- <include ref="tpc10_01.xml"/>  -->
-  <include ref="dch_1.xml"/>
-  <include ref="dch_2.xml"/>
-  <include ref="set_simple_planar_sensors_01.xml"/>   
+  <include ref="vxd07_01.xml"/>
+  <include ref="ftd_cepc_01.xml"/>
+  <include ref="sit_simple_planar_sensors_01.xml"/>
+  <include ref="tpc10_01.xml"/>
+  <include ref="set_simple_planar_sensors_01.xml"/>
   <!--include ref="SEcal05_siw_Barrel.xml"/>
   <include ref="SEcal05_siw_Endcaps.xml"/>
-  <include ref="SEcal05_siw_ECRing.xml"/>
+  <include ref="SEcal05_siw_ECRing_01.xml"/>
   <include ref="Hcal_Barrel_SD_v01.xml"/>
   <include ref="Hcal_Endcaps_SD_v01.xml"/>
   <include ref="Hcal_EndcapRing_SD_v01.xml"/>
@@ -80,17 +75,13 @@
   <include ref="Field_AntiDID_Map_s.xml"/>
   <include ref="Field_FwdMagnets_Ideal_1000GeV.xml"/-->
 
-
   <fields>
-<!--    <field name="MyMagnet" type="ConstantField" field="magnetic">
-      <strength x="0.0*tesla" y="0.0*tesla" z="3.0*tesla" />
-    </field>  -->
     <field name="GlobalSolenoid" type="solenoid"
-           inner_field="3.0*tesla"
-           outer_field="0.0*tesla"
-           zmax="2350*mm"
-           outer_radius="2000*mm"> 
+           inner_field="Field_nominal_value"
+           outer_field="Field_outer_nominal_value"
+           zmax="TPC_Ecal_Hcal_barrel_halfZ + Coil_extra_size"
+           outer_radius="Hcal_outer_radius + Coil_thickness/2">
     </field>
-  </fields> 
+  </fields>
 
 </lccdd>
