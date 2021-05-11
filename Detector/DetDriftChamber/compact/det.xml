@@ -27,7 +27,7 @@
     <!-- SDT -->
     <constant name="DetID_DC"  value="7"/>
     <constant name="SDT_radius_min" value="799.78*mm"/>
-    <constant name="SDT_radius_max" value="1723*mm"/>
+    <constant name="SDT_radius_max" value="1803*mm"/>
 
     <constant name="DC_Endcap_dz" value="0.1*mm"/>
 
@@ -42,7 +42,7 @@
     <constant name="SDT_outer_wall_thickness" value="2.8*mm"/>
 
     <constant name="DC_chamber_layer_rbegin" value="800*mm"/>
-    <constant name="DC_chamber_layer_rend" value="1720*mm"/>
+    <constant name="DC_chamber_layer_rend" value="1800*mm"/>
 
     <constant name="DC_chamber_radius_min" value="DC_chamber_layer_rbegin-DC_safe_distance"/>
     <constant name="DC_chamber_radius_max" value="DC_chamber_layer_rend+DC_safe_distance"/>

@@ -19,9 +19,8 @@
     <constant name="world_z" value="world_size"/>
 
     <!-- SDT -->
-    <constant name="DetID_DC"  value="7"/>
-    <constant name="SDT_radius_min" value="Tracker_inner_radius"/>
-    <constant name="SDT_radius_max" value="Tracker_outer_radius"/>
+    <constant name="SDT_radius_min" value="799.78*mm"/>
+    <constant name="SDT_radius_max" value="1803*mm"/>
 
     <constant name="SDT_half_length" value="MainTracker_half_length"/>
     <constant name="DC_length" value="DC_half_length*2"/>
