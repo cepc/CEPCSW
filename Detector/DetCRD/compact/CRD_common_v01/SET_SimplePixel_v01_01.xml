@@ -1,0 +1,43 @@
+<lccdd>
+  <define>
+    <!--0.17mm silicon + 1.0mm carbon -> 0.65% of X0--> 
+    <constant name="SET_sensitive_thickness" value="0.17*mm"/>
+    <constant name="SET_support_thickness"   value="1.0*mm"/> 
+    <constant name="SET_sensor_length"       value="92*mm"/>
+    <constant name="SET_ladder_number"       value="2*pi*SET_inner_radius/SIT_sensor_length"/>
+    <constant name="SET_outer_radius" value="(SET_inner_radius+SET_sensitive_thickness+SET_support_thickness)/cos(pi/SET_ladder_number) + env_safety"/>
+    <constant name="SET_half_length"  value="OuterTracker_half_length"/>
+    <!--constant name="SET_distance_from_tpc" value="SET_inner_radius-OuterTracker_outer_radius+0.5*SET_sensitive_thickness"/-->
+  </define>
+  
+  <detectors>
+    <!--detector id="DetID_SET" name="SET" type="SET_Simple_Planar" vis="SETVis" readout="SETCollection" insideTrackingVolume="true"-->
+    <detector id="DetID_SET" name="SET" type="SIT_Simple_Pixel" vis="SETVis" readout="SETCollection" insideTrackingVolume="true">
+      <envelope>
+	<shape type="Tube" rmin="SET_inner_radius" rmax="SET_outer_radius" dz="SET_half_length"  material = "Air" />
+      </envelope>
+      
+      <type_flags type="DetType_TRACKER +  DetType_BARREL + DetType_PIXEL "/>
+      
+      <reconstruction strip_width="0." strip_length="0." strip_pitch="0." strip_angle="0*deg"  />
+
+      <global sensitive_thickness="SET_sensitive_thickness" support_thickness="SET_support_thickness" sensor_length="SIT_sensor_length" sensitive_mat="G4_Si"
+              support_mat="G4_C" sensitive_threshold_KeV="64*keV"  />
+      <display ladder="SeeThrough" support="SETSupportVis" sens_env="SeeThrough" sens="SETSensitiveVis" />
+      
+      <!--layer layer_id="0" sensitive_distance_from_tpc="SET_distance_from_tpc" coverage_of_TPC_Ecal_Hcal_barrel="1.0"
+             n_ladders="SET_ladder_number" ladder_clearance="0.1*mm" faces_IP="1"  /-->
+      <layer layer_id="0" sensitive_radius="SET_inner_radius+0.5*SET_sensitive_thickness" n_sensors_per_ladder="SET_half_length*2/SIT_sensor_length"
+	     n_ladders="SET_ladder_number" ladder_clearance="0.1*mm" faces_IP="1" is_SIT1="0" is_SIT2="0"  />
+    </detector>
+  </detectors>
+
+  <readouts>
+    <readout name="SETCollection">
+      <id>system:5,side:-2,layer:9,module:8,sensor:8,barrelside:-2</id>
+    </readout>
+  </readouts>
+
+
+</lccdd>
+
