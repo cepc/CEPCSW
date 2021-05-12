@@ -1,5 +1,7 @@
 #include "GearSvc.h"
 #include "DetInterface/IGeomSvc.h"
+#include "DetSegmentation/GridDriftChamber.h"
+
 #include "gearxml/GearXML.h"
 #include "gearimpl/GearMgrImpl.h"
 #include "gearimpl/ConstantBField.h"
@@ -93,6 +95,9 @@ StatusCode GearSvc::initialize()
       else if(it->first=="TPC"){
 	sc = convertTPC(sub);
       }
+      else if(it->first=="DriftChamber"){
+        sc = convertDC(sub);
+      }
       else if(it->first=="SET"){
 	sc = convertSET(sub);
       }
@@ -101,6 +106,7 @@ StatusCode GearSvc::initialize()
       }
       if(sc==StatusCode::FAILURE) return sc;
     }
+
     gear::CalorimeterParametersImpl* barrelParam = new gear::CalorimeterParametersImpl(1847.415655, 2350., 8, 0.);
     gear::CalorimeterParametersImpl* endcapParam = new gear::CalorimeterParametersImpl(400., 2088.8, 2450., 2, 0.);
     for(int i=0;i<29;i++){
@@ -200,7 +206,7 @@ StatusCode GearSvc::convertVXD(dd4hep::DetElement& vxd){
   double phi0=0;
   helpLayer thisLadder;
   double beryllium_ladder_block_length=0,end_electronics_half_z=0,side_band_electronics_width=0;
-  double rAlu, drAlu, rSty, drSty, dzSty, rInner, aluEndcapZ, aluHalfZ, alu_RadLen, Cryostat_dEdx;
+  double rAlu=0, drAlu, rSty, drSty, dzSty, rInner, aluEndcapZ, aluHalfZ, alu_RadLen, Cryostat_dEdx;
   double VXDSupportDensity, VXDSupportZeff, VXDSupportAeff, VXDSupportRadLen, VXDSupportIntLen=0;
   double styDensity, styZeff, styAeff, styRadLen, styIntLen; 
   dd4hep::Volume vxd_vol = vxd.volume();
@@ -558,14 +564,17 @@ StatusCode GearSvc::convertVXD(dd4hep::DetElement& vxd){
            << helpSensitives[i].thickness*2 << ", " << helpSensitives[i].length << ", " << helpSensitives[i].width*2 << ", " << helpSensitives[i].radLength << endmsg;
   }
   m_gearMgr->setVXDParameters(vxdParameters) ;
-  gear::GearParametersImpl* gearParameters = new gear::GearParametersImpl;
-  //CryostatAlRadius, CryostatAlThickness, CryostatAlInnerR, CryostatAlZEndCap, CryostatAlHalfZ
-  gearParameters->setDoubleVal("CryostatAlRadius",    rAlu);
-  gearParameters->setDoubleVal("CryostatAlThickness", drAlu);
-  gearParameters->setDoubleVal("CryostatAlInnerR",    rInner);
-  gearParameters->setDoubleVal("CryostatAlZEndCap",   aluEndcapZ = dzSty+drSty+drAlu/2);
-  gearParameters->setDoubleVal("CryostatAlHalfZ",     dzSty+drSty);
-  m_gearMgr->setGearParameters("VXDInfra", gearParameters);
+  if(rAlu!=0){
+    // rAlu=0, denote no cryostat 
+    gear::GearParametersImpl* gearParameters = new gear::GearParametersImpl;
+    //CryostatAlRadius, CryostatAlThickness, CryostatAlInnerR, CryostatAlZEndCap, CryostatAlHalfZ
+    gearParameters->setDoubleVal("CryostatAlRadius",    rAlu);
+    gearParameters->setDoubleVal("CryostatAlThickness", drAlu);
+    gearParameters->setDoubleVal("CryostatAlInnerR",    rInner);
+    gearParameters->setDoubleVal("CryostatAlZEndCap",   aluEndcapZ = dzSty+drSty+drAlu/2);
+    gearParameters->setDoubleVal("CryostatAlHalfZ",     dzSty+drSty);
+    m_gearMgr->setGearParameters("VXDInfra", gearParameters);
+  }
   //effective A different with what in Mokka, fix them as Mokka's
   gear::SimpleMaterialImpl* VXDFoamShellMaterial_old = new gear::SimpleMaterialImpl("VXDFoamShellMaterial_old", 1.043890843e+01, 5.612886646e+00, 2.500000000e+01, 1.751650267e+04, 0);
   m_gearMgr->registerSimpleMaterial(VXDFoamShellMaterial_old);
@@ -721,6 +730,149 @@ StatusCode GearSvc::convertTPC(dd4hep::DetElement& tpc){
   return StatusCode::SUCCESS;
 }
 
+StatusCode GearSvc::convertDC(dd4hep::DetElement& dc){
+  dd4hep::rec::FixedPadSizeTPCData* dcData = nullptr;
+  try{
+    dcData = dc.extension<dd4hep::rec::FixedPadSizeTPCData>();
+  }
+  catch(std::runtime_error& e){
+    warning() << e.what() << " " << dcData << ", to search volume" << endmsg;
+    // before extension ready, force to convert from volumes
+    auto geomSvc = service<IGeomSvc>("GeomSvc");
+    dd4hep::Readout readout = geomSvc->lcdd()->readout("DriftChamberHitsCollection");
+    dd4hep::Segmentation seg = readout.segmentation();
+    dd4hep::DDSegmentation::GridDriftChamber* grid = dynamic_cast< dd4hep::DDSegmentation::GridDriftChamber* > ( seg.segmentation() ) ;
+    
+    dcData = new dd4hep::rec::FixedPadSizeTPCData;
+    dcData->rMinReadout = 99999;
+    dcData->rMaxReadout = 0;
+    std::vector<double> innerRadiusWalls,outerRadiusWalls;
+    bool is_convert = true;
+    dd4hep::Volume dc_vol = dc.volume();
+    for(int i=0;i<dc_vol->GetNdaughters();i++){
+      TGeoNode* daughter = dc_vol->GetNode(i);
+      std::string nodeName = daughter->GetName();
+      //info << nodeName << endmsg;
+      if(nodeName.find("chamber_vol")!=-1||nodeName.find("assembly")!=-1){
+	if(grid){
+	  // if more than one chamber, just use the outer, TODO
+	  dcData->rMinReadout = grid->DC_outer_rbegin();
+	  dcData->rMaxReadout = grid->DC_outer_rend();
+	  dcData->driftLength = grid->detectorLength();
+	  dcData->maxRow      = grid->DC_outer_layer_number();
+	  dcData->padHeight   = grid->layer_width();
+          dcData->padWidth    = dcData->padHeight;
+	}
+	else{
+	  TGeoNode* next = daughter;
+	  if(nodeName.find("assembly")!=-1){
+	    // if more than one chamber, just use the outer, TODO 
+	    next = daughter->GetDaughter(1);
+	    std::string s = next->GetName();
+	    if(s.find("chamber_vol")==-1){
+	      error() << s << " not chamber_vol" << endmsg;
+	      is_convert = false;
+	    }
+	  }
+	  
+	  //info() << next->GetName() << endmsg;
+	  
+	  const TGeoShape* chamber_shape = next->GetVolume()->GetShape();
+	  if(chamber_shape->TestShapeBit(TGeoTube::kGeoTube)){
+	    const TGeoTube* tube = (const TGeoTube*) chamber_shape;
+	    double innerRadius = tube->GetRmin();
+	    double outerRadius = tube->GetRmax();
+	    double halfLength  = tube->GetDz();
+	    dcData->driftLength = halfLength;
+	  }
+	  else{
+	    error() << next->GetName() << " not TGeoTube::kGeoTube" << endmsg;
+	    is_convert = false;
+	  }
+	  
+	  dcData->maxRow = next->GetNdaughters();
+	  if(dcData->maxRow>512){
+	    error() << " layer number > 512, something wrong!" << endmsg;
+	    is_convert = false;
+	  }
+	  for(int i=0;i<next->GetNdaughters();i++){
+	    TGeoNode* layer = next->GetDaughter(i);
+	    const TGeoShape* shape = layer->GetVolume()->GetShape();
+	    if(shape->TestShapeBit(TGeoTube::kGeoTube)){
+	      const TGeoTube* tube = (const TGeoTube*) shape;
+	      double innerRadius = tube->GetRmin();
+	      double outerRadius = tube->GetRmax();
+	      double halfLength  = tube->GetDz();
+	      if(innerRadius<dcData->rMinReadout) dcData->rMinReadout = innerRadius;
+	      if(outerRadius>dcData->rMaxReadout) dcData->rMaxReadout = outerRadius;
+	    }
+	    else{
+	      error() << layer->GetName() << " not TGeoTube::kGeoTube" << endmsg;
+	      is_convert = false;
+	    }
+	  }
+	  dcData->padHeight = (dcData->rMaxReadout-dcData->rMinReadout)/dcData->maxRow;
+	  dcData->padWidth  = dcData->padHeight;
+	}
+      }
+      else if(nodeName.find("wall_vol")!=-1){
+	const TGeoShape* wall_shape = daughter->GetVolume()->GetShape();
+        if(wall_shape->TestShapeBit(TGeoTube::kGeoTube)){
+          const TGeoTube* tube = (const TGeoTube*) wall_shape;
+          double innerRadius = tube->GetRmin();
+          double outerRadius = tube->GetRmax();
+          double halfLength  = tube->GetDz();
+          innerRadiusWalls.push_back(innerRadius);
+	  outerRadiusWalls.push_back(outerRadius);
+        }
+	else{
+	  error() << nodeName << " not TGeoTube::kGeoTube" << endmsg;
+	  is_convert = false;
+	}
+      }
+    }
+    if(innerRadiusWalls.size()<2||outerRadiusWalls.size()<2){
+      error() << "wall number < 2" << endmsg;
+      is_convert = false;
+    }
+    if(!is_convert){
+      error() << "Cannot convert DC volume to extension data!" << endmsg;
+      delete dcData;
+      return StatusCode::FAILURE;
+    }
+    if(innerRadiusWalls[0]<innerRadiusWalls[innerRadiusWalls.size()-1]){
+      dcData->rMin = innerRadiusWalls[0];
+      dcData->rMax = outerRadiusWalls[outerRadiusWalls.size()-1];
+      dcData->innerWallThickness = outerRadiusWalls[0]-innerRadiusWalls[0];
+      dcData->outerWallThickness = outerRadiusWalls[outerRadiusWalls.size()-1]-innerRadiusWalls[innerRadiusWalls.size()-1];
+    }
+    else{
+      dcData->rMin = innerRadiusWalls[innerRadiusWalls.size()-1];
+      dcData->rMax = outerRadiusWalls[0];
+      dcData->innerWallThickness = outerRadiusWalls[outerRadiusWalls.size()-1]-innerRadiusWalls[innerRadiusWalls.size()-1];
+      dcData->outerWallThickness = outerRadiusWalls[0]-innerRadiusWalls[0];
+    }
+    info() << (*dcData) << endmsg;
+  }
+
+  // regard as TPCParameters, TODO: drift chamber parameters
+  gear::TPCParametersImpl *tpcParameters = new gear::TPCParametersImpl();
+  gear::PadRowLayout2D *padLayout = new gear::FixedPadSizeDiskLayout(dcData->rMinReadout*CLHEP::cm, dcData->rMaxReadout*CLHEP::cm,
+                                                                     dcData->padHeight*CLHEP::cm, dcData->padWidth*CLHEP::cm, dcData->maxRow, 0.0);
+  tpcParameters->setPadLayout(padLayout);
+  tpcParameters->setMaxDriftLength(dcData->driftLength*CLHEP::cm);
+  tpcParameters->setDriftVelocity(    0.0);
+  tpcParameters->setReadoutFrequency( 0.0);
+  tpcParameters->setDoubleVal( "tpcOuterRadius" , dcData->rMax*CLHEP::cm ) ;
+  tpcParameters->setDoubleVal( "tpcInnerRadius",  dcData->rMin*CLHEP::cm ) ;
+  tpcParameters->setDoubleVal( "tpcInnerWallThickness",  dcData->innerWallThickness*CLHEP::cm ) ;
+  tpcParameters->setDoubleVal( "tpcOuterWallThickness",  dcData->outerWallThickness*CLHEP::cm ) ;
+
+  m_gearMgr->setTPCParameters(tpcParameters);
+
+  return StatusCode::SUCCESS;
+}
+
 StatusCode GearSvc::convertSET(dd4hep::DetElement& set){
   dd4hep::rec::ZPlanarData* setData = nullptr;
   try{
@@ -773,7 +925,7 @@ TGeoNode* GearSvc::FindNode(TGeoNode* mother, char* name){
     for(int i=0;i<mother->GetNdaughters();i++){
       TGeoNode* daughter = mother->GetDaughter(i);
       std::string s = daughter->GetName();
-      //info() << "current: " << s << " search for" << name << endmsg;                                                                                                                      
+      //info() << "current: " << s << " search for" << name << endmsg;
       if(s.find(name)!=-1){
         next = daughter;
         break;

@@ -38,8 +38,6 @@
              n_ladders="2*pi*SIT2_inner_radius/SIT_sensor_length" ladder_clearance="0.1*mm" faces_IP="1" is_SIT1="0" is_SIT2="1"  />
       <layer layer_id="2" sensitive_radius="SIT3_inner_radius+0.5*SIT_sensitive_thickness" n_sensors_per_ladder="SIT3_half_length*2/SIT_sensor_length"
              n_ladders="2*pi*SIT3_inner_radius/SIT_sensor_length" ladder_clearance="0.1*mm" faces_IP="1" is_SIT1="0" is_SIT2="0"  />
-      <layer layer_id="3" sensitive_radius="SIT4_inner_radius+0.5*SIT_sensitive_thickness" n_sensors_per_ladder="SIT4_half_length*2/SIT_sensor_length"
-             n_ladders="2*pi*SIT4_inner_radius/SIT_sensor_length" ladder_clearance="0.1*mm" faces_IP="1" is_SIT1="0" is_SIT2="0"  />
 
     </detector>
   </detectors>

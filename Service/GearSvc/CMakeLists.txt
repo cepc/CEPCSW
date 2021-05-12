@@ -8,6 +8,7 @@ gaudi_add_module(GearSvcPlugins
                       ${GEAR_LIBRARIES}
                       ${DD4hep_COMPONENT_LIBRARIES}
                       DetInterface
+		      DetSegmentation
 )
 
 install(TARGETS GearSvc GearSvcPlugins

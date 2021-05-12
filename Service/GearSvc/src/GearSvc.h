@@ -23,6 +23,7 @@ class GearSvc : public extends<Service, IGearSvc>
 	StatusCode convertVXD(dd4hep::DetElement& vxd);
 	StatusCode convertSIT(dd4hep::DetElement& sit);
 	StatusCode convertTPC(dd4hep::DetElement& tpc);
+	StatusCode convertDC (dd4hep::DetElement& dc);
 	StatusCode convertSET(dd4hep::DetElement& set);
 	StatusCode convertFTD(dd4hep::DetElement& ftd);
 	TGeoNode* FindNode(TGeoNode* mother, char* name);

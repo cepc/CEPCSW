@@ -3,6 +3,7 @@
 #include "EventSeeder/IEventSeeder.h"
 #include "TrackSystemSvc/ITrackSystemSvc.h"
 #include "DataHelper/Navigation.h"
+#include "DataHelper/TrackerHitHelper.h"
 #include "edm4hep/MCParticle.h"
 #include "edm4hep/TrackerHit.h"
 //#include "edm4hep/TrackerHitPlane.h"
@@ -420,7 +421,7 @@ int SiliconTrackingAlg::InitialiseFTD() {
   }
   catch ( GaudiException &e ) {
     debug() << "Collection " << _inFTDPixelColHdl.fullKey() << " is unavailable in event " << _nEvt << endmsg;
-    success = 0;
+    //success = 0;
   }
   
   if(hitFTDPixelCol){
@@ -520,7 +521,7 @@ int SiliconTrackingAlg::InitialiseFTD() {
   }
   catch ( GaudiException &e ) {
     debug() << "Collection " << _inFTDSpacePointColHdl.fullKey() << " is unavailable in event " << _nEvt << endmsg;
-    success = 0;
+    //success = 0;
   }
 
   const edm4hep::TrackerHitCollection* rawHitCol = nullptr;
@@ -626,6 +627,8 @@ int SiliconTrackingAlg::InitialiseFTD() {
     }
     
   }
+  if(hitFTDPixelCol==nullptr&&hitFTDSpacePointCol==nullptr) success = 0;
+
   debug() << "FTD initialized" << endmsg;
   return success;
 }
@@ -771,7 +774,6 @@ int SiliconTrackingAlg::InitialiseVTX() {
         //    v)   Must be standard TrackerHit
         
 	//const edm4hep::ConstTrackerHit trkhit = hitSITCol->at(ielem);
-        
         int layer = getLayerID(trkhit);
         
         // VXD and SIT are treated as one system so SIT layers start from _nLayersVTX
@@ -2671,7 +2673,7 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
         // check if the hit has been rejected as being on the same layer and further from the helix lh==0
         if (lh[i] == 1) {
 	  edm4hep::ConstTrackerHit trkHit = hitVec[i]->getTrackerHit();
-	  debug() << "TrackerHit " << i << " address = " << trkHit << endmsg;
+	  debug() << "TrackerHit " << i << " id = " << trkHit.id() << endmsg;
           nFit++;
           if(trkHit.isAvailable()) { 
             trkHits.push_back(trkHit);   
@@ -2791,7 +2793,7 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
       marlinTrk->getHitsInFit(hits_in_fit);
       
       for ( unsigned ihit = 0; ihit < hits_in_fit.size(); ++ihit) {
-	debug() << "Hit address=" << hits_in_fit[ihit].first << endmsg;
+	debug() << "Hit id =" << hits_in_fit[ihit].first.id() << endmsg;
 	edm4hep::ConstTrackerHit trk = hits_in_fit[ihit].first;
         all_hits.push_back(trk);//hits_in_fit[ihit].first);
       }

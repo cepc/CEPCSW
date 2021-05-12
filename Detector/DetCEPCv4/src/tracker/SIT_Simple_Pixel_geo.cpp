@@ -126,7 +126,11 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
   dd4hep::Material sensitiveMat = theDetector.material(db->fetchString("sensitive_mat"));  
   dd4hep::Material supportMat   = theDetector.material(db->fetchString("support_mat"));  
   
-  
+  db = XMLHandlerDB(  x_det.child( _Unicode( display ) ) ) ;
+  std::string ladderVis  = db->fetchString("ladder");
+  std::string supportVis = db->fetchString("support");
+  std::string sensEnvVis = db->fetchString("sens_env");
+  std::string sensVis    = db->fetchString("sens");
   // // // setup the encoder 
   // // UTIL::BitField64 encoder( LCTrackerCellID::encoding_string() ) ; 
   
@@ -286,7 +290,7 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
                                 layer_geom.ladder_width / 2.0,
                                 layer_geom.half_z);
 
-    dd4hep::Volume sitLadderLogical( dd4hep::_toString( layer_id,"SIT_LadderLogical_%02d"), sitLadderSolid, air ) ; 
+    dd4hep::Volume sitLadderLogical( name + dd4hep::_toString( layer_id,"_LadderLogical_%02d"), sitLadderSolid, air ) ; 
         
     // now create an envelope volume to represent the sensitive area, which will be divided up into individual sensors         
         
@@ -295,7 +299,7 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
                                      layer_geom.half_z);
     
     //fixme: material ???    Volume sitSenEnvelopeLogical( _toString( layer_id,"SIT_SenEnvelopeLogical_%02d"), sitSenEnvelopeSolid, sensitiveMat )  ;
-    dd4hep::Volume sitSenEnvelopeLogical( dd4hep::_toString( layer_id,"SIT_SenEnvelopeLogical_%02d"),
+    dd4hep::Volume sitSenEnvelopeLogical( name + dd4hep::_toString( layer_id,"_SenEnvelopeLogical_%02d"),
                                           sitSenEnvelopeSolid, air )  ;
     
     // create the sensor volumes and place them in the senstive envelope volume 
@@ -304,7 +308,7 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
                              layer_geom.ladder_width  / 2.0,
                              (layer_geom.sensor_length / 2.0 ) - 1.e-06 * dd4hep::mm ); // added tolerance to avoid false overlap detection
     
-    dd4hep::Volume sitSenLogical( dd4hep::_toString( layer_id,"SIT_SenLogical_%02d"), sitSenSolid,sensitiveMat ) ; 
+    dd4hep::Volume sitSenLogical( name + dd4hep::_toString( layer_id,"_SenLogical_%02d"), sitSenSolid,sensitiveMat ) ; 
     
     sitSenLogical.setSensitiveDetector(sens);
 
@@ -371,10 +375,10 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
       pvV[isensor] = pv ;
     }					      
     
-    sit.setVisAttributes(theDetector, "SeeThrough",  sitLadderLogical ) ;
-    sit.setVisAttributes(theDetector, "SeeThrough",  sitSenEnvelopeLogical ) ;
+    sit.setVisAttributes(theDetector, ladderVis,  sitLadderLogical ) ;
+    sit.setVisAttributes(theDetector, sensEnvVis,  sitSenEnvelopeLogical ) ;
 
-    sit.setVisAttributes(theDetector, "BlueVis",       sitSenLogical ) ;
+    sit.setVisAttributes(theDetector, sensVis,       sitSenLogical ) ;
     
     
     // encoder.reset() ;  // reset to 0
@@ -398,10 +402,10 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
 		     layer_geom.ladder_width / 2.0,
 		     layer_geom.half_z);
     
-    Volume sitSupLogical(   _toString( layer_id,"SIT_SupLogical_%02d"),  sitSupSolid, supportMat ) ;
+    Volume sitSupLogical( name + _toString( layer_id,"_SupLogical_%02d"),  sitSupSolid, supportMat ) ;
     
     
-    sit.setVisAttributes(theDetector, "RedVis",  sitSupLogical ) ;
+    sit.setVisAttributes(theDetector, supportVis,  sitSupLogical ) ;
     
     
     pv = sitLadderLogical.placeVolume( sitSupLogical, Transform3D( RotationY( 0.), 
@@ -472,6 +476,10 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
   //--------------------------------------
   
   sit.setVisAttributes( theDetector, x_det.visStr(), envelope );
+
+  if ( x_det.hasAttr(_U(combineHits)) ) {
+    sit.setCombineHits(x_det.attr<bool>(_U(combineHits)),sens);
+  }
   
   return sit;
 }
