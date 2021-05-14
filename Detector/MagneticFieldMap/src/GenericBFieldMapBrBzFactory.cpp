@@ -2,11 +2,13 @@
  * In this file, the xml is parsed and the GenericBFieldMapBrBz object is created and configured.
  * 
  * The properties for the GenericBFieldMapBrBz
- * - provider
+ * - provider (attribute)
  *   - [file, db]
- * - source
- *   - file path for the 'file' mode.
- *   - DB ... for the 'db' mode.
+ * - source (tag)
+ *   - the attributes include: 
+ *     - url
+ *       - file path for the 'file' mode.
+ *       - DB instance ... for the 'db' mode.
  * - rhoMin, rhoMax, zMin, zMax
  * 
  * -- Tao Lin <lintao AT ihep.ac.cn>
@@ -41,9 +43,21 @@ static dd4hep::Ref_t create_GenericBFieldMapBrBz(dd4hep::Detector& ,
         throw std::runtime_error(error_msg);
     }
 
+    std::string provider = xmlParameter.attr<std::string>(_Unicode(provider));
+
+    // - source
+    bool hasSource = xmlParameter.hasChild(_Unicode(source));
+    if (!hasSource) {
+        std::string error_msg = "[ERROR] GenericBFieldMapBrBz: Must specify the 'source' tag. ";
+        throw std::runtime_error(error_msg);
+
+    }
+
     // 2. create the CartesianField
     dd4hep::CartesianField obj;
     GenericBFieldMapBrBz* ptr = new GenericBFieldMapBrBz();
+
+    ptr->init_provider(provider);
 
     obj.assign(ptr, xmlParameter.nameStr(), xmlParameter.typeStr());
 

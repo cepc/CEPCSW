@@ -16,3 +16,14 @@ void GenericBFieldMapBrBz::fieldComponents(const double* pos, double* field) {
 
     return;
 }
+
+void GenericBFieldMapBrBz::init_provider(const std::string& provider) {
+    if (provider == "file") {
+        std::cout << "Initialize provider with file. " << std::endl;
+    } else if (provider == "db") {
+        std::cout << "Initialize provider with file. " << std::endl;
+    } else {
+        std::string error_msg = "[ERROR] GenericBFieldMapBrBz: Unknown provider: " + provider;
+        throw std::runtime_error(error_msg); 
+    }
+}
