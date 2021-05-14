@@ -3,6 +3,7 @@
 
 GenericBFieldMapBrBz::GenericBFieldMapBrBz()
     : m_provider(nullptr) {
+    type = dd4hep::CartesianField::MAGNETIC;
 
 }
 
