@@ -144,6 +144,5 @@ double GridDriftChamber::distanceTrackWire(const CellID& cID, const TVector3& hi
 }
 
 
-REGISTER_SEGMENTATION(GridDriftChamber)
 }
 }
