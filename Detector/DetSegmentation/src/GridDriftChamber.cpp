@@ -32,7 +32,6 @@ GridDriftChamber::GridDriftChamber(const BitFieldCoder* decoder) : Segmentation(
   registerParameter("DC_rend", "DC_rend", m_DC_rend, 0., SegmentationParameter::LengthUnit);
   registerParameter("DC_rmin", "DC_rmin", m_DC_rmin, 0., SegmentationParameter::LengthUnit);
   registerParameter("DC_rmax", "DC_rmax", m_DC_rmax, 0., SegmentationParameter::LengthUnit);
-  registerParameter("DC_layer_number", "DC_layer_number", m_DC_layer_number, 0,SegmentationParameter::LengthUnit);
 }
 
 Vector3D GridDriftChamber::position(const CellID& /*cID*/) const {
@@ -51,6 +50,7 @@ CellID GridDriftChamber::cellID(const Vector3D& /*localPosition*/, const Vector3
   double posy = globalPosition.Y;
   double radius = sqrt(posx*posx+posy*posy);
 
+  int m_DC_layer_number = floor((m_DC_rend-m_DC_rbegin)/m_layer_width);
   double DC_layerdelta = m_layer_width;
 
   int layerid;
@@ -101,8 +101,6 @@ void GridDriftChamber::cellposition(const CellID& cID, TVector3& Wstart,
   Wstart = returnWirePosition(phi_mid, -1);
   Wend = returnWirePosition(phi_end, 1);
 }
-
-
 
 double GridDriftChamber::distanceTrackWire(const CellID& cID, const TVector3& hit_start,
                                            const TVector3& hit_end) const {

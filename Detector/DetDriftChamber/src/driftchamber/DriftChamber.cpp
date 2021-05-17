@@ -49,11 +49,11 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     double SDT_half_length     = theDetector.constant<double>("SDT_chamber_half_length");
 
     // - layer
-    int chamber_layer_number = theDetector.constant<int>("SDT_chamber_layer_number");
     double chamber_layer_width  = theDetector.constant<double>("SDT_chamber_layer_width");
     double chamber_cell_width  = theDetector.constant<double>("SDT_chamber_cell_width");
     double chamber_layer_rbegin = theDetector.constant<double>("DC_chamber_layer_rbegin");
     double chamber_layer_rend = theDetector.constant<double>("DC_chamber_layer_rend");
+    int chamber_layer_number = floor((chamber_layer_rend-chamber_layer_rbegin)/chamber_layer_width);
 
     double epsilon = theDetector.constant<double>("Epsilon");
 
@@ -181,20 +181,20 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         //    |                     |
         //    |   F0    F1   F2   F3|
         //    -----------------------
-//     if(layer_id == 0 || layer_id ==66 || layer_id ==67 || layer_id ==91) {
+//     if(layer_id == 0 || layer_id == 1 || layer_id == 2 || layer_id == 3) {
         for(int icell=0; icell< numWire; icell++) {
             double wire_phi = (icell+0.5)*layer_Phi + offset;
             // - signal wire
             dd4hep::Transform3D transform_module(dd4hep::Rotation3D(),dd4hep::Position(rmid*std::cos(wire_phi),rmid*std::sin(wire_phi),0.));
             dd4hep::PlacedVolume module_phy = (*current_vol_ptr).placeVolume(module_vol,transform_module);
-            double wx = rmid*std::cos(wire_phi);
-            double wy = rmid*std::sin(wire_phi);
            // - Field wire
             dd4hep::PlacedVolume Module_phy;
             double radius[9] = {rmid-chamber_layer_width*0.5,rmid-chamber_layer_width*0.5,rmid-chamber_layer_width*0.5,rmid-chamber_layer_width*0.5,rmid,rmid+chamber_layer_width*0.5,rmid+chamber_layer_width*0.5,rmid+chamber_layer_width*0.5,rmid+chamber_layer_width*0.5};
             double phi[9] = {wire_phi+layer_Phi*0.25,wire_phi,wire_phi-layer_Phi*0.25,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.5,wire_phi-layer_Phi*0.25,wire_phi,wire_phi+layer_Phi*0.25};
             int num = 5;
-            if(layer_id==(chamber_layer_number-1)) { num = 9; }
+            if(layer_id==(chamber_layer_number-1)) {
+               num = 9;
+            }
             for(int i=0; i<num ; i++) {
                 dd4hep::Position tr3D = Position(radius[i]*std::cos(phi[i]),radius[i]*std::sin(phi[i]),0.);
 

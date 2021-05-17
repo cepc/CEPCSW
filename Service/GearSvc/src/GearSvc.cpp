@@ -759,9 +759,8 @@ StatusCode GearSvc::convertDC(dd4hep::DetElement& dc){
 	  dcData->rMinReadout = grid->DC_rbegin();
 	  dcData->rMaxReadout = grid->DC_rend();
 	  dcData->driftLength = grid->detectorLength();
-	  dcData->maxRow      = grid->DC_layer_number();
 	  dcData->padHeight   = grid->layer_width();
-          dcData->padWidth    = dcData->padHeight;
+      dcData->padWidth    = dcData->padHeight;
 	}
 	else{
 	  TGeoNode* next = daughter;

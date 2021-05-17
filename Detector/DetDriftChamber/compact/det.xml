@@ -53,7 +53,6 @@
 
     <constant name="SDT_chamber_layer_width" value="10*mm"/>
     <constant name="SDT_chamber_cell_width" value="10*mm"/>
-    <constant name="SDT_chamber_layer_number" value="(DC_chamber_layer_rend-DC_chamber_layer_rbegin)/SDT_chamber_layer_width"/>
     <constant name="Epsilon" value="0*deg"/>
 
     <constant name="SDT_chamber_inner_wall_radius_min" value="SDT_chamber_radius_min-SDT_inner_wall_thickness"/>
@@ -112,7 +111,8 @@
 
   <readouts>
     <readout name="DriftChamberHitsCollection">
-      <segmentation type="GridDriftChamber" cell_size="SDT_chamber_cell_width" epsilon0="Epsilon" detector_length="DC_length" identifier_phi="cellID" DC_rbegin="DC_chamber_layer_rbegin" DC_rend="DC_chamber_layer_rend" DC_rmin="SDT_chamber_radius_min" DC_rmax="SDT_chamber_radius_max" DC_layer_number="SDT_chamber_layer_number" safe_distance="DC_safe_distance" layerID="layer" layer_width="SDT_chamber_layer_width"/>
+      <segmentation type="GridDriftChamber" cell_size="SDT_chamber_cell_width" epsilon0="Epsilon" detector_length="DC_length" identifier_phi="cellID" DC_rbegin="DC_chamber_layer_rbegin" DC_rend="DC_chamber_layer_rend" DC_rmin="SDT_chamber_radius_min" DC_rmax="SDT_chamber_radius_max" safe_distance="DC_safe_distance" layerID="layer" layer_width="SDT_chamber_layer_width"/>
+
 
       <!-- <id>system:8,chamber:1,layer:8,cellID:16</id> -->
       <id>system:5,layer:7:9,chamber:8,cellID:32:16</id>

@@ -72,7 +72,6 @@ public:
   inline double DC_rend() const { return m_DC_rend; }
   inline double DC_rmax() const { return m_DC_rmax; }
   inline double DC_rmin() const { return m_DC_rmin; }
-  inline int DC_layer_number() const { return m_DC_layer_number; }
   inline const std::string& fieldNamePhi() const { return m_phiID; }
   inline const std::string& Layerid() const { return layer_id; }
 
@@ -169,7 +168,6 @@ protected:
   double m_DC_rend;
   double m_DC_rmax;
   double m_DC_rmin;
-  int m_DC_layer_number;
 
   std::string m_phiID;
   std::string layer_id;
