@@ -1,5 +1,5 @@
 
-gaudi_add_library(DataHelperLib 
+gaudi_add_library(DataHelperLib
                   SOURCES src/CaloHitExtended.cc
                           src/Circle.cc
                           src/ClusterExtended.cc
@@ -15,12 +15,13 @@ gaudi_add_library(DataHelperLib
                           src/TrackerHitExtended.cc
                           src/TrackExtended.cc
                           src/TrackHitPair.cc
-			  src/TrackerHitHelper.cpp
-                  LINK EDM4HEP::edm4hep
-                       EDM4HEP::edm4hepDict
-                       ${GSL_LIBRARIES}
-                       ${CLHEP_LIBRARIES}
-		       Identifier
+                          src/TrackerHitHelper.cpp
+                          src/TrackHelper.cpp
+                          LINK EDM4HEP::edm4hep
+                          EDM4HEP::edm4hepDict
+                          ${GSL_LIBRARIES}
+                          ${CLHEP_LIBRARIES}
+               Identifier
 )
 
 install(TARGETS DataHelperLib

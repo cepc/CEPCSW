@@ -12,6 +12,75 @@ HelixClass::HelixClass() {
 
 HelixClass::~HelixClass() {}
 
+void HelixClass::Initialize_VP(double * pos, double * mom, double q, double B) {
+    _referencePoint[0] = (float) pos[0];
+    _referencePoint[1] = (float) pos[1];
+    _referencePoint[2] = (float) pos[2];
+    _momentum[0] = (float) mom[0];
+    _momentum[1] = (float) mom[1];
+    _momentum[2] = (float) mom[2];
+    _charge = q;
+    _bField = B;
+    _pxy = sqrt(mom[0]*mom[0]+mom[1]*mom[1]);
+    _radius = _pxy / (_FCT*B);
+    _omega = q/_radius;
+    _tanLambda = mom[2]/_pxy;
+    _phiMomRefPoint = atan2(mom[1],mom[0]);
+    _xCentre = pos[0] + _radius*cos(_phiMomRefPoint-_const_pi2*q);
+    _yCentre = pos[1] + _radius*sin(_phiMomRefPoint-_const_pi2*q);
+    _phiRefPoint = atan2(pos[1]-_yCentre,pos[0]-_xCentre);
+    _phiAtPCA = atan2(-_yCentre,-_xCentre);
+    _phi0 = -_const_pi2*q + _phiAtPCA;
+    while (_phi0<0) _phi0+=_const_2pi;
+    while (_phi0>=_const_2pi) _phi0-=_const_2pi;
+    _xAtPCA = _xCentre + _radius*cos(_phiAtPCA);
+    _yAtPCA = _yCentre + _radius*sin(_phiAtPCA);
+    //    _d0 = -_xAtPCA*sin(_phi0) + _yAtPCA*cos(_phi0);
+    
+    if (q>0) {
+      _d0 = double(q)*_radius - double(sqrt(_xCentre*_xCentre+_yCentre*_yCentre));
+    }
+    else {
+      _d0 = double(q)*_radius + double(sqrt(_xCentre*_xCentre+_yCentre*_yCentre));
+    }
+
+//     if (fabs(_d0)>0.001 ) {
+//       std::cout << "New helix : " << std::endl;
+//       std::cout << " Position : " << pos[0] 
+// 		<< " " << pos[1]
+// 		<< " " << pos[2] << std::endl;
+//       std::cout << " Radius = " << _radius << std::endl;
+//       std::cout << " RC = " << sqrt(_xCentre*_xCentre+_yCentre*_yCentre) << std::endl;  
+//       std::cout << " D0 = " << _d0 << std::endl;
+//     }
+
+    _pxAtPCA = _pxy*cos(_phi0);
+    _pyAtPCA = _pxy*sin(_phi0);
+    float deltaPhi = _phiRefPoint - _phiAtPCA;    
+    float xCircles = -pos[2]*q/(_radius*_tanLambda) - deltaPhi;
+    xCircles = xCircles/_const_2pi;
+    int nCircles;
+    int n1,n2;
+
+    if (xCircles >= 0.) {
+	n1 = int(xCircles);
+	n2 = n1 + 1;
+    }
+    else {
+	n1 = int(xCircles) - 1;
+	n2 = n1 + 1;
+    }
+    
+    if (fabs(n1-xCircles) < fabs(n2-xCircles)) {
+	nCircles = n1;
+    }
+    else {
+	nCircles = n2;
+    }
+    _z0 = pos[2] + _radius*_tanLambda*q*(deltaPhi + _const_2pi*nCircles);
+
+}
+
 void HelixClass::Initialize_VP(float * pos, float * mom, float q, float B) {
     _referencePoint[0] = pos[0];
     _referencePoint[1] = pos[1];

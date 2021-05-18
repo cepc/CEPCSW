@@ -56,34 +56,6 @@ class GenfitFitter{
         int processTrackWithRep(GenfitTrack* track,int repID=0,
                 bool resort=false);
 
-        /// Extrapolate the track to the CDC hit
-        /// Output: poca pos and dir and poca distance to the hit wire
-        /// Input: genfit track, pos and mom, two ends of a wire
-        ///        pos, and mom are position & momentum at starting point
-        double extrapolateToHit(TVector3& poca, TVector3& pocaDir,
-                TVector3& pocaOnWire, double& doca, const GenfitTrack* track,
-                TVector3 pos, TVector3 mom, TVector3 end0, TVector3 end1,
-                int debug=0, int repID=0, bool stopAtBoundary=false,
-                bool calcJacobianNoise=false);
-
-        /// Extrapolate the track to the cyliner at fixed raidus
-        /// Output: pos and mom at fixed radius
-        /// Input: genfitTrack, radius of cylinder at center of the origin,
-        ///        repID, stopAtBoundary and calcAverageState
-        double extrapolateToCylinder(TVector3& pos, TVector3& mom,
-                GenfitTrack* track, double radius, const TVector3 linePoint,
-                const TVector3 lineDirection, int hitID =0, int repID=0,
-                bool stopAtBoundary=false, bool calcJacobianNoise=false);
-
-        /// Extrapolate the track to the point
-        /// Output: pos and mom of POCA point to point
-        /// Input: genfitTrack,point,repID,stopAtBoundary and calcAverageState
-        /// repID same with pidType
-        double extrapolateToPoint(TVector3& pos, TVector3& mom,
-                const GenfitTrack* genfitTrack, const TVector3& point,
-                int repID=0, bool stopAtBoundary = false,
-                bool calcJacobianNoise = false) const;
-
         /// setters of fitter properties
         void setFitterType(const char* val);
         void setMinIterations(unsigned int val);

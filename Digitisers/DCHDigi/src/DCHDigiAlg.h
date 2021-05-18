@@ -62,6 +62,11 @@ protected:
   NTuple::Array<float> m_hit_dE    ;
   NTuple::Array<float> m_hit_dE_dx ;
 
+  NTuple::Array<float> m_rho       ;
+  NTuple::Array<double> m_phi      ;
+  NTuple::Array<double> m_theta    ;
+  NTuple::Array<float> m_time      ;
+  NTuple::Array<double> m_radius   ;
 
 
   dd4hep::rec::CellIDPositionConverter* m_cellIDConverter;

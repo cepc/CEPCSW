@@ -29,6 +29,9 @@ class GenfitField : public genfit::AbsBField{
         //Get Bz, kilogauss
         double getBz(const TVector3& pos) const;
 
+        //Get Bz, Tesla
+        double getBzTesla(const TVector3& pos) const;
+
         //Get dd4hep field
         const dd4hep::OverlayedField field() const {return m_dd4hepField;}
 
