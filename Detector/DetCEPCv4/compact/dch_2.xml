@@ -1,0 +1,40 @@
+
+<lccdd>
+
+  <detectors>
+    <!-- id=7, should be registered in basic_defs.xml-->
+    <detector  id="8" name="bDCH" type="DCH" readout="DCHCollection2" insideTrackingVolume="true" >
+
+      <!-- Borrow an envelope of TPC,  to hold MDC inside -->
+      <envelope vis="ILD_TPCVis">
+        <shape type="Tube" rmin="1030*mm" rmax="1808*mm" dz="2350*mm"  material = "Air" />
+      </envelope>
+      
+      <!-- set the detector type flag which is defined in "detector_types.xml" -->
+      <type_flags type="DetType_TRACKER +  DetType_GASEOUS + DetType_WIRE" />
+
+      <!-- set a temporal parameters referred from  the LDT configurations -->
+      <layer nLayer="63"  nCell="200"  CellSize="10*mm"  HalfLength="2350*mm"  r0="1085*mm"  />
+      
+    </detector>
+    
+  </detectors>
+  
+  <readouts>
+    <readout name="DCHCollection2">
+      <id>system:5,layer:11,module:16</id>
+    </readout>
+  </readouts>
+
+  <fields>
+    <!-- <field name="MyMagnet" type="ConstantField" field="magnetic">
+      <strength x="0.0*tesla" y="0*tesla" z="300.0*tesla" />
+    </field> -->
+<!--    <field name="GlobalSolenoid" type="solenoid"
+	   inner_field="5.0*tesla"
+	   outer_field="-1.5*tesla"
+	   zmax="2350*mm"
+	   outer_radius="2000*mm"> -->
+  </fields>
+    
+</lccdd>

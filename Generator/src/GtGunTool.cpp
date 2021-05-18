@@ -122,7 +122,7 @@ GtGunTool::mutate(MyHepMC::GenEvent& event) {
         // mcp.setEndpoint();
 
         // assume energy is momentum
-        double p = energy;
+        double p = energy; 
         
         // direction
         // by default, randomize the direction

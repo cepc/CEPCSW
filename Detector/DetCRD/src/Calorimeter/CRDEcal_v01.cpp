@@ -44,8 +44,12 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
   double R0 = theDetector.constant<double>("ecalbarrel_inner_radius");
   double h0 = theDetector.constant<double>("ecalbarrel_thickness");
   double Z0 = theDetector.constant<double>("ecalbarrel_zlength");
-  double barx = theDetector.constant<double>("bar_x");   //Crystal size in R direction. 
-  double bary = theDetector.constant<double>("bar_y");   //Crystal size in z/phi direction (z for odd layer, phi for even layer).
+  //  double barx = theDetector.constant<double>("bar_x");   //Crystal size in R direction. 
+  //  double bary = theDetector.constant<double>("bar_y");   //Crystal size in z/phi direction (z for odd layer, phi for even layer).
+
+  double barx = 10*mm;
+  double bary = 10*mm;
+
   
   double dim_x1 = R0*tan(22.5*degree) + sqrt(2)*h0/2.;
   double dim_x2 = dim_x1 - h0;

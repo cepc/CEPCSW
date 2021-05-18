@@ -54,3 +54,4 @@ fi
 export CEPCSW_LCG_VERSION
 
 setup-external
+

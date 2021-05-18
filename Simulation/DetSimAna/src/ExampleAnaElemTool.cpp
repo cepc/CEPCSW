@@ -45,6 +45,9 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
     auto tpccols = m_TPCCol.createAndPut();
     auto setcols = m_SETCol.createAndPut();
 
+    auto dchcols = m_DCHCol.createAndPut();    
+    auto dchcols2 = m_DCHCol2.createAndPut();    
+
     // readout defined in DD4hep
     auto lcdd = &(dd4hep::Detector::getInstance());
     auto allReadouts = lcdd->readouts();
@@ -92,6 +95,10 @@ ExampleAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
             tracker_col_ptr = setcols;
         } else if (collect->GetName() == "SETCollection") {
             tracker_col_ptr = setcols;
+        } else if (collect->GetName() == "DCHCollection") {
+            tracker_col_ptr = dchcols;            
+        } else if (collect->GetName() == "DCHCollection2") {
+            tracker_col_ptr = dchcols2;            
         } else if (collect->GetName() == "CaloHitsCollection") {
             calo_col_ptr = calorimetercols;
         } else {

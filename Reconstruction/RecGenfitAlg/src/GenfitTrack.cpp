@@ -3,10 +3,19 @@
 
 //CEPCSW
 #include "DataHelper/HelixClass.h"
+#include "DataHelper/TrackHelper.h"
 #include "UTIL/ILDConf.h"
+#include "DetInterface/IGeomSvc.h"
 
 //Externals
+#include "GaudiKernel/SmartIF.h"
 #include "DD4hep/DD4hepUnits.h"
+#include "DD4hep/Detector.h"
+#include "DD4hep/DetElement.h"
+#include "DD4hep/Segmentations.h"
+#include "DDRec/ISurface.h"
+#include "DDRec/SurfaceManager.h"
+#include "DDRec/Vector3D.h"
 #include "edm4hep/MCParticle.h"
 #include "edm4hep/Track.h"
 #include "edm4hep/TrackerHitConst.h"
@@ -29,6 +38,8 @@
 #include "FitStatus.h"
 #include "SpacepointMeasurement.h"
 #include "WireMeasurementNew.h"
+#include "AbsMeasurement.h"
+#include "TrackPoint.h"
 
 //ROOT
 #include "TRandom.h"
@@ -51,9 +62,11 @@ sortDCHit(edm4hep::ConstSimTrackerHit hit1,edm4hep::ConstSimTrackerHit hit2)
     return isEarly;
 }
 
-    GenfitTrack::GenfitTrack(const GenfitField* genfitField, const dd4hep::DDSegmentation::GridDriftChamber* seg, const char* name)
+    GenfitTrack::GenfitTrack(const GenfitField* genfitField,
+            const dd4hep::DDSegmentation::GridDriftChamber* seg,
+            SmartIF<IGeomSvc> geom, const char* name)
 :m_name(name),m_track(nullptr),m_reps(),m_debug(0),
-m_genfitField(genfitField),m_gridDriftChamber(seg)
+    m_genfitField(genfitField),m_gridDriftChamber(seg),m_geomSvc(geom)
 {
 
 }
@@ -65,54 +78,38 @@ GenfitTrack::~GenfitTrack()
     delete m_track;
 }
 
-/// create a Genfit track from track state, without trackRep
-/// Initialize track with seed states
+/// create a Genfit track from track state
+/// Initialize track with seed state and cov
 /// NO unit conversion here
 bool GenfitTrack::createGenfitTrack(int pdgType,int charge,
-        TLorentzVector posInit, TVector3 momInit, TMatrixDSym covMInit)
+        TLorentzVector posInit, TVector3 momInit, TMatrixDSym covMInit_6)
 {
+    ///Set track seed state
     TVectorD seedState(6);
-    TMatrixDSym seedCov(6);
-
-    //for(int i = 0; i < 6; ++i) {
-    //  for(int j = 0; j < 6; ++j) {
-    //    seedCov(i,j)=covMInit(i,j);
-    //  }
-    //}
-    //yzhang FIXME
-    //seed position
-    for(int i = 0; i < 3; ++i) {
-        seedState(i)=posInit[i];
-        //yzhang TODO from covMInit to seedCov
-        double resolution = 0.1;//*dd4hep::mm/dd4hep::cm;
-        seedCov(i,i)=resolution*resolution;
-        if(i==2) seedCov(i,i)=0.5*0.5;
-    }
-    //seed momentum
-    for(int i = 3; i < 6; ++i){
-        //seedState(i)=momInit[i-3]*(dd4hep::GeV);
-        seedState(i)=momInit[i-3];
-        //yzhang TODO from covMInit to seedCov
-        seedCov(i,i)=0.01;//pow(resolution / sqrt(3),2);
+    for(int i=0;i<3;i++) {
+        seedState(i)=posInit[i]; //seed position
+        seedState(i+3)=momInit[i]; //seed momentum
     }
 
+    ///new a track and set seed state and cov
     if(nullptr==m_track) m_track=new genfit::Track();
     m_track->setStateSeed(seedState);
-    m_track->setCovSeed(seedCov);
+    m_track->setCovSeed(covMInit_6);
 
-    /// new a track representation and add to the track
+    ///new a track representation and add to the track
     int chargeId=0;
     charge>0 ? chargeId=0 : chargeId=1;
-
-    if(m_debug>=2)std::cout<<m_name<<" CreateGenfitTrack seed pos("
-        <<seedState[0]<<" "<<seedState[1]<<" "<<seedState[2]<<")cm ("
-        <<seedState[3]<<" "<<seedState[4]<<" "<<seedState[5]<<")GeV charge "
-        <<charge<<" pdg "<<s_PDG[chargeId][pdgType]<<std::endl;
-    if(m_debug>=2)std::cout<<"seedCov "<<std::endl;
-
     addTrackRep(s_PDG[chargeId][pdgType]);
 
-    if(m_debug>0) seedCov.Print();
+    if(m_debug>0){
+        std::cout<<m_name<<" CreateGenfitTrack seed pos("
+            <<seedState[0]<<" "<<seedState[1]<<" "<<seedState[2]<<")cm ("
+            <<seedState[3]<<" "<<seedState[4]<<" "<<seedState[5]<<")GeV charge "
+            <<charge<<" pdg "<<s_PDG[chargeId][pdgType]<<std::endl;
+        std::cout<<"seedCov "<<std::endl;
+        covMInit_6.Print();
+    }
+
     return true;
 }
 
@@ -120,84 +117,140 @@ bool GenfitTrack::createGenfitTrack(int pdgType,int charge,
 bool GenfitTrack::createGenfitTrackFromMCParticle(int pidType,
         const edm4hep::MCParticle& mcParticle, double eventStartTime)
 {
-    ///get track parameters from McParticle
-    edm4hep::Vector3d mcPocaPos = mcParticle.getVertex();//mm
-    edm4hep::Vector3f mcPocaMom = mcParticle.getMomentum();//GeV
-    if(m_debug>=2)std::cout<<"seedPos poca "<< mcPocaPos.x
-        <<" "<<mcPocaPos.y<<" "<<mcPocaPos.z<<" mm "<<std::endl;
-    if(m_debug>=2)std::cout<<"seedMom poca "<< mcPocaMom.x
-        <<" "<<mcPocaMom.y<<" "<<mcPocaMom.z<<" GeV "<<std::endl;
+    if(m_debug>=2)std::cout<<"createGenfitTrackFromMCParticle "<<std::endl;
+
+    TLorentzVector posInit;
+    TVector3 posInit_vector3(mcParticle.getVertex().x,mcParticle.getVertex().y,
+            mcParticle.getVertex().z);
+    TVector3 momInit(mcParticle.getMomentum().x,mcParticle.getMomentum().y,
+            mcParticle.getMomentum().z);
 
     ///Pivot to first layer to avoid correction of beam pipe
-    edm4hep::Vector3d firstLayerPos(1e9,1e9,1e9);
-    edm4hep::Vector3f firstLayerMom(1e9,1e9,1e9);
-    pivotToFirstLayer(mcPocaPos,mcPocaMom,firstLayerPos,firstLayerMom);
+    //edm4hep::Vector3d firstLayerPos(1e9,1e9,1e9);
+    //edm4hep::Vector3f firstLayerMom(1e9,1e9,1e9);
+    ///Convert MC particle position to first layer mm and GeV
+    //pivotToFirstLayer(posInit_vector3,momInit,firstLayerPos,firstLayerMom);
 
-    //TODO convert unit
+    ///Unit conversion
+    posInit.SetX(posInit.X()*dd4hep::mm);
+    posInit.SetY(posInit.Y()*dd4hep::mm);
+    posInit.SetZ(posInit.Z()*dd4hep::mm);
+    momInit.SetX(momInit.X()*dd4hep::GeV);
+    momInit.SetY(momInit.Y()*dd4hep::GeV);
+    momInit.SetZ(momInit.Z()*dd4hep::GeV);
+
     ///Get seed position and momentum
-    TLorentzVector seedPos(firstLayerPos.x,firstLayerPos.y,firstLayerPos.z,
-            eventStartTime);
-    TVector3 seedMom(firstLayerMom.x,firstLayerMom.y,firstLayerMom.z);
-    if(m_debug>=2)std::cout<<"seedPos "<< firstLayerPos.x
-        <<" "<<firstLayerPos.y<<" "<<firstLayerPos.z<<std::endl;
-    if(m_debug>=2)std::cout<<"seedMom "<< firstLayerMom.x
-        <<" "<<firstLayerMom.y<<" "<<firstLayerMom.z<<std::endl;
+    TLorentzVector seedPos(momInit.X(),momInit.Y(),momInit.Z(),eventStartTime);
+    TVector3 seedMom(momInit.X(),momInit.Y(),momInit.Z());
 
     ///Get error matrix of seed track
-    TMatrixDSym covM(5);//FIXME, TODO
+    TMatrixDSym covMInit_6(6);
+    for(int i=0;i<3;i++) {
+        double posResolusion=1.;
+        covMInit_6(i,i)=posResolusion*posResolusion; //seed position
+        double momResolusion=5.;
+        covMInit_6(i+3,i+3)=momResolusion*momResolusion; //seed momentum
+    }
+    if(m_debug>=2){
+        std::cout<<"mcPos " << mcParticle.getVertex().x<<" "
+            <<mcParticle.getVertex().y<<" "<<mcParticle.getVertex().z<<"\n mcMom"
+            <<mcParticle.getMomentum().x<<" "<<mcParticle.getMomentum().y<<" "
+            <<mcParticle.getMomentum().z<<"\n "<<"seedPos "<<"\n";
+        seedPos.Print();
+        std::cout<<"seedMom"<<std::endl;
+        seedMom.Print();
+        std::cout<<"covMInit_6"<<std::endl;
+        covMInit_6.Print();
+    }
 
     ///Create a genfit track with seed
-    if(m_debug>=2)std::cout<<"createGenfitTrack " ;
-    if(!GenfitTrack::createGenfitTrack(pidType,mcParticle.getCharge(),
-                seedPos,seedMom,covM)){
-        if(m_debug>=2)std::cout<<"GenfitTrack"
-            <<" Error in createGenfitTrack" <<std::endl;
-        return false;
-    }else{
-        if(m_debug>=2)std::cout<<"GenfitTrack "
-            <<"createGenfitTrackFromMCParticle track created" <<std::endl;
-    }
-    return true;
+    bool status=GenfitTrack::createGenfitTrack(pidType,mcParticle.getCharge(),
+            seedPos,seedMom,covMInit_6);
+    if(!status&&m_debug>=0){std::cout<<m_name
+        <<" createGenfitTrackFromMCParticle failed!!!" <<std::endl;}
+    return status;
 }//end of createGenfitTrackFromMCParticle
 
 ///Create a Genfit track with MCParticle, unit conversion here
 bool GenfitTrack::createGenfitTrackFromEDM4HepTrack(int pidType,
-        const edm4hep::Track& track, double eventStartTime)
+        const edm4hep::Track& track, double eventStartTime, bool isUseCovTrack)
 {
-    //std::cout<<__FILE__<<"   "<<__LINE__<<" bz kilogauss "<<m_genfitField->getBz({0.,0.,0.})/dd4hep::kilogauss<<std::endl;
-    //std::cout<<__FILE__<<"   "<<__LINE__<<" bz tesla "<<m_genfitField->getBz({0.,0.,0.})/dd4hep::tesla<<std::endl;
-    //std::cout<<__FILE__<<"   "<<__LINE__<<" bz "<<m_genfitField->getBz({0.,0.,0.})<< dd4hep::kilogauss <<" "<<dd4hep::tesla<<std::endl;
-    //TODO
-    //pivotToFirstLayer(mcPocaPos,mcPocaMom,firstLayerPos,firstLayerMom);
-    //Get track parameters
-    edm4hep::TrackState trackStat=track.getTrackStates(0);//FIXME?
-    HelixClass helixClass;
-    helixClass.Initialize_Canonical(trackStat.phi,trackStat.D0,
-            trackStat.Z0,trackStat.omega,trackStat.tanLambda,
-            m_genfitField->getBz({0.,0.,0.})*dd4hep::kilogauss/dd4hep::tesla);
-    TLorentzVector posInit(helixClass.getReferencePoint()[0],
-            helixClass.getReferencePoint()[1],
-            helixClass.getReferencePoint()[2],eventStartTime);
-    posInit.SetX(posInit.X()*dd4hep::mm);
-    posInit.SetY(posInit.Y()*dd4hep::mm);
-    posInit.SetZ(posInit.Z()*dd4hep::mm);
-    TVector3 momInit(helixClass.getMomentum()[0],
-            helixClass.getMomentum()[1],helixClass.getMomentum()[2]);
-    momInit.SetX(momInit.x()*dd4hep::GeV);
-    momInit.SetY(momInit.y()*dd4hep::GeV);
-    momInit.SetZ(momInit.z()*dd4hep::GeV);
-    TMatrixDSym covMInit;
-    if(!createGenfitTrack(pidType,
-                int(trackStat.omega/fabs(trackStat.omega)),//charge,FIXME?
-                posInit,momInit,covMInit)){
+    ///Skip track w.o. hit
+    if(track.trackerHits_size()<=0) {
+        if(m_debug>=2) std::cout<<m_name<<" skip track n hit=0"<<std::endl;
         return false;
     }
-    return true;
+    //TODO
+    //pivotToFirstLayer(mcPocaPos,mcPocaMom,firstLayerPos,firstLayerMom);
+
+    ///Get track parameters
+    TLorentzVector posInit;
+    TVector3 posInit_vector3;
+    TVector3 momInit;
+    double charge(0);
+    TMatrixDSym covMInit_6(6);
+    CEPC::getPosMomFromTrackState(track.getTrackStates(0),
+            m_genfitField->getBzTesla(TVector3{0.,0.,0.}),
+            posInit_vector3,momInit,charge,
+            covMInit_6);
+    if(m_debug>=2){
+        std::cout<<m_name<<" posInit " <<std::endl;
+        posInit_vector3.Print();
+        std::cout<<m_name<<" momInit " <<std::endl;
+        momInit.Print();
+        std::cout<<m_name<<" covMInit_6 from edm4hep Track" <<std::endl;
+        covMInit_6.Print();
+    }
+
+    ///unit conversion
+    posInit.SetX(posInit_vector3.X()*dd4hep::mm);
+    posInit.SetY(posInit_vector3.Y()*dd4hep::mm);
+    posInit.SetZ(posInit_vector3.Z()*dd4hep::mm);
+    posInit.SetT(eventStartTime);
+    momInit.SetX(momInit.X()*dd4hep::GeV);
+    momInit.SetY(momInit.Y()*dd4hep::GeV);
+    momInit.SetZ(momInit.Z()*dd4hep::GeV);
+    //unit conversion of error matrix //TODO
+    //covMInit_6=
+
+    ///set user defined error matrix
+    if(!isUseCovTrack){
+        covMInit_6.Zero();
+        for(int i = 0; i < 3; ++i) {
+            double posResolusion=1.;
+            covMInit_6(i,i)=posResolusion*posResolusion; //seed position
+            double momResolusion=5.;
+            covMInit_6(i+3,i+3)=momResolusion*momResolusion; //seed momentum
+        }
+    }
+
+    if(m_debug>=2){
+        std::cout<<m_name<<" createGenfitTrackFromEDM4HepTrack charge "<<charge
+            <<std::endl;
+        std::cout<<m_name<<" posInit " <<std::endl;
+        posInit.Print();
+        std::cout<<m_name<<" momInit " <<std::endl;
+        momInit.Print();
+        std::cout<<m_name<<" covMInit_6 for genfit track" <<std::endl;
+        covMInit_6.Print();
+        std::cout<<m_name<<" createGenfitTrackFromEDM4HepTrack "
+            <<" Bz "<<m_genfitField->getBzTesla({0.,0.,0.})
+            <<" n trackerHit "<<track.trackerHits_size()
+            <<" TrackState "<<track.getTrackStates(0)
+            <<" track "<<track<<std::endl;
+    }
+
+    bool status=createGenfitTrack(pidType,charge,posInit,momInit,covMInit_6);
+    if(!status && m_debug>=2){
+        std::cout<<m_name<<" createGenfitTrackFromEDM4HepTrack failed!!!"
+            <<std::endl;
+    }
+    return status;
 }
 
 /// Add a 3d SpacepointMeasurement on TrackerHit
-bool GenfitTrack::addSpacePointTrakerHit(edm4hep::ConstTrackerHit& hit,
-        int hitID)
+bool GenfitTrack::addSpacePointFromTrakerHit(edm4hep::ConstTrackerHit& hit,
+        int hitID, bool isUseFixedSiHitError)
 {
     edm4hep::Vector3d pos=hit.getPosition();
     TVectorD p(3);
@@ -205,7 +258,8 @@ bool GenfitTrack::addSpacePointTrakerHit(edm4hep::ConstTrackerHit& hit,
     p[1]=pos.y*dd4hep::mm;
     p[2]=pos.z*dd4hep::mm;
 
-    if(m_debug>=2)std::cout<<m_name<<" addSpacePointTrakerHit"<<hitID
+
+    if(m_debug>=2)std::cout<<m_name<<" addSpacePointFromTrakerHit"<<hitID
         <<"pos "<<p[0]<<" "<<p[1]<<" "<<p[2]<<" cm"<<std::endl;
     /// New a SpacepointMeasurement
     double cov[6];
@@ -213,25 +267,47 @@ bool GenfitTrack::addSpacePointTrakerHit(edm4hep::ConstTrackerHit& hit,
         cov[i]=hit.getCovMatrix(i);
         if(m_debug>=2)std::cout<<"cov "<<cov[i]<<std::endl;
     }
-    TMatrixDSym hitCov(3);//FIXME?
-    //in SimpleDigi/src/PlanarDigiAlg.cpp
-    //cov[0] = u_direction[0];
-    //cov[1] = u_direction[1];
-    //cov[2] = resU;
-    //cov[3] = v_direction[0];
-    //cov[4] = v_direction[1];
-    //cov[5] = resV;
-    hitCov(0,0)=cov[2]*dd4hep::mm*dd4hep::mm;
-    hitCov(1,1)=cov[2]*dd4hep::mm*dd4hep::mm;
-    hitCov(2,2)=cov[2]*dd4hep::mm*dd4hep::mm;
+
+    TMatrixDSym hitCov_3(3);
+    int detTypeID=getDetTypeID(hit.getCellID());
+
+    if(m_debug>=2){
+        std::cout<<m_name<<" detTypeID "<<detTypeID<<" create point hit err"
+            <<std::endl;
+    }
+    //space point error matrix, lower triangle?, unit cm
+    if(isUseFixedSiHitError){
+        hitCov_3[0][0]=0.0003*0.0003;
+        hitCov_3[1][1]=0.0003*0.0003;
+        hitCov_3[2][2]=0.0003*0.0003;
+    }else{
+        hitCov_3.Zero();
+        hitCov_3[0][0]=cov[0]*dd4hep::mm*dd4hep::mm;
+        //hitCov_3[1][0]=cov[1]*dd4hep::mm*dd4hep::mm;
+        //hitCov_3[0][1]=cov[1]*dd4hep::mm*dd4hep::mm;
+        hitCov_3[1][1]=cov[2]*dd4hep::mm*dd4hep::mm;
+        //hitCov_3[2][0]=cov[3]*dd4hep::mm*dd4hep::mm;
+        //hitCov_3[0][2]=cov[3]*dd4hep::mm*dd4hep::mm;
+        //hitCov_3[2][1]=cov[4]*dd4hep::mm*dd4hep::mm;
+        //hitCov_3[1][2]=cov[4]*dd4hep::mm*dd4hep::mm;
+        hitCov_3[2][2]=cov[5]*dd4hep::mm*dd4hep::mm;
+    }
+    for (int i=0;i<3;i++){
+        p[i]+=gRandom->Gaus(0,0.0003);
+    }
+    if(m_debug>=2){
+        std::cout<<m_name<<" hitCov_3 cm "<<dd4hep::cm<<" "<<dd4hep::mm<<std::endl;
+        hitCov_3.Print();
+    }
 
     genfit::SpacepointMeasurement* sMeas =
-        new genfit::SpacepointMeasurement(p,hitCov,(int) hit.getCellID(),hitID,
+        new genfit::SpacepointMeasurement(p,hitCov_3,(int) hit.getCellID(),hitID,
                 nullptr);
     genfit::TrackPoint* trackPoint = new genfit::TrackPoint(sMeas,m_track);
     m_track->insertPoint(trackPoint);
 
-    if(m_debug>=2)std::cout<<"end of addSpacePointTrakerHit"<<std::endl;
+    if(m_debug>=2)std::cout<<"end of addSpacePointFromTrakerHit"<<std::endl;
+
     return true;
 }
 
@@ -250,7 +326,7 @@ bool GenfitTrack::addSpacePointMeasurement(const TVectorD& pos,
     TVectorD pos_smeared(3);
     for (int i=0;i<3;i++){
         pos_smeared[i]=pos_t(i);
-        if(smear) pos_smeared[i]+=gRandom->Gaus(0,sigma_t/TMath::Sqrt(3.));
+        if(smear) pos_smeared[i]+=gRandom->Gaus(0,sigma_t);
     }
 
     /// New a SpacepointMeasurement
@@ -261,8 +337,8 @@ bool GenfitTrack::addSpacePointMeasurement(const TVectorD& pos,
 
     if(m_debug>=2)std::cout<<m_name<<" addSpacePointMeasurement detID "
         <<detID<<" hitId "<<hitID<<" " <<pos_t[0]<<" "<<pos_t[1]<<" "<<pos_t[2]
-        <<" cm smeared "<<pos_smeared[0]<<" "<<pos_smeared[1]<<" "
-        <<pos_smeared[2]<<" sigma_t "<<sigma_t<<" cm"<<std::endl;
+            <<" cm smeared "<<pos_smeared[0]<<" "<<pos_smeared[1]<<" "
+            <<pos_smeared[2]<<" sigma_t "<<sigma_t<<" cm"<<std::endl;
 
     genfit::SpacepointMeasurement* sMeas =
         new genfit::SpacepointMeasurement(pos_smeared,hitCov,detID,hitID,nullptr);
@@ -272,6 +348,106 @@ bool GenfitTrack::addSpacePointMeasurement(const TVectorD& pos,
     return true;
 }
 
+/// Return isurface of a silicon hit
+const dd4hep::rec::ISurface*
+GenfitTrack::getISurface(edm4hep::ConstTrackerHit hit){
+    dd4hep::rec::SurfaceManager surfaceManager(*m_geomSvc->lcdd());
+
+    std::string detectorName;
+    int detTypeID=getDetTypeID(hit.getCellID());
+    if(detTypeID==lcio::ILDDetID::VXD){
+        detectorName="VXD";
+    }else if(detTypeID==lcio::ILDDetID::SIT){
+        detectorName="SIT";
+    }else if(detTypeID==lcio::ILDDetID::SET){
+        detectorName="SET";
+    }else if(detTypeID==lcio::ILDDetID::FTD){
+        detectorName="FTD";
+    }else{
+        return nullptr;
+    }
+    std::cout<<__FILE__<<" detectorName  "<<detectorName<<" cellId "<<hit.getCellID()<<std::endl;
+    const dd4hep::rec::SurfaceMap* surfaceMap= surfaceManager.map(detectorName);
+    auto iter=surfaceMap->find(hit.getCellID());
+    dd4hep::rec::ISurface* iSurface=nullptr;
+    if(iter!=surfaceMap->end()){iSurface=(*iter).second;}
+
+    std::cout << "map size = " << surfaceMap->size() << std::endl;
+    std::multimap< unsigned long, dd4hep::rec::ISurface*>::const_iterator it,itend;
+    it=surfaceMap->begin();
+    itend= surfaceMap->end();
+    for(; it!=itend; it++){
+        dd4hep::rec::ISurface* surf = it->second;
+        std::cout<<__FILE__<<" surf cell id  "<<it->first<<std::endl;
+        dd4hep::rec::Vector3D origin = surf->origin();
+        std::cout <<"surf id "<< surf->id() << " origin xyz " << origin.x() << " " << origin.y() << " " << origin.z() << std::endl;
+    }
+    return iSurface;
+}
+
+/// Add a 1d strip or 2d pixel smeared by sigma
+    bool
+GenfitTrack::addPlanarHitFromTrakerHit(edm4hep::ConstTrackerHit& hit,int hitID)
+{
+    if(m_debug>0)std::cout<<"addPlanarHitFromTrakerHit not implemented"<<std::endl;
+    double cov[6];
+    for(int i=0;i<6;i++) {
+        cov[i]=hit.getCovMatrix(i);
+        if(m_debug>=2)std::cout<<"cov "<<cov[i]<<std::endl;
+    }
+
+    /////get surface by cellID
+    const dd4hep::rec::ISurface* iSurface = getISurface(hit);
+    if(nullptr!=iSurface){
+        dd4hep::rec::Vector3D u=iSurface->u();
+        dd4hep::rec::Vector3D v=iSurface->v();
+        double length_along_u=iSurface->length_along_u();
+        double length_along_v=iSurface->length_along_v();
+        std::cout<<__FILE__<<"   "<<__LINE__<<" u "<<u.x()<<" "<<u.y()<<" "<<u.z()<<std::endl;
+        std::cout<<__FILE__<<"   "<<__LINE__<<" v "<<v.x()<<" "<<v.y()<<" "<<v.z()<<std::endl;
+        std::cout<<__FILE__<<"   "<<__LINE__<<" length_along_u "<<length_along_u<<" length_along_v "<<length_along_v<<std::endl;
+
+    }else{
+        std::cout<<__FILE__<<" iSurface is null "<<std::endl;
+    }
+    ////my cov
+    //double detectorResolution(0.001); // resolution of planar detectors
+    //TMatrixDSym hitCov(2);
+    //hitCov.UnitMatrix();
+    //hitCov *= detectorResolution*detectorResolution;
+
+    ///hit pos
+    //const edm4hep::Vector3d& pos=hit.getPosition();
+
+    //TVectorD hitCoords(3);
+    //hitCoords[0] = pos[0];
+    //hitCoords[1] = pos[1];
+    //hitCoords[2] = pos[2];
+
+    //if(m_debug>=2)std::cout<<"TrackerHit pos "<<pos<<std::endl;
+    ////TODO FIXME get from geometry
+    //TVector3 vV(cov[3],cov[4],0);
+
+    //// add some planar hits example
+    //const double umin=-371.3;
+    //const double umax=371.3;
+    //const double vmax=10;
+    //const double vmin=0;
+    //genfit::RectangularFinitePlane* strip =
+    //    new genfit::RectangularFinitePlane(umin,umax,vmin,vmax);
+    //TVector3 U=(r,theta,phi);//?
+    //TVector3 V=(r,theta,phi);//?
+    //genfit::DetPlane* detPlan = new genfit::DetPlane(TVectorD(0,0,0),U,V,strip);
+
+    //TVectorD hitCoords(2);
+    //hitCoords[0] = (umax-umin)/2.;
+    //hitCoords[1] = (vmax-vmin)/2.;
+    //genfit::PlanarMeasurement* measurement =
+    //    new genfit::PlanarMeasurement(hitCoords, hitCov, detId, ++hitId, nullptr);
+    //measurement->setPlane(genfit::SharedPlanePtr(detPlan), ++planeId);
+    //fitTrack.insertPoint(new genfit::TrackPoint(measurement, &fitTrack));
+    return true;
+}
 
 /// Add a WireMeasurement, no Unit conversion here
 void GenfitTrack::addWireMeasurement(double driftDistance,
@@ -283,15 +459,15 @@ void GenfitTrack::addWireMeasurement(double driftDistance,
         genfit::WireMeasurementNew* wireMeas = new genfit::WireMeasurementNew(
                 driftDistance, driftDistanceError, endPoint1, endPoint2, detID,
                 hitID, nullptr);
-        wireMeas->setMaxDistance(0.5);//0.5 cm FIXME
+        wireMeas->setMaxDistance(1.);//1. cm FIXME
         wireMeas->setLeftRightResolution(lrAmbig);
 
         if(m_debug>=2)std::cout<<m_name<<" Add wire measurement(cm) "<<hitID
             <<" ep1("<<endPoint1[0]<<" "<<endPoint1[1]<<" "<<endPoint1[2]
-            <<") ep2("<<endPoint2[0]<<" "<<endPoint2[1]<<" "<<endPoint2[2]
-            <<") drift "<<driftDistance<<" driftErr "<<driftDistanceError
-            <<" lr "<<lrAmbig<<" detId "<<detID << " hitId "<< hitID
-            <<std::endl;
+                <<") ep2("<<endPoint2[0]<<" "<<endPoint2[1]<<" "<<endPoint2[2]
+                <<") drift "<<driftDistance<<" driftErr "<<driftDistanceError
+                <<" lr "<<lrAmbig<<" detId "<<detID << " hitId "<< hitID
+                <<std::endl;
 
         ///New a TrackPoint,create connection between meas. and trackPoint
         genfit::TrackPoint* trackPoint=new genfit::TrackPoint(wireMeas,m_track);
@@ -323,8 +499,8 @@ bool GenfitTrack::addWireMeasurementOnTrack(edm4hep::Track& track,double sigma)
             <<" driftVelocity " <<driftVelocity<<std::endl;
         if(m_debug>=2)std::cout<<m_name<<" wire pos " <<endPointStart.X()
             <<" "<<endPointStart.Y()<<" " <<endPointStart.Z()<<" "
-            <<endPointEnd.X()<<" " <<endPointEnd.Y()<<" "
-            <<endPointEnd.Z()<<" " <<std::endl;
+                <<endPointEnd.X()<<" " <<endPointEnd.Y()<<" "
+                <<endPointEnd.Z()<<" " <<std::endl;
         endPointStart.SetX(endPointStart.x()*dd4hep::cm);
         endPointStart.SetY(endPointStart.y()*dd4hep::cm);
         endPointStart.SetZ(endPointStart.z()*dd4hep::cm);
@@ -404,6 +580,18 @@ unsigned int GenfitTrack::getNumPoints() const
     return m_track->getNumPoints();
 }
 
+unsigned int GenfitTrack::getNumPointsDet(int detTypeID) const
+{
+    unsigned int nHit=0;
+    const std::vector<genfit::TrackPoint*> tps=m_track->getPoints();
+    for(auto tp:tps){
+        const genfit::AbsMeasurement* m=nullptr;
+        if(tp->hasRawMeasurements()) m=tp->getRawMeasurement();
+        if(nullptr!=m && detTypeID==getDetTypeID(m->getDetId())) nHit++;
+    }
+    return nHit;
+}
+
 /// Test the fit result FIXME
 bool GenfitTrack::fitSuccess(int repID) const
 {
@@ -415,8 +603,8 @@ bool GenfitTrack::fitSuccess(int repID) const
             ||fitStatus->isFitConvergedFully()) {
         if(m_debug>=2)std::cout<<m_name<< "Fitting is failed... isFitted"
             <<fitStatus->isFitted()<<" , isFitConverged "
-            <<fitStatus->isFitConverged()<<", isFitConvergedFully "
-            <<fitStatus->isFitConvergedFully()<<std::endl;
+                <<fitStatus->isFitConverged()<<", isFitConvergedFully "
+                <<fitStatus->isFitConvergedFully()<<std::endl;
         return false;
     }
 
@@ -527,7 +715,7 @@ int GenfitTrack::getFittedState(TLorentzVector& pos, TVector3& mom,
     try{
         mop = m_track->getFittedState(biased);
     }catch(genfit::Exception& e){
-        std::cout<<" getNumPointsWithFittedInfo "
+        std::cout<<" getNumPointsWithFittedInfo="
             <<getNumPointsWithFittedInfo(repID)
             <<" no TrackPoint with fitted info "<<std::endl;
         if(m_debug>=2)std::cout<<m_name
@@ -625,7 +813,7 @@ double GenfitTrack::extrapolateToHit( TVector3& poca, TVector3& pocaDir,
                 pocaDir, pocaOnWire, stopAtBoundary, calcJacobianNoise);
     }catch(genfit::Exception& e) {
         if(m_debug>=3)std::cout<<
-            "Exception in GenfigFitter::ExtrapolateToHit"<<e.what()<<std::endl;
+            "Exception in GenfitterTrack::extrapolateToHit"<<e.what()<<std::endl;
         return extrapoLen;
     }
 
@@ -640,48 +828,87 @@ double GenfitTrack::extrapolateToHit( TVector3& poca, TVector3& pocaDir,
         <<","<<pocaOnWire.y()<<" "<<pocaOnWire.z()<<" doca "<<doca<<std::endl;
 
     return extrapoLen*(dd4hep::cm);
-}//end of ExtrapolateToHit
+}//end of extrapolateToHit
 
 
 ///Add space point measurement from edm4hep::Track to genfit track
-int GenfitTrack::addSimTrackerHits(const edm4hep::Track& track,
+int GenfitTrack::addHitsOnEdm4HepTrack(const edm4hep::Track& track,
         const edm4hep::MCRecoTrackerAssociationCollection* assoHits,
-        float sigma,bool smear){
+        float sigma,bool smear, bool fitSiliconOnly, bool isUseFixedSiHitError){
+
     //A TrakerHit collection
     std::vector<edm4hep::ConstSimTrackerHit> sortedDCTrackHitCol;
 
-    if(m_debug>=2)std::cout<<m_name<<" VXD "
-        <<lcio::ILDDetID::VXD<<" SIT "
-        <<lcio::ILDDetID::SIT<<" SET "
-        <<lcio::ILDDetID::SET<<" FTD "
-        <<lcio::ILDDetID::FTD<<" "<<std::endl;
+    if(m_debug>=2){
+        std::cout<<m_name<<" addHitsOnEdm4HepTrack VXD "
+            <<lcio::ILDDetID::VXD<<" SIT " <<lcio::ILDDetID::SIT<<" SET "
+            <<lcio::ILDDetID::SET<<" FTD " <<lcio::ILDDetID::FTD
+            <<" isUseFixedSiHitError "<<isUseFixedSiHitError<<std::endl;
+    }
+
     ///Get TrackerHit on Track
     int hitID=0;
     for(unsigned int iHit=0;iHit<track.trackerHits_size();iHit++){
         edm4hep::ConstTrackerHit hit=track.getTrackerHits(iHit);
-
-        UTIL::BitField64 encoder(lcio::ILDCellID0::encoder_string);
-        encoder.setValue(hit.getCellID());
-        int detID=encoder[lcio::ILDCellID0::subdet];
+        ///Get hit type
+        int detTypeID=getDetTypeID(hit.getCellID());
         if(m_debug>=2)std::cout<<m_name<<" "<<iHit<<" hit "<<hit
-            <<" detID "<<detID<<std::endl;
+            <<" detTypeID "<<detTypeID<<" type "<<hit.getType()<<std::endl;
 
-        if(detID==lcio::ILDDetID::VXD || detID==lcio::ILDDetID::SIT ||
-                detID==lcio::ILDDetID::SET || detID==lcio::ILDDetID::FTD){
-            if(addSpacePointTrakerHit(hit,hitID)){
-                if(m_debug>=2)std::cout<<"add slicon space point"<<std::endl;
+        bool hitIsSpapcePoint=UTIL::BitSet32(hit.getType())[ \
+                              UTIL::ILDTrkHitTypeBit::COMPOSITE_SPACEPOINT];
+        bool hitIsPlanar=UTIL::BitSet32(hit.getType())[ \
+                         UTIL::ILDTrkHitTypeBit::ONE_DIMENSIONAL];
+        if(m_debug>2){
+            std::cout<<detTypeID<<" COMPOSITE_SPACEPOINT "<<hitIsSpapcePoint<<std::endl;
+            std::cout<<detTypeID<<" ONE_DIMENSIONAL "<<hitIsPlanar<<std::endl;
+        }
+
+        bool isDriftChamberHit(false);
+        if(7==detTypeID){
+            isDriftChamberHit=true;
+        }else{
+            addPlanarHitFromTrakerHit(hit,hitID);//yzhang DEBUG FIXME
+        }
+        //bool isSpacePoint(true);
+        //    isDriftChamberHit=true;
+        //bool isPlanarHit(false);
+        //if(detTypeID==lcio::ILDDetID::VXD){
+        //    isSpacePoint=true;
+        //}else if(detTypeID==lcio::ILDDetID::SIT
+        //        || detTypeID==lcio::ILDDetID::SET
+        //        || detTypeID==lcio::ILDDetID::FTD){
+        //    isSpacePoint=hitIsSpapcePoint;
+        //    isPlanarHit=hitIsPlanar;
+        //}else if(7==detTypeID){
+        //    isDriftChamberHit=true;
+        //}
+        ///hit from SimTrackerHit
+        //bool isSimTrackerHit=hit.getType()<0 ? true:false;//FIXME
+        //if(isSimTrackerHit) isSpacePoint=true;//FIXME
+
+        ///Add hit
+        //if(isSpacePoint){
+        //    if(addSpacePointFromTrakerHit(hit,hitID,isUseFixedSiHitError)){
+        //        hitID++;
+        //    }
+        //}else if(isPlanarHit){
+        //    if(addPlanarHitFromTrakerHit(hit,hitID)){
+        //        hitID++;
+        //    }
+        //}
+
+        if(!isDriftChamberHit){
+            if(addSpacePointFromTrakerHit(hit,hitID,isUseFixedSiHitError)){
                 hitID++;
-            }else{
-                if(m_debug>=2)std::cout<<"silicon addSpacePointTrakerHit"
-                    <<detID<<" "<<hit.getCellID()<<" faieled"<<std::endl;
             }
-        }else if(detID==7){
+        }else if(isDriftChamberHit){
             //if(addSpacePointMeasurement(p,sigma,hit.getCellID(),hitID)){
             //    if(m_debug>=2)std::cout<<"add DC space point"<<std::endl;
             //    hitID++;
             //}else{
             //    if(m_debug>=2)std::cout<<"addSpacePointMeasurement"
-            //        <<detID<<" faieled" <<std::endl;
+            //        <<detTypeID<<" faieled" <<std::endl;
             //}
             float minTime=FLT_MAX;
             edm4hep::ConstSimTrackerHit minTimeSimHit;
@@ -694,10 +921,14 @@ int GenfitTrack::addSimTrackerHits(const edm4hep::Track& track,
                 }
             }
             //std::cout<<"minTimeSimHit "<<minTimeSimHit<<std::endl;
-            sortedDCTrackHitCol.push_back(minTimeSimHit);
+            if(!minTimeSimHit.isProducedBySecondary()){
+                sortedDCTrackHitCol.push_back(minTimeSimHit);
+            }
         }else{
-            if(m_debug>=2)std::cout<<" Skip add this hit!"<<std::endl;
+            if(m_debug>=2)std::cout<<"addHitsOnEdm4HepTrack Skip add this hit!"
+                <<std::endl;
         }
+
     }//end loop over hit on track
 
     if(m_debug>=2)std::cout<<" addSimTrakerHits trackerHits_size="
@@ -706,128 +937,300 @@ int GenfitTrack::addSimTrackerHits(const edm4hep::Track& track,
     ///Add DC hits to track
     //Sort sim DC hits by time
     //std::sort(sortedDCTrackHitCol.begin(),sortedDCTrackHitCol.end(),sortDCHit);
-    for(auto dCTrackerHit: sortedDCTrackHitCol){
-        edm4hep::Vector3d pos=dCTrackerHit.getPosition();
-        TVectorD p(3);
-        p[0]=pos.x;
-        p[1]=pos.y;
-        p[2]=pos.z;
-        unsigned long long detID = dCTrackerHit.getCellID();
-        if(addSpacePointMeasurement(p,sigma,detID,hitID,smear)){
-            if(m_debug>=2)std::cout<<"add DC space point"<<std::endl;
-            hitID++;
-        }else{
-            if(m_debug>=2)std::cout<<"addSpacePointMeasurement"
-                <<detID<<" faieled" <<std::endl;
+    if(!fitSiliconOnly){
+        for(auto dCTrackerHit: sortedDCTrackHitCol){
+            edm4hep::Vector3d pos=dCTrackerHit.getPosition();
+            TVectorD p(3);
+            p[0]=pos.x;
+            p[1]=pos.y;
+            p[2]=pos.z;
+            unsigned long long cellID = dCTrackerHit.getCellID();
+            if(addSpacePointMeasurement(p,sigma,cellID,hitID,smear)){
+                if(m_debug>=2)std::cout<<"add DC space point"<<std::endl;
+                hitID++;
+            }else{
+                if(m_debug>=2)std::cout<<"addSpacePointMeasurement"
+                    <<cellID<<" faieled" <<std::endl;
+            }
         }
     }
 
-    if(m_debug>=2)std::cout<<"GenfitTrack nHitAdded "<<hitID<<std::endl;
+    if(m_debug>=2){
+        std::cout<<"GenfitTrack addHitsOnEdm4HepTrack="<<hitID<<std::endl;
+    }
     return hitID;
 }
 
+double GenfitTrack::extrapolateToPoint(TVector3& pos, TVector3& mom,
+        const TVector3& point,
+        int repID,// same with pidType
+        bool stopAtBoundary,
+        bool calcJacobianNoise) const
+{
+    TMatrixDSym cov;
+    return extrapolateToPoint(pos,mom,cov,point,repID,stopAtBoundary,
+            calcJacobianNoise);
+
+}//end of extrapolateToPoint
+
+
+double GenfitTrack::extrapolateToPoint(TVector3& pos, TVector3& mom,
+        TMatrixDSym& cov, const TVector3& point,
+        int repID,// same with pidType
+        bool stopAtBoundary,
+        bool calcJacobianNoise) const
+{
+    double trackLength(1e9*dd4hep::cm);
+    if(!getFitStatus(repID)->isFitted()) return trackLength;
+    try{
+        // get track rep
+        genfit::AbsTrackRep* rep = getRep(repID);
+        if(nullptr == rep) {
+            if(m_debug>=2)std::cout<<"In extrapolateToPoint rep "
+                <<repID<<" not exist!"<<std::endl;
+            return trackLength*dd4hep::cm;
+        }
+
+        /// extrapolate to point
+        //genfit::StateOnPlane state(*(&(track->getTrack()->getFittedState(0,rep))));
+
+        // get track point with fitter info
+        genfit::TrackPoint* tp = getTrack()->getPointWithFitterInfo(0,rep);
+        if(nullptr == tp) {
+            if(m_debug>=2)std::cout<<
+                "In extrapolateToPoint TrackPoint is null"<<std::endl;
+            return trackLength*dd4hep::cm;
+        }
+
+        // get fitted state on plane of this track point
+        genfit::KalmanFittedStateOnPlane* state =
+            static_cast<genfit::KalmanFitterInfo*>(
+                    tp->getFitterInfo(rep))->getBackwardUpdate();
+        genfit::StateOnPlane orignalState(*state);
+        if(m_debug>3){
+            tp->Print();
+            std::cout<<" original state before extrapolate "<<std::endl;
+            state->Print();
+        }
+
+        if(nullptr == state) {
+            if(m_debug>=2)std::cout<<
+                "In extrapolateToPoint KalmanFittedStateOnPlane is null"<<std::endl;
+            return trackLength*dd4hep::cm;
+        }
+        //rep->setDebugLvl(10);
+        trackLength = rep->extrapolateToPoint(*state,
+                point*(1/dd4hep::cm),stopAtBoundary, calcJacobianNoise);
+        rep->getPosMomCov(*state,pos,mom,cov);//FIXME exception exist
+        pos = pos*dd4hep::cm;
+        mom = mom*dd4hep::GeV;
+        if(m_debug>3){
+            std::cout<<" original state before extrapolate "<<std::endl;
+            orignalState.Print();
+            std::cout<<" extrapolated state "<<std::endl;
+            state->Print();
+        }
+    } catch(genfit::Exception& e){
+        if(m_debug>=3)std::cout
+            <<"Exception in GenfitTrack::extrapolateToPoint"
+                << e.what()<<std::endl;
+        trackLength = 1e9*dd4hep::cm;
+    }
+    return trackLength*dd4hep::cm;
+}//end of extrapolateToPoint
+
+/// Extrapolate the track to the cyliner at fixed raidus
+/// position & momentum as starting point
+/// position and momentum at global coordinate in dd4hepUnit
+/// return trackLength in dd4hepUnit
+    double
+GenfitTrack::extrapolateToCylinder(TVector3& pos, TVector3& mom,
+        double radius, const TVector3 linePoint,
+        const TVector3 lineDirection, int hitID, int repID,
+        bool stopAtBoundary, bool calcJacobianNoise)
+{
+    double trackLength(1e9*dd4hep::cm);
+    if(!getFitStatus(repID)->isFitted()) return trackLength;
+    try{
+        // get track rep
+        genfit::AbsTrackRep* rep = getRep(repID);
+        if(nullptr == rep) {
+            if(m_debug>=2)std::cout<<"In extrapolateToCylinder rep is null"
+                <<std::endl;
+            return trackLength*dd4hep::cm;
+        }
+
+        // get track point with fitter info
+        genfit::TrackPoint* tp =
+            getTrack()->getPointWithFitterInfo(hitID,rep);
+        if(nullptr == tp) {
+            if(m_debug>=2)std::cout<<
+                "In extrapolateToCylinder TrackPoint is null"<<std::endl;
+            return trackLength*dd4hep::cm;
+        }
+
+        // get fitted state on plane of this track point
+        genfit::KalmanFittedStateOnPlane* state =
+            static_cast<genfit::KalmanFitterInfo*>(
+                    tp->getFitterInfo(rep))->getBackwardUpdate();
+
+        if(nullptr == state){
+            if(m_debug>=2)std::cout<<"In extrapolateToCylinder "
+                <<"no KalmanFittedStateOnPlane in backwardUpdate"<<std::endl;
+            return trackLength*dd4hep::cm;
+        }
+        rep->setPosMom(*state, pos*(1/dd4hep::cm), mom*(1/dd4hep::GeV));
+
+        /// extrapolate
+        trackLength = rep->extrapolateToCylinder(*state,
+                radius/dd4hep::cm, linePoint*(1/dd4hep::cm), lineDirection,
+                stopAtBoundary, calcJacobianNoise);
+        // get pos&mom at extrapolated point on the cylinder
+        rep->getPosMom(*state,pos,mom);//FIXME exception exist
+        pos = pos*dd4hep::cm;
+        mom = mom*dd4hep::GeV;
+    } catch(genfit::Exception& e){
+        if(m_debug>=3)std::cout
+            <<"Exception in GenfitTrack::extrapolateToCylinder "
+                << e.what()<<std::endl;
+        trackLength = 1e9*dd4hep::cm;
+    }
+    return trackLength*dd4hep::cm;
+}
+
 bool GenfitTrack::storeTrack(edm4hep::ReconstructedParticle& recParticle,
+        edm4hep::Track& track,
         int pidType, int ndfCut, double chi2Cut)
 {
 
+    if(m_debug>0)std::cout<<m_name<<" store track ndfCut "<<ndfCut<<" chi2Cut "
+        <<chi2Cut<<std::endl;
     /// Get fit status
-    const genfit::FitStatus* fitState = m_track->getFitStatus();
+    const genfit::FitStatus* fitState = getFitStatus();
     double ndf = fitState->getNdf();
-    if(ndf>ndfCut) return false;
+    if(ndf>ndfCut){
+        if(m_debug>0){
+            std::cout<<m_name<<" cut by ndf="<<ndf<<">"<<ndfCut<<std::endl;
+        }
+        return false;
+    }
     double chi2 = fitState->getChi2();
-    if(chi2>chi2Cut) return false;
+    if(chi2>chi2Cut){
+        if(m_debug>0){
+            std::cout<<m_name<<" cut by chi2="<<chi2<<">"<<chi2Cut<<std::endl;
+        }
+        return false;
+    }
     double charge = fitState->getCharge();
     int isFitted = fitState->isFitted();
     int isConverged = fitState->isFitConverged();
     int isConvergedFully = fitState->isFitConvergedFully();
-    TMatrixDSym fittedCov;
+
+    TMatrixDSym fittedCov(6);//cm, GeV
     TLorentzVector fittedPos;
     TVector3 fittedMom;
     int fittedState=getFittedState(fittedPos,fittedMom,fittedCov);
-    if(m_debug>=2)std::cout<<"fit result: get status OK? pidType "
-        <<pidType<<" fittedState==0 " <<(0==fittedState)<<" isFitted "<<isFitted
-        <<" isConverged "<<isConverged<<" ndf "<<ndf<<std::endl;
-    if((0!=fittedState) || (!isFitted) || !isConvergedFully || (ndf<ndfCut)){
-        if(m_debug>=2)std::cout<<" fitting failed"<<std::endl;
+    if(m_debug>0)std::cout<<m_name<<" fit result: get status OK? pidType "
+        <<pidType<<" fittedState"<<fittedState<<"==0? "<<(0==fittedState)
+            <<" isFitted "<<isFitted
+            <<" isConverged "<<isConverged<<" ndf "<<ndf<<std::endl;
+    if((0!=fittedState)||(!isFitted)||(!isConvergedFully)||(ndf>ndfCut)){
+        if(m_debug>0)std::cout<<m_name<<" fitting FAILED!=========="<<std::endl;
     }else{
-        if(m_debug>=2)std::cout<<"fit result: Pos("<<
-            fittedPos.X()<<" "<<
-            fittedPos.Y()<<" "<<
-            fittedPos.Z()<<") mom("<<
-            fittedMom.X()<<" "<<
-            fittedMom.Y()<<" "<<
-            fittedMom.Z()<<") p_tot "<<
-            fittedMom.Mag()<<" pt "<<
-            fittedMom.Perp()<<
-            " chi2 "<<chi2<<
-            " ndf "<<ndf
-            <<std::endl;
+        if(m_debug>0){
+            std::cout<<m_name<<" fit result: Pos("<<
+                fittedPos.X()<<" "<<
+                fittedPos.Y()<<" "<<
+                fittedPos.Z()<<") mom("<<
+                fittedMom.X()<<" "<<
+                fittedMom.Y()<<" "<<
+                fittedMom.Z()<<") p_tot "<<
+                fittedMom.Mag()<<" pt "<<
+                fittedMom.Perp()<<
+                " chi2 "<<chi2<<
+                " ndf "<<ndf
+                <<std::endl;
+            std::cout<<"fittedCov "<<std::endl;
+            fittedCov.Print();
+        }
     }
-    float pos[3]={float(fittedPos.X()),float(fittedPos.Y()),float(fittedPos.Z())};
-    float mom[3]={float(fittedMom.X()),float(fittedMom.Y()),float(fittedMom.Z())};
-    HelixClass helix;
-    helix.Initialize_VP(pos,mom,charge,m_genfitField->getBz(fittedPos.Vect()));
+
+    ///track status at POCA to referencePoint: origin
+    const TVector3 referencePoint(0,0,0);
+    TVector3 pocaToOrigin_pos(1e9*dd4hep::cm,1e9*dd4hep::cm,1e9*dd4hep::cm);
+    TVector3 pocaToOrigin_mom(1e9*dd4hep::GeV,1e9*dd4hep::GeV,1e9*dd4hep::GeV);
+    if(extrapolateToPoint(pocaToOrigin_pos,pocaToOrigin_mom,referencePoint)
+            > 1e6*dd4hep::cm){
+        if(m_debug>0)std::cout<<m_name<<" extrapolate to origin failed"<<std::endl;
+        return false;
+    }
+
+    //Unit conversion of position and momentum
+    pocaToOrigin_pos.SetXYZ(pocaToOrigin_pos.X()*dd4hep::mm,
+            pocaToOrigin_pos.Y()*dd4hep::mm,pocaToOrigin_pos.Z()*dd4hep::mm);
+    pocaToOrigin_mom.SetXYZ(pocaToOrigin_mom.X()*dd4hep::GeV,
+            pocaToOrigin_mom.Y()*dd4hep::GeV,pocaToOrigin_mom.Z()*dd4hep::GeV);
+    //unit conversion of error matrix
+    TMatrixDSym covMatrix_6=fittedCov;
+    for(int i=0;i<5;i++){
+        covMatrix_6[0][i]=fittedCov[0][i]*dd4hep::cm;//d0 column
+        covMatrix_6[2][i]=fittedCov[2][i]/dd4hep::cm;//omega column
+        covMatrix_6[3][i]=fittedCov[3][i]*dd4hep::cm;//z0 column
+        covMatrix_6[i][0]=fittedCov[i][0]*dd4hep::cm;//d0 row
+        covMatrix_6[i][2]=fittedCov[i][2]/dd4hep::cm;//omega row
+        covMatrix_6[i][3]=fittedCov[i][3]*dd4hep::cm;//z0 row
+    }
+
+    if(m_debug>0){
+        std::cout<<m_name<<" fit result poca: Pos"<<std::endl;
+        pocaToOrigin_pos.Print();
+        pocaToOrigin_mom.Print();
+        std::cout<<" chi2 "<<chi2<< " ndf "<<ndf <<std::endl;
+        std::cout<<"fittedCov "<<std::endl;
+        fittedCov.Print();
+        std::cout<<"covMatrix_6 "<<std::endl;
+        covMatrix_6.Print();
+    }
+
+    double Bz=m_genfitField->getBzTesla(referencePoint);
+    edm4hep::TrackState trackState;
+    CEPC::getTrackStateFromPosMom(trackState,Bz,pocaToOrigin_pos,
+            pocaToOrigin_mom,charge,covMatrix_6);
+    trackState.location=0;//edm4hep::AtIP;//FIXME
+    if(m_debug>2){std::cout<<m_name<<" trackState "<<trackState<<std::endl;}
+    track.addToTrackStates(trackState);
 
 
-    /////track status at POCA to origin
-    //TVector3 origin(pivot);
-    //TVector3 pocaToOrigin_pos(1e9*dd4hep::cm,1e9*dd4hep::cm,1e9*dd4hep::cm);
-    //TVector3 pocaToOrigin_mom(1e9*dd4hep::GeV,1e9*dd4hep::GeV,1e9*dd4hep::GeV);
-
-    //if(ExtrapolateToPoint(pocaToOrigin_pos,pocaToOrigin_mom,
-    //            m_track,origin) > 1e6*dd4hep::cm){
-    //    log<<"extrapolate to origin failed";
-    //    return false;
-    //}
-
-
-    //new TrackState
-    edm4hep::TrackState* trackState = new edm4hep::TrackState();
-    trackState->location=0;//edm4hep::AtIP;
-    trackState->D0=helix.getD0();
-    trackState->phi=helix.getPhi0();
-    trackState->omega=helix.getOmega();
-    trackState->Z0=helix.getZ0();
-    trackState->tanLambda=helix.getTanLambda();
-    trackState->referencePoint=helix.getReferencePoint();
-
-    //    std::array<float,15> covMatrix;
-    //    int k=0;
-    //    for(int i=0;i<5;i++){
-    //        for(int j=0;j<5;j++){
-    //            if(i<=j) covMatrix[k]=;//FIXME
-    //        }
-    //    }
-    //    trackState.covMatrix=
-
-    //new Track
-    edm4hep::Track* track = new edm4hep::Track();
-    //track->setType();
-    track->setChi2(fitState->getChi2());
-    track->setNdf(fitState->getNdf());
-    //track->setDEdx();
-    //track->setRadiusOfInnermostHit();//FIXME
-    //track->addToTrackerHits();
+    //track.setType();
+    track.setChi2(chi2);
+    track.setNdf(ndf);
+    //track.setDEdx();
+    //track.setRadiusOfInnermostHit();//FIXME
+    //track.addToTrackerHits();
 
     //new ReconstructedParticle
     //recParticle->setType();
     //dcRecParticle->setEnergy();
 
-    edm4hep::Vector3f momVec3(helix.getMomentum()[0],
-            helix.getMomentum()[1],helix.getMomentum()[2]);
-    recParticle.setMomentum(momVec3);
-    //recParticle->setReferencePoint(referencePoint);
-    recParticle.setCharge(helix.getCharge());
-    //    recParticle->setMass();
-    //    recParticle->setCovMatrix();
-    //    rcRecParticle->setStartVertex();
-    //recParticle->addToTracks(track);
+    recParticle.setMomentum(edm4hep::Vector3f(pocaToOrigin_mom.X(),
+                pocaToOrigin_mom.Y(),pocaToOrigin_mom.Z()));
+    recParticle.setReferencePoint(edm4hep::Vector3f(referencePoint.X(),
+                referencePoint.Y(),referencePoint.Z()));
+    recParticle.setCharge(charge);
+    //recParticle->setMass();
+    //recParticle.setCovMatrix(trackState->covMatrix);
+    //recParticle->setStartVertex();
+    recParticle.addToTracks(track);
+    if(m_debug>2){
+        std::cout<<m_name<<" storeTrack trackState "<<trackState<<std::endl;
+        std::cout<<m_name<<" storeTrack track "<<track<<std::endl;
+    }
 
     return true;
 }
 
-void GenfitTrack::pivotToFirstLayer(edm4hep::Vector3d& pos,
-        edm4hep::Vector3f& mom, edm4hep::Vector3d& firstPos,
+void GenfitTrack::pivotToFirstLayer(const edm4hep::Vector3d& pos,
+        const edm4hep::Vector3f& mom, edm4hep::Vector3d& firstPos,
         edm4hep::Vector3f& firstMom)
 {
     //FIXME, TODO
@@ -835,3 +1238,9 @@ void GenfitTrack::pivotToFirstLayer(edm4hep::Vector3d& pos,
     firstMom=mom;
 }
 
+int GenfitTrack::getDetTypeID(int cellID) const
+{
+    UTIL::BitField64 encoder(lcio::ILDCellID0::encoder_string);
+    encoder.setValue(cellID);
+    return encoder[lcio::ILDCellID0::subdet];
+}

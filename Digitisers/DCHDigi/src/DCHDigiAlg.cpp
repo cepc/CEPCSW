@@ -51,6 +51,7 @@ StatusCode DCHDigiAlg::initialize()
       return StatusCode::FAILURE;
   }
 
+
   if(m_WriteAna){
 
       NTuplePtr nt( ntupleSvc(), "MyTuples/DCH_digi_evt" );
@@ -74,6 +75,13 @@ StatusCode DCHDigiAlg::initialize()
             m_tuple->addItem( "dca"      , m_n_digi,m_dca       ).ignore();
             m_tuple->addItem( "hit_dE"   , m_n_digi,m_hit_dE    ).ignore();
             m_tuple->addItem( "hit_dE_dx", m_n_digi,m_hit_dE_dx ).ignore();
+
+            m_tuple->addItem( "rho", m_n_sim,m_rho ).ignore();
+            m_tuple->addItem( "phi", m_n_sim,m_phi ).ignore();
+            m_tuple->addItem( "theta", m_n_sim,m_theta ).ignore();
+            m_tuple->addItem( "time", m_n_sim,m_time ).ignore();
+            m_tuple->addItem( "radius", m_n_sim,m_radius ).ignore();
+
           } else { // did not manage to book the N tuple....
             info() << "    Cannot book N-tuple:" << long( m_tuple ) << endmsg;
           }
@@ -98,8 +106,10 @@ StatusCode DCHDigiAlg::execute()
       unsigned long long id = SimHit.getCellID();
       float sim_hit_mom = sqrt( SimHit.getMomentum()[0]*SimHit.getMomentum()[0] + SimHit.getMomentum()[1]*SimHit.getMomentum()[1] + SimHit.getMomentum()[2]*SimHit.getMomentum()[2] );//GeV
       if(sim_hit_mom < m_mom_threshold) continue; 
-      if(SimHit.getEDep() <= 0) continue; 
-      
+      if(SimHit.getEDep() <= 0) continue;       
+
+      //if(i%10==0){debug()<<"id="<< id <<endmsg;}
+
       if ( id_hits_map.find(id) != id_hits_map.end()) id_hits_map[id].push_back(SimHit);
       else 
       {
@@ -139,12 +149,15 @@ StatusCode DCHDigiAlg::execute()
     Wend   =(1/dd4hep_mm)* Wend  ;
     //std::cout<<"wcellid="<<wcellid<<",chamber="<<chamber<<",layer="<<layer<<",cellID="<<cellID<<",s_x="<<Wstart.x()<<",s_y="<<Wstart.y()<<",s_z="<<Wstart.z()<<",E_x="<<Wend.x()<<",E_y="<<Wend.y()<<",E_z="<<Wend.z()<<std::endl;
 
+    //debug()<<"chamber=" << chamber << ", layer=" << layer << ", cellID=" << cellID << endmsg;
+
     TVector3  denominator = (Wend-Wstart) ;
     float min_distance = 999 ;
     for(unsigned int i=0; i< simhit_size; i++)
     {
         float sim_hit_mom = sqrt( iter->second.at(i).getMomentum()[0]*iter->second.at(i).getMomentum()[0] + iter->second.at(i).getMomentum()[1]*iter->second.at(i).getMomentum()[1] + iter->second.at(i).getMomentum()[2]*iter->second.at(i).getMomentum()[2] );//GeV
         float sim_hit_pt = sqrt( iter->second.at(i).getMomentum()[0]*iter->second.at(i).getMomentum()[0] + iter->second.at(i).getMomentum()[1]*iter->second.at(i).getMomentum()[1] );//GeV
+        TVector3  mom(iter->second.at(i).getMomentum()[0],iter->second.at(i).getMomentum()[1],iter->second.at(i).getMomentum()[2]);
         TVector3  pos(iter->second.at(i).getPosition()[0], iter->second.at(i).getPosition()[1], iter->second.at(i).getPosition()[2]);
         TVector3  numerator = denominator.Cross(Wstart-pos) ;
         float tmp_distance = numerator.Mag()/denominator.Mag() ;
@@ -154,6 +167,14 @@ StatusCode DCHDigiAlg::execute()
             pos_x = pos.x();
             pos_y = pos.y();
             pos_z = pos.z();
+
+            if(m_WriteAna && (nullptr!=m_tuple)){
+              m_rho[m_n_sim] = sim_hit_mom;
+              m_phi[m_n_sim] = mom.Phi();
+              m_theta[m_n_sim] = mom.CosTheta();
+              m_time[m_n_sim] = min_distance*1e3/m_velocity;
+              m_radius[m_n_sim] = sqrt(pos.x()*pos.x()+pos.y()*pos.y());
+            }
         }
         tot_length += iter->second.at(i).getPathLength();//mm
  
@@ -170,11 +191,15 @@ StatusCode DCHDigiAlg::execute()
         }
     }
     
+    //debug()<<"test2" << endmsg;
+
     trkHit.setTime(min_distance*1e3/m_velocity);//m_velocity is um/ns, drift time in ns
     trkHit.setEDep(tot_edep);// GeV
     trkHit.setEdx (tot_edep/tot_length); // GeV/mm
     trkHit.setPosition (edm4hep::Vector3d(pos_x, pos_y, pos_z));//position of closest sim hit
     trkHit.setCovMatrix(std::array<float, 6>{m_res_x, 0, m_res_y, 0, 0, m_res_z});//cov(x,x) , cov(y,x) , cov(y,y) , cov(z,x) , cov(z,y) , cov(z,z) in mm
+
+    //debug()<<"test3" << endmsg;
 
     if(m_WriteAna && (nullptr!=m_tuple)){
         m_chamber  [m_n_digi] = chamber;

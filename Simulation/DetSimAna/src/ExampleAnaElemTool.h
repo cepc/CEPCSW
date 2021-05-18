@@ -62,6 +62,11 @@ private:
     DataHandle<plcio::SimTrackerHitCollection> m_SETCol{"SETCollection", 
             Gaudi::DataHandle::Writer, this};
 
+    DataHandle<plcio::SimTrackerHitCollection> m_DCHCol{"DCHCollection", 
+            Gaudi::DataHandle::Writer, this};    
+    DataHandle<plcio::SimTrackerHitCollection> m_DCHCol2{"DCHCollection2", 
+            Gaudi::DataHandle::Writer, this};    
+
 };
 
 #endif

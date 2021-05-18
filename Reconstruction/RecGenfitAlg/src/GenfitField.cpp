@@ -55,3 +55,8 @@ double GenfitField::getBz(const TVector3& pos) const
 {
     return get(pos).Z();
 }
+
+double GenfitField::getBzTesla(const TVector3& pos) const
+{
+    return getBz(pos)*dd4hep::kilogauss/dd4hep::tesla;
+}
