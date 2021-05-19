@@ -35,6 +35,9 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 
     xml_det_t x_det = e;
 
+    xml_coll_t c(x_det,_U(chamber));
+    xml_comp_t x_chamber = c;
+
     std::string det_name = x_det.nameStr();
     std::string det_type = x_det.typeStr();
 
@@ -47,6 +50,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     double chamber_radius_min = theDetector.constant<double>("SDT_chamber_radius_min");
     double chamber_radius_max = theDetector.constant<double>("SDT_chamber_radius_max");
     double SDT_half_length     = theDetector.constant<double>("SDT_chamber_half_length");
+    int chamberID = x_chamber.id();
 
     // - layer
     double chamber_layer_width  = theDetector.constant<double>("SDT_chamber_layer_width");
@@ -181,7 +185,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         //    |                     |
         //    |   F0    F1   F2   F3|
         //    -----------------------
-//     if(layer_id == 0 || layer_id == 1 || layer_id == 2 || layer_id == 3) {
+//     if(layer_id == 0 || layer_id == 1 || layer_id == 2 || layer_id == 99) {
         for(int icell=0; icell< numWire; icell++) {
             double wire_phi = (icell+0.5)*layer_Phi + offset;
             // - signal wire
@@ -213,7 +217,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     dd4hep::PlacedVolume det_chamber_phy = det_vol.placeVolume(det_chamber_vol,
                  transform_chamber);
 
-    det_chamber_phy.addPhysVolID("chamber", 0);
+    det_chamber_phy.addPhysVolID("chamber", chamberID);
 
     // - place in world
     dd4hep::Transform3D transform(dd4hep::Rotation3D(),

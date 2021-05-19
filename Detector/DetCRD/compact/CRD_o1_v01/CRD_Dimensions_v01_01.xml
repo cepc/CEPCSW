@@ -87,6 +87,7 @@
     <constant name="SDT_inner_wall_thickness" value="0.2*mm"/>
     <constant name="SDT_outer_wall_thickness" value="2.8*mm"/>
     <constant name="MainTracker_half_length"  value="DC_half_length+DC_Endcap_dz" />
+
     <constant name="InnerTracker_half_length"  value="DC_half_length" />
     <constant name="InnerTracker_inner_radius" value="234*mm"/>
     <constant name="InnerTracker_outer_radius" value="909*mm"/>
@@ -97,10 +98,9 @@
     <!-- Parameters of single drift chamber  -->
     <constant name="DC_chamber_layer_rbegin" value="800*mm"/>
     <constant name="DC_chamber_layer_rend" value="1800*mm"/>
-    <constant name="DC_chamber_radius_min" value="DC_chamber_layer_rbegin-DC_safe_distance"/>
-    <constant name="DC_chamber_radius_max" value="DC_chamber_layer_rend+DC_safe_distance"/>
-    <constant name="DC_inner_radius" value="799.78*mm"/>
-    <constant name="DC_outer_radius" value="1803*mm"/>
+
+    <constant name="DC_inner_radius" value="DC_chamber_layer_rbegin-SDT_inner_wall_thickness-DC_safe_distance"/>
+    <constant name="DC_outer_radius" value="DC_chamber_layer_rend+SDT_outer_wall_thickness+DC_safe_distance"/>
 
     <constant name="SIT1_inner_radius"   value="152.90*mm"/>
     <constant name="SIT1_half_length"    value="368.00*mm"/>
