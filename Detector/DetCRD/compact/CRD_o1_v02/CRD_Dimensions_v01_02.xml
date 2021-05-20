@@ -4,11 +4,11 @@
        xs:noNamespaceSchemaLocation="http://www.lcsim.org/schemas/compact/1.0/compact.xsd">
 
   <info name="CRDDimensions"
-	title="master file with includes and world dimension"
-	author="C.D.Fu, "
-	url="no"
-	status="development"
-	version="1.0">
+       title="master file with includes and world dimension"
+       author="C.D.Fu, Mengyao Liu"
+       url="no"
+       status="development"
+       version="1.0">
     <comment>
       undeterminded parameters
     </comment>
@@ -81,26 +81,27 @@
     <constant name="Vertex_outer_radius" value="101*mm"/>
     <constant name="Vertex_half_length"  value="200*mm"/>
 
-    <constant name="DC_Endcap_z" value="0.1*mm"/>
+    <constant name="DC_Endcap_dz" value="0.1*mm"/>
     <constant name="DC_half_length"  value="2225*mm" />
-    <constant name="DC_safe_distance" value="0.2*mm"/>
+    <constant name="DC_safe_distance" value="0.02*mm"/>
     <constant name="SDT_inner_wall_thickness" value="0.2*mm"/>
     <constant name="SDT_outer_wall_thickness" value="2.8*mm"/>
-    <constant name="DC_inner_chamber_layer_rbegin" value="235*mm"/>
-    <constant name="DC_inner_chamber_layer_rend" value="905*mm"/>
-    <constant name="DC_outer_chamber_layer_rbegin" value="1085*mm"/>
-    <constant name="DC_outer_chamber_layer_rend" value="1715*mm"/>
-    <constant name="DC_inner_chamber_radius_min" value="DC_inner_chamber_layer_rbegin"/>
-    <constant name="DC_inner_chamber_radius_max" value="909*mm"/>
-    <constant name="DC_outer_chamber_radius_min" value="DC_outer_chamber_layer_rbegin"/>
-    <constant name="DC_outer_chamber_radius_max" value="1716*mm"/>
-    <constant name="MainTracker_half_length"  value="DC_half_length+DC_Endcap_z" />
+    <constant name="MainTracker_half_length"  value="DC_half_length+DC_Endcap_dz" />
+
     <constant name="InnerTracker_half_length"  value="DC_half_length" />
     <constant name="InnerTracker_inner_radius" value="234*mm"/>
-    <constant name="InnerTracker_outer_radius" value="DC_inner_chamber_radius_max"/>
+    <constant name="InnerTracker_outer_radius" value="909*mm"/>
     <constant name="OuterTracker_half_length"  value="DC_half_length"/>
-    <constant name="OuterTracker_inner_radius" value="DC_outer_chamber_radius_min-DC_safe_distance-SDT_inner_wall_thickness"/>
-    <constant name="OuterTracker_outer_radius" value="1720*mm"/>
+    <constant name="OuterTracker_inner_radius" value="1082.18*mm"/>
+    <constant name="OuterTracker_outer_radius" value="1723*mm"/>
+
+    <!-- Parameters of single drift chamber  -->
+    <constant name="DC_chamber_layer_rbegin" value="800*mm"/>
+    <constant name="DC_chamber_layer_rend" value="1800*mm"/>
+
+    <constant name="DC_inner_radius" value="DC_chamber_layer_rbegin-SDT_inner_wall_thickness-DC_safe_distance"/>
+    <constant name="DC_outer_radius" value="DC_chamber_layer_rend+SDT_outer_wall_thickness+DC_safe_distance"/>
+
 
     <constant name="SIT1_inner_radius"   value="140*mm"/>
     <constant name="SIT1_half_length"    value="368.00*mm"/>
@@ -123,7 +124,7 @@
     <constant name="TUBE_IPOuterTube_end_radius"  value="BeamPipe_Central_inner_radius+BeamPipe_Al_thickness"/>
     <constant name="TUBE_IPOuterBulge_end_z"      value="BeamPipe_Crotch_zmax"/><!--"BeamPipe_ConeAl_zmax"/-->
     <constant name="TUBE_IPOuterBulge_end_radius" value="BeamPipe_Crotch_zmax*tan(CrossingAngle/2)+BeamPipe_Dnstream_inner_radius+BeamPipe_Cu_thickness"/>
-							 <!--"BeamPipe_Expanded_inner_radius+BeamPipe_Al_thickness+5*mm"/-->
+                             <!--"BeamPipe_Expanded_inner_radius+BeamPipe_Al_thickness+5*mm"/-->
 
     <constant name="Ecal_barrel_inner_radius" value="1800*mm"/>
     <constant name="Ecal_barrel_thickness"    value="280*mm"/>

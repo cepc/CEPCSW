@@ -14,10 +14,6 @@ GridDriftChamber::GridDriftChamber(const std::string& cellEncoding) : Segmentati
   registerParameter("detector_length", "Length of the wire", m_detectorLength, 1., SegmentationParameter::LengthUnit);
   registerIdentifier("identifier_phi", "Cell ID identifier for phi", m_phiID, "cellID");
   registerIdentifier("layerID", "layer id", layer_id, "layer");
-  registerParameter("DC_inner_rmin", "DC_inner_rmin", m_DC_inner_rmin, 0., SegmentationParameter::LengthUnit);
-  registerParameter("DC_inner_rmax", "DC_inner_rmax", m_DC_inner_rmax, 0., SegmentationParameter::LengthUnit);
-  registerParameter("DC_outer_rmin", "DC_outer_rmin", m_DC_outer_rmin, 0., SegmentationParameter::LengthUnit);
-  registerParameter("DC_outer_rmax", "DC_outer_rmax", m_DC_outer_rmax, 0., SegmentationParameter::LengthUnit);
 }
 
 GridDriftChamber::GridDriftChamber(const BitFieldCoder* decoder) : Segmentation(decoder) {
@@ -30,18 +26,12 @@ GridDriftChamber::GridDriftChamber(const BitFieldCoder* decoder) : Segmentation(
   registerParameter("detector_length", "Length of the wire", m_detectorLength, 1., SegmentationParameter::LengthUnit);
   registerIdentifier("identifier_phi", "Cell ID identifier for phi", m_phiID, "cellID");
   registerIdentifier("layerID", "layer id", layer_id, "layer");
-  registerParameter("DC_inner_rbegin", "DC_inner_rbegin", m_DC_inner_rbegin, 0., SegmentationParameter::LengthUnit);
-  registerParameter("DC_inner_rend", "DC_inner_rend", m_DC_inner_rend, 0., SegmentationParameter::LengthUnit);
-  registerParameter("DC_outer_rbegin", "DC_outer_rbegin", m_DC_outer_rbegin, 0., SegmentationParameter::LengthUnit);
-  registerParameter("DC_outer_rend", "DC_outer_rend", m_DC_outer_rend, 0., SegmentationParameter::LengthUnit);
-  registerParameter("DC_inner_rmin", "DC_inner_rmin", m_DC_inner_rmin, 0., SegmentationParameter::LengthUnit);
-  registerParameter("DC_inner_rmax", "DC_inner_rmax", m_DC_inner_rmax, 0., SegmentationParameter::LengthUnit);
-  registerParameter("DC_outer_rmin", "DC_outer_rmin", m_DC_outer_rmin, 0., SegmentationParameter::LengthUnit);
-  registerParameter("DC_outer_rmax", "DC_outer_rmax", m_DC_outer_rmax, 0., SegmentationParameter::LengthUnit);
   registerParameter("safe_distance", "safe_distance", m_safe_distance, 0., SegmentationParameter::LengthUnit);
   registerParameter("layer_width", "layer_width", m_layer_width, 0., SegmentationParameter::LengthUnit);
-  registerParameter("DC_inner_layer_number", "DC_inner_layer_number", m_DC_inner_layer_number, 0,SegmentationParameter::LengthUnit);
-  registerParameter("DC_outer_layer_number", "DC_outer_layer_number", m_DC_outer_layer_number, 0, SegmentationParameter::LengthUnit);
+  registerParameter("DC_rbegin", "DC_rbegin", m_DC_rbegin, 0., SegmentationParameter::LengthUnit);
+  registerParameter("DC_rend", "DC_rend", m_DC_rend, 0., SegmentationParameter::LengthUnit);
+  registerParameter("DC_rmin", "DC_rmin", m_DC_rmin, 0., SegmentationParameter::LengthUnit);
+  registerParameter("DC_rmax", "DC_rmax", m_DC_rmax, 0., SegmentationParameter::LengthUnit);
 }
 
 Vector3D GridDriftChamber::position(const CellID& /*cID*/) const {
@@ -60,23 +50,17 @@ CellID GridDriftChamber::cellID(const Vector3D& /*localPosition*/, const Vector3
   double posy = globalPosition.Y;
   double radius = sqrt(posx*posx+posy*posy);
 
+  int m_DC_layer_number = floor((m_DC_rend-m_DC_rbegin)/m_layer_width);
   double DC_layerdelta = m_layer_width;
 
   int layerid;
-  if( radius<= m_DC_inner_rend && radius>= m_DC_inner_rbegin) {
-      layerid = floor((radius - m_DC_inner_rbegin)/DC_layerdelta);
-  } else if ( radius<= m_DC_outer_rend && radius>= m_DC_outer_rbegin ) {
-      layerid = floor((radius - m_DC_outer_rbegin)/DC_layerdelta);
-  } else if ( radius>= (m_DC_inner_rmin-m_safe_distance) && radius < m_DC_inner_rbegin) {
+  if( radius<= m_DC_rend && radius>= m_DC_rbegin) {
+      layerid = floor((radius - m_DC_rbegin)/DC_layerdelta);
+  } else if ( radius>= (m_DC_rmin-m_safe_distance) && radius < m_DC_rbegin) {
       layerid = 0;
-  } else if ( radius> m_DC_inner_rend && radius <= (m_DC_inner_rmax+m_safe_distance)) {
-      layerid = m_DC_inner_layer_number-1;
-  } else if ( radius>= (m_DC_outer_rmin-m_safe_distance) && radius < m_DC_outer_rbegin) {
-      layerid = 0;
-  } else if ( radius> m_DC_outer_rend && radius <= (m_DC_outer_rmax+m_safe_distance)) {
-      layerid = m_DC_outer_layer_number-1;
+  } else if ( radius> m_DC_rend && radius <= (m_DC_rmax+m_safe_distance)) {
+      layerid = m_DC_layer_number-1;
   }
-
 
   updateParams(chamberID,layerid);
 
@@ -117,8 +101,6 @@ void GridDriftChamber::cellposition(const CellID& cID, TVector3& Wstart,
   Wstart = returnWirePosition(phi_mid, -1);
   Wend = returnWirePosition(phi_end, 1);
 }
-
-
 
 double GridDriftChamber::distanceTrackWire(const CellID& cID, const TVector3& hit_start,
                                            const TVector3& hit_end) const {
