@@ -19,4 +19,3 @@ dd4hep::SegmentationObject* create_segmentation(const dd4hep::BitFieldCoder* dec
 
 #include "DetSegmentation/GridDriftChamber.h"
 DECLARE_SEGMENTATION(GridDriftChamber, create_segmentation<dd4hep::DDSegmentation::GridDriftChamber>)
-

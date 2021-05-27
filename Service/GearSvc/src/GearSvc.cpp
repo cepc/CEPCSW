@@ -756,12 +756,11 @@ StatusCode GearSvc::convertDC(dd4hep::DetElement& dc){
       if(nodeName.find("chamber_vol")!=-1||nodeName.find("assembly")!=-1){
 	if(grid){
 	  // if more than one chamber, just use the outer, TODO
-	  dcData->rMinReadout = grid->DC_outer_rbegin();
-	  dcData->rMaxReadout = grid->DC_outer_rend();
+	  dcData->rMinReadout = grid->DC_rbegin();
+	  dcData->rMaxReadout = grid->DC_rend();
 	  dcData->driftLength = grid->detectorLength();
-	  dcData->maxRow      = grid->DC_outer_layer_number();
 	  dcData->padHeight   = grid->layer_width();
-          dcData->padWidth    = dcData->padHeight;
+      dcData->padWidth    = dcData->padHeight;
 	}
 	else{
 	  TGeoNode* next = daughter;

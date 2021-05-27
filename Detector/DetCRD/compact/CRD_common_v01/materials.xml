@@ -565,9 +565,9 @@
     <!-- Driftchamber: material for the drift chamber -->
    <material name="GasHe_90Isob_10">
      <D value="0.0003983999999999999" unit="g/cm3" />
-     <fraction n="0.3826351004462046" ref="He"/>
-     <fraction n="0.011371937371285891"   ref="H" />
-     <fraction n="0.6059929621825095" ref="C" />
+     <fraction n="0.3826373431212555" ref="He"/>
+     <fraction n="0.1070614182488552"   ref="H" />
+     <fraction n="0.5103012386298891" ref="C" />
    </material>
 
   </materials>

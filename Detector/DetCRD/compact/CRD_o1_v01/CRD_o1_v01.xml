@@ -30,10 +30,10 @@
   <include ref="../CRD_common_v01/Beampipe_v01_01.xml"/>
   <include ref="../CRD_common_v01/VXD_v01_01.xml"/>
   <include ref="../CRD_common_v01/FTD_SimpleStaggered_v01_01.xml"/>
-  <include ref="../CRD_common_v01/SIT_SimplePlanar_v01_01.xml"/>
+  <!--<include ref="../CRD_common_v01/SIT_SimplePlanar_v01_01.xml"/> -->
   <include ref="../CRD_common_v01/DC_Simple_v01_01.xml"/>
-  <include ref="../CRD_common_v01/SET_SimplePlanar_v01_01.xml"/>
-  <include ref="../CRD_common_v01/Ecal_Crystal_Barrel_v01_01.xml"/>
+<!--  <include ref="../CRD_common_v01/SET_SimplePlanar_v01_01.xml"/> -->
+<!--  <include ref="../CRD_common_v01/Ecal_Crystal_Barrel_v01_01.xml"/> -->
   <!--include ref="../CRD_common_v01/Ecal_Crystal_Endcap_v01_01.xml"/-->
   <include ref="../CRD_common_v01/Coil_Simple_v01_01.xml"/>
   <include ref="../CRD_common_v01/Hcal_Rpc_Barrel_v01_01.xml"/>
