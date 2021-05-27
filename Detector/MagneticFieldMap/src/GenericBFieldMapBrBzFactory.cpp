@@ -53,11 +53,22 @@ static dd4hep::Ref_t create_GenericBFieldMapBrBz(dd4hep::Detector& ,
 
     }
 
+    dd4hep::xml::Component source(xmlParameter.child(_Unicode(source)));
+    
+    // get the url
+    bool hasUrl = source.hasAttr(_Unicode(url));
+    if (!hasUrl) {
+        std::string error_msg = "[ERROR] GenericBFieldMapBrBz: Must specify the 'url' in 'source' tag. ";
+        throw std::runtime_error(error_msg);
+    }
+
+    std::string url = source.attr<std::string>(_Unicode(url));
+
     // 2. create the CartesianField
     dd4hep::CartesianField obj;
     GenericBFieldMapBrBz* ptr = new GenericBFieldMapBrBz();
 
-    ptr->init_provider(provider);
+    ptr->init_provider(provider, url);
 
     obj.assign(ptr, xmlParameter.nameStr(), xmlParameter.typeStr());
 

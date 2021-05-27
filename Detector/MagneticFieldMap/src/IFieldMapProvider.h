@@ -11,7 +11,7 @@
  */
 
 class IFieldMapProvider {
-
+public:
     // Meta data about the map
     virtual int rBinIdx(double r) = 0;
     virtual int zBinIdx(double z) = 0;

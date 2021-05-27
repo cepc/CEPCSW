@@ -24,7 +24,7 @@ public:
 
 public:
     // following are interfaces to configure this field map
-    void init_provider(const std::string& provider);
+    void init_provider(const std::string& provider, const std::string& url);
 
 private:
 

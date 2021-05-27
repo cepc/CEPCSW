@@ -5,6 +5,7 @@
 gaudi_add_module(MagneticFieldMap
                  SOURCES src/GenericBFieldMapBrBz.cpp
                          src/GenericBFieldMapBrBzFactory.cpp
+                         src/FieldMapFileProvider.cpp
                  LINK Gaudi::GaudiKernel
                       ${DD4hep_COMPONENT_LIBRARIES}
                       ${ROOT_LIBRARIES}

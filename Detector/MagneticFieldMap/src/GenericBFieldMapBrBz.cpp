@@ -1,6 +1,8 @@
 
 #include "GenericBFieldMapBrBz.h"
 
+#include "FieldMapFileProvider.h"
+
 GenericBFieldMapBrBz::GenericBFieldMapBrBz()
     : m_provider(nullptr) {
     type = dd4hep::CartesianField::MAGNETIC;
@@ -17,9 +19,10 @@ void GenericBFieldMapBrBz::fieldComponents(const double* pos, double* field) {
     return;
 }
 
-void GenericBFieldMapBrBz::init_provider(const std::string& provider) {
+void GenericBFieldMapBrBz::init_provider(const std::string& provider, const std::string& url) {
     if (provider == "file") {
         std::cout << "Initialize provider with file. " << std::endl;
+        m_provider = new FieldMapFileProvider(url);
     } else if (provider == "db") {
         std::cout << "Initialize provider with file. " << std::endl;
     } else {
