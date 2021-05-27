@@ -39,6 +39,9 @@ private:
     int nr; // include the two endpoints, so nr = nrBin + 1
     int nz;
 
+    double rBinMin;
+    double zBinMin;
+
     double rBinMax;
     double zBinMax;
 

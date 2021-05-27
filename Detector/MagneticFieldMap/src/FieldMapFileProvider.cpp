@@ -9,24 +9,62 @@
 #include <sstream>
 
 FieldMapFileProvider::FieldMapFileProvider(const std::string& url_)
-    : m_url(url_), rBinMax(-1), zBinMax(-1), drBin(-1), dzBin(-1) {
+    : m_url(url_), nr(-1), nz(-1), 
+      rBinMin(-1), zBinMin(-1), 
+      rBinMax(-1), zBinMax(-1), 
+      drBin(-1), dzBin(-1) {
     init();
 }
 
 int FieldMapFileProvider::rBinIdx(double r) {
+    // 
+    // | --- | --- | --- |
+    // ^        ^        ^
+    // rmin     |        rmax
+    //          r
+    //       | 
+    //    return
+
+
     double absr = std::fabs(r);
+
+    int idx = -1;
+
+    if ( rBinMin <= absr && absr < rBinMax) {
+        idx = (absr - rBinMin) / drBin;
+    }
     
-    return -1;
+    return idx;
 }
 
 int FieldMapFileProvider::zBinIdx(double z) {
     double absz = std::fabs(z);
+
+    int idx = -1;
+
+    if ( zBinMin <= absz && absz < zBinMax) {
+        idx = (absz - zBinMin) / drBin;
+    }
     
-    return -1;
+    return idx;
 }
 
 void FieldMapFileProvider::access(int rbin, int zbin, double& Br, double& Bz) {
+    // the valid bin should between [0, n)
+    // if the point is not in the valid region, return 0
+    if ((rbin < 0 || rbin >= nr) || (zbin < 0 || zbin >= nr)) {
+        Br = 0;
+        Bz = 0;
+    }
 
+    // convert to the internal table (with left col and top row)
+    int ridx = rbin+1;
+    int zidx = zbin+1;
+
+    int globalidx = ridx + zidx*(nr+1);
+
+    Br = Brdata[globalidx];
+    Bz = Bzdata[globalidx];
 }
 
 // ======================
@@ -120,14 +158,19 @@ bool FieldMapFileProvider::loadBr(const std::string& fn) {
     nr = ncol-1; // skip the top row and left col
     nz = nrow-1; 
 
+    rBinMin = Brdata[1];
+    zBinMin = Brdata[ncol];
+
     rBinMax = Brdata[ncol-1];
     zBinMax = Brdata[ncol*(nrow-1)];
 
-    drBin = rBinMax / (nr-1);
-    dzBin = zBinMax / (nz-1);
+    drBin = (rBinMax-rBinMin) / (nr-1);
+    dzBin = (zBinMax-zBinMin) / (nz-1);
 
     std::cout << "nr: " << nr << std::endl;
     std::cout << "nz: " << nz << std::endl;
+    std::cout << "rBinMin: " << rBinMin << std::endl;
+    std::cout << "zBinMin: " << zBinMin << std::endl;
     std::cout << "rBinMax: " << rBinMax << std::endl;
     std::cout << "zBinMax: " << zBinMax << std::endl;
     std::cout << "drBin: " << drBin << std::endl;
