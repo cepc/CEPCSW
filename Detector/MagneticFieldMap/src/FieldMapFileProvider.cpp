@@ -16,7 +16,7 @@ FieldMapFileProvider::FieldMapFileProvider(const std::string& url_)
     init();
 }
 
-int FieldMapFileProvider::rBinIdx(double r) {
+int FieldMapFileProvider::rBinIdx(double r, double& rn) {
     // 
     // | --- | --- | --- |
     // ^        ^        ^
@@ -30,20 +30,30 @@ int FieldMapFileProvider::rBinIdx(double r) {
 
     int idx = -1;
 
+    // std::cout << "FieldMapFileProvider::rBinIdx: "
+    //           << " r: " << r
+    //           << " rBinMin: " << rBinMin
+    //           << " rBinMax: " << rBinMax
+    //           << std::endl;
+
     if ( rBinMin <= absr && absr < rBinMax) {
         idx = (absr - rBinMin) / drBin;
+        double r0 = rBinMin + idx*drBin;
+        rn = (absr - r0)/drBin;
     }
     
     return idx;
 }
 
-int FieldMapFileProvider::zBinIdx(double z) {
+int FieldMapFileProvider::zBinIdx(double z, double& zn) {
     double absz = std::fabs(z);
 
     int idx = -1;
 
     if ( zBinMin <= absz && absz < zBinMax) {
-        idx = (absz - zBinMin) / drBin;
+        idx = (absz - zBinMin) / dzBin;
+        double z0 = zBinMin + idx*dzBin;
+        zn = (absz - z0)/dzBin;
     }
     
     return idx;
@@ -55,6 +65,7 @@ void FieldMapFileProvider::access(int rbin, int zbin, double& Br, double& Bz) {
     if ((rbin < 0 || rbin >= nr) || (zbin < 0 || zbin >= nr)) {
         Br = 0;
         Bz = 0;
+        return;
     }
 
     // convert to the internal table (with left col and top row)

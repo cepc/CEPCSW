@@ -12,8 +12,8 @@ public:
     FieldMapFileProvider(const std::string& url_);
 
     // Meta data about the map
-    virtual int rBinIdx(double r);
-    virtual int zBinIdx(double z);
+    virtual int rBinIdx(double r, double& rn);
+    virtual int zBinIdx(double z, double& zn);
 
     // The Br and Bz
     virtual void access(int rbin, int zbin, double& Br, double& Bz);

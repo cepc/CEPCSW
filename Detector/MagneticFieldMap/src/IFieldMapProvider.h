@@ -13,8 +13,9 @@
 class IFieldMapProvider {
 public:
     // Meta data about the map
-    virtual int rBinIdx(double r) = 0;
-    virtual int zBinIdx(double z) = 0;
+    // return rn/zn is the normalized value in the bin. the value is [0,1]
+    virtual int rBinIdx(double r, double& rn) = 0;
+    virtual int zBinIdx(double z, double& zn) = 0;
 
     // The Br and Bz
     virtual void access(int rbin, int zbin, double& Br, double& Bz) = 0;
