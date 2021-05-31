@@ -149,6 +149,7 @@ StatusCode DCHDigiAlg::execute()
         TVector3  numerator = denominator.Cross(Wstart-pos) ;
         float tmp_distance = numerator.Mag()/denominator.Mag() ;
         //std::cout<<"tmp_distance="<<tmp_distance<<",x="<<pos.x()<<",y="<<pos.y()<<",z="<<pos.z()<<",mom="<<sim_hit_mom<<",pt="<<sim_hit_pt<<std::endl;
+
         if(tmp_distance < min_distance){
             min_distance = tmp_distance;
             pos_x = pos.x();
@@ -169,7 +170,7 @@ StatusCode DCHDigiAlg::execute()
             m_n_sim ++ ;
         }
     }
-    
+
     trkHit.setTime(min_distance*1e3/m_velocity);//m_velocity is um/ns, drift time in ns
     trkHit.setEDep(tot_edep);// GeV
     trkHit.setEdx (tot_edep/tot_length); // GeV/mm

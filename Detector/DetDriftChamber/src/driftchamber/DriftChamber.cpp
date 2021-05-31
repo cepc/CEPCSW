@@ -84,10 +84,10 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     dd4hep::Tube det_chamber_solid(chamber_radius_min, chamber_radius_max, chamber_half_length);
     dd4hep::Volume det_chamber_vol(det_name+"_chamber_vol", det_chamber_solid, chamber_mat);
     if ( x_det.isSensitive() )   {
-       det_chamber_vol.setRegion(theDetector,x_det.regionStr());
-       det_chamber_vol.setLimitSet(theDetector,x_det.limitsStr());
-       det_chamber_vol.setSensitiveDetector(sens);
-       sd.setType("tracker");
+        det_chamber_vol.setRegion(theDetector,x_det.regionStr());
+        det_chamber_vol.setLimitSet(theDetector,x_det.limitsStr());
+        det_chamber_vol.setSensitiveDetector(sens);
+        sd.setType("tracker");
     }
 
     // - wall
@@ -185,7 +185,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         //    |                     |
         //    |   F0    F1   F2   F3|
         //    -----------------------
-//     if(layer_id == 0 || layer_id == 1 || layer_id == 2 || layer_id == 99) {
+     if(layer_id == 0 || layer_id == 1 || layer_id == 2 || layer_id == 99) {
         for(int icell=0; icell< numWire; icell++) {
             double wire_phi = (icell+0.5)*layer_Phi + offset;
             // - signal wire
@@ -208,7 +208,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         }
   }
 
-//  }
+  }
 
     // - place in det
     // - chamber
