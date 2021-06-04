@@ -109,8 +109,8 @@ double GridDriftChamber::distanceTrackWire(const CellID& cID, const TVector3& hi
   TVector3 Wend = {0,0,0};
   cellposition(cID,Wstart,Wend);
 
-  TVector3 a = hit_end - hit_start;
-  TVector3 b = Wend - Wstart;
+  TVector3 a = (hit_end - hit_start).Unit();
+  TVector3 b = (Wend - Wstart).Unit();
   TVector3 c = Wstart - hit_start;
 
   double num = std::abs(c.Dot(a.Cross(b)));
@@ -118,11 +118,93 @@ double GridDriftChamber::distanceTrackWire(const CellID& cID, const TVector3& hi
 
   double DCA = 0;
 
-   if (denum) {
-    DCA = num / denum;
+  if (denum) {
+      DCA = num / denum;
   }
 
   return DCA;
+}
+
+TVector3 GridDriftChamber::distanceClosestApproach(const CellID& cID, const TVector3& hitPos) const {
+  // Distance of the closest approach between a single hit (point) and the closest wire
+
+   TVector3 Wstart = {0,0,0};
+   TVector3 Wend = {0,0,0};
+   cellposition(cID,Wstart,Wend);
+
+   TVector3 temp = (Wend + Wstart);
+   TVector3 Wmid(temp.X() / 2.0, temp.Y() / 2.0, temp.Z() / 2.0);
+
+   double hitPhi = hitPos.Phi();
+   if (hitPhi < 0) {
+       hitPhi = hitPhi + 2 * M_PI;
+   }
+
+   TVector3 PCA = Wstart + ((Wend - Wstart).Unit()).Dot((hitPos - Wstart)) * ((Wend - Wstart).Unit());
+   TVector3 dca = hitPos - PCA;
+
+   return dca;
+}
+
+TVector3 GridDriftChamber::Line_TrackWire(const CellID& cID, const TVector3& hit_start, const TVector3& hit_end) const {
+  // The line connecting a particle track to the closest wire
+  // Returns the vector connecting the both
+  TVector3 Wstart = {0,0,0};
+  TVector3 Wend = {0,0,0};
+  cellposition(cID,Wstart,Wend);
+
+  TVector3 P1 = hit_start;
+  TVector3 P2 = hit_end;
+  TVector3 P3 = Wstart;
+  TVector3 P4 = Wend;
+
+  TVector3 intersect = LineLineIntersect(P1, P2, P3, P4);
+  return intersect;
+}
+
+// Get the wire position for a z
+TVector3 GridDriftChamber::wirePos_vs_z(const CellID& cID, const double& zpos) const {
+
+  TVector3 Wstart = {0,0,0};
+  TVector3 Wend = {0,0,0};
+  cellposition(cID,Wstart,Wend);
+
+  double t = (zpos - Wstart.Z())/(Wend.Z()-Wstart.Z());
+  double x = Wstart.X()+t*(Wend.X()-Wstart.X());
+  double y = Wstart.Y()+t*(Wend.Y()-Wstart.Y());
+
+  TVector3 wireCoord(x, y, zpos);
+  return wireCoord;
+}
+
+TVector3 GridDriftChamber::IntersectionTrackWire(const CellID& cID, const TVector3& hit_start, const TVector3& hit_end) const {
+  // Intersection between the particle track and the wire assuming that the track between hit_start and hit_end is linear
+
+  TVector3 Wstart = {0,0,0};
+  TVector3 Wend = {0,0,0};
+  cellposition(cID,Wstart,Wend);
+
+  TVector3 P1 = hit_start;
+  TVector3 V1 = hit_end-hit_start;
+
+  TVector3 P2 = Wstart;
+  TVector3 V2 = Wend - Wstart;
+
+  TVector3 denom = V1.Cross(V2);
+  double mag_denom = denom.Mag();
+
+  TVector3 intersect(0, 0, 0);
+
+  if (mag_denom !=0)
+    {
+      TVector3 num = ((P2-P1)).Cross(V2);
+      double mag_num = num.Mag();
+      double a = mag_num / mag_denom;
+
+      intersect = P1 + a * V1;
+
+    }
+  return intersect;
 }
 
 

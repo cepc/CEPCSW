@@ -74,7 +74,7 @@
 
   <limits>
     <limitset name="DC_limits">
-      <limit name="step_length_max" particles="*" value="0.5" unit="mm" />
+      <limit name="step_length_max" particles="*" value="0.1" unit="mm" />
     </limitset>
   </limits>
 
