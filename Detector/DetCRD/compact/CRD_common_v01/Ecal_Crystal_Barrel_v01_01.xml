@@ -4,6 +4,8 @@
     <constant name="ecalbarrel_inner_radius" value="Ecal_barrel_inner_radius"/>
     <constant name="ecalbarrel_thickness"    value="Ecal_barrel_thickness"/>    <!--Must be n*10*mm! -->
     <constant name="ecalbarrel_zlength"      value="Ecal_barrel_half_length*2"/>   <!--Must be n*10*mm! -->
+    <constant name="bar_x" value="1*cm"/>
+    <constant name="bar_y" value="1*cm"/>
   </define>
 
   <regions>
