@@ -13,10 +13,6 @@
   </info>
 
   <define>
-    <constant name="world_size" value="2226*mm"/>
-    <constant name="world_x" value="world_size"/>
-    <constant name="world_y" value="world_size"/>
-    <constant name="world_z" value="world_size"/>
 
     <!-- SDT -->
     <constant name="SDT_radius_min" value="DC_inner_radius"/>
@@ -56,7 +52,7 @@
   </regions>
 
   <detectors>
-    <detector id="DetID_DC" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="VisibleBlue" sensitive="true" region="DriftChamberRegion" limits="DC_limits">
+    <detector id="DetID_DC" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="DCVis" sensitive="true" region="DriftChamberRegion" limits="DC_limits">
       <chamber id="0"/>
       <envelope vis="SeeThrough">
         <shape type="BooleanShape" operation="Union" material="Air">
@@ -64,12 +60,12 @@
         </shape>
       </envelope>
 
-      <module id="0" name="SignalWire" type="Tube" rmin="0*mm" rmax="0.01*mm" vis="VisibleRed">
+      <module id="0" name="SignalWire" type="Tube" rmin="0*mm" rmax="0.01*mm" vis="RedVis">
           <tubs name="W" type="Tube" rmin="0*mm" rmax="0.007*mm" material="Tungsten"/>
           <tubs name="Au" type="Tube" rmin="0.007*mm" rmax="0.01*mm" material="Gold"/>
       </module>
 
-      <module id="1" name="FieldWire" type="Tube" rmin="0*mm" rmax="0.02*mm" vis="VisibleGreen">
+      <module id="1" name="FieldWire" type="Tube" rmin="0*mm" rmax="0.02*mm" vis="GreenVis">
           <tubs name="Al" type="Tube" rmin="0*mm" rmax="0.017*mm" material="Aluminum"/>
           <tubs name="Ag" type="Tube" rmin="0.017*mm" rmax="0.02*mm" material="Silver"/>
       </module>

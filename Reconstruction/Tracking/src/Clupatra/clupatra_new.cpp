@@ -1240,27 +1240,26 @@ start:
 		unsigned nHit = 0 ;
 
 		if( reverse_order ){
-                        // std::cout << "It is true order" << std::endl;
-			for( CluTrack::reverse_iterator it=clu->rbegin() ; it != clu->rend() ; ++it){
-				edm4hep::ConstTrackerHit ph = (*it)->first->edm4hepHit;
-				trk->addHit(ph) ;
-				++nHit ;
-				// std::cout  <<  "   hit  added  " <<  (*it)->first->edm4hepHit   << std::endl ;
-			}
-
-			trk->initialise( MarlinTrk::IMarlinTrack::forward ) ;
+		  //std::cout << "It is true order" << std::endl;
+		  for( CluTrack::reverse_iterator it=clu->rbegin() ; it != clu->rend() ; ++it){
+		    edm4hep::ConstTrackerHit ph = (*it)->first->edm4hepHit;
+		    trk->addHit(ph) ;
+		    ++nHit ;
+		    //std::cout  <<  "   hit  added  " <<  (*it)->first->edm4hepHit   << std::endl ;
+		  }
+		  
+		  trk->initialise( MarlinTrk::IMarlinTrack::forward ) ;
 
 		} else {
+		  //std::cout << "It is reverse order" << std::endl;
+		  for( CluTrack::iterator it=clu->begin() ; it != clu->end() ; ++it){
+		    edm4hep::ConstTrackerHit ph = (*it)->first->edm4hepHit;
+		    trk->addHit(ph) ;
+		    ++nHit ;
+		    //std::cout <<  "   hit  added  "<<  (*it)->first->edm4hepHit   << std::endl ;
+		  }
 
-                        // std::cout << "It is reverse order" << std::endl;
-			for( CluTrack::iterator it=clu->begin() ; it != clu->end() ; ++it){
-				edm4hep::ConstTrackerHit ph = (*it)->first->edm4hepHit;
-				trk->addHit(ph) ;
-				++nHit ;
-				// std::cout <<  "   hit  added  "<<  (*it)->first->edm4hepHit   << std::endl ;
-			}
-
-			trk->initialise( MarlinTrk::IMarlinTrack::backward ) ;
+		  trk->initialise( MarlinTrk::IMarlinTrack::backward ) ;
 		}
 
 		int code = trk->fit(  maxChi2  ) ;

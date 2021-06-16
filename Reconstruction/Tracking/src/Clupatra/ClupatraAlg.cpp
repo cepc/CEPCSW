@@ -458,7 +458,7 @@ StatusCode ClupatraAlg::execute() {
 			sclu.setOwner() ;
 
 			// FIXME Mingrui
-			//streamlog_out( DEBUG2 ) << "   call cluster_sorted with " <<  hits.size() << " hits " << std::endl ;
+			debug() << "   call cluster_sorted with " <<  hits.size() << " hits " << endmsg;
 
 			nncl.cluster_sorted( hits.begin(), hits.end() , std::back_inserter( sclu ), dist , _minCluSize ) ;
 
@@ -491,7 +491,7 @@ StatusCode ClupatraAlg::execute() {
 			} //------------------------------------------------------------------------------------------
 
 			// FIXME Mingrui
-			// debug()  << "     found " <<  sclu.size() << "  clusters " << std::endl ;
+			debug()  << "     found " <<  sclu.size() << "  clusters " << endmsg;
 
 			// try to split up clusters according to multiplicity
 			int layerWithMultiplicity = _padRowRange - 2  ; // fixme: make parameter
@@ -534,15 +534,15 @@ StatusCode ClupatraAlg::execute() {
 
 				int nHitsAdded = 0 ;
 
-				// debug() <<  " call fitter for seed cluster with " << (*icv)->size() << " hits " << endmsg;
-				// int counter = 0;
-				// for( Clusterer::cluster_type::iterator ci=(*icv)->begin(), end= (*icv)->end() ; ci!=end; ++ci ) {
-				// 	debug() << counter++ << " " <<  *((*ci)->first->edm4hepHit) << " \nlayer " << (*ci)->first->layer << endmsg;
-				// }
+				debug() <<  " call fitter for seed cluster with " << (*icv)->size() << " hits " << endmsg;
+				int counter = 0;
+				for( Clusterer::cluster_type::iterator ci=(*icv)->begin(), end= (*icv)->end() ; ci!=end; ++ci ) {
+				  debug() << counter++ << " " <<  (*ci)->first->edm4hepHit << " \nlayer " << (*ci)->first->layer << endmsg;
+				}
 
 
 				MarlinTrk::IMarlinTrack* mTrk = fitter( *icv ) ;
-
+				debug() << "before add hits and filter" << endmsg;
                 // std::vector<std::pair<edm4hep::ConstTrackerHit, double> > hitsInFit ;
                 // mTrk->getHitsInFit( hitsInFit ) ;
                 // for (auto hit : hitsInFit) std::cout << hit.first << std::endl;
@@ -556,15 +556,15 @@ StatusCode ClupatraAlg::execute() {
 
 
 				// drop seed clusters with no hits added - but not in the very forward region...
-				// debug() << "Goes here" << endmsg;
+				debug() << "Goes here" << endmsg;
 				if( nHitsAdded < 1  &&  outerRow >   2*_padRowRange  ){  //FIXME: make parameter ?
 
 					ConstTrack edm4hepTrk( converter( *icv ) ) ;
 					// debug() << "Goes goes here" << endmsg;
 
 					// FIXME Mingrui
-					//streamlog_out( DEBUG2) << "=============  poor seed cluster - no hits added - started from row " <<  outerRow << "\n"
-					//<< *edm4hepTrk << std::endl ;
+					debug() << "=============  poor seed cluster - no hits added - started from row " <<  outerRow << "\n"
+						<< edm4hepTrk << endmsg;
 
 
 					for( Clusterer::cluster_type::iterator ci=(*icv)->begin(), end= (*icv)->end() ; ci!=end; ++ci ) {
