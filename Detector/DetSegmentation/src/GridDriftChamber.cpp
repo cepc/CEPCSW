@@ -102,6 +102,52 @@ void GridDriftChamber::cellposition(const CellID& cID, TVector3& Wstart,
   Wend = returnWirePosition(phi_end, 1);
 }
 
+TVector3 GridDriftChamber::LineLineIntersect(TVector3& p1, TVector3& p2, TVector3& p3, TVector3& p4) const {
+
+  TVector3 p13, p43, p21;
+  double d1343, d4321, d1321, d4343, d2121;
+  double numer, denom;
+  double mua, mub;
+  TVector3 pa, pb;
+
+  p13.SetX(p1.X() - p3.X());
+  p13.SetY(p1.Y() - p3.Y());
+  p13.SetZ(p1.Z() - p3.Z());
+  p43.SetX(p4.X() - p3.X());
+  p43.SetY(p4.Y() - p3.Y());
+  p43.SetZ(p4.Z() - p3.Z());
+  /* if (ABS(p43.X())  < EPS && ABS(p43.Y())  < EPS && ABS(p43.Z())  < EPS) */
+  /*    return(FALSE); */
+  p21.SetX(p2.X() - p1.X());
+  p21.SetY(p2.Y() - p1.Y());
+  p21.SetZ(p2.Z() - p1.Z());
+  /* if (ABS(p21.X())  < EPS && ABS(p21.Y())  < EPS && ABS(p21.Z())  < EPS) */
+  /*    return(FALSE); */
+
+  d1343 = p13.X() * p43.X() + p13.Y() * p43.Y() + p13.Z() * p43.Z();
+  d4321 = p43.X() * p21.X() + p43.Y() * p21.Y() + p43.Z() * p21.Z();
+  d1321 = p13.X() * p21.X() + p13.Y() * p21.Y() + p13.Z() * p21.Z();
+  d4343 = p43.X() * p43.X() + p43.Y() * p43.Y() + p43.Z() * p43.Z();
+  d2121 = p21.X() * p21.X() + p21.Y() * p21.Y() + p21.Z() * p21.Z();
+
+  denom = d2121 * d4343 - d4321 * d4321;
+  /* if (ABS(denom) < EPS) */
+  /*    return(FALSE); */
+  numer = d1343 * d4321 - d1321 * d4343;
+
+  mua = numer / denom;
+  mub = (d1343 + d4321 * (mua)) / d4343;
+
+  pa.SetX(p1.X() + mua * p21.X());
+  pa.SetY(p1.Y() + mua * p21.Y());
+  pa.SetZ(p1.Z() + mua * p21.Z());
+  pb.SetX(p3.X() + mub * p43.X());
+  pb.SetY(p3.Y() + mub * p43.Y());
+  pb.SetZ(p3.Z() + mub * p43.Z());
+
+  return pb - pa;
+}
+
 double GridDriftChamber::distanceTrackWire(const CellID& cID, const TVector3& hit_start,
                                            const TVector3& hit_end) const {
 
