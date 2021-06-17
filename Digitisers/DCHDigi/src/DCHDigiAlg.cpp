@@ -165,8 +165,10 @@ StatusCode DCHDigiAlg::execute()
         TVector3  pos_end = pos + 0.5 * Steplength * sim_mon.Unit();
         if(m_Doca) {
             tmp_distance = m_segmentation->distanceTrackWire(wcellid,pos_start,pos_end);
+            tmp_distance = tmp_distance/dd4hep_mm; //mm
         } else {
             tmp_distance = (m_segmentation->distanceClosestApproach(wcellid,pos)).Mag();
+            tmp_distance = tmp_distance/dd4hep_mm; //mm
         }
 
 
