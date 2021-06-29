@@ -382,20 +382,21 @@ void RecGenfitAlgDC::debugEvent()
     mcParticleCol=m_mcParticleCol.get();
     simDCHitCol=m_simDCHitCol.get();
     m_nSimDCHit=simDCHitCol->size();
-    int iMcParticle=0;
     int iHit=0;
+    for(auto simDCHit: *simDCHitCol){
+        edm4hep::Vector3d pos=simDCHit.position();
+        TVectorD p(3);
+        p[0]=pos.x;//no unit conversion here
+        p[1]=pos.y;
+        p[2]=pos.z;
+        m_mdcHitMcX[iHit]=pos.x;
+        m_mdcHitMcY[iHit]=pos.y;
+        m_mdcHitMcZ[iHit]=pos.z;
+        iHit++;
+    }
+    m_mcIndex=iHit;
+    int iMcParticle=0;
     for(auto mcParticle : *mcParticleCol){
-        for(auto simDCHit: *simDCHitCol){
-            edm4hep::Vector3d pos=simDCHit.position();
-            TVectorD p(3);
-            p[0]=pos.x;//no unit conversion here
-            p[1]=pos.y;
-            p[2]=pos.z;
-            m_mdcHitMcX[iHit]=pos.x;
-            m_mdcHitMcY[iHit]=pos.y;
-            m_mdcHitMcZ[iHit]=pos.z;
-            iHit++;
-        }
         edm4hep::Vector3f mcPocaMom = mcParticle.getMomentum();//GeV
         float px=mcPocaMom.x;
         float py=mcPocaMom.y;
@@ -404,6 +405,5 @@ void RecGenfitAlgDC::debugEvent()
         m_pocaMomMcP[iMcParticle]=sqrt(px*px+py*py+pz*pz);
         iMcParticle++;
     }
-    m_mcIndex=iHit;
 
 }

@@ -28,15 +28,15 @@ DCHDigiAlg::DCHDigiAlg(const std::string& name, ISvcLocator* svcLoc)
   : GaudiAlgorithm(name, svcLoc),
     _nEvt(0)
 {
-  
+
   // Input collections
   declareProperty("SimDCHitCollection", r_SimDCHCol, "Handle of the Input SimHit collection");
-  
+
   // Output collections
   declareProperty("DigiDCHitCollection", w_DigiDCHCol, "Handle of Digi DCHit collection");
-  
+
   declareProperty("AssociationCollection", w_AssociationCol, "Handle of Association collection");
-   
+
 }
 
 StatusCode DCHDigiAlg::initialize()
@@ -54,7 +54,6 @@ StatusCode DCHDigiAlg::initialize()
   }
 
   if(m_WriteAna){
-
       NTuplePtr nt( ntupleSvc(), "MyTuples/DCH_digi_evt" );
       if ( nt ) m_tuple = nt;
       else {
@@ -105,8 +104,8 @@ StatusCode DCHDigiAlg::execute()
       unsigned long long id = SimHit.getCellID();
       float sim_hit_mom = sqrt( SimHit.getMomentum()[0]*SimHit.getMomentum()[0] + SimHit.getMomentum()[1]*SimHit.getMomentum()[1] + SimHit.getMomentum()[2]*SimHit.getMomentum()[2] );//GeV
       if(sim_hit_mom < m_mom_threshold) continue; 
-      if(SimHit.getEDep() <= 0) continue; 
-      
+      if(SimHit.getEDep() <= 0) continue;
+
       if ( id_hits_map.find(id) != id_hits_map.end()) id_hits_map[id].push_back(SimHit);
       else 
       {

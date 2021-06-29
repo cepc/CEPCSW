@@ -69,9 +69,9 @@ protected:
   dd4hep::rec::CellIDPositionConverter* m_cellIDConverter;
   dd4hep::DDSegmentation::GridDriftChamber* m_segmentation;
   dd4hep::DDSegmentation::BitFieldCoder* m_decoder;
-  
+
   Gaudi::Property<std::string> m_readout_name{ this, "readout", "DriftChamberHitsCollection"};//readout for getting segmentation
- 
+
   Gaudi::Property<float> m_res_x     { this, "res_x", 0.11};//mm
   Gaudi::Property<float> m_res_y     { this, "res_y", 0.11};//mm
   Gaudi::Property<float> m_res_z     { this, "res_z", 1   };//mm
@@ -86,6 +86,6 @@ protected:
   // Output collections
   DataHandle<edm4hep::TrackerHitCollection>    w_DigiDCHCol{"DigiDCHitCollection", Gaudi::DataHandle::Writer, this};
   DataHandle<edm4hep::MCRecoTrackerAssociationCollection>    w_AssociationCol{"DCHitAssociationCollection", Gaudi::DataHandle::Writer, this};
-};
 
+};
 #endif
