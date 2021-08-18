@@ -61,6 +61,11 @@ public:
                         const VolumeID& aVolumeID) const;
   virtual double distanceTrackWire(const CellID& cID, const TVector3& hit_start, const TVector3& hit_end) const;
   virtual void cellposition(const CellID& cID, TVector3& Wstart, TVector3& Wend) const;
+  TVector3 LineLineIntersect(TVector3& p1, TVector3& p2, TVector3& p3, TVector3& p4) const;
+  virtual TVector3 distanceClosestApproach(const CellID& cID, const TVector3& hitPos) const;
+  virtual TVector3 Line_TrackWire(const CellID& cID, const TVector3& hit_start, const TVector3& hit_end) const;
+  virtual TVector3 IntersectionTrackWire(const CellID& cID, const TVector3& hit_start, const TVector3& hit_end) const;
+  virtual TVector3 wirePos_vs_z(const CellID& cID, const double& zpos) const;
 
 //  double phi(const CellID& cID) const;
   inline double cell_Size() const { return m_cellSize; }
@@ -108,14 +113,6 @@ public:
   }
 
   inline auto returnAllWires() const { return m_wiresPositions; }
-
-//  inline TVector3 returnWirePosition(double angle, int sign) const {
-//    TVector3 w(0, 0, 0);
-//    w.SetX(_currentRadius * std::cos(angle));
-//    w.SetY(_currentRadius * std::sin(angle));
-//    w.SetZ(sign * m_detectorLength / 2.0);
-//    return w;
-//  }
 
   void updateParams(int chamber, int layer)  const{
     auto it_end = layer_params.cend();
