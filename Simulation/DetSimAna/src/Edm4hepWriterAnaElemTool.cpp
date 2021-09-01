@@ -13,6 +13,7 @@
 #include "DDG4/Geant4HitCollection.h"
 #include "DDG4/Geant4Data.h"
 #include "DDG4/Geant4Hits.h"
+#include <DetSimInterface/IDedxSimTool.h>
 
 DECLARE_COMPONENT(Edm4hepWriterAnaElemTool)
 
@@ -30,9 +31,17 @@ void
 Edm4hepWriterAnaElemTool::BeginOfEventAction(const G4Event* anEvent) {
     msg() << "Event " << anEvent->GetEventID() << endmsg;
 
+    auto SimHitCol =  m_DCHIonizedEleCol.createAndPut();// for DCHFastSimModel
+    ToolHandleArray<IDedxSimTool> tmp_m_dedx_tools;
+    tmp_m_dedx_tools.push_back("TrackHeedSimTool");
+    for (auto dedxtool: tmp_m_dedx_tools) {
+        G4cout << "reset dedx_tool" << tmp_m_dedx_tools << G4endl;
+        dedxtool->reset();
+    }
     // reset
     m_track2primary.clear();
 
+    m_t0 = clock();
 }
 
 void
@@ -296,6 +305,8 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
                   << endmsg;
         
     }
+    m_t1 = clock();
+    //std::cout << "evt_run_time="<<(m_t1-m_t0) / (double) CLOCKS_PER_SEC<<std::endl;
 }
 
 void

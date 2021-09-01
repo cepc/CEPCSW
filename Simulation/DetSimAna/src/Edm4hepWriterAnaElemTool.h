@@ -11,6 +11,7 @@
 #include "edm4hep/SimTrackerHitCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/CaloHitContributionCollection.h"
+#include <time.h>
 
 class Edm4hepWriterAnaElemTool: public extends<AlgTool, IAnaElemTool> {
 
@@ -119,7 +120,8 @@ private:
     DataHandle<edm4hep::SimTrackerHitCollection> m_DriftChamberHitsCol{
             "DriftChamberHitsCollection", 
             Gaudi::DataHandle::Writer, this};
-
+    // for ionized electron
+    DataHandle<edm4hep::SimTrackerHitCollection>    m_DCHIonizedEleCol{"DCHIonizedEleCollection", Gaudi::DataHandle::Writer, this};
 
 private:
     // in order to associate the hit contribution with the primary track,
@@ -134,6 +136,8 @@ private:
     // locate the primary trk #1.
 
     std::map<int, int> m_track2primary;
+    clock_t m_t0;
+    clock_t m_t1;
 
 };
 
