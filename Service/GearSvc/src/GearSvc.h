@@ -4,7 +4,6 @@
 #include "GearSvc/IGearSvc.h"
 #include <GaudiKernel/Service.h>
 #include "DD4hep/Detector.h"
-class dd4hep::DetElement;
 class TGeoNode;
 
 class GearSvc : public extends<Service, IGearSvc>

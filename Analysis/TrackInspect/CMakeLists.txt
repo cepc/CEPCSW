@@ -5,6 +5,7 @@ gaudi_add_module(TrackInspect
                  LINK DataHelperLib 
                       Gaudi::GaudiKernel 
                       EDM4HEP::edm4hep 
+                      k4FWCore::k4FWCore
                       ${ROOT_LIBRARIES}
                       ${CLHEP_LIBRARIES}
 )
