@@ -72,6 +72,8 @@ gaudi_add_library(KalDetLib
                        ${GEAR_LIBRARIES} 
                        EDM4HEP::edm4hep EDM4HEP::edm4hepDict
                        ${DD4hep_COMPONENT_LIBRARIES}
+                       GenFit::genfit2
+
 )
 
 install(TARGETS KalDetLib

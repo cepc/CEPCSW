@@ -19,6 +19,7 @@ gaudi_add_module(RecGenfitAlg
              EDM4HEP::edm4hep
              EDM4HEP::edm4hepDict
              GenFit::genfit2
+             k4FWCore::k4FWCore
 )
 
 target_include_directories(RecGenfitAlg PUBLIC

@@ -125,7 +125,7 @@ const std::map<std::string,double>& GeomSvc::getDetParameters(std::string name){
   if(m_detParameters.find(name)!=m_detParameters.end()) return m_detParameters[name];
   else{
     char message[200];
-    sprintf(message,"GeomSvc has not the parameter set named %s", name); 
+    sprintf(message,"GeomSvc has not the parameter set named %s", name.c_str()); 
     throw std::runtime_error(message);
   }
 }
@@ -136,7 +136,7 @@ double GeomSvc::getDetParameter(std::string set_name, std::string par_name){
     if(it->second.find(par_name)!=it->second.end()) return it->second[par_name];  
   }
   char message[200];
-  sprintf(message,"GeomSvc has not the parameter named %s in set %s", par_name, set_name);
+  sprintf(message,"GeomSvc has not the parameter named %s in set %s", par_name.c_str(), set_name.c_str());
   throw std::runtime_error(message);
 }
 

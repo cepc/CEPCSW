@@ -19,7 +19,6 @@
 #include <gearimpl/ZPlanarParametersImpl.h>
 #include <gearimpl/GearParametersImpl.h>
 
-class dd4hep::DetElement;
 class TGeoNode;
 
 class GeomSvc: public extends<Service, IGeomSvc> {
