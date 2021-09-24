@@ -11,6 +11,9 @@ gaudi_add_module(TotalInvMass
                       ${ROOT_LIBRARIES}
 )
 
+target_include_directories(TotalInvMass
+  PUBLIC ${LCIO_INCLUDE_DIRS})
+
 install(TARGETS TotalInvMass
   EXPORT CEPCSWTargets
   RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin

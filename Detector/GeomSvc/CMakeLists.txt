@@ -14,6 +14,10 @@ gaudi_add_module(GeomSvc
                    ${ROOT_LIBRARIES}
 )
 
+target_include_directories(GeomSvc
+  PUBLIC ${GEAR_INCLUDE_DIRS}
+)
+
 install(TARGETS GeomSvc
   EXPORT CEPCSWTargets
   RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin

@@ -2,7 +2,8 @@
 # Modules
 gaudi_add_module(TrackInspect
                  SOURCES src/TrackInspectAlg.cpp
-                 LINK DataHelperLib 
+                 LINK DataHelperLib
+                      k4FWCore::k4FWCore
                       Gaudi::GaudiKernel 
                       EDM4HEP::edm4hep 
                       ${ROOT_LIBRARIES}

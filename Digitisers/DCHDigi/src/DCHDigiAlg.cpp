@@ -93,14 +93,21 @@ StatusCode DCHDigiAlg::execute()
 
   info() << "Processing " << _nEvt << " events " << endmsg;
   m_evt = _nEvt;
-  std::map<unsigned long long, std::vector<edm4hep::SimTrackerHit> > id_hits_map;
   edm4hep::TrackerHitCollection* Vec   = w_DigiDCHCol.createAndPut();
   edm4hep::MCRecoTrackerAssociationCollection* AssoVec   = w_AssociationCol.createAndPut();
   const edm4hep::SimTrackerHitCollection* SimHitCol =  r_SimDCHCol.get();
+  if (SimHitCol->size() == 0) {
+    return StatusCode::SUCCESS;
+  }
   debug()<<"input sim hit size="<< SimHitCol->size() <<endmsg;
+
+  auto SimHit0 = SimHitCol->at(0);
+  std::map<unsigned long long, std::vector<decltype(SimHit0)> > id_hits_map;
+  //std::map<unsigned long long, std::vector<edm4hep::ConstSimTrackerhit> > id_hits_map;
+
   for( int i = 0; i < SimHitCol->size(); i++ ) 
   {
-      edm4hep::SimTrackerHit SimHit = SimHitCol->at(i);
+      auto SimHit = SimHitCol->at(i);
       unsigned long long id = SimHit.getCellID();
       float sim_hit_mom = sqrt( SimHit.getMomentum()[0]*SimHit.getMomentum()[0] + SimHit.getMomentum()[1]*SimHit.getMomentum()[1] + SimHit.getMomentum()[2]*SimHit.getMomentum()[2] );//GeV
       if(sim_hit_mom < m_mom_threshold) continue; 
@@ -109,7 +116,7 @@ StatusCode DCHDigiAlg::execute()
       if ( id_hits_map.find(id) != id_hits_map.end()) id_hits_map[id].push_back(SimHit);
       else 
       {
-          std::vector<edm4hep::SimTrackerHit> vhit;
+          std::vector< decltype(SimHit) > vhit;
           vhit.push_back(SimHit);
           id_hits_map[id] = vhit ;
       }
@@ -118,7 +125,7 @@ StatusCode DCHDigiAlg::execute()
       m_n_sim = 0;
       m_n_digi = 0 ;
   }
-  for(std::map<unsigned long long, std::vector<edm4hep::SimTrackerHit> >::iterator iter = id_hits_map.begin(); iter != id_hits_map.end(); iter++)
+  for(auto iter = id_hits_map.begin(); iter != id_hits_map.end(); iter++)
   {
     unsigned long long wcellid = iter->first;
     auto trkHit = Vec->create();
