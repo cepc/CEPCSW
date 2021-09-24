@@ -15,6 +15,7 @@ gaudi_add_module(Tracking
                       ${LCIO_LIBRARIES}
                       DetSegmentation
                       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
+                      k4FWCore::k4FWCore
 )
 
 target_include_directories(Tracking PUBLIC
