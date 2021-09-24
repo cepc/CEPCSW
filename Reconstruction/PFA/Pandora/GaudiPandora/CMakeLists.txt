@@ -30,6 +30,7 @@ target_include_directories(GaudiPandora PUBLIC
   ${GEAR_INCLUDE_DIRS}
   ${PandoraSDK_INCLUDE_DIRS}
   ${LCContent_INCLUDE_DIRS}
+  ${LCIO_INCLUDE_DIRS}
 )
 
 install(TARGETS GaudiPandora

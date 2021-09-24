@@ -479,8 +479,8 @@ StatusCode PandoraPFAlg::updateMap()
                 auto handle = dynamic_cast<DataHandle<edm4hep::MCParticleCollection>*> (v.second);
                 auto po = handle->get();
                 if(po != NULL){
-                    std::vector<edm4hep::MCParticle> v_mc;
-                    m_CollectionMaps->collectionMap_MC [v.first] = v_mc;
+                    // std::vector<edm4hep::MCParticle> v_mc;
+                    // m_CollectionMaps->collectionMap_MC [v.first] = v_mc;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_MC [v.first].push_back(po->at(i));
                     debug()<<"saved col name="<<v.first<<endmsg;
                 }
@@ -493,8 +493,8 @@ StatusCode PandoraPFAlg::updateMap()
                 auto handle = dynamic_cast<DataHandle<edm4hep::CalorimeterHitCollection>*> (v.second);
                 auto po = handle->get();
                 if(po != NULL){
-                    std::vector<edm4hep::CalorimeterHit> v_cal;
-                    m_CollectionMaps->collectionMap_CaloHit[v.first] = v_cal ;
+                    // std::vector<edm4hep::CalorimeterHit> v_cal;
+                    // m_CollectionMaps->collectionMap_CaloHit[v.first] = v_cal ;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_CaloHit [v.first].push_back(po->at(i));
                     debug()<<"saved col name="<<v.first<<endmsg;
                 }
@@ -507,8 +507,8 @@ StatusCode PandoraPFAlg::updateMap()
                 auto handle = dynamic_cast<DataHandle<edm4hep::TrackCollection>*> (v.second);
                 auto po = handle->get();
                 if(po != NULL){
-                    std::vector<edm4hep::Track> v_cal;
-                    m_CollectionMaps->collectionMap_Track[v.first] = v_cal ;
+                    // std::vector<edm4hep::Track> v_cal;
+                    // m_CollectionMaps->collectionMap_Track[v.first] = v_cal ;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_Track [v.first].push_back(po->at(i));
                     debug() <<"saved col name="<<v.first<<endmsg;
                     m_marlinTrack = po->size();
@@ -522,8 +522,8 @@ StatusCode PandoraPFAlg::updateMap()
                 auto handle = dynamic_cast<DataHandle<edm4hep::VertexCollection>*> (v.second);
                 auto po = handle->get();
                 if(po != NULL){
-                    std::vector<edm4hep::Vertex> v_cal;
-                    m_CollectionMaps->collectionMap_Vertex[v.first] = v_cal ;
+                    // std::vector<edm4hep::Vertex> v_cal;
+                    // m_CollectionMaps->collectionMap_Vertex[v.first] = v_cal ;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_Vertex [v.first].push_back(po->at(i));
                     debug() <<"saved col name="<<v.first<<endmsg;
                 }
@@ -536,8 +536,8 @@ StatusCode PandoraPFAlg::updateMap()
                 auto handle = dynamic_cast<DataHandle<edm4hep::MCRecoCaloAssociationCollection>*> (v.second);
                 auto po = handle->get();
                 if(po != NULL){
-                    std::vector<edm4hep::MCRecoCaloAssociation> v_cal;
-                    m_CollectionMaps->collectionMap_CaloRel[v.first] = v_cal ;
+                    // std::vector<edm4hep::MCRecoCaloAssociation> v_cal;
+                    // m_CollectionMaps->collectionMap_CaloRel[v.first] = v_cal ;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_CaloRel [v.first].push_back(po->at(i));
                     debug() <<"saved col name="<<v.first<<endmsg;
                 }
@@ -550,8 +550,8 @@ StatusCode PandoraPFAlg::updateMap()
                 auto handle = dynamic_cast<DataHandle<edm4hep::MCRecoTrackerAssociationCollection>*> (v.second);
                 auto po = handle->get();
                 if(po != NULL){
-                    std::vector<edm4hep::MCRecoTrackerAssociation> v_cal;
-                    m_CollectionMaps->collectionMap_TrkRel[v.first] = v_cal ;
+                    // std::vector<edm4hep::MCRecoTrackerAssociation> v_cal;
+                    // m_CollectionMaps->collectionMap_TrkRel[v.first] = v_cal ;
                     for(unsigned int i=0 ; i< po->size(); i++) m_CollectionMaps->collectionMap_TrkRel [v.first].push_back(po->at(i));
                     debug() <<"saved col name="<<v.first<<endmsg;
                 }
@@ -584,7 +584,7 @@ StatusCode PandoraPFAlg::Ana()
     for(int i=0; i<reco_col->size();i++)
     {
         if( m_n_rec >= m_max_rec) break;
-        const edm4hep::ReconstructedParticle pReco = reco_col->at(i);
+        auto pReco = reco_col->at(i);
         const float px = pReco.getMomentum()[0];
         const float py = pReco.getMomentum()[1];
         const float pz = pReco.getMomentum()[2];
@@ -656,19 +656,19 @@ StatusCode PandoraPFAlg::CreateMCRecoParticleAssociation()
         std::map<int, edm4hep::ConstMCParticle> mc_map;
         std::map<int, float > id_edep_map;
         float tot_en = 0 ;
-        const edm4hep::ReconstructedParticle pReco = reco_col->at(i);
+        auto pReco = reco_col->at(i);
         for(int j=0; j < pReco.clusters_size(); j++)
         {
             edm4hep::ConstCluster cluster = pReco.getClusters(j);
             for(int k=0; k < cluster.hits_size(); k++)
             {
                 edm4hep::ConstCalorimeterHit hit = cluster.getHits(k);
-                for(std::map<std::string, std::vector<edm4hep::MCRecoCaloAssociation> >::iterator iter = m_CollectionMaps->collectionMap_CaloRel.begin(); iter != m_CollectionMaps->collectionMap_CaloRel.end(); iter++)
+                for(auto iter = m_CollectionMaps->collectionMap_CaloRel.begin(); iter != m_CollectionMaps->collectionMap_CaloRel.end(); iter++)
                 {
-                    for(std::vector<edm4hep::MCRecoCaloAssociation>::iterator it = iter->second.begin(); it != iter->second.end(); it ++)
+                    for(auto it = iter->second.begin(); it != iter->second.end(); it ++)
                     {
                         if(it->getRec().id() != hit.id()) continue;
-                        for(std::vector<edm4hep::ConstCaloHitContribution>::const_iterator itc = it->getSim().contributions_begin(); itc != it->getSim().contributions_end(); itc++)
+                        for(auto itc = it->getSim().contributions_begin(); itc != it->getSim().contributions_end(); itc++)
                         {
                             if(mc_map.find(itc->getParticle().id()) == mc_map.end()) mc_map[itc->getParticle().id()] = itc->getParticle() ;
                             if(id_edep_map.find(itc->getParticle().id()) != id_edep_map.end()) id_edep_map[itc->getParticle().id()] = id_edep_map[itc->getParticle().id()] + itc->getEnergy() ;
@@ -679,7 +679,7 @@ StatusCode PandoraPFAlg::CreateMCRecoParticleAssociation()
                 }
             }
         }
-        for(std::map<int, edm4hep::ConstMCParticle>::iterator it = mc_map.begin(); it != mc_map.end(); it ++)
+        for(auto it = mc_map.begin(); it != mc_map.end(); it ++)
         {      
             edm4hep::MCRecoParticleAssociation association = pMCRecoParticleAssociationCollection->create();
             association.setRec(pReco);
