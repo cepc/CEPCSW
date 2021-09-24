@@ -529,9 +529,9 @@ StatusCode TPCDigiAlg::execute()
   if (!STHcol) {
     return StatusCode::SUCCESS;
   }
-  auto SimTHit0 = STHcol->at(0);
+  // auto SimTHit0 = STHcol->at(0);
 
-  std::map< Voxel_tpc *, decltype(SimTHit0) > _tpcHitMap;
+  // std::map< Voxel_tpc *, decltype(SimTHit0) > _tpcHitMap;
   _tpcHitMap.clear();
 
   

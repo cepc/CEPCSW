@@ -27,6 +27,11 @@ gaudi_add_module(GenAlgo
                       ROOT::EG
 )
 
+target_include_directories(GenAlgo
+  PUBLIC ${LCIO_INCLUDE_DIRS}
+  PUBLIC ${HEPMC_INCLUDE_DIRS}
+)
+
 install(TARGETS GenAlgo
   EXPORT CEPCSWTargets
   RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
