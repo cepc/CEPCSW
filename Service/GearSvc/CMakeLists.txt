@@ -11,7 +11,7 @@ gaudi_add_module(GearSvcPlugins
 		      DetSegmentation
 )
 
-target_include_directories(GeomSvc
+target_include_directories(GearSvcPlugins
   PUBLIC ${GEAR_INCLUDE_DIRS}
 )
 
