@@ -25,6 +25,9 @@ gaudi_add_module(Arbor
                       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
 )
 
+target_include_directories(Arbor
+  PUBLIC ${LCIO_INCLUDE_DIRS}
+)
 
 install(TARGETS Arbor
   EXPORT CEPCSWTargets

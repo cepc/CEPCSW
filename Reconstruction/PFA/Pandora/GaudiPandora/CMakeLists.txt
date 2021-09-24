@@ -26,7 +26,11 @@ gaudi_add_module(GaudiPandora
 
 target_include_directories(GaudiPandora PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  ${GEAR_INCLUDE_DIRS}
+  ${PandoraSDK_INCLUDE_DIRS}
+  ${LCContent_INCLUDE_DIRS}
+)
 
 install(TARGETS GaudiPandora
   EXPORT CEPCSWTargets
