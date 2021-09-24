@@ -451,7 +451,6 @@ StatusCode TPCDigiAlg::execute()
   _NRevomedHits = 0;
 
   static bool firstEvent = true;
-  _tpcHitMap.clear();
   _tpcRowHits.clear();
 
   // fg: make sure we have one message in the log file with run and event number for the DBD production ....
@@ -527,6 +526,15 @@ StatusCode TPCDigiAlg::execute()
   //  return StatusCode::SUCCESS;
   //}
 
+  if (!STHcol) {
+    return StatusCode::SUCCESS;
+  }
+  auto SimTHit0 = STHcol->at(0);
+
+  std::map< Voxel_tpc *, decltype(SimTHit0) > _tpcHitMap;
+  _tpcHitMap.clear();
+
+  
   if( STHcol != nullptr ){
 
     int n_sim_hits = STHcol->size()  ;
@@ -941,13 +949,11 @@ StatusCode TPCDigiAlg::execute()
                 ( (fabs(row_hits[k]->getHep3Vector().deltaPhi(row_hits[j]->getHep3Vector()))) * row_hits[j]->getR()) < _doubleHitResRPhi ) {
 
           // if neighboring in phi then compare z
-          map <Voxel_tpc*,edm4hep::SimTrackerHit> ::iterator it;
 
-          edm4hep::SimTrackerHit Hit1;
-          edm4hep::SimTrackerHit Hit2;
+          decltype(_tpcHitMap)::mapped_type Hit1, Hit2;
 
           // search of the simhit pointers in the tpchit map
-          it=_tpcHitMap.find(row_hits[j]);
+          auto it = _tpcHitMap.find(row_hits[j]);;
           if(it!= _tpcHitMap.end()) {
             Hit1 = it->second ; // hit found
           }
