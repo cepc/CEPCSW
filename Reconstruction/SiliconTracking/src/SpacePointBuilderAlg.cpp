@@ -108,10 +108,17 @@ StatusCode SpacePointBuilderAlg::execute(){
     
     unsigned nHits = hitCol->size();
     debug() << "Number of hits: " << nHits << endmsg;
+
+    if (!nHits) {
+        return sc;
+    }
+
+    auto tmpHit0 = hitCol->at(0);
     
     //store hits in map according to their CellID0
-    std::map<long long, std::vector<edm4hep::TrackerHit> > map_cellID0_hits;
-    std::map<long long, std::vector<edm4hep::TrackerHit> >::iterator it;
+    
+    std::map<long long, std::vector<decltype(tmpHit0)> > map_cellID0_hits;
+    decltype(map_cellID0_hits)::iterator it;
     for(auto trkHit : *hitCol){
       debug() << "Add hit with CellID0 = " << trkHit.getCellID() << " " << getCellID0Info( trkHit.getCellID() ) << endmsg;
       map_cellID0_hits[ trkHit.getCellID() ].push_back( trkHit );
@@ -121,14 +128,14 @@ StatusCode SpacePointBuilderAlg::execute(){
     // now loop over all CellID0s
     for( it= map_cellID0_hits.begin(); it!= map_cellID0_hits.end(); it++ ){
       rawStripHits += it->second.size();
-      std::vector<edm4hep::TrackerHit>& hitsFront = it->second;
+      auto hitsFront = it->second;
       unsigned long long cellID0 = it->first;
       //get the CellID0s at the back of this sensor
       std::vector<int> cellID0sBack = getCellID0sAtBack( cellID0 );
       
       for( unsigned i=0; i< cellID0sBack.size(); i++ ){ 
         int cellID0Back = cellID0sBack[i];
-        std::vector<edm4hep::TrackerHit>& hitsBack = map_cellID0_hits[ cellID0Back ];
+        auto hitsBack = map_cellID0_hits[ cellID0Back ];
         debug() << "strips: CellID0 " << cellID0  << " " << getCellID0Info( cellID0 )  << "(" << hitsFront.size()
 		<< " hits) <---> CellID0 " << cellID0Back << getCellID0Info( cellID0Back )
 		<< "(" << hitsBack.size() << " hits)" << endmsg
@@ -137,9 +144,9 @@ StatusCode SpacePointBuilderAlg::execute(){
         possibleSpacePoints += hitsFront.size() * hitsBack.size();
 	// Now iterate over all combinations and store those that make sense
         for( unsigned ifront=0; ifront<hitsFront.size(); ifront++ ){
-	  edm4hep::TrackerHit& hitFront = hitsFront[ifront];
+	  auto hitFront = hitsFront[ifront];
 	  for( unsigned j=0; j<hitsBack.size(); j++ ){
-	    edm4hep::TrackerHit& hitBack = hitsBack[j];
+	    auto hitBack = hitsBack[j];
 
 	    std::vector<edm4hep::ConstSimTrackerHit> simHitsFront;
 	    std::vector<edm4hep::ConstSimTrackerHit> simHitsBack;

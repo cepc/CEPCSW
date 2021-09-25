@@ -11,7 +11,13 @@ gaudi_add_module(G2CDArbor
                       ${GSL_LIBRARIES} 
                       ${LCIO_LIBRARIES}
                       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
+                      DD4hep::DDRec
 )
+
+target_include_directories(G2CDArbor
+  PUBLIC ${LCIO_INCLUDE_DIRS})
+
+
 install(TARGETS G2CDArbor
   EXPORT CEPCSWTargets
   RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin

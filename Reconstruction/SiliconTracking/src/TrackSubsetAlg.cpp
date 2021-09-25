@@ -96,7 +96,7 @@ StatusCode TrackSubsetAlg::finalize(){
 }
 
 StatusCode TrackSubsetAlg::execute(){ 
-  std::vector<edm4hep::Track> tracks;
+  std::vector<edm4hep::ConstTrack> tracks;
 
   auto trkCol = _outColHdl.createAndPut();
   /**********************************************************************************************/
@@ -151,9 +151,9 @@ StatusCode TrackSubsetAlg::execute(){
   
   debug() << "The tracks and their qualities (and their hits ): " << endmsg;
 
-  std::vector<edm4hep::Track*> tracks_p;
+  std::vector<edm4hep::ConstTrack*> tracks_p;
   for( unsigned i=0; i < tracks.size(); i++ ){
-    edm4hep::Track* track = &tracks[i];
+    auto* track = &tracks[i];
     tracks_p.push_back(track);
     double qi = trackQI( track );
     debug() << "Track " << track->id() << " address " << track << "\t" << qi << "( ";
@@ -174,14 +174,14 @@ StatusCode TrackSubsetAlg::execute(){
   
   TrackCompatibility comp;
   
-  SubsetHopfieldNN<edm4hep::Track*> subset;
+  SubsetHopfieldNN<edm4hep::ConstTrack*> subset;
   //SubsetSimple<edm4hep::Track* > subset;
   subset.add( tracks_p );
   subset.setOmega( _omega );
   subset.calculateBestSet( comp, trackQI );
 
-  std::vector<edm4hep::Track*> accepted = subset.getAccepted();
-  std::vector<edm4hep::Track*> rejected = subset.getRejected();
+  auto accepted = subset.getAccepted();
+  auto rejected = subset.getRejected();
   
   debug() << "\tThe accepted tracks:" << endmsg;
   for( unsigned i=0; i < accepted.size(); i++ ){
@@ -203,7 +203,7 @@ StatusCode TrackSubsetAlg::execute(){
   for( unsigned i=0; i < accepted.size(); i++ ){
     edm4hep::Track trackImpl;
     
-    edm4hep::Track* track = accepted[i];
+    auto track = accepted[i];
     
     std::vector<edm4hep::ConstTrackerHit> trackerHitsObj;
     std::vector<edm4hep::ConstTrackerHit> trackerHits;

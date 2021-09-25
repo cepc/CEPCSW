@@ -18,7 +18,7 @@ gaudi_add_library(DataHelperLib
 			  src/TrackerHitHelper.cpp
                   LINK EDM4HEP::edm4hep
                        EDM4HEP::edm4hepDict
-                       ${GSL_LIBRARIES}
+                       GSL::gsl
                        ${CLHEP_LIBRARIES}
 		       Identifier
 )

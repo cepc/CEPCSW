@@ -14,7 +14,7 @@ namespace KiTrackMarlin{
   class FTDHit01 : public IFTDHit{
   public:
       
-    FTDHit01( edm4hep::TrackerHit trackerHit , const SectorSystemFTD* const sectorSystemFTD );
+    FTDHit01( edm4hep::ConstTrackerHit trackerHit , const SectorSystemFTD* const sectorSystemFTD );
   };
 }
 #endif

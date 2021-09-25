@@ -29,6 +29,8 @@ Steve Aplin 26 June 2009 (DESY)
 
 #include <gsl/gsl_rng.h>
 
+#include <type_traits>
+
 //#ifdef MARLIN_USE_AIDA
 
 //#include <marlin/AIDAProcessor.h>
@@ -210,7 +212,8 @@ protected:
   int _nRechits;
 
   std::vector< std::vector <Voxel_tpc *> > _tpcRowHits;
-  std::map< Voxel_tpc *,edm4hep::SimTrackerHit > _tpcHitMap;
+  // std::map< Voxel_tpc *,edm4hep::SimTrackerHit > _tpcHitMap;
+  std::map< Voxel_tpc *, edm4hep::ConstSimTrackerHit > _tpcHitMap;
 
   UTIL::BitField64* _cellid_encoder;
 

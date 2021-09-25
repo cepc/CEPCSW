@@ -660,7 +660,7 @@ int SiliconTrackingAlg::InitialiseVTX() {
     
     for (int ielem=0; ielem<nelem; ++ielem) {
     //for(auto hit : *hitVTXCol){ 
-      edm4hep::TrackerHit hit = hitVTXCol->at(ielem);
+      auto hit = hitVTXCol->at(ielem);
       //gear::Vector3D U(1.0,hit->getU()[1],hit->getU()[0],gear::Vector3D::spherical);
       //gear::Vector3D V(1.0,hit->getV()[1],hit->getV()[0],gear::Vector3D::spherical);
       gear::Vector3D U(1.0,hit.getCovMatrix()[1],hit.getCovMatrix()[0],gear::Vector3D::spherical);

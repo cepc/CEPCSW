@@ -11,6 +11,10 @@ gaudi_add_module(GearSvcPlugins
 		      DetSegmentation
 )
 
+target_include_directories(GearSvcPlugins
+  PUBLIC ${GEAR_INCLUDE_DIRS}
+)
+
 install(TARGETS GearSvc GearSvcPlugins
   EXPORT CEPCSWTargets
   RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin

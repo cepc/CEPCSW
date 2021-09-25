@@ -9,6 +9,7 @@
 #include "GaudiAlg/GaudiAlgorithm.h"
 #include "edm4hep/Track.h"
 #include "edm4hep/TrackerHitConst.h"
+#include "edm4hep/TrackerHitCollection.h"
 #include "edm4hep/TrackCollection.h"
 #include <string>
 

@@ -22,6 +22,7 @@ gaudi_add_module(DetSimCore
                       ${DD4hep_COMPONENT_LIBRARIES} 
                       k4FWCore::k4FWCore
                       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
+                      k4FWCore::k4FWCore
 )
 
 install(TARGETS DetSimCore

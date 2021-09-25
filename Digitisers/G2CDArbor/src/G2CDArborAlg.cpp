@@ -508,7 +508,7 @@ StatusCode G2CDArborAlg::execute()
 	       // LayerNum = idDecoder(SimEcalhit)["K-1"];
 
 	       // edm4hep::SimCalorimeterHit aa(SimEcalhit.getCellID(), SimEcalhit.getEnergy(), SimEcalhit.getPosition());
-	       ID_UTIL::CellIDDecoder<edm4hep::SimCalorimeterHit> cellIdDecoder(m_encoder_str);
+               ID_UTIL::CellIDDecoder< decltype(SimEcalhit) > cellIdDecoder(m_encoder_str);
 	       const std::string layerCodingString(m_encoder_str);
 	       const std::string layerCoding(this->GetLayerCoding(layerCodingString));
 	       if(m_readLCIO==false) LayerNum = m_decoder->get(cellid, "layer");//from 0 - 29, 0 is preshower

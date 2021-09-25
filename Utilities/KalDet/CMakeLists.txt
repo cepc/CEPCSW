@@ -76,6 +76,11 @@ gaudi_add_library(KalDetLib
 
 )
 
+target_include_directories(KalDetLib
+  PUBLIC ${GEAR_INCLUDE_DIRS}
+  PUBLIC ${LCIO_INCLUDE_DIRS}
+)
+
 install(TARGETS KalDetLib
   EXPORT CEPCSWTargets
   RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin

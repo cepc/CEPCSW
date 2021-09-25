@@ -60,7 +60,7 @@ class BushConnect  : public GaudiAlgorithm
 		std::map<edm4hep::ConstTrack, float> Track_Phi;	
 
 		std::map<edm4hep::ConstCluster, int> ClusterType_1stID;
-		std::map<edm4hep::ReconstructedParticle, int> ChCoreID; 
+		std::map<edm4hep::ConstReconstructedParticle, int> ChCoreID; 
 
 		std::vector<edm4hep::ConstCluster> ecalchcore_tight;         //TightCores
 		std::vector<edm4hep::ConstCluster> ecalchcore_medium;

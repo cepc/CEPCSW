@@ -46,7 +46,6 @@ StatusCode CaloDigiAlg::initialize()
 StatusCode CaloDigiAlg::execute()
 {
   std::map<unsigned long long, edm4hep::SimCalorimeterHit> id_hit_map;
-  std::map<unsigned long long, std::vector<edm4hep::SimCalorimeterHit> > id_hits_map;
   edm4hep::CalorimeterHitCollection* caloVec   = w_DigiCaloCol.createAndPut();
   edm4hep::MCRecoCaloAssociationCollection* caloAssoVec   = w_CaloAssociationCol.createAndPut();
   const edm4hep::SimCalorimeterHitCollection* SimHitCol =  r_SimCaloCol.get();
@@ -56,25 +55,32 @@ StatusCode CaloDigiAlg::execute()
      std::cout<<"not found SimCalorimeterHitCollection"<< std::endl;
      return StatusCode::SUCCESS;
   }
+
+  auto SimHit0 = SimHitCol->at(0);
+  std::map<unsigned long long, std::vector<decltype(SimHit0)> > id_hits_map;
+
   std::cout<<"digi, input sim hit size="<< SimHitCol->size() <<std::endl;
   for( int i = 0; i < SimHitCol->size(); i++ ) 
   {
-      edm4hep::SimCalorimeterHit SimHit = SimHitCol->at(i);
+      auto SimHit = SimHitCol->at(i);
       unsigned long long id = SimHit.getCellID();
       float en = SimHit.getEnergy();
       tot_e += en;
       if ( id_hit_map.find(id) != id_hit_map.end()) id_hit_map[id].setEnergy(id_hit_map[id].getEnergy() + en);
-      else id_hit_map[id] = SimHit ;
+      else {
+        edm4hep::SimCalorimeterHit newSimHit(SimHit.getCellID(), SimHit.getEnergy(), SimHit.getPosition());
+        id_hit_map[id] = newSimHit ;
+      }
 
       if ( id_hits_map.find(id) != id_hits_map.end()) id_hits_map[id].push_back(SimHit);
       else 
       {
-          std::vector<edm4hep::SimCalorimeterHit> vhit;
+          std::vector<decltype(SimHit)> vhit;
           vhit.push_back(SimHit);
           id_hits_map[id] = vhit ;
       }
   }
-  for(std::map<unsigned long long, edm4hep::SimCalorimeterHit>::iterator iter = id_hit_map.begin(); iter != id_hit_map.end(); iter++)
+  for(auto iter = id_hit_map.begin(); iter != id_hit_map.end(); iter++)
   {
     auto caloHit = caloVec->create();
     caloHit.setCellID((iter->second).getCellID());
