@@ -24,7 +24,12 @@ gaudi_add_module(MatrixPandora
 
 target_include_directories(MatrixPandora PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  ${GEAR_INCLUDE_DIRS}
+  ${PandoraSDK_INCLUDE_DIRS}
+  ${LCContent_INCLUDE_DIRS}
+  ${LCIO_INCLUDE_DIRS}
+)
 
 install(TARGETS MatrixPandora
   EXPORT CEPCSWTargets

@@ -86,7 +86,7 @@ private:
     const Settings          m_settings;                         ///< The mc particle creator settings
     const pandora::Pandora *m_pPandora;                         ///< Address of the pandora object to create the mc particles
     const float             m_bField;                           ///< The bfield
-    std::map<unsigned int, const edm4hep::MCParticle*>*  m_id_pMC_map;
+    std::map<unsigned int, edm4hep::ConstMCParticle*>*  m_id_pMC_map;
 };
 
 inline void MCParticleCreator::Reset()

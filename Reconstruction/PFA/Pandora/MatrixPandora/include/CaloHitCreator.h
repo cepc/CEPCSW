@@ -25,7 +25,7 @@
 
 #include <string>
 
-typedef std::vector<edm4hep::CalorimeterHit *> CalorimeterHitVector;
+typedef std::vector<edm4hep::ConstCalorimeterHit *> CalorimeterHitVector;
 
 namespace gear { class GearMgr; }
 
@@ -165,7 +165,7 @@ private:
      *  @brief  Get common calo hit properties: position, parent address, input energy and time
      * 
      */
-    void GetCommonCaloHitProperties(const edm4hep::CalorimeterHit *const pCaloHit, PandoraApi::CaloHit::Parameters &caloHitParameters) const;
+    void GetCommonCaloHitProperties(edm4hep::ConstCalorimeterHit *const pCaloHit, PandoraApi::CaloHit::Parameters &caloHitParameters) const;
 
     /**
      *  @brief  Get end cap specific calo hit properties: cell size, absorber radiation and interaction lengths, normal vector
@@ -175,7 +175,7 @@ private:
      *  @param  caloHitParameters the calo hit parameters to populate
      *  @param  absorberCorrection to receive the absorber thickness correction for the mip equivalent energy
      */
-    void GetEndCapCaloHitProperties(const edm4hep::CalorimeterHit *const pCaloHit, const gear::LayerLayout &layerLayout,
+    void GetEndCapCaloHitProperties(edm4hep::ConstCalorimeterHit *const pCaloHit, const gear::LayerLayout &layerLayout,
         PandoraApi::CaloHit::Parameters &caloHitParameters, float &absorberCorrection) const;
 
     /**
@@ -189,11 +189,11 @@ private:
      *  @param  caloHitParameters the calo hit parameters to populate
      *  @param  absorberCorrection to receive the absorber thickness correction for the mip equivalent energy
      */
-    void GetBarrelCaloHitProperties(const edm4hep::CalorimeterHit *const pCaloHit, const gear::LayerLayout &layerLayout,
+    void GetBarrelCaloHitProperties(edm4hep::ConstCalorimeterHit *const pCaloHit, const gear::LayerLayout &layerLayout,
         unsigned int barrelSymmetryOrder, float barrelPhi0, unsigned int staveNumber, PandoraApi::CaloHit::Parameters &caloHitParameters,
         float &absorberCorrection) const;
 
-    void GetBarrelCaloHitProperties(const edm4hep::CalorimeterHit *const pCaloHit, const std::vector<dd4hep::rec::LayeredCalorimeterData::Layer> &layerLayout,
+    void GetBarrelCaloHitProperties(edm4hep::ConstCalorimeterHit *const pCaloHit, const std::vector<dd4hep::rec::LayeredCalorimeterData::Layer> &layerLayout,
         unsigned int barrelSymmetryOrder, float barrelPhi0, unsigned int staveNumber, PandoraApi::CaloHit::Parameters &caloHitParameters,
         float &absorberCorrection) const;
     /**
@@ -201,7 +201,7 @@ private:
      * 
      *  @param  pCaloHit the lcio calorimeter hit
      */
-    int GetNLayersFromEdge(const edm4hep::CalorimeterHit *const pCaloHit) const;
+    int GetNLayersFromEdge(edm4hep::ConstCalorimeterHit *const pCaloHit) const;
 
     /**
      *  @brief  Get the maximum radius of a calo hit in a polygonal detector structure
@@ -212,10 +212,10 @@ private:
      * 
      *  @return the maximum radius
      */
-    float GetMaximumRadius(const edm4hep::CalorimeterHit *const pCaloHit, const unsigned int symmetryOrder, const float phi0) const;
+    float GetMaximumRadius(edm4hep::ConstCalorimeterHit *const pCaloHit, const unsigned int symmetryOrder, const float phi0) const;
 
-    void GetCoding(const edm4hep::CalorimeterHit* pCaloHit, long& sys, long& x, long& y, long& z) const ;
-    int GetBarrelLayer(const edm4hep::CalorimeterHit *const pCaloHit, const std::vector<dd4hep::rec::LayeredCalorimeterData::Layer> &layerLayout) const;
+    void GetCoding(edm4hep::ConstCalorimeterHit* pCaloHit, long& sys, long& x, long& y, long& z) const ;
+    int GetBarrelLayer(edm4hep::ConstCalorimeterHit *const pCaloHit, const std::vector<dd4hep::rec::LayeredCalorimeterData::Layer> &layerLayout) const;
     /**
      *  @brief  Get the layer coding string from the provided cell id encoding string
      * 
