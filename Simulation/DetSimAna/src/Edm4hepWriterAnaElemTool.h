@@ -41,8 +41,13 @@ public:
 
 private:
     // In order to associate MCParticle with contribution, we need to access MC Particle.
-    DataHandle<edm4hep::MCParticleCollection> m_mcParCol{"MCParticle", 
+    // - collection MCParticle: the particles in Generator
+    DataHandle<edm4hep::MCParticleCollection> m_mcParGenCol{"MCParticle", 
             Gaudi::DataHandle::Writer, this};
+    // - collection MCParticleG4: the simulated particles in Geant4
+    DataHandle<edm4hep::MCParticleCollection> m_mcParCol{"MCParticleG4", 
+            Gaudi::DataHandle::Writer, this};
+    edm4hep::MCParticleCollection* mcCol;
 
     // Generic collections for Tracker and Calorimeter
     DataHandle<edm4hep::SimTrackerHitCollection> m_trackerCol{"SimTrackerCol", 

@@ -37,7 +37,26 @@ Edm4hepWriterAnaElemTool::BeginOfEventAction(const G4Event* anEvent) {
 
 void
 Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
-    auto mcCol = m_mcParCol.get();
+    auto mcGenCol = m_mcParCol.get();
+    mcCol = m_mcParCol.createAndPut();
+
+    // copy the MC particle first
+    for (auto mcGenParticle: *mcGenCol) {
+        auto newparticle = mcCol->create();
+        newparticle.setPDG            (mcGenParticle.getPDG());
+        newparticle.setGeneratorStatus(mcGenParticle.getGeneratorStatus());
+        newparticle.setSimulatorStatus(mcGenParticle.getSimulatorStatus());
+        newparticle.setCharge         (mcGenParticle.getCharge());
+        newparticle.setTime           (mcGenParticle.getTime());
+        newparticle.setMass           (mcGenParticle.getMass());
+        newparticle.setVertex         (mcGenParticle.getVertex());
+        newparticle.setEndpoint       (mcGenParticle.getEndpoint());
+        newparticle.setMomentum       (mcGenParticle.getMomentum());
+        newparticle.setMomentumAtEndpoint(mcGenParticle.getMomentumAtEndpoint());
+        newparticle.setSpin           (mcGenParticle.getSpin());
+        newparticle.setColorFlow      (mcGenParticle.getColorFlow());
+    }
+    
     msg() << "mcCol size: " << mcCol->size() << endmsg;
     // save all data
 
@@ -328,7 +347,7 @@ Edm4hepWriterAnaElemTool::PostUserTrackingAction(const G4Track* track) {
 
     if (curparid == 0) {
         // select the primary tracks (parentID == 0)
-        auto mcCol = m_mcParCol.get();
+        // auto mcCol = m_mcParCol.get();
 
         if (curtrkid-1>=mcCol->size()) {
             error() << "out of range: curtrkid is " << curtrkid
@@ -400,7 +419,7 @@ Edm4hepWriterAnaElemTool::PostUserTrackingAction(const G4Track* track) {
 
                     // create secondaries in MC particles
                     // todo: convert the const collection to non-const
-                    auto mcCol = const_cast<edm4hep::MCParticleCollection*>(m_mcParCol.get());
+                    // auto mcCol = const_cast<edm4hep::MCParticleCollection*>(m_mcParCol.get());
                     edm4hep::MCParticle mcp = mcCol->create();
                     mcp.setPDG(secparticle->GetPDGEncoding());
                     mcp.setGeneratorStatus(0); // not created by Generator
