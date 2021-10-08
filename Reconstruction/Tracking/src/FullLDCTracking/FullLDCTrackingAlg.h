@@ -307,7 +307,8 @@ protected:
   
   int SegmentRadialOverlap(TrackExtended* pTracki, TrackExtended* pTrackj);
   bool VetoMerge(TrackExtended* firstTrackExt, TrackExtended* secondTrackExt);
-  
+
+  void checkTrackState(int type=0);
   
   int _nRun ;
   int _nEvt ;
