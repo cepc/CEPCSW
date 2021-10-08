@@ -233,7 +233,7 @@ StatusCode ClupatraAlg::initialize() {
 StatusCode ClupatraAlg::execute() {
 
 
-	debug() << "Clupatra Algorithm started" << endmsg;
+  info() << "Clupatra Algorithm started" << endmsg;
 
 	//  clock_t start =  clock() ;
 	Timer timer ;
@@ -537,7 +537,7 @@ StatusCode ClupatraAlg::execute() {
 				debug() <<  " call fitter for seed cluster with " << (*icv)->size() << " hits " << endmsg;
 				int counter = 0;
 				for( Clusterer::cluster_type::iterator ci=(*icv)->begin(), end= (*icv)->end() ; ci!=end; ++ci ) {
-				  debug() << counter++ << " " <<  (*ci)->first->edm4hepHit << " \nlayer " << (*ci)->first->layer << endmsg;
+				  debug() << counter++ << " " <<  (*ci)->first->edm4hepHit.id() << " layer " << (*ci)->first->layer << endmsg;
 				}
 
 
@@ -562,9 +562,8 @@ StatusCode ClupatraAlg::execute() {
 					ConstTrack edm4hepTrk( converter( *icv ) ) ;
 					// debug() << "Goes goes here" << endmsg;
 
-					// FIXME Mingrui
-					debug() << "=============  poor seed cluster - no hits added - started from row " <<  outerRow << "\n"
-						<< edm4hepTrk << endmsg;
+					debug() << "=============  poor seed cluster - no hits added - started from row " <<  outerRow << " track id="
+						<< edm4hepTrk.id() << endmsg;
 
 
 					for( Clusterer::cluster_type::iterator ci=(*icv)->begin(), end= (*icv)->end() ; ci!=end; ++ci ) {
