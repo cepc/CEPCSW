@@ -288,7 +288,7 @@ namespace clupatra_new{
 		encoder[UTIL::ILDCellID0::subdet] = UTIL::ILDDetID::TPC ;
 
 		edm4hep::ConstTrackerHit firstHit; // =  0 ;
-                firstHit.unlink();
+                //firstHit.unlink();
 
 		IMarlinTrack* bwTrk = 0 ;
 
@@ -1354,11 +1354,18 @@ start:
 					//IMPL::TrackerHitImpl* thi = dynamic_cast<IMPL::TrackerHitImpl*> ( hitsInFit[i].first ) ;
 					//thi->setQualityBit( UTIL::ILDTrkHitQualityBit::USED_IN_FIT , 1 )  ;
 				}
-
-				edm4hep::TrackState tsIP;
-				edm4hep::TrackState tsFH;
-				edm4hep::TrackState tsLH;
-				edm4hep::TrackState tsCA;
+				edm4hep::TrackState tsBase;
+				tsBase.D0 = 0;
+				tsBase.phi = 0;
+				tsBase.omega = 0;
+				tsBase.Z0 = 0;
+				tsBase.tanLambda = 0;
+				tsBase.referencePoint = edm4hep::Vector3f(0,0,0);
+				tsBase.covMatrix = std::array<float, 15>{};
+				edm4hep::TrackState tsIP(tsBase);
+				edm4hep::TrackState tsFH(tsBase);
+				edm4hep::TrackState tsLH(tsBase);
+				edm4hep::TrackState tsCA(tsBase);
 
 				tsIP.location = lcio::TrackState::AtIP;
 				tsFH.location = lcio::TrackState::AtFirstHit;
@@ -1385,10 +1392,9 @@ start:
 				code = mtrk->getTrackState( fHit, tsFH, chi2, ndf ) ;
 
 				if( code != MarlinTrk::IMarlinTrack::success ){
-
-					   std::cout << "  >>>>>>>>>>> PLCIOTrackConverter :  could not get TrackState at first Hit !!?? "
-					   << " error code : " << MarlinTrk::errorCode( code )
-					   << std::endl ;
+				  //std::cout << "  >>>>>>>>>>> PLCIOTrackConverter :  could not get TrackState at first Hit !!?? "
+				  //	    << " error code : " << MarlinTrk::errorCode( code )
+				  //	    << std::endl ;
 				}
 
 				// ======= get TrackState at last hit  ========================
@@ -1398,17 +1404,17 @@ start:
 #if use_fit_at_last_hit
 				code = mtrk->getTrackState( lHit, tsLH, chi2, ndf ) ;
 #else     // get the track state at the last hit by propagating from the last(first) constrained fit position (a la MarlinTrkUtils)
-				edm4hep::ConstTrackerHit last_constrained_hit;
+				edm4hep::ConstTrackerHit last_constrained_hit(0);
 				code = mtrk->getTrackerHitAtPositiveNDF( last_constrained_hit );
-				mtrk->smooth() ;
+				//code = mtrk->smooth() ;
 				if( code != MarlinTrk::IMarlinTrack::success ){
-				  std::cout << "last_constrained_hit is unavaibale" << std::endl;
+				  //std::cout << "last_constrained_hit is avaibale? " << last_constrained_hit.isAvailable() << std::endl;
 				}
-				else{
+				//else{
 // std::cout << "the hit" << std::endl;
 // std::cout << lHit.getCellID0() << std::endl;
 // std::cout << last_constrained_hit << std::endl;
-				//code = mtrk->smooth() ;
+				  code = mtrk->smooth() ;
 // std::cout << "Smooth success" << std::endl;
 				// gear::Vector3D last_hit_pos( lHit->getPosition()[0], lHit->getPosition()[1], lHit->getPosition()[2] );
 // std::cout << "lHit = " << lHit << std::endl;
@@ -1420,14 +1426,13 @@ start:
 				  edm4hep::Vector3d last_hit_pos( lHit.getPosition() );
 // std::cout << "lHit = " << lHit << std::endl;
 				  code = mtrk->propagate( last_hit_pos, last_constrained_hit, tsLH, chi2, ndf);
-                                } 
+				  //}
 // std::cout << "Propagate success" << std::endl;
 #endif
 
 // std::cout << "We are here" << std::endl; 
 				if( code != MarlinTrk::IMarlinTrack::success ){
-
-					std::cout << "  >>>>>>>>>>> PLCIOTrackConverter :  could not get TrackState at last Hit !!?? " << std::endl ;
+				  //std::cout << "  >>>>>>>>>>> PLCIOTrackConverter :  could not get TrackState at last Hit !!?? " << std::endl ;
 				}
 
 				// ======= get TrackState at calo face  ========================
@@ -1459,8 +1464,7 @@ start:
 
 				}
 				if ( code !=MarlinTrk::IMarlinTrack::success ) {
-
-					// streamlog_out( DEBUG6 ) << "  >>>>>>>>>>> PLCIOTrackConverter :  could not get TrackState at calo face !!?? " << std::endl ;
+				  //std::cout << "  >>>>>>>>>>> PLCIOTrackConverter :  could not get TrackState at calo face !!?? " << std::endl ;
 				}
 
 				// ======= get TrackState at IP ========================
@@ -1475,10 +1479,9 @@ start:
 				code = ( UsePropagate ?   mtrk->propagate( ipv, fHit, tsIP, chi2, ndf ) :  mtrk->extrapolate( ipv, tsIP, chi2, ndf ) ) ;
 
 				if( code != MarlinTrk::IMarlinTrack::success ){
-
-					std::cout << "  >>>>>>>>>>> PLCIOTrackConverter :  could not extrapolate TrackState to IP !!?? " << std::endl ;
+				  //std::cout << "  >>>>>>>>>>> PLCIOTrackConverter :  could not extrapolate TrackState to IP !!?? " << std::endl ;
 				}
-
+				//std::cout << "D0 = " << tsLH.D0 << " phi = " << tsLH.phi << " omega = " << tsLH.omega << " Z0 = " << tsLH.Z0 << " tanLambda = " << tsLH.tanLambda << std::endl;
 				trk.addToTrackStates( tsIP ) ;
 				trk.addToTrackStates( tsFH ) ;
 				trk.addToTrackStates( tsLH ) ;
