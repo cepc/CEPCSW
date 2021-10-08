@@ -37,7 +37,7 @@ namespace MarlinTrk {
 //    
 //    int nrows = 5;
 //    
-//    TMatrixD cov(nrows,nrows) ; 
+//    TMatrixD cov(nrows,nrows) ;
 //    
 //    bool matrix_is_positive_definite = true;
 //    
@@ -148,16 +148,14 @@ namespace MarlinTrk {
     
     
     int fit_status = createFit(hit_list, marlinTrk, pre_fit, bfield_z, fit_backwards, maxChi2Increment);
-    
-    if( fit_status != IMarlinTrack::success ){ 
-      
-      //std::cout << "MarlinTrk::createFinalisedLCIOTrack fit failed: fit_status = " << fit_status << std::endl; 
-      
+    //std::cout << "createFit finished. status = " << fit_status << std::endl;
+    if( fit_status != IMarlinTrack::success ){
+      //std::cout << "MarlinTrk::createFinalisedLCIOTrack fit failed: fit_status = " << fit_status << std::endl;
       return fit_status;
     } 
     
     int error = finaliseLCIOTrack(marlinTrk, track, hit_list);
-        
+    //std::cout << "finaliseLCIOTrack. status = " << error << std::endl;
     return error;
   }
   
@@ -189,7 +187,7 @@ namespace MarlinTrk {
 //    
 //    if (( fit_backwards == IMarlinTrack::backward && pre_fit->getLocation() != lcio::TrackState::AtLastHit ) 
 //        ||  
-//        ( fit_backwards == IMarlinTrack::forward && pre_fit->getLocation() != lcio::TrackState::AtFirstHit )) {            
+//        ( fit_backwards == IMarlinTrack::forward && pre_fit->getLocation() != lcio::TrackState::AtFirstHit )) {
 //      std::stringstream ss ;
 //      
 //      ss << "MarlinTrk::createFinalisedLCIOTrack track state must be set at either first or last hit. Location = ";
@@ -214,7 +212,7 @@ namespace MarlinTrk {
     for( it = hit_list.begin() ; it != hit_list.end() ; ++it ) {
       
       edm4hep::ConstTrackerHit trkHit = *it;
-      bool isSuccessful = false; 
+      bool isSuccessful = false;
       //std::cout << "debug: TrackerHit pointer " << trkHit << std::endl;
       if( UTIL::BitSet32( trkHit.getType() )[ UTIL::ILDTrkHitTypeBit::COMPOSITE_SPACEPOINT ]   ){ //it is a composite spacepoint        
         //Split it up and add both hits to the MarlinTrk
@@ -227,7 +225,7 @@ namespace MarlinTrk {
 	  if( marlinTrk->addHit( rawHit ) == IMarlinTrack::success ){
 	    isSuccessful = true; //if at least one hit from the spacepoint gets added
             ++ndof_added;
-//            streamlog_out(DEBUG4) << "MarlinTrk::createFit ndof_added = " << ndof_added << std::endl;
+	    //std::cout << "DEBUG<<<<<MarlinTrk::createFit ndof_added = " << ndof_added << std::endl;
           }
         }
       }
@@ -235,7 +233,7 @@ namespace MarlinTrk {
         if (marlinTrk->addHit( trkHit ) == IMarlinTrack::success ) {
           isSuccessful = true;
           ndof_added += 2;
-//          streamlog_out(DEBUG4) << "MarlinTrk::createFit ndof_added = " << ndof_added << std::endl;          
+	  //std::cout << "DEBUG<<<<<MarlinTrk::createFit ndof_added = " << ndof_added << std::endl;
         }
       }
       
@@ -243,13 +241,13 @@ namespace MarlinTrk {
         added_hits.push_back(trkHit);
       }        
       else{
-	//std::cout << "MarlinTrkUtils::createFit Hit " << it - hit_list.begin() << " Dropped " << std::endl;
+	//std::cout << "DEBUG<<<<<MarlinTrkUtils::createFit Hit " << it - hit_list.begin() << " Dropped " << std::endl;
       }
       
     }
       
     if( ndof_added < MIN_NDF ) {
-      //streamlog_out(DEBUG2) << "MarlinTrk::createFit : Cannot fit less with less than " << MIN_NDF << " degrees of freedom. Number of hits =  " << added_hits.size() << " ndof = " << ndof_added << std::endl;
+      //std::cout << "ERROR<<<<<MarlinTrk::createFit : Cannot fit less with less than " << MIN_NDF << " degrees of freedom. Number of hits =  " << added_hits.size() << " ndof = " << ndof_added << std::endl;
       return IMarlinTrack::bad_intputs;
     }
       
@@ -262,12 +260,12 @@ namespace MarlinTrk {
     return_error = marlinTrk->initialise( *pre_fit, bfield_z, IMarlinTrack::backward ) ;
     if (return_error != IMarlinTrack::success) {
       
-      //streamlog_out(DEBUG5) << "MarlinTrk::createFit Initialisation of track fit failed with error : " << return_error << std::endl;
+      std::cout << "MarlinTrk::createFit Initialisation of track fit failed with error : " << return_error << std::endl;
       
       return return_error;
       
     }
-    
+    //std::cout << "debug:===================initialise " << return_error << std::endl;
     ///////////////////////////////////////////////////////
     // try fit and return error
     ///////////////////////////////////////////////////////
@@ -329,10 +327,10 @@ namespace MarlinTrk {
 
     if ( fit_backwards == IMarlinTrack::backward ) {
       pre_fit->location = MarlinTrk::Location::AtLastHit;
-      helixTrack.moveRefPoint(hit_list.back().getPosition()[0], hit_list.back().getPosition()[1], hit_list.back().getPosition()[2]);      
+      helixTrack.moveRefPoint(hit_list.back().getPosition()[0], hit_list.back().getPosition()[1], hit_list.back().getPosition()[2]);
     } else {
       pre_fit->location = MarlinTrk::Location::AtFirstHit;
-      helixTrack.moveRefPoint(hit_list.front().getPosition()[0], hit_list.front().getPosition()[1], hit_list.front().getPosition()[2]);      
+      helixTrack.moveRefPoint(hit_list.front().getPosition()[0], hit_list.front().getPosition()[1], hit_list.front().getPosition()[2]);
     }
     
     
@@ -435,8 +433,8 @@ namespace MarlinTrk {
 	  bool is_outlier = false;
 	  // here we loop over outliers as this will be faster than looping over the used hits
           for ( unsigned ohit = 0; ohit < outliers.size(); ++ohit) {
-	    if ( rawHit.id() == outliers[ohit].first.id() ) { 
-              is_outlier = true;                                    
+	    if ( rawHit.id() == outliers[ohit].first.id() ) {
+              is_outlier = true;
               break; // break out of loop over outliers
             }
           }
@@ -450,8 +448,8 @@ namespace MarlinTrk {
         bool is_outlier = false;
         // here we loop over outliers as this will be faster than looping over the used hits
         for ( unsigned ohit = 0; ohit < outliers.size(); ++ohit) {
-          if ( trkHit == outliers[ohit].first ) { 
-            is_outlier = true;                                    
+          if ( trkHit == outliers[ohit].first ) {
+            is_outlier = true;
             break; // break out of loop over outliers
           }
         }
@@ -484,12 +482,12 @@ namespace MarlinTrk {
     edm4hep::TrackState* trkStateAtLastHit = new edm4hep::TrackState() ;
     edm4hep::ConstTrackerHit lastHit = hits_in_fit.front().first;
           
-    edm4hep::ConstTrackerHit last_constrained_hit = 0 ;     
+    edm4hep::ConstTrackerHit last_constrained_hit(0);// = 0 ;
     marlintrk->getTrackerHitAtPositiveNDF(last_constrained_hit);
 
     return_error = marlintrk->smooth(lastHit);
     
-    if ( return_error != IMarlinTrack::success ) { 
+    if ( return_error != IMarlinTrack::success ) {
       //streamlog_out(DEBUG4) << "MarlinTrk::finaliseLCIOTrack: return_code for smoothing to " << lastHit << " = " << return_error << " NDF = " << ndf << std::endl;
       delete trkStateAtFirstHit;
       delete trkStateAtLastHit;
@@ -511,7 +509,7 @@ namespace MarlinTrk {
     
     return_error = marlintrk->propagate(point, firstHit, *trkStateIP, chi2, ndf ) ;
     
-    if ( return_error != IMarlinTrack::success ) { 
+    if ( return_error != IMarlinTrack::success ) {
       //streamlog_out(DEBUG4) << "MarlinTrk::finaliseLCIOTrack: return_code for propagation = " << return_error << " NDF = " << ndf << std::endl;
       delete trkStateIP;
       delete trkStateAtFirstHit;
@@ -569,7 +567,7 @@ namespace MarlinTrk {
         trkStateAtLastHit->location = MarlinTrk::Location::AtLastHit;
         track->addToTrackStates(*trkStateAtLastHit);
       } else {
-        //streamlog_out( DEBUG5 ) << "  >>>>>>>>>>> MarlinTrk::finaliseLCIOTrack:  could not get TrackState at Last Hit " << last_constrained_hit << std::endl ;
+	std::cout << "ERROR>>>>>>>>>>> MarlinTrk::finaliseLCIOTrack:  could not get TrackState at Last Hit " << last_constrained_hit.id() << std::endl ;
         delete trkStateAtLastHit;
       }
       
@@ -630,7 +628,7 @@ namespace MarlinTrk {
     double chi2 = -DBL_MAX;
     int ndf = 0;
     
-    UTIL::BitField64 encoder( lcio::ILDCellID0::encoder_string ) ; 
+    UTIL::BitField64 encoder( lcio::ILDCellID0::encoder_string );
     encoder.reset() ;  // reset to 0
     
     encoder[lcio::ILDCellID0::subdet] = lcio::ILDDetID::ECAL ;
@@ -669,7 +667,7 @@ namespace MarlinTrk {
     if( track == 0 ){
       throw std::runtime_error( std::string("MarlinTrk::addHitsToTrack: TrackImpl == NULL ")  ) ;
     }
-    std::map<int, int> hitNumbers; 
+    std::map<int, int> hitNumbers;
     
     hitNumbers[UTIL::ILDDetID::VXD] = 0;
     hitNumbers[UTIL::ILDDetID::SIT] = 0;
@@ -682,7 +680,7 @@ namespace MarlinTrk {
       cellID_encoder.setValue(hit_list.at(j).getCellID()) ;
       int detID = cellID_encoder[UTIL::ILDCellID0::subdet];
       ++hitNumbers[detID];
-      //std::cout << "debug: " << "Hit from Detector " << detID << std::endl;     
+      //std::cout << "debug: " << "Hit from Detector " << detID << std::endl;
     }
     
     int offset = 2 ;
@@ -713,7 +711,7 @@ namespace MarlinTrk {
       throw std::runtime_error( std::string("MarlinTrk::addHitsToTrack: TrackImpl == NULL ")  ) ;
     }
     
-    std::map<int, int> hitNumbers; 
+    std::map<int, int> hitNumbers;
     
     hitNumbers[lcio::ILDDetID::VXD] = 0;
     hitNumbers[lcio::ILDDetID::SIT] = 0;
@@ -726,7 +724,7 @@ namespace MarlinTrk {
       cellID_encoder.setValue(hit_list.at(j).first.getCellID()) ;
       int detID = cellID_encoder[UTIL::ILDCellID0::subdet];
       ++hitNumbers[detID];
-      //std::cout << "debug: Hit from Detector " << detID << std::endl;     
+      //std::cout << "debug: Hit from Detector " << detID << std::endl;
     }
     
     int offset = 2 ;
