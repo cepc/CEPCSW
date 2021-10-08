@@ -76,7 +76,7 @@ namespace MarlinTrk {
   
   
   MarlinKalTestTrack::MarlinKalTestTrack(MarlinKalTest* ktest) 
-  : _ktest(ktest) {
+    : _ktest(ktest), _trackHitAtPositiveNDF(edm4hep::ConstTrackerHit(0)) {
     
     _kaltrack = new TKalTrack() ;
     _kaltrack->SetOwner() ;
@@ -88,7 +88,7 @@ namespace MarlinTrk {
     _fitDirection = false ;
     _smoothed = false ;
     
-    _trackHitAtPositiveNDF = 0;
+    //_trackHitAtPositiveNDF = 0;
     _hitIndexAtPositiveNDF = 0;
     
 #ifdef MARLINTRK_DIAGNOSTICS_ON
@@ -109,27 +109,26 @@ namespace MarlinTrk {
   
   
   
-  int MarlinKalTestTrack::addHit( edm4hep::ConstTrackerHit trkhit) {
+  int MarlinKalTestTrack::addHit( edm4hep::ConstTrackerHit& trkhit) {
     
     return this->addHit( trkhit, _ktest->findMeasLayer( trkhit )) ;
     
   } 
   
-  int MarlinKalTestTrack::addHit( edm4hep::ConstTrackerHit trkhit, const ILDVMeasLayer* ml) {
+  int MarlinKalTestTrack::addHit( edm4hep::ConstTrackerHit& trkhit, const ILDVMeasLayer* ml) {
     //std::cout << "MarlinKalTestTrack::addHit: trkhit = "  << trkhit.id() << " addr: " << trkhit << " ml = " << ml << std::endl ;
     if( trkhit.isAvailable() && ml ) {
       //if(ml){
       return this->addHit( trkhit, ml->ConvertLCIOTrkHit(trkhit), ml) ;
     }
     else {
-      //std::cout << "MarlinKalTestTrack::addHit: trkhit = "  << trkhit.id() << " addr: " << trkhit << " ml = " << ml << std::endl ;
-      //streamlog_out( ERROR ) << " MarlinKalTestTrack::addHit - bad inputs " <<  trkhit << " ml : " << ml << std::endl ;
+      //std::cout << "MarlinKalTestTrack::addHit: - bad inputs trkhit = "  << trkhit.id() << " addr: " << trkhit << " ml = " << ml << std::endl ;
       return bad_intputs ;
     }
     return bad_intputs ;
   }
   
-  int MarlinKalTestTrack::addHit( edm4hep::ConstTrackerHit trkhit, ILDVTrackHit* kalhit, const ILDVMeasLayer* ml) {
+  int MarlinKalTestTrack::addHit( edm4hep::ConstTrackerHit& trkhit, ILDVTrackHit* kalhit, const ILDVMeasLayer* ml) {
     //std::cout << "MarlinKalTestTrack::addHit: trkhit = "  << trkhit.id() << " ILDVTrackHit: " << kalhit << " ml = " << ml << std::endl ;
     if( kalhit && ml ) {
       //if(ml){
@@ -230,7 +229,7 @@ namespace MarlinTrk {
     }
     
     /*
-    streamlog_out(DEBUG2) << "MarlinKalTestTrack::initialise Create initial helix from hits: \n "
+    std::cout << "DEBUG<<<<MarlinKalTestTrack::initialise Create initial helix from hits: \n "
     << "P1 x = " << x1.x() << " y = " << x1.y() << " z = " << x1.z() << " r = " << x1.Perp() << "\n "
     << "P2 x = " << x2.x() << " y = " << x2.y() << " z = " << x2.z() << " r = " << x2.Perp() << "\n "
     << "P3 x = " << x3.x() << " y = " << x3.y() << " z = " << x3.z() << " r = " << x3.Perp() << "\n "
@@ -289,13 +288,12 @@ namespace MarlinTrk {
     
     _initialised = true ;
     /*
-    streamlog_out( DEBUG2 ) << " track parameters used for init : " << std::scientific << std::setprecision(6) 
+    streamlog_out( DEBUG2 ) << " track parameters used for init : " << std::scientific << std::setprecision(6)
 			    << "\t D0 "          <<  0.0
 			    << "\t Phi :"        <<  toBaseRange( helstart.GetPhi0() + M_PI/2. )
-			    << "\t Omega "       <<  1. /helstart.GetRho() 
+			    << "\t Omega "       <<  1. /helstart.GetRho()
 			    << "\t Z0 "          <<  0.0
 			    << "\t tan(Lambda) " <<  helstart.GetTanLambda()
-      
 			    << "\t pivot : [" << helstart.GetPivot().X() << ", " << helstart.GetPivot().Y() << ", "  << helstart.GetPivot().Z()
 			    << " - r: " << std::sqrt( helstart.GetPivot().X()*helstart.GetPivot().X()+helstart.GetPivot().Y()*helstart.GetPivot().Y() ) << "]"
 			    << std::endl ;
@@ -335,7 +333,7 @@ namespace MarlinTrk {
 
     if (_kalhits->GetEntries() == 0) {
       
-      //streamlog_out( ERROR) << "<<<<<< MarlinKalTestTrack::Initialise: Number of Hits is Zero. Cannot Initialise >>>>>>>" << std::endl;
+      std::cout << "ERROR<<<<<< MarlinKalTestTrack::Initialise: Number of Hits is Zero. Cannot Initialise >>>>>>>" << std::endl;
       return error ;
       
     }
@@ -348,27 +346,25 @@ namespace MarlinTrk {
       
     }
     /*
-    streamlog_out( DEBUG2 ) << "MarlinKalTestTrack::initialise using TrackState: track parameters used for init : "
-    << "\t D0 "          <<  ts.getD0()         
-    << "\t Phi :"        <<  ts.getPhi()        
-    << "\t Omega "       <<  ts.getOmega()      
-    << "\t Z0 "          <<  ts.getZ0()         
-    << "\t tan(Lambda) " <<  ts.getTanLambda()  
-    
-    << "\t pivot : [" << ts.getReferencePoint()[0] << ", " << ts.getReferencePoint()[1] << ", "  << ts.getReferencePoint()[2] 
-    << " - r: " << std::sqrt( ts.getReferencePoint()[0]*ts.getReferencePoint()[0]+ts.getReferencePoint()[1]*ts.getReferencePoint()[1] ) << "]" 
-    << std::endl ;
+    std::cout << "MarlinKalTestTrack::initialise using TrackState: track parameters used for init : "
+	      << " D0 "          <<  ts.D0
+	      << " Phi :"        <<  ts.phi
+	      << " Omega "       <<  ts.omega
+	      << " Z0 "          <<  ts.Z0
+	      << " tan(Lambda) " <<  ts.tanLambda
+	      << " pivot : [" << ts.referencePoint[0] << ", " << ts.referencePoint[1] << ", "  << ts.referencePoint[2]
+	      << " - r: " << std::sqrt( ts.referencePoint[0]*ts.referencePoint[0]+ts.referencePoint[1]*ts.referencePoint[1] ) << "]"
+	      << std::endl ;
     */
-    
     _fitDirection = fitDirection ;
-    
+
     // for GeV, Tesla, R in mm  
     double alpha = bfield_z * 2.99792458E-4 ;
     double kappa;
     if ( bfield_z == 0.0 )
       kappa = DBL_MAX;
     else kappa = ts.omega / alpha ;
-    
+
     THelicalTrack helix( -ts.D0,
                         toBaseRange( ts.phi - M_PI/2. ) ,
                         kappa,
@@ -380,7 +376,6 @@ namespace MarlinTrk {
                         bfield_z );
     
     TMatrixD cov(5,5) ;   
-
     std::array<float, 15> covLCIO = ts.covMatrix;
     
     cov( 0 , 0 ) =   covLCIO[ 0] ;                   //   d0, d0
@@ -416,14 +411,14 @@ namespace MarlinTrk {
 //    cov.Print();
     
     // move the helix to either the position of the last hit or the first depending on initalise_at_end
-    
+
     // default case initalise_at_end
     int index = _kalhits->GetEntries() - 1 ;
     // or initialise at start 
     if( _fitDirection == IMarlinTrack::forward ){
       index = 0 ;
     }
-    
+
     TVTrackHit* kalhit = dynamic_cast<TVTrackHit *>(_kalhits->At(index)); 
     
     double dphi;
@@ -439,7 +434,6 @@ namespace MarlinTrk {
       initial_pivot =  TVector3(0.0,0.0,0.0);
     }
 
-    
     // ---------------------------
     //  Create an initial start site for the track using the  hit
     // ---------------------------
@@ -468,17 +462,16 @@ namespace MarlinTrk {
         surf->CalcXingPointWith(helix, initial_pivot, phi);        
 
       } else {
-        //streamlog_out( ERROR) << "<<<<<<<<< MarlinKalTestTrack::initialise: dynamic_cast failed for TVSurface  >>>>>>>" << std::endl;
+        //std::cout << "ERROR<<<<<<<<< MarlinKalTestTrack::initialise: dynamic_cast failed for TVSurface  >>>>>>>" << std::endl;
         return error ;        
       }
             
     
     }
     else {
-      //streamlog_out( ERROR) << "<<<<<<<<< MarlinKalTestTrack::initialise: dynamic_cast failed for hit type >>>>>>>" << std::endl;
+      //std::cout << "ERROR<<<<<<<<< MarlinKalTestTrack::initialise: dynamic_cast failed for hit type >>>>>>>" << std::endl;
       return error ;
     }
-    
     TVTrackHit& dummyHit = *pDummyHit;
         
     //SJA:FIXME: this constants should go in a header file
@@ -489,14 +482,12 @@ namespace MarlinTrk {
     
     // use dummy hit to create initial site
     TKalTrackSite& initialSite = *new TKalTrackSite(dummyHit);
-    
     initialSite.SetHitOwner();// site owns hit
     initialSite.SetOwner();   // site owns states
-    
+
     // ---------------------------
     //  Set up initial track state 
     // ---------------------------
-
     helix.MoveTo( initial_pivot, dphi, 0, &cov );  
     
     static TKalMatrix initialState(kSdim,1) ;
@@ -523,17 +514,15 @@ namespace MarlinTrk {
     if (kSdim == 6) covK(5,5) = 1.e6; // t0
         
 //    covK.Print();
-    
+
     // Add initial states to the site 
     initialSite.Add(new TKalTrackState(initialState,covK,initialSite,TVKalSite::kPredicted));
     initialSite.Add(new TKalTrackState(initialState,covK,initialSite,TVKalSite::kFiltered));
-    
+
     // add the initial site to the track: that is, give the track initial parameters and covariance 
     // matrix at the starting measurement layer
     _kaltrack->Add(&initialSite);
-    
     _initialised = true ;
-
     
 #ifdef MARLINTRK_DIAGNOSTICS_ON
     
@@ -603,7 +592,7 @@ namespace MarlinTrk {
     // although calling smooth will natrually update delta chi2.
     
     
-    if (!_kaltrack->AddAndFilter(*temp_site)) {        
+    if (!_kaltrack->AddAndFilter(*temp_site)) {
       
       chi2increment = temp_site->GetDeltaChi2() ;
       // get the measurement layer of the current hit
@@ -670,16 +659,16 @@ namespace MarlinTrk {
     
   }
   
-  int MarlinKalTestTrack::addAndFit( edm4hep::ConstTrackerHit trkhit, double& chi2increment, double maxChi2Increment) {
+  int MarlinKalTestTrack::addAndFit( edm4hep::ConstTrackerHit& trkhit, double& chi2increment, double maxChi2Increment) {
     
-    if( ! trkhit.isAvailable() ) { 
+    if( ! trkhit.isAvailable() ) {
       std::cout << "Error: MarlinKalTestTrack::addAndFit(edm4hep::TrackerHit trkhit, double& chi2increment, double maxChi2Increment): trkhit == 0" << std::endl;
       return bad_intputs ; 
     }
     
     const ILDVMeasLayer* ml = _ktest->findMeasLayer( trkhit ) ;
     
-    if( ml == 0 ){  
+    if( ml == 0 ){
       // fg: not sure if ml should ever be 0 - but it seems to happen, 
       //     if point is not on surface and more than one surface exists ...
       
@@ -735,6 +724,10 @@ namespace MarlinTrk {
       << " NDF = " << _kaltrack->GetNDF() 
       <<  std::endl; 
       */
+      //std::cout << "ERROR<<<addAndFit(" << _trackHitAtPositiveNDF.isAvailable() << " " << _kaltrack->GetNDF() << std::endl;
+    }
+    else{
+      //std::cout << "ERROR<<<addAndFit(" << _trackHitAtPositiveNDF.isAvailable() << " " << _kaltrack->GetNDF() << std::endl;
     }
 
     return success ;
@@ -743,16 +736,16 @@ namespace MarlinTrk {
   
   
   
-  int MarlinKalTestTrack::testChi2Increment( edm4hep::ConstTrackerHit trkhit, double& chi2increment ) {
+  int MarlinKalTestTrack::testChi2Increment( edm4hep::ConstTrackerHit& trkhit, double& chi2increment ) {
     
-    //if( ! trkhit ) { 
+    //if( ! trkhit ) {
     //  streamlog_out( ERROR) << "MarlinKalTestTrack::addAndFit(edm4hep::TrackerHit trkhit, double& chi2increment, double maxChi2Increment): trkhit == 0" << std::endl;
     //  return IMarlinTrack::bad_intputs ; 
     //}
     
     const ILDVMeasLayer* ml = _ktest->findMeasLayer( trkhit ) ;
     
-    if( ml == 0 ){  
+    if( ml == 0 ){
       // fg: not sure if ml should ever be 0 - but it seems to happen, 
       //     if point is not on surface and more than one surface exists ...
       
@@ -829,7 +822,7 @@ namespace MarlinTrk {
           _trackHitAtPositiveNDF = trkhit;
           _hitIndexAtPositiveNDF = _kaltrack->IndexOf( site );
           /*
-          streamlog_out( DEBUG2 ) << ">>>>>>>>>>>  Fit is now constrained at : "
+	  streamlog_out( DEBUG2 ) << ">>>>>>>>>>>  Fit is now constrained at : "
           << decodeILD( trkhit.getCellID() ) 
           << " pos " << trkhit.getPosition()
           << " trkhit = " << _trackHitAtPositiveNDF
@@ -837,7 +830,11 @@ namespace MarlinTrk {
           << " NDF = " << _kaltrack->GetNDF() 
           <<  std::endl; 
           */
+	  //std::cout << "ERROR<<<fit( double maxChi2Increment )" << _trackHitAtPositiveNDF.isAvailable() << " " << _kaltrack->GetNDF() << std::endl;
         }
+	else{
+	  //std::cout << "ERROR<<<fit( double maxChi2Increment )" << _trackHitAtPositiveNDF.isAvailable() << " " << _kaltrack->GetNDF() << std::endl;
+	}
             
       } 
       else { // hit rejected by the filter, so store in the list of rejected hits
@@ -903,7 +900,7 @@ namespace MarlinTrk {
   
   /** smooth track states from the last filtered hit back to the measurement site associated with the given hit 
    */
-  int MarlinKalTestTrack::smooth( edm4hep::ConstTrackerHit trkhit ) {
+  int MarlinKalTestTrack::smooth( edm4hep::ConstTrackerHit& trkhit ) {
     
     //streamlog_out( DEBUG2 )  << "MarlinKalTestTrack::smooth( edm4hep::TrackerHit " << trkhit << "  ) " << std::endl ;
 
@@ -944,7 +941,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::getTrackState( edm4hep::ConstTrackerHit trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf ) {
+  int MarlinKalTestTrack::getTrackState( edm4hep::ConstTrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf ) {
     
     //streamlog_out( DEBUG2 )  << "MarlinKalTestTrack::getTrackState(edm4hep::ConstTrackerHit trkhit, edm4hep::TrackState& ts ) using hit: " << trkhit << " with cellID0 = " << trkhit.getCellID() << std::endl ;
     
@@ -973,7 +970,7 @@ namespace MarlinTrk {
     // as they will be added to _hit_chi2_values in the order of fitting 
     // not in the order of time
 //    
-//    if( _fitDirection == IMarlinTrack::backward ){    
+//    if( _fitDirection == IMarlinTrack::backward ){
 //      std::reverse_copy( _hit_chi2_values.begin() , _hit_chi2_values.end() , std::back_inserter(  hits  )  ) ;
 //    } else {
 //      std::copy( _hit_chi2_values.begin() , _hit_chi2_values.end() , std::back_inserter(  hits  )  ) ;
@@ -992,7 +989,7 @@ namespace MarlinTrk {
 //    // as they will be added to _hit_chi2_values in the order of fitting 
 //    // not in the order of time
 //
-//    if( _fitDirection == IMarlinTrack::backward ){    
+//    if( _fitDirection == IMarlinTrack::backward ){
 //      std::reverse_copy( _outlier_chi2_values.begin() , _outlier_chi2_values.end() , std::back_inserter(  hits  )  ) ;
 //    } else {
 //      std::copy( _outlier_chi2_values.begin() , _outlier_chi2_values.end() , std::back_inserter(  hits  )  ) ;
@@ -1003,7 +1000,7 @@ namespace MarlinTrk {
   
   int MarlinKalTestTrack::getNDF( int& ndf ){
     
-    if( _initialised == false ) { 
+    if( _initialised == false ) {
       return error;
     } else {
       
@@ -1020,12 +1017,13 @@ namespace MarlinTrk {
       return success;    
     }
     else{
+      //std::cout << "WARNING<<<<<MarlinKalTestTrack::getTrackerHitAtPositiveNDF>>>>_trackHitAtPositiveNDF not available" << std::endl;
       return error;
     }
   }
   
   
-  int MarlinKalTestTrack::extrapolate( const edm4hep::Vector3d& point, edm4hep::TrackState& ts, double& chi2, int& ndf ){  
+  int MarlinKalTestTrack::extrapolate( const edm4hep::Vector3d& point, edm4hep::TrackState& ts, double& chi2, int& ndf ){
     
     const TKalTrackSite& site = *(dynamic_cast<const TKalTrackSite*>(_kaltrack->Last())) ;
     
@@ -1033,7 +1031,7 @@ namespace MarlinTrk {
     
   }
   
-  int MarlinKalTestTrack::extrapolate( const edm4hep::Vector3d& point, edm4hep::ConstTrackerHit trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf ) {
+  int MarlinKalTestTrack::extrapolate( const edm4hep::Vector3d& point, edm4hep::ConstTrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf ) {
     
     TKalTrackSite* site = 0 ;
     int error_code = getSiteFromLCIOHit(trkhit, site);
@@ -1044,7 +1042,7 @@ namespace MarlinTrk {
     
   }
   
-  int MarlinKalTestTrack::extrapolate( const edm4hep::Vector3d& point, const TKalTrackSite& site ,edm4hep::TrackState& ts, double& chi2, int& ndf ){  
+  int MarlinKalTestTrack::extrapolate( const edm4hep::Vector3d& point, const TKalTrackSite& site ,edm4hep::TrackState& ts, double& chi2, int& ndf ){
     
     //streamlog_out(DEBUG2) << "MarlinKalTestTrack::extrapolate( const edm4hep::Vector3d& point, edm4hep::TrackState& ts, double& chi2, int& ndf ) called " << std::endl ;
     
@@ -1076,7 +1074,7 @@ namespace MarlinTrk {
   } 
   
   
-  int MarlinKalTestTrack::extrapolateToLayer( int layerID, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode ) { 
+  int MarlinKalTestTrack::extrapolateToLayer( int layerID, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode ) {
     
     const TKalTrackSite& site = *(dynamic_cast<const TKalTrackSite*>(_kaltrack->Last())) ;
     
@@ -1085,7 +1083,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::extrapolateToLayer( int layerID, edm4hep::ConstTrackerHit trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode ) { 
+  int MarlinKalTestTrack::extrapolateToLayer( int layerID, edm4hep::ConstTrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode ) {
     
     TKalTrackSite* site = 0;
     int error_code = getSiteFromLCIOHit(trkhit, site);
@@ -1097,7 +1095,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::extrapolateToLayer( int layerID, const TKalTrackSite& site, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode ) { 
+  int MarlinKalTestTrack::extrapolateToLayer( int layerID, const TKalTrackSite& site, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode ) {
     
     //streamlog_out(DEBUG2) << "MarlinKalTestTrack::extrapolateToLayer( int layerID, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID ) called " << std::endl ;
     
@@ -1113,7 +1111,7 @@ namespace MarlinTrk {
   } 
   
   
-  int MarlinKalTestTrack::extrapolateToDetElement( int detElementID, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode ) { 
+  int MarlinKalTestTrack::extrapolateToDetElement( int detElementID, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode ) {
     
     const TKalTrackSite& site = *(dynamic_cast<const TKalTrackSite*>(_kaltrack->Last())) ;
     
@@ -1122,7 +1120,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::extrapolateToDetElement( int detElementID, edm4hep::ConstTrackerHit trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode ) { 
+  int MarlinKalTestTrack::extrapolateToDetElement( int detElementID, edm4hep::ConstTrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode ) {
     
     TKalTrackSite* site = 0;
     int error_code = getSiteFromLCIOHit(trkhit, site);
@@ -1134,7 +1132,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::extrapolateToDetElement( int detElementID, const TKalTrackSite& site, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode ) { 
+  int MarlinKalTestTrack::extrapolateToDetElement( int detElementID, const TKalTrackSite& site, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode ) {
     
     //streamlog_out(DEBUG2) << "MarlinKalTestTrack::extrapolateToDetElement( int detElementID, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode ) called " << std::endl ;
     
@@ -1163,7 +1161,7 @@ namespace MarlinTrk {
     
   }
   
-  int MarlinKalTestTrack::propagate( const edm4hep::Vector3d& point, edm4hep::ConstTrackerHit trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf ){
+  int MarlinKalTestTrack::propagate( const edm4hep::Vector3d& point, edm4hep::ConstTrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf ){
     
     TKalTrackSite* site = 0;
     int error_code = getSiteFromLCIOHit(trkhit, site);
@@ -1264,7 +1262,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::propagateToLayer( int layerID, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode ) { 
+  int MarlinKalTestTrack::propagateToLayer( int layerID, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode ) {
     
     const TKalTrackSite& site = *(dynamic_cast<const TKalTrackSite*>(_kaltrack->Last())) ;
     
@@ -1273,7 +1271,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::propagateToLayer( int layerID, edm4hep::ConstTrackerHit trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode ) { 
+  int MarlinKalTestTrack::propagateToLayer( int layerID, edm4hep::ConstTrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode ) {
     
     TKalTrackSite* site = 0;
     int error_code = getSiteFromLCIOHit(trkhit, site);
@@ -1285,7 +1283,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::propagateToLayer( int layerID, const TKalTrackSite& site, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode ) { 
+  int MarlinKalTestTrack::propagateToLayer( int layerID, const TKalTrackSite& site, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode ) {
     
     //streamlog_out(DEBUG2) << "MarlinKalTestTrack::propagateToLayer( int layerID, const TKalTrackSite& site, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID ) called " << std::endl;
     
@@ -1302,7 +1300,7 @@ namespace MarlinTrk {
   } 
   
   
-  int MarlinKalTestTrack::propagateToDetElement( int detElementID, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode ) { 
+  int MarlinKalTestTrack::propagateToDetElement( int detElementID, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode ) {
     
     const TKalTrackSite& site = *(dynamic_cast<const TKalTrackSite*>(_kaltrack->Last())) ;
     
@@ -1311,7 +1309,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::propagateToDetElement( int detElementID, edm4hep::ConstTrackerHit trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode ) { 
+  int MarlinKalTestTrack::propagateToDetElement( int detElementID, edm4hep::ConstTrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode ) {
     
     TKalTrackSite* site = 0;
     int error_code = getSiteFromLCIOHit(trkhit, site);
@@ -1323,7 +1321,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::propagateToDetElement( int detElementID, const TKalTrackSite& site, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode ) { 
+  int MarlinKalTestTrack::propagateToDetElement( int detElementID, const TKalTrackSite& site, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode ) {
     
     //streamlog_out(DEBUG2) << "MarlinKalTestTrack::propagateToDetElement( int detElementID, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode ) called " << std::endl ;
     
@@ -1339,7 +1337,7 @@ namespace MarlinTrk {
   } 
   
   
-  int MarlinKalTestTrack::intersectionWithDetElement( int detElementID, edm4hep::Vector3d& point, int mode ) {  
+  int MarlinKalTestTrack::intersectionWithDetElement( int detElementID, edm4hep::Vector3d& point, int mode ) {
     
     const TKalTrackSite& site = *(dynamic_cast<const TKalTrackSite*>(_kaltrack->Last())) ;
     
@@ -1349,7 +1347,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::intersectionWithDetElement( int detElementID,  edm4hep::ConstTrackerHit trkhit, edm4hep::Vector3d& point, int mode ) {  
+  int MarlinKalTestTrack::intersectionWithDetElement( int detElementID,  edm4hep::ConstTrackerHit& trkhit, edm4hep::Vector3d& point, int mode ) {
     
     TKalTrackSite* site = 0;
     int error_code = getSiteFromLCIOHit(trkhit, site);
@@ -1407,7 +1405,7 @@ namespace MarlinTrk {
     
   }
   
-  int MarlinKalTestTrack::intersectionWithLayer( int layerID, edm4hep::Vector3d& point, int& detElementID, int mode ) {  
+  int MarlinKalTestTrack::intersectionWithLayer( int layerID, edm4hep::Vector3d& point, int& detElementID, int mode ) {
     
     const TKalTrackSite& site = *(dynamic_cast<const TKalTrackSite*>(_kaltrack->Last())) ;
     const ILDVMeasLayer* ml = 0;
@@ -1416,7 +1414,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::intersectionWithLayer( int layerID,  edm4hep::ConstTrackerHit trkhit, edm4hep::Vector3d& point, int& detElementID, int mode ) {  
+  int MarlinKalTestTrack::intersectionWithLayer( int layerID,  edm4hep::ConstTrackerHit& trkhit, edm4hep::Vector3d& point, int& detElementID, int mode ) {
     
     TKalTrackSite* site = 0;
     int error_code = getSiteFromLCIOHit(trkhit, site);
@@ -1429,7 +1427,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::intersectionWithLayer( int layerID, const TKalTrackSite& site, edm4hep::Vector3d& point, int& detElementID, const ILDVMeasLayer*& ml, int mode ) {  
+  int MarlinKalTestTrack::intersectionWithLayer( int layerID, const TKalTrackSite& site, edm4hep::Vector3d& point, int& detElementID, const ILDVMeasLayer*& ml, int mode ) {
     
     //streamlog_out(DEBUG2) << "MarlinKalTestTrack::intersectionWithLayer( int layerID, const TKalTrackSite& site, edm4hep::Vector3d& point, int& detElementID, int mode) called layerID = " << layerID << std::endl;
     
@@ -1508,7 +1506,7 @@ namespace MarlinTrk {
     //streamlog_out(DEBUG1) << std::endl ;
     
     
-    if( crossing_exist == 0 ) { 
+    if( crossing_exist == 0 ) {
       return no_intersection ;
     }
     else {
@@ -1545,8 +1543,7 @@ namespace MarlinTrk {
       if( error_code == success ) {
         
         // make sure we get the next crossing 
-        if( fabs(dphi) < dphi_min ) {     
-          
+        if( fabs(dphi) < dphi_min ) {
           dphi_min = fabs(dphi) ;
           surf_found = true ;
           ml = meas_modules[i];
@@ -1631,24 +1628,22 @@ namespace MarlinTrk {
     pivot[2] =  helix.GetPivot().Z() ;
     ts.referencePoint = pivot;
     /*
-    streamlog_out( DEBUG2 ) << " kaltest track parameters: "
-    << " chi2/ndf " << chi2 / ndf  
-    << " chi2 " <<  chi2 
-    << " ndf " <<  ndf
-    << " prob " <<  TMath::Prob(chi2, ndf)
-    << std::endl 
-    
-    << "\t D0 "          <<  d0         <<  "[+/-" << sqrt( covLCIO[0] ) << "] " 
-    << "\t Phi :"        <<  phi        <<  "[+/-" << sqrt( covLCIO[2] ) << "] " 
-    << "\t Omega "       <<  omega      <<  "[+/-" << sqrt( covLCIO[5] ) << "] " 
-    << "\t Z0 "          <<  z0         <<  "[+/-" << sqrt( covLCIO[9] ) << "] " 
-    << "\t tan(Lambda) " <<  tanLambda  <<  "[+/-" << sqrt( covLCIO[14]) << "] " 
-    
-    << "\t pivot : [" << pivot[0] << ", " << pivot[1] << ", "  << pivot[2] 
-    << " - r: " << std::sqrt( pivot[0]*pivot[0]+pivot[1]*pivot[1] ) << "]" 
-    << std::endl ;
+    std::cout << " kaltest track parameters: "
+	      << " chi2/ndf " << chi2 / ndf
+	      << " chi2 " <<  chi2
+	      << " ndf " <<  ndf
+	      << " prob " <<  TMath::Prob(chi2, ndf)
+	      << std::endl
+	      << "\t D0 "          <<  d0         <<  "[+/-" << sqrt( covLCIO[0] ) << "] "
+	      << "\t Phi :"        <<  phi        <<  "[+/-" << sqrt( covLCIO[2] ) << "] "
+	      << "\t Omega "       <<  omega      <<  "[+/-" << sqrt( covLCIO[5] ) << "] "
+	      << "\t Z0 "          <<  z0         <<  "[+/-" << sqrt( covLCIO[9] ) << "] "
+	      << "\t tan(Lambda) " <<  tanLambda  <<  "[+/-" << sqrt( covLCIO[14]) << "] "
+
+	      << "\t pivot : [" << pivot[0] << ", " << pivot[1] << ", "  << pivot[2]
+	      << " - r: " << std::sqrt( pivot[0]*pivot[0]+pivot[1]*pivot[1] ) << "]"
+	      << std::endl ;
     */
-    
   }
   
   
@@ -1667,7 +1662,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::getSiteFromLCIOHit( edm4hep::ConstTrackerHit trkhit, TKalTrackSite*& site ) const {
+  int MarlinKalTestTrack::getSiteFromLCIOHit( edm4hep::ConstTrackerHit& trkhit, TKalTrackSite*& site ) const {
     
     std::map<edm4hep::ConstTrackerHit,TKalTrackSite*>::const_iterator it;
     
