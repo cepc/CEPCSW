@@ -162,7 +162,7 @@ bool GenfitTrack::createGenfitTrackFromMCParticle(int pidType,
 
 ///Create a Genfit track with MCParticle, unit conversion here
 bool GenfitTrack::createGenfitTrackFromEDM4HepTrack(int pidType,
-        const edm4hep::Track& track, double eventStartTime)
+        edm4hep::ConstTrack& track, double eventStartTime)
 {
     //std::cout<<__FILE__<<"   "<<__LINE__<<" bz kilogauss "<<m_genfitField->getBz({0.,0.,0.})/dd4hep::kilogauss<<std::endl;
     //std::cout<<__FILE__<<"   "<<__LINE__<<" bz tesla "<<m_genfitField->getBz({0.,0.,0.})/dd4hep::tesla<<std::endl;
@@ -307,7 +307,7 @@ void GenfitTrack::addWireMeasurement(double driftDistance,
 }//end of addWireMeasurementOnTrack
 
 //Add wire measurement on wire, unit conversion here
-bool GenfitTrack::addWireMeasurementOnTrack(edm4hep::Track& track,double sigma)
+bool GenfitTrack::addWireMeasurementOnTrack(edm4hep::ConstTrack& track,double sigma)
 {
     for(unsigned int iHit=0;iHit<track.trackerHits_size();iHit++){
         edm4hep::ConstTrackerHit hit=track.getTrackerHits(iHit);
@@ -644,7 +644,7 @@ double GenfitTrack::extrapolateToHit( TVector3& poca, TVector3& pocaDir,
 
 
 ///Add space point measurement from edm4hep::Track to genfit track
-int GenfitTrack::addSimTrackerHits(const edm4hep::Track& track,
+int GenfitTrack::addSimTrackerHits(edm4hep::ConstTrack& track,
         const edm4hep::MCRecoTrackerAssociationCollection* assoHits,
         float sigma,bool smear){
     //A TrakerHit collection

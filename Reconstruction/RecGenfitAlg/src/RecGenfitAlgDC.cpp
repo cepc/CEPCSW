@@ -384,7 +384,7 @@ void RecGenfitAlgDC::debugEvent()
     m_nSimDCHit=simDCHitCol->size();
     int iHit=0;
     for(auto simDCHit: *simDCHitCol){
-        edm4hep::Vector3d pos=simDCHit.position();
+        edm4hep::Vector3d pos=simDCHit.getPosition();
         TVectorD p(3);
         p[0]=pos.x;//no unit conversion here
         p[1]=pos.y;
