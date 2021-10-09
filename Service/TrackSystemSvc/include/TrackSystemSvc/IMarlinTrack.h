@@ -55,7 +55,7 @@ namespace MarlinTrk{
     /** add hit to track - the hits have to be added ordered in time ( i.e. typically outgoing )
      *  this order will define the direction of the energy loss used in the fit
      */
-    virtual int addHit(edm4hep::ConstTrackerHit hit) = 0 ;
+    virtual int addHit(edm4hep::ConstTrackerHit& hit) = 0 ;
     
     /** initialise the fit using the hits added up to this point -
      *  the fit direction has to be specified using IMarlinTrack::backward or IMarlinTrack::forward. 
@@ -82,12 +82,12 @@ namespace MarlinTrk{
     /** update the current fit using the supplied hit, return code via int. Provides the Chi2 increment to the fit from adding the hit via reference. 
      *  the given hit will not be added if chi2increment > maxChi2Increment. 
      */
-    virtual int addAndFit( edm4hep::ConstTrackerHit hit, double& chi2increment, double maxChi2Increment=DBL_MAX ) = 0 ;
+    virtual int addAndFit( edm4hep::ConstTrackerHit& hit, double& chi2increment, double maxChi2Increment=DBL_MAX ) = 0 ;
 
     
     /** obtain the chi2 increment which would result in adding the hit to the fit. This method will not alter the current fit, and the hit will not be stored in the list of hits or outliers
      */
-    virtual int testChi2Increment( edm4hep::ConstTrackerHit hit, double& chi2increment ) = 0 ;
+    virtual int testChi2Increment( edm4hep::ConstTrackerHit& hit, double& chi2increment ) = 0 ;
 
     
     /** smooth all track states 
@@ -97,7 +97,7 @@ namespace MarlinTrk{
     
     /** smooth track states from the last filtered hit back to the measurement site associated with the given hit 
      */
-    virtual int smooth( edm4hep::ConstTrackerHit hit ) = 0 ;
+    virtual int smooth( edm4hep::ConstTrackerHit& hit ) = 0 ;
     
     
     
@@ -110,7 +110,7 @@ namespace MarlinTrk{
     
     /** get track state at measurement associated with the given hit, returning TrackState, chi2 and ndf via reference 
      */
-    virtual int getTrackState( edm4hep::ConstTrackerHit hit, edm4hep::TrackState& ts, double& chi2, int& ndf ) = 0 ;
+    virtual int getTrackState( edm4hep::ConstTrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf ) = 0 ;
     
     /** get the list of hits included in the fit, together with the chi2 contributions of the hits. 
      *  Pointers to the hits together with their chi2 contribution will be filled into a vector of 
@@ -144,7 +144,7 @@ namespace MarlinTrk{
     /** propagate the fit at the measurement site associated with the given hit, to the point of closest approach to the given point,
      *  returning TrackState, chi2 and ndf via reference   
      */
-    virtual int propagate( const edm4hep::Vector3d& point, edm4hep::ConstTrackerHit hit, edm4hep::TrackState& ts, double& chi2, int& ndf ) = 0 ;
+    virtual int propagate( const edm4hep::Vector3d& point, edm4hep::ConstTrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf ) = 0 ;
     
     
     /** propagate fit to numbered sensitive layer, returning TrackState, chi2, ndf and integer ID of the intersected sensitive detector element via reference 
@@ -154,7 +154,7 @@ namespace MarlinTrk{
     /** propagate the fit at the measurement site associated with the given hit, to numbered sensitive layer, 
      *  returning TrackState, chi2, ndf and integer ID of the intersected sensitive detector element via reference 
      */
-    virtual int propagateToLayer(int layerID, edm4hep::ConstTrackerHit hit, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode=modeClosest ) = 0;
+    virtual int propagateToLayer(int layerID, edm4hep::ConstTrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode=modeClosest ) = 0;
     
     /** propagate the fit to sensitive detector element, returning TrackState, chi2 and ndf via reference
      */
@@ -163,7 +163,7 @@ namespace MarlinTrk{
     /** propagate the fit at the measurement site associated with the given hit, to sensitive detector element, 
      *  returning TrackState, chi2 and ndf via reference 
      */
-    virtual int propagateToDetElement( int detEementID, edm4hep::ConstTrackerHit hit, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode=modeClosest ) = 0  ;
+    virtual int propagateToDetElement( int detEementID, edm4hep::ConstTrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode=modeClosest ) = 0  ;
     
     
     
@@ -176,7 +176,7 @@ namespace MarlinTrk{
     /** extrapolate the fit at the measurement site associated with the given hit, to the point of closest approach to the given point, 
      *  returning TrackState, chi2 and ndf via reference   
      */
-    virtual int extrapolate( const edm4hep::Vector3d& point, edm4hep::ConstTrackerHit hit, edm4hep::TrackState& ts, double& chi2, int& ndf ) = 0 ;
+    virtual int extrapolate( const edm4hep::Vector3d& point, edm4hep::ConstTrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf ) = 0 ;
     
     /** extrapolate the fit to numbered sensitive layer, returning TrackState, chi2, ndf and integer ID of the intersected sensitive detector element via reference
      */
@@ -185,7 +185,7 @@ namespace MarlinTrk{
     /** extrapolate the fit at the measurement site associated with the given hit, to numbered sensitive layer, 
      *  returning TrackState, chi2, ndf and integer ID of the intersected sensitive detector element via reference 
      */
-    virtual int extrapolateToLayer( int layerID, edm4hep::ConstTrackerHit hit, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode=modeClosest ) = 0  ;
+    virtual int extrapolateToLayer( int layerID, edm4hep::ConstTrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode=modeClosest ) = 0  ;
     
     /** extrapolate the fit to sensitive detector element, returning TrackState, chi2 and ndf via reference
      */
@@ -194,7 +194,7 @@ namespace MarlinTrk{
     /** extrapolate the fit at the measurement site associated with the given hit, to sensitive detector element, 
      *  returning TrackState, chi2 and ndf via reference 
      */
-    virtual int extrapolateToDetElement( int detEementID, edm4hep::ConstTrackerHit hit, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode=modeClosest ) = 0  ;
+    virtual int extrapolateToDetElement( int detEementID, edm4hep::ConstTrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode=modeClosest ) = 0  ;
     
     
     // INTERSECTORS
@@ -207,7 +207,7 @@ namespace MarlinTrk{
     /** extrapolate the fit at the measurement site associated with the given hit, to numbered sensitive layer,
      *  returning intersection point in global coordinates and integer ID of the intersected sensitive detector element via reference 
      */
-    virtual int intersectionWithLayer( int layerID, edm4hep::ConstTrackerHit hit, edm4hep::Vector3d& point, int& detElementID, int mode=modeClosest ) = 0  ;
+    virtual int intersectionWithLayer( int layerID, edm4hep::ConstTrackerHit& hit, edm4hep::Vector3d& point, int& detElementID, int mode=modeClosest ) = 0  ;
     
     
     /** extrapolate the fit to numbered sensitive detector element, returning intersection point in global coordinates via reference 
@@ -217,7 +217,7 @@ namespace MarlinTrk{
     /** extrapolate the fit at the measurement site associated with the given hit, to sensitive detector element,
      *  returning intersection point in global coordinates via reference 
      */
-    virtual int intersectionWithDetElement( int detEementID, edm4hep::ConstTrackerHit hit, edm4hep::Vector3d& point, int mode=modeClosest ) = 0  ;
+    virtual int intersectionWithDetElement( int detEementID, edm4hep::ConstTrackerHit& hit, edm4hep::Vector3d& point, int mode=modeClosest ) = 0  ;
     
     
   protected:

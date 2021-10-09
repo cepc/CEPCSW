@@ -156,8 +156,8 @@ namespace clupatra_new{
 
 				// FIXME debug Mingrui
 				//streamlog_out( DEBUG ) << "  add hit << "  <<   *first << " to layer " <<  (*first)->first->layer  << std::endl ;
-
-				hLV[ (*first)->first->layer ].push_back( *first )  ;
+			  //std::cout << "fucd debug: " << "  add hit << "  <<   *first << " to layer " <<  (*first)->first->layer  << std::endl ;
+			        hLV[ (*first)->first->layer ].push_back( *first )  ;
 				++first ;
 			}
 		}
@@ -437,6 +437,7 @@ namespace clupatra_new{
 
 				// track state at last hit migyt be rubish....
 				//      const lcio::TrackState* ts = ( outward ? trk->getTrackState( lcio::TrackState::AtLastHit  ) : trk->getTrackState( lcio::TrackState::AtFirstHit  ) ) ;
+				if(!hasTrackStateAt(trk, lcio::TrackState::AtFirstHit)) return false; //equivalent to pointer ts ==0 in lcio, fucd
 				const edm4hep::TrackState ts = getTrackStateAt(trk, lcio::TrackState::AtFirstHit  )  ;
 
 
@@ -455,7 +456,7 @@ namespace clupatra_new{
 
 				int nHit = trk.trackerHits_size() ;
 
-				if( nHit == 0 /*|| ts ==0*/ ) // FIXME Mingrui Since it is no pointer
+				if( nHit == 0 /*|| ts ==0*/ ) // FIXME Mingrui Since it is no pointer, fixed previous by hasTrackStateAt, fucd
 					return false ;
 
 				// float initial_chi2 = trk->getChi2() ;

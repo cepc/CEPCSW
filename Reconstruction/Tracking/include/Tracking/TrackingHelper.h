@@ -28,22 +28,29 @@ inline edm4hep::TrackState getTrackStateAt(edm4hep::ConstTrack track, int locati
 }
 
 inline std::array<float,15> getCovMatrix(const edm4hep::ConstTrack &track) {
-    return track.getTrackStates(0).covMatrix;
+  if(track.trackStates_size()>0) return track.getTrackStates(0).covMatrix;
+  std::array<float,15> dummy{};
+  return dummy;
 }
 inline float getTanLambda(const edm4hep::ConstTrack &track) {
-    return track.getTrackStates(0).tanLambda;
+  if(track.trackStates_size()>0) return track.getTrackStates(0).tanLambda;
+  return 0;
 }
 inline float getOmega(const edm4hep::ConstTrack &track) {
-    return track.getTrackStates(0).omega;
+  if(track.trackStates_size()>0) return track.getTrackStates(0).omega;
+  return 0;
 }
 inline float getD0(const edm4hep::ConstTrack &track) {
-    return track.getTrackStates(0).D0;
+  if(track.trackStates_size()>0) return track.getTrackStates(0).D0;
+  return 0;
 }
 inline float getZ0(const edm4hep::ConstTrack &track) {
-    return track.getTrackStates(0).Z0;
+  if(track.trackStates_size()>0) return track.getTrackStates(0).Z0;
+  return 0;
 }
 inline float getPhi(const edm4hep::ConstTrack &track) {
-    return track.getTrackStates(0).phi;
+  if(track.trackStates_size()>0) return track.getTrackStates(0).phi;
+  return 0;
 }
 
 
