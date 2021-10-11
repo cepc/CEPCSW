@@ -1,5 +1,5 @@
 #include "GtBeamBackgroundTool.h"
-
+#include "IBeamBackgroundFileParser.h"
 DECLARE_COMPONENT(GtBeamBackgroundTool)
 
 StatusCode GtBeamBackgroundTool::initialize() {
