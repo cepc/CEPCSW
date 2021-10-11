@@ -30,14 +30,7 @@ void
 Edm4hepWriterAnaElemTool::BeginOfEventAction(const G4Event* anEvent) {
     msg() << "Event " << anEvent->GetEventID() << endmsg;
 
-    // reset
-    m_track2primary.clear();
-
-}
-
-void
-Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
-    auto mcGenCol = m_mcParCol.get();
+    auto mcGenCol = m_mcParGenCol.get();
     mcCol = m_mcParCol.createAndPut();
 
     // copy the MC particle first
@@ -58,6 +51,14 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
     }
     
     msg() << "mcCol size: " << mcCol->size() << endmsg;
+
+    // reset
+    m_track2primary.clear();
+
+}
+
+void
+Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
     // save all data
 
     // create collections.
