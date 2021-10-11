@@ -15,7 +15,7 @@ gaudi_add_module(GenAlgo
                          src/SLCIORdr.cpp
                          src/HepMCRdr.cpp
                          src/GtGunTool.cpp
-
+                         src/GtBeamBackgroundTool.cpp
                  LINK ${ROOT_LIBRARIES}
                       k4FWCore::k4FWCore 
                       Gaudi::GaudiAlgLib
