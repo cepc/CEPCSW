@@ -27,11 +27,11 @@
 #include <GaudiKernel/AlgTool.h>
 #include <Gaudi/Property.h>
 #include "IGenTool.h"
+#include "IBeamBackgroundFileParser.h"
 
 #include <vector>
 #include <map>
 
-class IBeamBackgroundFileParser;
 
 class GtBeamBackgroundTool: public extends<AlgTool, IGenTool> {
 public:
