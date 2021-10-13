@@ -51,6 +51,12 @@ private:
     Gaudi::Property<std::map<std::string, std::string>> m_fomatmaps{this, "InputFormatMap"};
     Gaudi::Property<std::map<std::string, double>>      m_ratemaps {this, "InputRateMap"};
 
+    // unit of beam energy: GeV
+    Gaudi::Property<std::map<std::string, double>>      m_Ebeammaps{this, "InputBeamEnergyMap"};
+
+    // unit of the rotation along Y: rad
+    Gaudi::Property<std::map<std::string, double>>      m_rotYmaps {this, "RotationAlongYMap"};
+
 private:
     std::map<std::string, std::shared_ptr<IBeamBackgroundFileParser>> m_beaminputs;
 
