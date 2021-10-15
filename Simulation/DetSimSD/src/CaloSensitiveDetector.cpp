@@ -23,6 +23,7 @@ CaloSensitiveDetector::Initialize(G4HCofThisEvent* HCE) {
     if(HCID<0) HCID = G4SDManager::GetSDMpointer()->GetCollectionID(m_hc);
     HCE->AddHitsCollection( HCID, m_hc ); 
 
+    m_hitMap.clear();
 }
 
 G4bool
@@ -33,13 +34,21 @@ CaloSensitiveDetector::ProcessHits(G4Step* step, G4TouchableHistory*) {
     dd4hep::sim::Geant4StepHandler h(step);
     dd4hep::Position pos = 0.5 * (h.prePos() + h.postPos());
     HitContribution contrib = dd4hep::sim::Geant4Hit::extractContribution(step);
-    CalorimeterHit* hit=find(m_hc,dd4hep::sim::HitPositionCompare<CalorimeterHit>(pos));
-
+    const std::string& name = GetName();
+    unsigned long id = getCellID( step );
+    //std::cout << name << " " << id << std::endl;
+    CalorimeterHit* hit=nullptr;
+    if(name.find("Merge")==-1&&name.find("merge")==-1) find(m_hc,dd4hep::sim::HitPositionCompare<CalorimeterHit>(pos));
+    else{
+      std::map<unsigned long, CalorimeterHit*>::iterator it = m_hitMap.find(id);
+      if(it!=m_hitMap.end()) hit = it->second;
+    }
     //    G4cout << "----------- Geant4GenericSD<Calorimeter>::buildHits : position : " << pos << G4endl;
     if ( !hit ) {
         hit = new CalorimeterHit(pos);
         hit->cellID  = getCellID( step );
         m_hc->insert(hit);
+	if(name.find("Merge")!=-1||name.find("merge")!=-1) m_hitMap[id] = hit;
     }
     hit->truth.push_back(contrib);
     hit->energyDeposit += contrib.deposit;

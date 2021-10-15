@@ -30,6 +30,7 @@ protected:
 protected:
 
     HitCollection* m_hc;
+    std::map<unsigned long, CalorimeterHit*> m_hitMap;
 };
 
 
