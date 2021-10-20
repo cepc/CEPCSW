@@ -42,11 +42,6 @@ static Ref_t create_detector(Detector& description, xml_h e, SensitiveDetector s
   if( description.buildType() == BUILD_ENVELOPE ) return cal ;
   envelope.setVisAttributes(description, "SeeThrough");
 
-  //Volume motherVol = description.pickMotherVolume(sdet);
-  //PolyhedraRegular polyhedra(numSides, rmin, rmin + totalThickness, zhalf*2);
-  //Volume wholeVol(det_name+"_Whole", polyhedra, air);
-  //wholeVol.setAttributes(description, x_det.regionStr(), x_det.limitsStr(), x_det.visStr());
-
   // Add the subdetector envelope to the structure.
   DetElement stave0(cal, "stave1", x_det.id());
   Material matStave = air;
@@ -77,9 +72,6 @@ static Ref_t create_detector(Detector& description, xml_h e, SensitiveDetector s
   double layer_pos_z = -staveThickness/2;
   double layer_dim_x = innerFaceLen/2 - gap/2;
   int layer_num = 1;
-
-  //#### LayeringExtensionImpl* layeringExtension = new LayeringExtensionImpl();
-  //#### Position layerNormal(0,0,1);
 
   for (xml_coll_t xc(x_det, _U(layer)); xc; ++xc) {
     xml_comp_t x_layer = xc;
@@ -153,43 +145,25 @@ static Ref_t create_detector(Detector& description, xml_h e, SensitiveDetector s
   }
   // Place the staves.
   double innerRotation = innerAngle;
-  double offsetRotation = phi0 - M_PI;//-innerRotation/2;
+  double offsetRotation = phi0 - M_PI;
   double sectCenterRadius = rmin + totalThickness/2;
   double offset = totalThickness/std::sin(innerAngle)/2;
   double rotX = M_PI / 2;
-  //double rotY = -offsetRotation;
-  //double posX = -sectCenterRadius * std::sin(rotY);
-  //double posY = sectCenterRadius * std::cos(rotY);
 
   for (int istave = 1; istave <= numSides; istave++){
-  //for (int istave = 1; istave <= 3; istave++) {
     DetElement stave = istave > 1 ? stave0.clone(_toString(istave,"stave%d")) : stave0;
     double rotY = offsetRotation - (istave-1)*innerRotation;
     double posX = sectCenterRadius*std::sin(rotY) + offset*std::cos(rotY);
     double posY = -sectCenterRadius*std::cos(rotY) + offset*std::sin(rotY);
     Transform3D trafo(RotationZYX(0, rotY, rotX), Translation3D(posX, posY, zpos));
     PlacedVolume pv = envelope.placeVolume(staveOuterVol, trafo);
-    // Not a valid volID: pv.addPhysVolID("stave", 0);
     pv.addPhysVolID("stave", istave);
+    pv.addPhysVolID("system", cal.id());
+    pv.addPhysVolID("barrel", 0);
     stave.setPlacement(pv);
-    //cal.add(stave);
   }
-  
-  //placeStaves(cal, stave, rmin, numSides, totalThickness, envelopeVol, innerAngle, staveOuterVol);
-  // Set envelope volume attributes.
-  //envelope.setAttributes(description, x_det.regionStr(), x_det.limitsStr(), x_det.visStr());
 
-  //double z_offset = dim.hasAttr(_U(z_offset)) ? dim.z_offset() : 0.0;
-  //Transform3D transform(RotationZ(M_PI / numSides), Translation3D(0, 0, z_offset));
-  //PlacedVolume pv_whole = envelope.placeVolume(wholeVol, transform);
-  //pv_whole.addPhysVolID("system", cal.id());
-  //pv_whole.addPhysVolID("barrel", 0);
-  //cal.setPlacement(pv_whole);
-
-  //#### cal.addExtension<SubdetectorExtension>(new SubdetectorExtensionImpl(cal));
-  //#### cal.addExtension<LayeringExtension>(layeringExtension);
   return cal;
 }
 
 DECLARE_DETELEMENT(DD4hep_RotatedPolyhedraBarrelCalorimeter_v01, create_detector)
-DECLARE_DEPRECATED_DETELEMENT(RotatedPolyhedraBarrelCalorimeter_v01, create_detector)
