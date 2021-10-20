@@ -2,13 +2,13 @@
 <lccdd xmlns:compact="http://www.lcsim.org/schemas/compact/1.0"
        xmlns:xs="http://www.w3.org/2001/XMLSchema"
        xs:noNamespaceSchemaLocation="http://www.lcsim.org/schemas/compact/1.0/compact.xsd">
-  <info name="Standalone"
-        title="CepC reference detctor with coil inside Hcal, pixel SIT/SET"
+  <info name="StandaloneEcalRotCrystal"
+        title="CepC standalone calorimeter with rotated crystal"
         author="C.D.Fu"
         url="http://cepc.ihep.ac.cn"
         status="developing"
         version="v01">
-    <comment>CepC reference detector simulation models used for detector study </comment>
+    <comment>CepC detector simulation models used for detector study </comment>
   </info>
   
   <includes>
