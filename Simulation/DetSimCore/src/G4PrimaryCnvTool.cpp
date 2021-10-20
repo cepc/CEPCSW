@@ -59,6 +59,14 @@ bool G4PrimaryCnvTool::mutate(G4Event* anEvent) {
                                                           momentum.y*CLHEP::GeV,
                                                           momentum.z*CLHEP::GeV);
 
+        // modify the mass of the chargedgeantino
+        if (pdgcode == 0 && p.getCharge() == 1) {
+            info() << "The mass of G4ChargedGeantino is "
+                   << m_chargedgeantino_mass.value() 
+                   << endmsg;
+            g4prim->SetMass(m_chargedgeantino_mass.value());
+        }
+
         g4vtx->SetPrimary(g4prim);
 
         anEvent->AddPrimaryVertex(g4vtx);
