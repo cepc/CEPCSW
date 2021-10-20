@@ -40,8 +40,18 @@ bool G4PrimaryCnvTool::mutate(G4Event* anEvent) {
         // pdg/particle
         int pdgcode = p.getPDG();
         G4ParticleTable* particletbl = G4ParticleTable::GetParticleTable();
-        G4ParticleDefinition* particle_def = particletbl->FindParticle(pdgcode);
+        G4ParticleDefinition* particle_def = nullptr;
 
+        // handle the several exceptions
+        if (pdgcode == 0 && p.getCharge() == 0) {
+            // this is geantino
+            particle_def = particletbl->FindParticle("geantino");
+        } else if (pdgcode == 0 && p.getCharge() == 1) {
+            // this is chargedgeantino
+            particle_def = particletbl->FindParticle("chargedgeantino");
+        } else {
+            particle_def = particletbl->FindParticle(pdgcode);
+        }
         // momentum
         const edm4hep::Vector3f& momentum = p.getMomentum();
         G4PrimaryParticle* g4prim = new G4PrimaryParticle(particle_def,
