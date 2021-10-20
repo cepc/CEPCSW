@@ -108,7 +108,6 @@ static Ref_t create_detector(Detector& description, xml_h e, SensitiveDetector s
   for(int crystal_id=1; crystal_id<=nphi; crystal_id++){
     double angleRot = -alpha + dphi/2 + (crystal_id-1)*dphi;
     double phiCenter = phi0Center + (crystal_id-1)*dphi;
-    //Translation3D tran(center2O*cos(phiCenter), center2O*sin(phiCenter), 0);
     Transform3D trafo(RotationZYX(0, angleRot+M_PI/2, M_PI/2), Translation3D(center2O*cos(phiCenter), center2O*sin(phiCenter), 0));
     PlacedVolume pv = moduleVol.placeVolume(crystalVol, trafo);
     pv.addPhysVolID("crystal", crystal_id);
@@ -127,4 +126,3 @@ static Ref_t create_detector(Detector& description, xml_h e, SensitiveDetector s
 }
 
 DECLARE_DETELEMENT(DD4hep_RotatedCrystalCalorimeter_v01, create_detector)
-DECLARE_DEPRECATED_DETELEMENT(RotatedCrystalCalorimeter_v01, create_detector)
