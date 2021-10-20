@@ -30,6 +30,10 @@ function check-cepcsw-envvar() {
 function build-dir() {
     local blddir=build
 
+    if [ -n "${bldtool}" ]; then
+        blddir=${blddir}.${bldtool}
+    fi
+
     # If detect the extra env var, append it to the build dir
     if [ -n "${lcg_version}" ]; then
         blddir=${blddir}.${lcg_version}
@@ -64,6 +68,8 @@ function run-job() {
 # The current default platform
 lcg_platform=x86_64-centos7-gcc8-opt
 lcg_version=98.0.0
+
+bldtool=${CEPCSW_BLDTOOL} # make, ninja # set in env var
 
 check-cepcsw-envvar || exit -1
 
