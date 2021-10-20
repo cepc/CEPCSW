@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lccdd>
+  <define>
+    <constant name="Ecal_crystal_y_width" value="10*mm"/>
+    <constant name="Ecal_crystal_rotate_angle" value="30*degree"/>
+    <constant name="Ecal_crystal_envelope_length" value="266*mm"/> <!--not necessary, Ecal_barrel_inner_radius, Ecal_barrel_outer_radius and gap define the range of crystal-->
+    <constant name="numberZ" value="(int)Ecal_barrel_half_length*2/Ecal_crystal_y_width"/>
+    <constant name="Ecal_barrel_half_length_correct" value="numberZ*Ecal_crystal_y_width/2"/>   <!--Must be n*Ecal_Crystal_y_width! -->
+    <constant name="Ecal_barrel_outer_radius_redef" value="sqrt(Ecal_barrel_inner_radius*Ecal_barrel_inner_radius+Ecal_crystal_envelope_length*Ecal_crystal_envelope_length
+							   -2*Ecal_barrel_inner_radius*Ecal_crystal_envelope_length*cos(pi-Ecal_crystal_rotate_angle))"/>
+  </define>
+
+  <regions>
+    <region name="EcalBarrelRegion">
+    </region>
+  </regions>
+
+  <detectors>
+    <detector id="DetID_ECAL" name="EcalBarrel" type="DD4hep_RotatedCrystalCalorimeter_v01" readout="EcalBarrelCollection" vis="Invisible" sensitive="true">
+      <envelope>
+	<!--shape type="BooleanShape" operation="Union" material="Air"-->
+          <shape type="Tube" rmin="Ecal_barrel_inner_radius" rmax="Ecal_barrel_outer_radius_redef" dz="Ecal_barrel_half_length" material="Air"/>
+	<!--/shape-->
+      </envelope>
+      <dimensions rmin="Ecal_barrel_inner_radius" rmax="Ecal_barrel_outer_radius_redef" zhalf="Ecal_barrel_half_length_correct" alpha="Ecal_crystal_rotate_angle" nphi="1368" nz="numberZ" gap="0"/>
+      <crystal material="G4_BGO" vis="ECALVis"/>
+    </detector>
+  </detectors>
+  
+  <readouts>
+    <readout name="EcalBarrelCollection">
+      <id>system:5,module:11,crystal:16</id>
+    </readout>
+  </readouts>
+
+</lccdd>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lccdd xmlns:compact="http://www.lcsim.org/schemas/compact/1.0"
+       xmlns:xs="http://www.w3.org/2001/XMLSchema"
+       xs:noNamespaceSchemaLocation="http://www.lcsim.org/schemas/compact/1.0/compact.xsd">
+  <info name="StandaloneEcalRotCrystal"
+        title="CepC standalone calorimeter with rotated crystal"
+        author="C.D.Fu"
+        url="http://cepc.ihep.ac.cn"
+        status="developing"
+        version="v01">
+    <comment>CepC detector simulation models used for detector study </comment>
+  </info>
+  
+  <includes>
+    <gdmlFile  ref="${DD4hepINSTALL}/DDDetectors/compact/elements.xml"/>
+    <gdmlFile  ref="../CRD_common_v01/materials.xml"/>
+  </includes>
+  
+  <define>
+    <constant name="world_size" value="6*m"/>
+    <constant name="world_x" value="world_size"/>
+    <constant name="world_y" value="world_size"/>
+    <constant name="world_z" value="world_size"/>
+
+    <include ref="${DD4hepINSTALL}/DDDetectors/compact/detector_types.xml"/>
+  </define>
+
+  <include ref="./Dimensions_v01_01.xml"/>
+
+  <include ref="../CRD_common_v01/Ecal_Rotated_Crystal_v01_01.xml"/>
+  
+  <fields>
+    <field name="InnerSolenoid" type="solenoid"
+           inner_field="Field_nominal_value"
+           outer_field="0"
+           zmax="SolenoidCoil_half_length"
+           inner_radius="SolenoidCoil_center_radius"
+           outer_radius="Solenoid_outer_radius">
+    </field>
+    <field name="OuterSolenoid" type="solenoid"
+           inner_field="0"
+           outer_field="Field_outer_nominal_value"
+           zmax="SolenoidCoil_half_length"
+           inner_radius="Solenoid_outer_radius"
+           outer_radius="Yoke_barrel_inner_radius">
+    </field>
+  </fields>
+
+</lccdd>
