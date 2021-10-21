@@ -15,7 +15,7 @@ public:
     typedef G4THitsCollection<CalorimeterHit> CaloHitCollection;
 
 public:
-    CaloSensitiveDetector(const std::string& name, dd4hep::Detector& description);
+    CaloSensitiveDetector(const std::string& name, dd4hep::Detector& description, bool unmerge=true);
 
 public:
     // Geant4 interface
@@ -31,6 +31,7 @@ protected:
 
     HitCollection* m_hc;
     std::map<unsigned long, CalorimeterHit*> m_hitMap;
+    bool                                     m_unmerge;
 };
 
 
