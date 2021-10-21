@@ -35,15 +35,15 @@ CalorimeterSensDetTool::createSD(const std::string& name) {
 
     dd4hep::Detector* dd4hep_geo = m_geosvc->lcdd();
 
-    bool flagUnmerge = false;
-    for(auto cal_name : m_unmergeCals){
+    bool is_merge_enabled = true;
+    for(auto cal_name : m_listCalsMergeDisable){
       if(cal_name==name){
-	flagUnmerge = true;
+	is_merge_enabled = false;
 	break;
       }
     }
-    G4VSensitiveDetector* sd = new CaloSensitiveDetector(name, *dd4hep_geo, flagUnmerge);
-    debug() << name << " set to merge true/false = " << !flagUnmerge << endmsg;
+    G4VSensitiveDetector* sd = new CaloSensitiveDetector(name, *dd4hep_geo, is_merge_enabled);
+    debug() << name << " set to merge true/false = " << is_merge_enabled << endmsg;
 
     return sd;
 }

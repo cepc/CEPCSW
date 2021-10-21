@@ -29,7 +29,7 @@ private:
     // in order to initialize SD, we need to get the lcdd()
     SmartIF<IGeomSvc> m_geosvc;
 
-    Gaudi::Property<std::vector<std::string> > m_unmergeCals{this, "UnmergedCalNames", {}};
+    Gaudi::Property<std::vector<std::string> > m_listCalsMergeDisable{this, "CalNamesMergeDisable", {}};
 };
 
 #endif
