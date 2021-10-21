@@ -4,9 +4,10 @@
 
 #include <algorithm>
 
-CaloSensitiveDetector::CaloSensitiveDetector(const std::string& name, dd4hep::Detector& description)
+CaloSensitiveDetector::CaloSensitiveDetector(const std::string& name, dd4hep::Detector& description, bool is_merge_enabled)
     : DDG4SensitiveDetector(name, description),
-      m_hc(nullptr) {
+      m_hc(nullptr),
+      m_isMergeEnabled(is_merge_enabled){
     const std::string& coll_name = m_sensitive.hitsCollection();
     collectionName.insert(coll_name);
 }
@@ -23,6 +24,7 @@ CaloSensitiveDetector::Initialize(G4HCofThisEvent* HCE) {
     if(HCID<0) HCID = G4SDManager::GetSDMpointer()->GetCollectionID(m_hc);
     HCE->AddHitsCollection( HCID, m_hc ); 
 
+    m_hitMap.clear();
 }
 
 G4bool
@@ -33,13 +35,23 @@ CaloSensitiveDetector::ProcessHits(G4Step* step, G4TouchableHistory*) {
     dd4hep::sim::Geant4StepHandler h(step);
     dd4hep::Position pos = 0.5 * (h.prePos() + h.postPos());
     HitContribution contrib = dd4hep::sim::Geant4Hit::extractContribution(step);
-    CalorimeterHit* hit=find(m_hc,dd4hep::sim::HitPositionCompare<CalorimeterHit>(pos));
-
+    const std::string& name = GetName();
+    unsigned long id = getCellID( step );
+    CalorimeterHit* hit=nullptr;
+    if(m_isMergeEnabled){
+      std::map<unsigned long, CalorimeterHit*>::iterator it = m_hitMap.find(id);
+      if(it!=m_hitMap.end()) hit = it->second;
+    }
+    else{
+      //Commented by fucd: hit position almost different, only very few hits found sucessfully, so discard to find since this option is disable merge
+      //hit=find(m_hc,dd4hep::sim::HitPositionCompare<CalorimeterHit>(pos));
+    }
     //    G4cout << "----------- Geant4GenericSD<Calorimeter>::buildHits : position : " << pos << G4endl;
     if ( !hit ) {
         hit = new CalorimeterHit(pos);
-        hit->cellID  = getCellID( step );
+        hit->cellID  = id; //getCellID( step );
         m_hc->insert(hit);
+	if(m_isMergeEnabled) m_hitMap[id] = hit;
     }
     hit->truth.push_back(contrib);
     hit->energyDeposit += contrib.deposit;
