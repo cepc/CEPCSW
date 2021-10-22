@@ -29,6 +29,7 @@ gaudi_add_module(DetCEPCv4
                          src/calorimeter/SEcal05_Endcaps.cpp
                          src/calorimeter/SEcal05_ECRing.cpp
                          src/calorimeter/SHcalRpc01_Barrel.cpp
+                         src/calorimeter/SHcalRpc02_Barrel.cpp
                          src/calorimeter/SHcalRpc01_Endcaps.cpp
                          src/calorimeter/SHcalRpc01_EndcapRing.cpp
 			 src/calorimeter/Yoke05_Barrel.cpp
