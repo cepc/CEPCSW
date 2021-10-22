@@ -4,12 +4,13 @@
     <constant name="Hcal_inner_radius" value="Hcal_barrel_inner_radius"/>
     <constant name="Hcal_half_length" value="Hcal_barrel_half_length"/>
     <constant name="Hcal_inner_symmetry" value="Hcal_barrel_symmetry"/>
-    <constant name="Hcal_nlayers" value="40"/>
+    <!--40->35, if 40 and symmetry=12, out radius will exceed the Hcal_barrel_outer_radius, or change layer thickness in future-->
+    <constant name="Hcal_nlayers" value="35"/>
     <constant name="Hcal_Ecal_gap" value="Hcal_barrel_inner_radius-Ecal_barrel_outer_radius"/>
     <constant name="Ecal_outer_radius" value="Ecal_barrel_outer_radius"/>
     
     <constant name="Hcal_radiator_thickness" value="20.0*mm"/>
-    <constant name="Hcal_airgap_thickness" value="1*mm"/>
+    <constant name="Hcal_airgap_thickness" value="0.88*mm"/>
     <constant name="Hcal_mylar_cathode_thickness" value="0.18*mm"/>
     <constant name="Hcal_graphite_cathode_thickness" value="0.05*mm"/>
     <constant name="Hcal_glass_cathode_thickness" value="1.1*mm"/>
@@ -21,7 +22,7 @@
     <constant name="Hcal_electronics_mask_thickness" value="1.6*mm"/>
     
     <constant name="Hcal_gas_edge_width" value="1*mm"/>
-    <constant name="Hcal_MinNumCellsInTransvPlane" value="11"/>
+    <constant name="Hcal_MinNumCellsInTransvPlane" value="1"/>
     <constant name="Hcal_barrel_number_modules" value="5"/>
     <constant name="Hcal_chamber_thickness" value="6.73*mm"/>
     <constant name="Hcal_back_plate_thickness" value="15*mm"/>
@@ -38,15 +39,15 @@
   </define>
 
   <detectors>
-    <detector name="HcalBarrel" type="SHcalRpc01_Barrel" id="DetID_HCAL" readout="HcalBarrelCollection" vis="GreenVis" insideTrackingVolume="false" >
+    <detector name="HcalBarrel" type="SHcalRpc02_Barrel" id="DetID_HCAL" readout="HcalBarrelCollection" vis="GreenVis" insideTrackingVolume="false" >
       <comment>Hadron Calorimeter Barrel</comment>
-      <envelope vis="HCALVis">
+      <envelope>
         <shape type="BooleanShape" operation="Subtraction" material="Air" >
           <shape type="Cone" z="Hcal_barrel_half_length + env_safety/2" rmin1="0.0" rmax1="Hcal_barrel_outer_radius + env_safety"
 		 rmin2="0.0" rmax2="Hcal_barrel_outer_radius + env_safety"/>
           <shape type="PolyhedraRegular"  numsides="Hcal_barrel_symmetry" rmin="0.0"
                  rmax="Hcal_barrel_inner_radius - env_safety" dz="2*(Hcal_barrel_half_length + env_safety)"/>
-	  <rotation x="0" y="0" z="-180*deg/Hcal_barrel_symmetry"/>
+	  <!--rotation x="0" y="0" z="-180*deg/Hcal_barrel_symmetry"/-->
         </shape>
       </envelope>
       <type_flags type=" DetType_CALORIMETER + DetType_BARREL + DetType_HADRONIC " />
@@ -71,8 +72,8 @@
 
   <readouts>
     <readout name="HcalBarrelCollection">
-      <segmentation type="CartesianGridYZ" grid_size_y="Hcal_cells_size" grid_size_z="Hcal_cells_size"/>
-      <id>system:5,module:3,stave:3,tower:5,layer:6,slice:4,y:32:-16,z:-16</id>
+      <segmentation type="TiledLayerGridXY" grid_size_x="Hcal_cells_size" grid_size_y="Hcal_cells_size"/>
+      <id>system:5,module:3,stave:4,tower:5,layer:6,slice:4,x:32:-16,y:-16</id>
     </readout>
   </readouts>
 

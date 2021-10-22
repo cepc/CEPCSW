@@ -1,21 +1,34 @@
 <lccdd>
   <detectors>
-    <detector name="Coil" type="SCoil02" vis="SOLVis" id="DetID_COIL" insideTrackingVolume="false" readout="COILCollection">
-      <envelope vis="SeeThrough">
-	<shape type="Tube" rmin="Solenoid_inner_radius" rmax="Solenoid_outer_radius" dz="Solenoid_half_length" material="Air"/>
+    <detector name="Coil" type="DD4hep_Solenoid_o1_v01" id="DetID_COIL" insideTrackingVolume="false" readout="COILCollection">
+      <envelope>
+	<shape type="Tube" rmin="Solenoid_inner_radius" rmax="Solenoid_outer_radius" dz="Solenoid_half_length" material="Vacuum"/>
       </envelope>
   
       <type_flags type=" DetType_SUPPORT + DetType_COIL " />
-  
-      <!--fg: for now only a simple aluminum cylinder is created inside the envelope -->
-      <tube rmin="Solenoid_inner_radius" rmax="Solenoid_outer_radius" dz="Solenoid_half_length" material="G4_Al"/>
       
+      <!-- slice can put as sensitive (tracker type), currently without sensitive, so COILCollection is null -->
+      <layer id="0" inner_r="Solenoid_inner_radius" outer_z="Solenoid_half_length" vis="SeeThrough">
+	<slice material="g10" thickness="3*mm" vis="SOLVis"/>
+	<slice material="Vacuum" thickness="6*mm" vis="Invisible"/>
+	<slice material="G4_Al" thickness="6*mm" vis="SOLVis"/>
+      </layer>
+
+      <layer id="1" inner_r="SolenoidCoil_radius" outer_z="Solenoid_half_length" vis="SeeThrough">
+	<slice material="G4_Al" thickness="55*mm" vis="SOLVis"/>
+      </layer>
+
+      <layer id="2" inner_r="Solenoid_outer_radius-27*mm" outer_z="Solenoid_half_length" vis="SeeThrough">
+        <slice material="G4_Al" thickness="6*mm" vis="SOLVis"/>
+        <slice material="Vacuum" thickness="6*mm" vis="Invisible"/>
+        <slice material="G4_Al" thickness="15*mm" vis="SOLVis"/>
+      </layer>
     </detector>
   </detectors>
 
   <readouts>
     <readout name="COILCollection">
-      <id>system:5,side:-2,layer:9,module:8,sensor:8,barrelside:-2</id>
+      <id>system:5,side:-2,layer:9,slice:8,sensor:8,barrelside:-2</id>
     </readout>
   </readouts>
 </lccdd>

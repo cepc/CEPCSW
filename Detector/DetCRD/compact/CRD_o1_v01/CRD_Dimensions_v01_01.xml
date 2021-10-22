@@ -147,7 +147,7 @@
     <constant name="TUBE_IPOuterBulge_end_radius" value="BeamPipe_Crotch_zmax*tan(CrossingAngle/2)+BeamPipe_Dnstream_inner_radius+BeamPipe_Cu_thickness"/>
     <!--"BeamPipe_Expanded_inner_radius+BeamPipe_Al_thickness+5*mm"/-->
 
-    <constant name="Ecal_barrel_inner_radius" value="1900*mm"/>
+    <constant name="Ecal_barrel_inner_radius" value="1860*mm"/><!--1900->1860, since 1900-2180 is range for symmetry=12, but now fixed as 8 in constructor code-->
     <constant name="Ecal_barrel_thickness"    value="280*mm"/>
     <constant name="Ecal_barrel_outer_radius" value="(Ecal_barrel_inner_radius+Ecal_barrel_thickness)/cos(pi/8)"/>
     <constant name="Ecal_barrel_half_length"  value="3350*mm"/>
@@ -171,17 +171,17 @@
     <constant name="Hcal_barrel_inner_radius" value="2530*mm"/>
     <constant name="Hcal_barrel_outer_radius" value="3610*mm"/>
     <constant name="Hcal_barrel_half_length"  value="4480*mm"/>
-    <constant name="Hcal_barrel_symmetry"    value="8"/>
+    <constant name="Hcal_barrel_symmetry"    value="12"/>
     
     <constant name="Hcal_endcap_inner_radius" value="400*mm"/>
-    <constant name="Hcal_endcap_outer_radius" value="Hcal_barrel_outer_radius"/>
+    <constant name="Hcal_endcap_outer_radius" value="Ecal_barrel_outer_radius"/>
     <constant name="Hcal_endcap_zmin" value="3400*mm"/>
     <constant name="Hcal_endcap_zmax" value="4480*mm"/>
-    <constant name="Hcal_endcap_symmetry" value="8"/>
+    <constant name="Hcal_endcap_symmetry" value="12"/>
     <!--obseleted constance, used by old construct, should be removed while creating new constrcut-->
     <constant name="HcalEndcap_max_z" value="Hcal_endcap_zmax"/>
     <constant name="Hcal_endcap_outer_symmetry" value="Hcal_endcap_symmetry"/>
-    <constant name="Hcal_outer_radius" value="Hcal_barrel_outer_radius"/>
+    <constant name="Hcal_outer_radius" value="Hcal_endcap_outer_radius"/>
 
     <!--constant name="Hcal_ring_inner_radius" value="Hcal_endcap_inner_radius"/>
     <constant name="Hcal_ring_outer_radius" value="Solenoid_inner_radius"/>
@@ -192,13 +192,13 @@
     <constant name="Yoke_barrel_inner_radius" value="3660*mm"/>
     <constant name="Yoke_barrel_outer_radius" value="4260*mm"/>
     <constant name="Yoke_barrel_half_length" value="Hcal_endcap_zmax"/>
-    <constant name="Yoke_barrel_symmetry" value="8"/>
+    <constant name="Yoke_barrel_symmetry" value="12"/>
     
     <constant name="Yoke_endcap_inner_radius" value="400*mm"/>
     <constant name="Yoke_endcap_outer_radius" value="Yoke_barrel_outer_radius"/>
     <constant name="Yoke_endcap_zmin" value="4660*mm"/>
     <constant name="Yoke_endcap_zmax" value="5460*mm"/>
-    <constant name="Yoke_endcap_outer_symmetry" value="8"/>
+    <constant name="Yoke_endcap_outer_symmetry" value="Yoke_barrel_symmetry"/>
     <constant name="Yoke_endcap_inner_symmetry" value="0"/>
     <!--obseleted constance, used by old construct, should be removed while creating new constrcut-->
     <constant name="Yoke_Z_start_endcaps" value="Yoke_endcap_zmin"/>
