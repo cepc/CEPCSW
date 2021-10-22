@@ -8,7 +8,7 @@
 
   <detectors>
     <detector id="DetID_SET" name="SET" type="SET_Simple_Planar" vis="SETVis" readout="SETCollection" insideTrackingVolume="true">
-      <envelope vis="SETVis">
+      <envelope>
 	<shape type="BooleanShape" operation="Union" material="Air" >
 	  <shape type="Tube" rmin="InnerTracker_outer_radius" rmax="OuterTracker_inner_radius" dz="SET_half_length"  material = "Air" />
 	  <shape type="Tube" rmin="SET_inner_radius" rmax="SET_outer_radius" dz="SET_half_length"  material = "Air" />

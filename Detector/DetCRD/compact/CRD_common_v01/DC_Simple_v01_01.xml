@@ -54,7 +54,7 @@
   <detectors>
     <detector id="DetID_DC" name="DriftChamber" type="DriftChamber" readout="DriftChamberHitsCollection" vis="DCVis" sensitive="true" region="DriftChamberRegion" limits="DC_limits">
       <chamber id="0"/>
-      <envelope vis="SeeThrough">
+      <envelope>
         <shape type="BooleanShape" operation="Union" material="Air">
           <shape type="Tube" rmin="SDT_radius_min" rmax="SDT_radius_max" dz="SDT_half_length" />
         </shape>

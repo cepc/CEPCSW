@@ -13,7 +13,7 @@
 
   <detectors>
     <detector id="DetID_SIT" name="SIT" type="SIT_Simple_Planar" vis="SITVis" readout="SITCollection" insideTrackingVolume="true">
-      <envelope vis="SeeThrough">
+      <envelope>
         <shape type="BooleanShape" operation="Union" material="Air" >
           <shape type="Tube" rmin="SIT_inner_radius"   rmax="SIT_outer_radius_1" dz="SIT_half_length_1" />
           <shape type="Tube" rmin="SIT_inner_radius_2" rmax="SIT_outer_radius"   dz="SIT_half_length" />
