@@ -159,7 +159,7 @@ static Ref_t create_detector(Detector& description, xml_h e, SensitiveDetector s
     PlacedVolume pv = envelope.placeVolume(staveOuterVol, trafo);
     pv.addPhysVolID("stave", istave);
     pv.addPhysVolID("system", cal.id());
-    pv.addPhysVolID("barrel", 0);
+    pv.addPhysVolID("side", 0);
     stave.setPlacement(pv);
   }
 

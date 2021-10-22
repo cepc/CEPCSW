@@ -1,12 +1,12 @@
 <lccdd>
   <define>
     <constant name="Hcal_endcap_nlayers" value="Hcal_nlayers"/>
-    <constant name="Hcal_endcap_center_box_size" value="700*mm"/>
+    <constant name="Hcal_endcap_center_box_size" value="Hcal_endcap_inner_radius*2"/>
   </define>
   <detectors>
     <detector id="DetID_HCAL_ENDCAP" name="HcalEndcap" type="SHcalRpc01_Endcaps" readout="HcalEndcapsCollection"  vis="SeeThrough" calorimeterType="HAD_ENDCAP">
       <comment>Hadron Calorimeter Endcap</comment>
-      <envelope vis="HCALVis">    
+      <envelope>
 	<shape type="BooleanShape" operation="Subtraction" material="Air">
           <shape type="BooleanShape" operation="Subtraction" material="Air">
             <shape type="Tube" rmin="0.0" rmax="Hcal_endcap_outer_radius + env_safety" dz="Hcal_endcap_zmax + env_safety"/>

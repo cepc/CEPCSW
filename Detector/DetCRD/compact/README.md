@@ -35,9 +35,10 @@ The following CRD detector models are available in CEPCSW
          - with RPC readout
          - creates two sets of hit collections
  - Coil
-         - CEPC_v4 like
+         - Al layers using DD4hep_Solenoid_o1_v01
  - Yoke
-         - CEPC_v4 like
+         - Barrel:  Detector/DetCRD/src/Calorimeter/RotatedPolyhedraBarrelCalorimeter_v01_geo.cpp
+	 - Endcaps: DD4hep_PolyhedraEndcapCalorimeter2
  - compact files:
          - [./CRD_o1_v01/CRD_o1_v01.xml](./CRD_o1_v01/CRD_o1_v01.xml)
 

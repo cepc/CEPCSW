@@ -21,7 +21,7 @@
 
   <detectors>
     <detector id="DetID_FTD" name="FTD" type="FTD_Simple_Staggered" vis="FTDVis" readout="FTDCollection" insideTrackingVolume="true">
-      <envelope vis="FTDVis">
+      <envelope>
         <shape type="BooleanShape" operation="Subtraction" material="Air" >
           <shape type="BooleanShape" operation="Subtraction" material="Air" >
             <shape type="BooleanShape" operation="Subtraction" material="Air" >

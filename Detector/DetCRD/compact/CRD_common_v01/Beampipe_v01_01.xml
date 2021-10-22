@@ -15,7 +15,7 @@
   <detectors>        
     <detector name="BeamPipe" type="DD4hep_CRDBeamPipe_v01" vis="BeamPipeVis">
       <parameter crossingangle="CrossingAngle" />
-      <envelope vis="BlueVis">
+      <envelope>
 	<shape type="Assembly"/>
       </envelope>
 

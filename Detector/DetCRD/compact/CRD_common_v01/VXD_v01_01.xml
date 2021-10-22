@@ -16,7 +16,7 @@
 
   <detectors>
     <detector id="DetID_VXD" name="VXD" type="VXD04" vis="VXDVis" readout="VXDCollection" insideTrackingVolume="true">
-      <envelope vis="VXDVis">
+      <envelope>
 	<shape type="BooleanShape" operation="Subtraction" material="Air" >
 	  <shape type="BooleanShape" operation="Subtraction" material="Air" >
 	    <shape type="BooleanShape" operation="Subtraction" material="Air" >
@@ -72,7 +72,7 @@
       <!-- SQL command: "SELECT * FROM cryostat;"  -->
       <cryostat id="1" alu_skin_inner_radious="100*mm" alu_skin_tickness="0.5*mm" foam_inner_radious="90*mm" foam_tickness="10*mm" foam_half_z="166.6*mm" 
 		endplate_inner_radious="VXD_inner_radius_1" 
-		cryostat_option="1" cryostat_apperture="30*mm" cryostat_apperture_radius="1.5*mm"  />
+		cryostat_option="0" cryostat_apperture="30*mm" cryostat_apperture_radius="1.5*mm"  />
       <!-- SQL command: "select * from support_shell;"  -->
       <support_shell id="0" inner_radious="65*mm" half_z="145*mm" thickess="0.49392*mm" endplate_inner_radious="30*mm" endplate_inner_radius_L1="15.7*mm" endplate_outer_radius_L1="20*mm" 
 		     offset_ladder_block="0.28224*mm" beryllium_ladder_block_length="5*mm" beryllium_ladder_block_thickness="0.25*mm" shell_endplate_thickness="2*mm" forward_shell_half_z="6.5*mm"  />
