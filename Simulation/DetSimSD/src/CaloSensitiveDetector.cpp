@@ -48,10 +48,18 @@ CaloSensitiveDetector::ProcessHits(G4Step* step, G4TouchableHistory*) {
     }
     //    G4cout << "----------- Geant4GenericSD<Calorimeter>::buildHits : position : " << pos << G4endl;
     if ( !hit ) {
-        hit = new CalorimeterHit(pos);
+        // not applicable for segmentation case
+        //G4ThreeVector local(0,0,0);
+        //G4ThreeVector global = h.preTouchable()->GetHistory()->GetTopTransform().InverseTransformPoint(local);
+        //hit = new CalorimeterHit(dd4hep::Position(global.x(), global.y(), global.z()));
+        if(m_isMergeEnabled){
+          dd4hep::Position posCellCenter = getNominalPosition(step, id);
+          hit = new CalorimeterHit(posCellCenter);
+          m_hitMap[id] = hit;
+        }
+        else hit = new CalorimeterHit(pos);
         hit->cellID  = id; //getCellID( step );
         m_hc->insert(hit);
-	if(m_isMergeEnabled) m_hitMap[id] = hit;
     }
     hit->truth.push_back(contrib);
     hit->energyDeposit += contrib.deposit;

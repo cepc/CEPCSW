@@ -19,7 +19,8 @@
 
 // convert from CLHEP to DD4hep
 static const double MM_2_CM = (dd4hep::millimeter/CLHEP::millimeter);
-
+// convert from DD4hep to CLHEP
+static const double CM_2_MM = (CLHEP::millimeter/dd4hep::millimeter);
 
 DDG4SensitiveDetector::DDG4SensitiveDetector(const std::string& name, dd4hep::Detector& description)
     : G4VSensitiveDetector(name), m_detDesc(description),
@@ -72,4 +73,16 @@ DDG4SensitiveDetector::getCellID(const G4Step* step) {
         return cID;
     }
     return volID;
+}
+
+dd4hep::Position
+DDG4SensitiveDetector::getNominalPosition(const G4Step* step, long long cellID) {
+    if(cellID==0) cellID = getCellID(step);
+    dd4hep::sim::Geant4StepHandler h(step);
+    dd4hep::Segmentation        seg    = m_readout.segmentation();
+    dd4hep::Position loc(0,0,0);
+    if ( seg.isValid() ) loc = seg.position(cellID);
+    G4ThreeVector local(loc.x()*CM_2_MM, loc.y()*CM_2_MM, loc.z()*CM_2_MM);
+    G4ThreeVector global = h.preTouchable()->GetHistory()->GetTopTransform().InverseTransformPoint(local);
+    return dd4hep::Position(global.x(), global.y(), global.z());
 }

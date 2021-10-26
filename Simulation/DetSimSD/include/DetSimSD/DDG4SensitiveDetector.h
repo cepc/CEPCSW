@@ -52,6 +52,10 @@ public:
     //  from the current sensitive volume to the world volume
     virtual long long getCellID(const G4Step* step);
 
+    // Returns the position of center of cell, according cell ID
+    // if cellID not set, getCellID(step) will be invoke
+    // unit mm
+    virtual dd4hep::Position getNominalPosition(const G4Step* step, const long long cellID=0);
 
 protected:
     /// Reference to the detector description object
