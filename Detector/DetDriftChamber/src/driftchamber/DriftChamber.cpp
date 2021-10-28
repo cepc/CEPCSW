@@ -38,6 +38,9 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     xml_coll_t c(x_det,_U(chamber));
     xml_comp_t x_chamber = c;
 
+    xml_coll_t cc(x_det,_U(side));
+    xml_comp_t x_side = cc;
+
     std::string det_name = x_det.nameStr();
     std::string det_type = x_det.typeStr();
 
@@ -45,6 +48,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 
     // - global
     double chamber_half_length     = theDetector.constant<double>("DC_half_length");
+    double chamber_length  = theDetector.constant<double>("DC_length");
 
     // - chamber
     double chamber_radius_min = theDetector.constant<double>("SDT_chamber_radius_min");
@@ -60,7 +64,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     int chamber_layer_number = floor((chamber_layer_rend-chamber_layer_rbegin)/chamber_layer_width);
 
     double safe_distance = theDetector.constant<double>("DC_safe_distance");
-    double epsilon = theDetector.constant<double>("Epsilon");
+    double alpha = theDetector.constant<double>("Alpha");
 
     // =======================================================================
     // Detector Construction
@@ -75,8 +79,10 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     if( theDetector.buildType() == BUILD_ENVELOPE ) return sdet ;
 
 
-    dd4hep::Material det_mat(theDetector.material("Air"));
-    dd4hep::Material chamber_mat(theDetector.material("GasHe_90Isob_10"));
+//    dd4hep::Material det_mat(theDetector.material("Air"));
+    dd4hep::Material det_mat(theDetector.material(x_det.materialStr()));
+//    dd4hep::Material chamber_mat(theDetector.material("GasHe_90Isob_10"));
+    dd4hep::Material chamber_mat = theDetector.material(x_chamber.materialStr());
 
     // - global
     Assembly det_vol( det_name+"_assembly" ) ;
@@ -91,7 +97,8 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     double chamber_outer_wall_rmin = theDetector.constant<double>("SDT_chamber_outer_wall_radius_min");
     double chamber_outer_wall_rmax = theDetector.constant<double>("SDT_chamber_outer_wall_radius_max");
 
-    dd4hep::Material wall_mat(theDetector.material("CarbonFiber"));
+//    dd4hep::Material wall_mat(theDetector.material("CarbonFiber"));
+    dd4hep::Material wall_mat(theDetector.material(x_side.materialStr()));
 
     double wall_rmin[2] = {chamber_inner_wall_rmin, chamber_outer_wall_rmin};
     double wall_rmax[2] = {chamber_inner_wall_rmax, chamber_outer_wall_rmax};
@@ -153,13 +160,14 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
     for(int layer_id = 0; layer_id < chamber_layer_number; layer_id++) {
         double rmin,rmax,offset=0;
         dd4hep::Volume* current_vol_ptr = nullptr;
-        current_vol_ptr = &det_chamber_vol;
+//        current_vol_ptr = &det_chamber_vol;
         rmin = chamber_layer_rbegin+(layer_id*chamber_layer_width);
         rmax = rmin+chamber_layer_width;
         layerIndex = layer_id;
 
         //Construction of drift chamber layers
         double rmid = delta_a_func(rmin,rmax);
+        double Rmid = rmid/std::cos(alpha/2);
         double ilayer_cir = 2 * M_PI * rmid;
         double ncell = ilayer_cir / chamber_layer_width;
         int ncell_layer = floor(ncell);
@@ -168,6 +176,8 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 
         if(layer_id %2 ==0){ offset = 0.; }
         else { offset = 0.5 * layer_Phi; }
+
+        double epsilon = 0;
 
         DCHseg->setGeomParams(chamber_id, layerIndex, layer_Phi, rmid, epsilon, offset);
         DCHseg->setWiresInLayer(chamber_id, layerIndex, numWire);

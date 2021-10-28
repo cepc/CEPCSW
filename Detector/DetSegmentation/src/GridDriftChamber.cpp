@@ -22,7 +22,7 @@ GridDriftChamber::GridDriftChamber(const BitFieldCoder* decoder) : Segmentation(
   _description = "Drift chamber segmentation in the global coordinates";
 
   registerParameter("cell_size", "cell size", m_cellSize, 1., SegmentationParameter::LengthUnit);
-  registerParameter("epsilon0", "epsilon", m_epsilon0, 0., SegmentationParameter::AngleUnit, true);
+//  registerParameter("epsilon0", "epsilon", m_epsilon0, 0., SegmentationParameter::AngleUnit, true);
   registerParameter("detector_length", "Length of the wire", m_detectorLength, 1., SegmentationParameter::LengthUnit);
   registerIdentifier("identifier_phi", "Cell ID identifier for phi", m_phiID, "cellID");
   registerIdentifier("layerID", "layer id", layer_id, "layer");
@@ -48,6 +48,10 @@ CellID GridDriftChamber::cellID(const Vector3D& /*localPosition*/, const Vector3
 
   double posx = globalPosition.X;
   double posy = globalPosition.Y;
+  double posz = globalPosition.Z;
+  Vector3D wire0 = returnPosWire0(posz);
+  double phi_wire0 = phiFromXY(wire0);
+
   double radius = sqrt(posx*posx+posy*posy);
 
   int m_DC_layer_number = floor((m_DC_rend-m_DC_rbegin)/m_layer_width);
@@ -58,7 +62,7 @@ CellID GridDriftChamber::cellID(const Vector3D& /*localPosition*/, const Vector3
       layerid = floor((radius - m_DC_rbegin)/DC_layerdelta);
   } else if ( radius>= (m_DC_rmin-m_safe_distance) && radius < m_DC_rbegin) {
       layerid = 0;
-  } else if ( radius> m_DC_rend && radius <= (m_DC_rmax+m_safe_distance)) {
+  } else if ( radius> m_DC_rend ) {//&& radius <= (m_DC_rmax+m_safe_distance)) {
       layerid = m_DC_layer_number-1;
   }
 
@@ -68,14 +72,30 @@ CellID GridDriftChamber::cellID(const Vector3D& /*localPosition*/, const Vector3
   double offsetphi= m_offset;
   int _lphi;
 
-  if(phi_hit >= offsetphi) {
-    _lphi = (int) ((phi_hit - offsetphi)/ _currentLayerphi);
+  if(phi_hit >= (offsetphi+phi_wire0)) {
+    _lphi = (int) ((phi_hit - offsetphi - phi_wire0)/ _currentLayerphi);
   }
   else {
-    _lphi = (int) ((phi_hit - offsetphi + 2 * M_PI)/ _currentLayerphi);
+    _lphi = (int) ((phi_hit - offsetphi - phi_wire0 + 2 * M_PI)/ _currentLayerphi);
   }
 
   int lphi = _lphi;
+
+std::cout << "#######################################: "
+          << " posx= " << posx
+          << " posy= " << posy
+          << " posz= " << posz
+          << " phi_hit: " << phi_hit
+          << " phi_wire0: " << phi_wire0
+          << " _lphi: " << _lphi
+          <<  " offset : " << m_offset
+          << " offsetphi: " << offsetphi
+          << " layerID: " << layerid
+          << " r: " << _currentRadius
+          << " layerphi: " << _currentLayerphi
+          << std::endl;
+
+
   _decoder->set(cID, layer_id, layerid);
   _decoder->set(cID, m_phiID, lphi);
 
@@ -100,6 +120,17 @@ void GridDriftChamber::cellposition(const CellID& cID, TVector3& Wstart,
 
   Wstart = returnWirePosition(phi_mid, -1);
   Wend = returnWirePosition(phi_end, 1);
+}
+
+void GridDriftChamber::cellposition2(int chamber,int layer, int cell,
+                                    TVector3& Wstart, TVector3& Wend) const {
+     updateParams(chamber,layer);
+     double phi_start = binToPosition(cell, _currentLayerphi, m_offset);
+     double phi_mid = phi_start + _currentLayerphi/2.;
+     double phi_end = phi_mid + returnAlpha();
+
+     Wstart = returnWirePosition(phi_mid, -1);
+     Wend = returnWirePosition(phi_end, 1);
 }
 
 TVector3 GridDriftChamber::LineLineIntersect(TVector3& p1, TVector3& p2, TVector3& p3, TVector3& p4) const {
@@ -169,6 +200,20 @@ double GridDriftChamber::distanceTrackWire(const CellID& cID, const TVector3& hi
   }
 
   return DCA;
+}
+
+double GridDriftChamber::distanceTrackWire2(const CellID& cID, const TVector3& hit_pos) const {
+
+    TVector3 Wstart = {0,0,0};
+    TVector3 Wend = {0,0,0};
+    cellposition(cID,Wstart,Wend);
+
+    TVector3 denominator = Wend - Wstart;
+    TVector3  numerator = denominator.Cross(Wstart-hit_pos);
+
+    double DCA = numerator.Mag()/denominator.Mag() ;
+
+    return DCA;
 }
 
 TVector3 GridDriftChamber::distanceClosestApproach(const CellID& cID, const TVector3& hitPos) const {
@@ -251,6 +296,52 @@ TVector3 GridDriftChamber::IntersectionTrackWire(const CellID& cID, const TVecto
 
     }
   return intersect;
+}
+
+double GridDriftChamber::Distance(const CellID& cID, const TVector3& pointIn, const TVector3& pointOut, TVector3& hitPosition) const {
+
+ //For two lines r=r1+t1.v1 & r=r2+t2.v2
+  //the closest approach is d=|(r2-r1).(v1 x v2)|/|v1 x v2|
+  //the point where closest approach are
+  //t1=(v1 x v2).[(r2-r1) x v2]/[(v1 x v2).(v1 x v2)]
+  //t2=(v1 x v2).[(r2-r1) x v1]/[(v1 x v2).(v1 x v2)]
+  //if v1 x v2=0 means two lines are parallel
+  //d=|(r2-r1) x v1|/|v1|
+
+  double t1,distance,dInOut,dHitIn,dHitOut;
+  //Get wirepoint @ endplate
+   TVector3 west = {0,0,0};
+   TVector3 east = {0,0,0};
+   cellposition(cID,west,east);
+   TVector3 wireLine=east - west;
+   TVector3 hitLine=pointOut - pointIn;
+
+  TVector3 hitXwire=hitLine.Cross(wireLine);
+  TVector3 wire2hit=east-pointOut;
+  //Hitposition is the position on hit line where closest approach
+  //of two lines, but it may out the area from pointIn to pointOut
+  if(hitXwire.Mag()==0){
+    distance=wireLine.Cross(wire2hit).Mag()/wireLine.Mag();
+    hitPosition=pointIn;
+  }else{
+    t1=hitXwire.Dot(wire2hit.Cross(wireLine))/hitXwire.Mag2();
+    hitPosition=pointOut+t1*hitLine;
+
+    dInOut=(pointOut-pointIn).Mag();
+    dHitIn=(hitPosition-pointIn).Mag();
+    dHitOut=(hitPosition-pointOut).Mag();
+    if(dHitIn<=dInOut && dHitOut<=dInOut){ //Between point in & out
+      distance=fabs(wire2hit.Dot(hitXwire)/hitXwire.Mag());
+    }else if(dHitOut>dHitIn){ // out pointIn
+      distance=wireLine.Cross(pointIn-east).Mag()/wireLine.Mag();
+      hitPosition=pointIn;
+    }else{ // out pointOut
+      distance=wireLine.Cross(pointOut-east).Mag()/wireLine.Mag();
+      hitPosition=pointOut;
+    }
+  }
+
+  return distance;
 }
 
 
