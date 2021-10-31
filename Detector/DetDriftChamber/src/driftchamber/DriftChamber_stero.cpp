@@ -304,4 +304,4 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
 
 }
 
-DECLARE_DETELEMENT(DriftChamber_tile, create_detector);
+DECLARE_DETELEMENT(DriftChamber_Stero, create_detector);

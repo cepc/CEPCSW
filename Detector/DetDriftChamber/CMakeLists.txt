@@ -16,7 +16,7 @@ find_package(ROOT COMPONENTS MathCore GenVector Geom REQUIRED)
 
 gaudi_add_module(DetDriftChamber
                  SOURCES src/driftchamber/DriftChamber.cpp
-                 SOURCES src/driftchamber/DriftChamber_tile.cpp
+                 SOURCES src/driftchamber/DriftChamber_stero.cpp
 		 LINK DetSegmentation
                       ${DD4hep_COMPONENT_LIBRARIES} 
                   # ROOT Geant4
