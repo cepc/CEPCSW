@@ -92,7 +92,10 @@ StatusCode DCHDigiAlg::execute()
   m_start = clock();
 
   info() << "Processing " << _nEvt << " events " << endmsg;
-  m_evt = _nEvt;
+  if(m_WriteAna && (nullptr!=m_tuple))
+  {
+      m_evt = _nEvt;
+  }
   edm4hep::TrackerHitCollection* Vec   = w_DigiDCHCol.createAndPut();
   edm4hep::MCRecoTrackerAssociationCollection* AssoVec   = w_AssociationCol.createAndPut();
   const edm4hep::SimTrackerHitCollection* SimHitCol =  r_SimDCHCol.get();
@@ -227,15 +230,15 @@ StatusCode DCHDigiAlg::execute()
   debug()<<"output digi DCHhit size="<< Vec->size() <<endmsg;
   _nEvt ++ ;
 
+  m_end = clock();
   if(m_WriteAna && (nullptr!=m_tuple)){
+      m_time = (m_end - m_start);
       StatusCode status = m_tuple->write();
       if ( status.isFailure() ) {
         error() << "    Cannot fill N-tuple:" << long( m_tuple ) << endmsg;
         return StatusCode::FAILURE;
       }
   }
-  m_end = clock();
-  m_time = (m_end - m_start);
 
   return StatusCode::SUCCESS;
 }
