@@ -1,10 +1,9 @@
 # Quick start
 
-## Start development environment in a Singularity Container
+## Start development environment in lxslc7 (CentOS 7)
 
-Start the container in lxslc7 (OS: CentOS7):
 ```
-$ /cvmfs/container.ihep.ac.cn/bin/hep_container shell SL6
+$ ssh -Y USERNAME@lxslc7.ihep.ac.cn
 ```
 
 ## Manage code using git
