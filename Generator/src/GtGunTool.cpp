@@ -125,7 +125,7 @@ GtGunTool::mutate(MyHepMC::GenEvent& event) {
         double energy = energy_min==energy_max ? energy_min : CLHEP::RandFlat::shoot(energy_min, energy_max);
 
         // create the MC particle
-        edm4hep::MCParticle mcp = event.m_mc_vec.create();
+        auto mcp = event.m_mc_vec.create();
         mcp.setPDG(pdgcode);
         mcp.setGeneratorStatus(1);
         mcp.setSimulatorStatus(1);

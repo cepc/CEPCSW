@@ -134,7 +134,7 @@ StatusCode TrackInspectAlg::execute(){
     for (auto relCol: relCols) {
     	if (relCol){
 	    for (auto rel: *relCol){
-		    std::pair<edm4hep::ConstTrackerHit, edm4hep::ConstMCParticle> p = std::make_pair(rel.getRec(), rel.getSim().getMCParticle());
+		    std::pair<edm4hep::TrackerHit, edm4hep::MCParticle> p = std::make_pair(rel.getRec(), rel.getSim().getMCParticle());
 		    if (hitmap.find(p) == hitmap.end()) hitmap[p] = 0.;
 		    hitmap[p] += rel.getWeight();
 	    }
@@ -163,7 +163,7 @@ StatusCode TrackInspectAlg::execute(){
             for (auto particle: *mcpCol){
                 double match_weight = match(particle, track);
                 if (match_weight > 0.2){
-                    std::tuple<edm4hep::ConstMCParticle, edm4hep::ConstTrack, double> tuple = std::make_tuple(particle, track, match_weight);
+                    std::tuple<edm4hep::MCParticle, edm4hep::Track, double> tuple = std::make_tuple(particle, track, match_weight);
                     matchvec.push_back(tuple);
                 }
             }
@@ -174,7 +174,7 @@ StatusCode TrackInspectAlg::execute(){
         // MCParticleHitAssociator(mcpCol);
         m_nParticles = 0;
         for (auto particle: *mcpCol) {
-            std::vector<edm4hep::ConstTrack> theTracks = MCParticleTrackAssociator(particle);
+            std::vector<edm4hep::Track> theTracks = MCParticleTrackAssociator(particle);
 
             if (theTracks.size() == 0) {
                 totalCandidates[m_nParticles] = 0;
@@ -199,16 +199,16 @@ StatusCode TrackInspectAlg::execute(){
     return StatusCode::SUCCESS;
 }
 
-double TrackInspectAlg::match(edm4hep::ConstMCParticle particle, edm4hep::ConstTrack track){
+double TrackInspectAlg::match(edm4hep::MCParticle particle, edm4hep::Track track){
 
     int NHits = track.trackerHits_size();
 
     double matchedHits = 0;
     double usedHits = 0;
     for (int i = 0; i < NHits; i++) {
-        edm4hep::ConstTrackerHit hit = track.getTrackerHits(i);
+        edm4hep::TrackerHit hit = track.getTrackerHits(i);
         usedHits++;
-        std::pair<edm4hep::ConstTrackerHit, edm4hep::ConstMCParticle> ele = std::make_pair(hit, particle);
+        std::pair<edm4hep::TrackerHit, edm4hep::MCParticle> ele = std::make_pair(hit, particle);
         //std::cout << "lookup --> " << ele.first << std::endl;
         //if (hitmap.find(ele) != hitmap.end() ) {
         //std::cout << "find --> " << hitmap[ele] << std::endl;
@@ -227,7 +227,7 @@ double TrackInspectAlg::match(edm4hep::ConstMCParticle particle, edm4hep::ConstT
     return matchedHits / usedHits;
 }
 
-void TrackInspectAlg::Fill(edm4hep::ConstMCParticle particle, edm4hep::ConstTrack theTrack) {
+void TrackInspectAlg::Fill(edm4hep::MCParticle particle, edm4hep::Track theTrack) {
     pid[m_nParticles] = particle.getPDG();
 
     vx[m_nParticles] = particle.getVertex().x;
@@ -287,8 +287,8 @@ void TrackInspectAlg::Fill(edm4hep::ConstMCParticle particle, edm4hep::ConstTrac
     }   
 }
 
-std::vector<edm4hep::ConstTrack> TrackInspectAlg::MCParticleTrackAssociator(edm4hep::ConstMCParticle theParticle) {
-    std::vector<edm4hep::ConstTrack> theTracks;
+std::vector<edm4hep::Track> TrackInspectAlg::MCParticleTrackAssociator(edm4hep::MCParticle theParticle) {
+    std::vector<edm4hep::Track> theTracks;
     // std::cout << "The particle: " << theParticle.getPDG() << " " << theParticle << std::endl;
     for (auto matchtuple: matchvec){
         if (std::get<0>(matchtuple) == theParticle){

@@ -42,9 +42,9 @@ class TrackInspectAlg : public Algorithm {
         Gaudi::Property<bool> _useSET{this, "useSET", true};
         Gaudi::Property<bool> _useFTD{this, "useFTD", true};
 
-        std::map<std::pair<edm4hep::ConstTrackerHit, edm4hep::ConstMCParticle>, double> hitmap;
-        std::vector<std::tuple<edm4hep::ConstMCParticle, edm4hep::ConstTrack, double>> matchvec;
-        double match(edm4hep::ConstMCParticle, edm4hep::ConstTrack);
+        std::map<std::pair<edm4hep::TrackerHit, edm4hep::MCParticle>, double> hitmap;
+        std::vector<std::tuple<edm4hep::MCParticle, edm4hep::Track, double>> matchvec;
+        double match(edm4hep::MCParticle, edm4hep::Track);
 
         void initializeRelationCollections(std::vector<const edm4hep::MCRecoTrackerAssociationCollection*> &relCols);
 
@@ -52,10 +52,10 @@ class TrackInspectAlg : public Algorithm {
         std::string m_thisName;
 
         // TrackingEfficiency
-        void Fill(edm4hep::ConstMCParticle, edm4hep::ConstTrack);
-        std::vector<edm4hep::ConstTrack> MCParticleTrackAssociator(edm4hep::ConstMCParticle);
+        void Fill(edm4hep::MCParticle, edm4hep::Track);
+        std::vector<edm4hep::Track> MCParticleTrackAssociator(edm4hep::MCParticle);
 
-        std::map<edm4hep::ConstMCParticle, std::vector<edm4hep::ConstSimTrackerHit>> mcpHitMap;
+        std::map<edm4hep::MCParticle, std::vector<edm4hep::SimTrackerHit>> mcpHitMap;
         std::string treeFileName;
 
         NTuple::Tuple* m_tuple;

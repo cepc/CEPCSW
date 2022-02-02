@@ -86,7 +86,7 @@ StatusCode RecDCHDedxAlg::execute()
             return StatusCode::SUCCESS;
         }
         for(unsigned j=0; j<ptrkCol->size(); j++){
-            std::map< edm4hep::ConstMCParticle, int > map_mc_count;
+            std::map< edm4hep::MCParticle, int > map_mc_count;
             auto tmp_track = ptrkCol->at(j);
             for(unsigned k=0; k< tmp_track.trackerHits_size(); k++){
                 for(unsigned z=0; z< assoCol->size(); z++){
@@ -99,7 +99,7 @@ StatusCode RecDCHDedxAlg::execute()
                     
                 }
             }
-            edm4hep::MCParticle tmp_mc;
+            edm4hep::MutableMCParticle tmp_mc;
             int max_cout = 0;
             for(auto iter = map_mc_count.begin(); iter != map_mc_count.end(); iter++ ){
                 if(iter->second > max_cout){
@@ -154,7 +154,7 @@ StatusCode RecDCHDedxAlg::execute()
            return StatusCode::SUCCESS;
        }
        for(unsigned j=0; j<ptrkCol->size(); j++){
-           std::map< edm4hep::ConstMCParticle, int > map_mc_count;
+           std::map< edm4hep::MCParticle, int > map_mc_count;
            auto tmp_track = ptrkCol->at(j);
            for(unsigned k=0; k< tmp_track.trackerHits_size(); k++){
                for(unsigned z=0; z< assoCol->size(); z++){
@@ -167,7 +167,7 @@ StatusCode RecDCHDedxAlg::execute()
                    
                }
            }
-           edm4hep::MCParticle tmp_mc;
+           edm4hep::MutableMCParticle tmp_mc;
            int max_cout = 0;
            for(auto iter = map_mc_count.begin(); iter != map_mc_count.end(); iter++ ){
                if(iter->second > max_cout){
