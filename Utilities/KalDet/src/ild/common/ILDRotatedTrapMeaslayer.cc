@@ -155,7 +155,7 @@ Bool_t ILDRotatedTrapMeaslayer::IsOnSurface(const TVector3 &xx) const
 }
 
 
-ILDVTrackHit* ILDRotatedTrapMeaslayer::ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const {
+ILDVTrackHit* ILDRotatedTrapMeaslayer::ConvertLCIOTrkHit(edm4hep::TrackerHit trkhit) const {
   
   //EVENT::TrackerHitPlane* plane_hit = dynamic_cast<EVENT::TrackerHitPlane*>( trkhit ) ;
   if((trkhit.getType()&8)!=8) return NULL;

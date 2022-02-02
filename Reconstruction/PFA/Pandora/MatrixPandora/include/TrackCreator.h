@@ -167,7 +167,7 @@ private:
      *  @brief  Whether the track vertex conflicts with previously provided relationship information
      * 
      */
-    bool IsConflictingRelationship(const edm4hep::ConstReconstructedParticle &Particle) const;
+    bool IsConflictingRelationship(const edm4hep::ReconstructedParticle &Particle) const;
 
     /**
      *  @brief  Whether a track is a v0 track

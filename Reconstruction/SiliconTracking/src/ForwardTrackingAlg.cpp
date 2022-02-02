@@ -4,7 +4,7 @@
 #include "DataHelper/Navigation.h"
 
 #include "edm4hep/TrackerHit.h"
-#include "edm4hep/TrackerHitConst.h"
+#include "edm4hep/TrackerHit.h"
 #include "edm4hep/Track.h"
 
 #include "UTIL/ILDConf.h"
@@ -266,7 +266,7 @@ StatusCode ForwardTrackingAlg::execute(){
       if(pixelCollectionID==hitFTDCollections[iCol]->getID()){
 	if ( UTIL::BitSet32( trackerHit.getType() )[ UTIL::ILDTrkHitTypeBit::ONE_DIMENSIONAL ] ) continue;
       }
-      edm4hep::ConstTrackerHit hit = trackerHit;
+      edm4hep::TrackerHit hit = trackerHit;
       debug() << "hit " << trackerHit.id() << " " << KiTrackMarlin::getCellID0Info( trackerHit.getCellID() ) 
 	      << " " << KiTrackMarlin::getPositionInfo( hit )<< endmsg;
          
@@ -637,7 +637,7 @@ StatusCode ForwardTrackingAlg::execute(){
       FTDTrack* myTrack = dynamic_cast< FTDTrack* >( tracks[i] );
          
       if( myTrack != NULL ){
-	edm4hep::Track trackImpl( *(myTrack->getLcioTrack()) );
+	edm4hep::MutableTrack trackImpl( *(myTrack->getLcioTrack()) );
             
 	try{
 	  finaliseTrack( &trackImpl );
@@ -906,7 +906,7 @@ bool ForwardTrackingAlg::setCriteria( unsigned round ){
   return newValuesGotUsed;
 }
 
-void ForwardTrackingAlg::finaliseTrack( edm4hep::Track* trackImpl ){
+void ForwardTrackingAlg::finaliseTrack( edm4hep::MutableTrack* trackImpl ){
      
   Fitter fitter( trackImpl , _trkSystem );
    
@@ -953,7 +953,7 @@ void ForwardTrackingAlg::finaliseTrack( edm4hep::Track* trackImpl ){
   
   unsigned int nHits = trackImpl->trackerHits_size();
   for( unsigned j=0; j<nHits; j++ ){
-    const edm4hep::ConstTrackerHit& hit = trackImpl->getTrackerHits(j);
+    const edm4hep::TrackerHit& hit = trackImpl->getTrackerHits(j);
     UTIL::BitField64 encoder( UTIL::ILDCellID0::encoder_string );
     encoder.setValue( hit.getCellID() );
     int subdet =  encoder[UTIL::ILDCellID0::subdet];

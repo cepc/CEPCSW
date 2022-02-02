@@ -30,7 +30,7 @@ VXDTrack::VXDTrack( MarlinTrk::IMarlinTrkSystem* trkSystem ){
    _trkSystem = trkSystem;
    _chi2Prob = 0.;
  
-   _lcioTrack = new edm4hep::Track();
+   _lcioTrack = new edm4hep::MutableTrack();
    
 }
 /*
@@ -58,7 +58,7 @@ VXDTrack::VXDTrack( std::vector< IMiniVector* > hits , MarlinTrk::IMarlinTrkSyst
    _trkSystem = trkSystem;
    _chi2Prob = 0.;
    
-   _lcioTrack = new edm4hep::Track();
+   _lcioTrack = new edm4hep::MutableTrack();
    
    for( unsigned i=0; i < hits.size(); i++ ){
       
@@ -75,7 +75,7 @@ VXDTrack::VXDTrack( std::vector< IMiniVector* > hits , MarlinTrk::IMarlinTrkSyst
 VXDTrack::VXDTrack( const VXDTrack& f ){
 
    //make a new copied lcio track
-  _lcioTrack = new edm4hep::Track( *f._lcioTrack );
+  _lcioTrack = new edm4hep::MutableTrack( *f._lcioTrack );
    
    
    _hits = f._hits;
@@ -89,7 +89,7 @@ VXDTrack & VXDTrack::operator= (const VXDTrack & f){
    if (this == &f) return *this;   //protect against self assignment
    
    //make a new copied lcio track
-   _lcioTrack = new edm4hep::Track( *f._lcioTrack );
+   _lcioTrack = new edm4hep::MutableTrack( *f._lcioTrack );
    
    
    _hits = f._hits;

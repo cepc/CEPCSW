@@ -402,7 +402,7 @@ TVector3 ArborToolLCIO::ClusterCoG(edm4hep::Cluster inputCluster)
 }
 
 
-edm4hep::ClusterCollection* ArborToolLCIO::ClusterVecColl( std::vector<edm4hep::Cluster> inputClusters, DataHandle<edm4hep::ClusterCollection>& m_clucol )
+edm4hep::ClusterCollection* ArborToolLCIO::ClusterVecColl( std::vector<edm4hep::MutableCluster> inputClusters, DataHandle<edm4hep::ClusterCollection>& m_clucol )
 {
 
 	edm4hep::ClusterCollection* vec_coll_Clusters = m_clucol.createAndPut();
@@ -461,7 +461,7 @@ std::vector<edm4hep::Cluster> ArborToolLCIO::CollClusterVec(const edm4hep::Clust
 }
 
 
-void ArborToolLCIO::NaiveCluConst(edm4hep::Cluster a0_clu,edm4hep::Cluster b0_clu)
+void ArborToolLCIO::NaiveCluConst(edm4hep::MutableCluster a0_clu,edm4hep::MutableCluster b0_clu)
 {
 	b0_clu.setPosition(a0_clu.getPosition());
 	b0_clu.setEnergy(a0_clu.getEnergy());
@@ -492,9 +492,9 @@ void ArborToolLCIO::NaiveCluConst(edm4hep::Cluster a0_clu,edm4hep::Cluster b0_cl
 }
 
 
-edm4hep::Cluster ArborToolLCIO::NaiveCluImpl(edm4hep::Cluster a0_clu)
+edm4hep::Cluster ArborToolLCIO::NaiveCluImpl(edm4hep::MutableCluster a0_clu)
 {
-	edm4hep::Cluster b0_clu;
+	edm4hep::MutableCluster b0_clu;
 	b0_clu.setPosition(a0_clu.getPosition());
 	b0_clu.setEnergy(a0_clu.getEnergy());
 	int NCaloHit = a0_clu.hits_size();
@@ -543,9 +543,9 @@ std::vector<edm4hep::CalorimeterHit> ArborToolLCIO::CollHitVec(const edm4hep::Ca
 }
 
 
-std::vector<edm4hep::Cluster> ArborToolLCIO::ClusterHitAbsorbtion( std::vector<edm4hep::Cluster> MainClusters, std::vector<edm4hep::CalorimeterHit> IsoHits, float DisThreshold )	// Projective Distance + Hit Depth correlation; 
+std::vector<edm4hep::MutableCluster> ArborToolLCIO::ClusterHitAbsorbtion( std::vector<edm4hep::Cluster> MainClusters, std::vector<edm4hep::CalorimeterHit> IsoHits, float DisThreshold )	// Projective Distance + Hit Depth correlation; 
 {
-	std::vector<edm4hep::Cluster> outputClusterVec;
+	std::vector<edm4hep::MutableCluster> outputClusterVec;
 
 	int N_Core = MainClusters.size();
 	int N_Hit = IsoHits.size();
@@ -598,7 +598,7 @@ std::vector<edm4hep::Cluster> ArborToolLCIO::ClusterHitAbsorbtion( std::vector<e
 				tomerge_hits.push_back(a_frag);
 			}
 		}
-		edm4hep::Cluster a_mergedfrag_core;
+		edm4hep::MutableCluster a_mergedfrag_core;
 		ClusterEn = 0; 
 
 		for(unsigned int j2 = 0; j2 < a_core.hits_size(); j2++)
@@ -628,7 +628,7 @@ std::vector<edm4hep::Cluster> ArborToolLCIO::ClusterHitAbsorbtion( std::vector<e
 }
 
 
-void ArborToolLCIO::NaiveMergeCluConst(std::vector<edm4hep::Cluster> inputCluVec,edm4hep::Cluster MergedClu)
+void ArborToolLCIO::NaiveMergeCluConst(std::vector<edm4hep::Cluster> inputCluVec,edm4hep::MutableCluster MergedClu)
 {
 
 	int NClu = inputCluVec.size();
@@ -692,9 +692,9 @@ void ArborToolLCIO::NaiveMergeCluConst(std::vector<edm4hep::Cluster> inputCluVec
 	}
 
 }
-edm4hep::Cluster ArborToolLCIO::NaiveMergeClu(std::vector<edm4hep::Cluster> inputCluVec)
+edm4hep::MutableCluster ArborToolLCIO::NaiveMergeClu(std::vector<edm4hep::Cluster> inputCluVec)
 {
-	edm4hep::Cluster MergedClu;
+	edm4hep::MutableCluster MergedClu;
 
 	int NClu = inputCluVec.size();
 	float SeedDis = 1E9; 
@@ -761,9 +761,9 @@ edm4hep::Cluster ArborToolLCIO::NaiveMergeClu(std::vector<edm4hep::Cluster> inpu
 
 
 
-std::vector<edm4hep::Cluster> ArborToolLCIO::ClusterAbsorbtion( std::vector<edm4hep::Cluster> MainClusters, std::vector<edm4hep::Cluster> FragClusters, float DisThreshold, float DepthSlope )	//ProjectiveDis
+std::vector<edm4hep::MutableCluster> ArborToolLCIO::ClusterAbsorbtion( std::vector<edm4hep::Cluster> MainClusters, std::vector<edm4hep::MutableCluster> FragClusters, float DisThreshold, float DepthSlope )	//ProjectiveDis
 {
-	std::vector<edm4hep::Cluster> outputClusterVec;
+	std::vector<edm4hep::MutableCluster> outputClusterVec;
 
 	int N_Core = MainClusters.size();
 	int N_frag = FragClusters.size();
@@ -823,7 +823,7 @@ std::vector<edm4hep::Cluster> ArborToolLCIO::ClusterAbsorbtion( std::vector<edm4
 			}
 		}
 		auto a_mergedfrag_core = NaiveMergeClu(tomerge_clu);
-		edm4hep::Cluster a_mergedfrag_coreCon=a_mergedfrag_core;
+		edm4hep::MutableCluster a_mergedfrag_coreCon=a_mergedfrag_core;
 		outputClusterVec.push_back(a_mergedfrag_core);
 	}
 

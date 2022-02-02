@@ -86,21 +86,21 @@ class ArborToolLCIO  : public GaudiAlgorithm
 	
 	edm4hep::ClusterCollection* ClusterVecMerge( std::vector<edm4hep::Cluster> inputClusters, TMatrixF ConnectorMatrix, DataHandle<edm4hep::ClusterCollection>& clucol );
 	
-	edm4hep::ClusterCollection* ClusterVecColl( std::vector<edm4hep::Cluster> inputClusters, DataHandle<edm4hep::ClusterCollection>& m_clucol);
+	edm4hep::ClusterCollection* ClusterVecColl( std::vector<edm4hep::MutableCluster> inputClusters, DataHandle<edm4hep::ClusterCollection>& m_clucol);
 
-	edm4hep::Cluster NaiveCluImpl(edm4hep::Cluster a0_clu);
-	void NaiveCluConst(edm4hep::Cluster a0_clu, edm4hep::Cluster);
+	edm4hep::Cluster NaiveCluImpl(edm4hep::MutableCluster a0_clu);
+	void NaiveCluConst(edm4hep::MutableCluster a0_clu, edm4hep::MutableCluster b0_clu);
 	
 	std::vector<edm4hep::Cluster> CollClusterVec(const edm4hep::ClusterCollection * input_coll );
 	
 	std::vector<edm4hep::CalorimeterHit> CollHitVec(const edm4hep::CalorimeterHitCollection * input_coll, float EnergyThreshold);
 	
-	std::vector<edm4hep::Cluster> ClusterHitAbsorbtion( std::vector<edm4hep::Cluster> MainClusters, std::vector<edm4hep::CalorimeterHit> IsoHits, float DisThreshold );
+	std::vector<edm4hep::MutableCluster> ClusterHitAbsorbtion( std::vector<edm4hep::Cluster> MainClusters, std::vector<edm4hep::CalorimeterHit> IsoHits, float DisThreshold );
 	
-	edm4hep::Cluster NaiveMergeClu(std::vector<edm4hep::Cluster> inputCluVec);
+	edm4hep::MutableCluster NaiveMergeClu(std::vector<edm4hep::Cluster> inputCluVec);
 
-	void NaiveMergeCluConst(std::vector<edm4hep::Cluster> inputCluVec,edm4hep::Cluster MergedClu);
-	std::vector<edm4hep::Cluster> ClusterAbsorbtion( std::vector<edm4hep::Cluster> MainClusters, std::vector<edm4hep::Cluster> FragClusters, float thresholds, float DepthSlope );
+	void NaiveMergeCluConst(std::vector<edm4hep::Cluster> inputCluVec,edm4hep::MutableCluster MergedClu);
+	std::vector<edm4hep::MutableCluster> ClusterAbsorbtion( std::vector<edm4hep::Cluster> MainClusters, std::vector<edm4hep::MutableCluster> FragClusters, float thresholds, float DepthSlope );
 	
 	
 	int JointsBetweenBush(edm4hep::Cluster a_Clu, edm4hep::Cluster b_Clu, float CellSize);

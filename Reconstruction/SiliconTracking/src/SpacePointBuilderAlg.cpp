@@ -148,8 +148,8 @@ StatusCode SpacePointBuilderAlg::execute(){
 	  for( unsigned j=0; j<hitsBack.size(); j++ ){
 	    auto hitBack = hitsBack[j];
 
-	    std::vector<edm4hep::ConstSimTrackerHit> simHitsFront;
-	    std::vector<edm4hep::ConstSimTrackerHit> simHitsBack;
+	    std::vector<edm4hep::SimTrackerHit> simHitsFront;
+	    std::vector<edm4hep::SimTrackerHit> simHitsBack;
 	    for(auto hitAss : *hitAssCol){
 	      if(hitAss.getRec().id()==hitFront.id()) simHitsFront.push_back(hitAss.getSim());
 	      if(hitAss.getRec().id()==hitBack.id()) simHitsBack.push_back(hitAss.getSim());
@@ -157,13 +157,13 @@ StatusCode SpacePointBuilderAlg::execute(){
 	    debug() << "attempt to create space point from:" << endmsg;
             debug() << "   front hit: " << hitFront.id() << " no. of simhit = " << simHitsFront.size() ;
             if( simHitsFront.size()!=0 ) { 
-	      edm4hep::ConstSimTrackerHit& simhit = simHitsFront[0];
+	      edm4hep::SimTrackerHit& simhit = simHitsFront[0];
               debug() << "   first simhit = " << simhit.id() << " mcp = " << simhit.getMCParticle().id() << " (" << simhit.getPosition() << ") " ; 
             }
             debug() << endmsg;
             debug() << "  rear hit: " << hitBack.id() << " no. of simhit = " << simHitsBack.size() ;
             if( simHitsBack.size()!=0 ) { 
-	      edm4hep::ConstSimTrackerHit& simhit = simHitsBack[0];
+	      edm4hep::SimTrackerHit& simhit = simHitsBack[0];
               debug() << "   first simhit = " << simhit.id() << " mcp = "<< simhit.getMCParticle().id() << " (" << simhit.getPosition() << ") " ; 
             }
 	    debug() << endmsg;
@@ -198,7 +198,7 @@ StatusCode SpacePointBuilderAlg::execute(){
             // add tolerence 
             strip_length_mm = strip_length_mm * (1.0 + _striplength_tolerance);
 	    try{
-	      edm4hep::TrackerHit spacePoint = createSpacePoint( hitFront, hitBack, strip_length_mm);
+	      edm4hep::MutableTrackerHit spacePoint = createSpacePoint( hitFront, hitBack, strip_length_mm);
 
 	      //UTIL::CellIDEncoder<TrackerHitImpl> cellid_encoder( UTIL::ILDCellID0::encoder_string , spCol );
               //cellid_encoder.setValue( cellID0 ); //give the new hit, the CellID0 of the front hit
@@ -219,15 +219,15 @@ StatusCode SpacePointBuilderAlg::execute(){
               ///////////////////////////////
               // make the relations
               if( simHitsFront.size() == 1 ){
-		edm4hep::ConstSimTrackerHit& simHit = simHitsFront[0];
-		edm4hep::MCRecoTrackerAssociation spAss = relCol->create();
+		edm4hep::SimTrackerHit& simHit = simHitsFront[0];
+		auto spAss = relCol->create();
 		spAss.setRec(spacePoint);
 		spAss.setSim(simHit);
 		spAss.setWeight( 0.5 );
               }
               if( simHitsBack.size() == 1 ){
-		edm4hep::ConstSimTrackerHit& simHit = simHitsBack[0];
-		edm4hep::MCRecoTrackerAssociation spAss = relCol->create();
+		edm4hep::SimTrackerHit& simHit = simHitsBack[0];
+		auto spAss = relCol->create();
                 spAss.setRec(spacePoint);
 		spAss.setSim(simHit);
                 spAss.setWeight( 0.5 );
@@ -268,7 +268,7 @@ StatusCode SpacePointBuilderAlg::finalize(){
   return GaudiAlgorithm::finalize();
 }
 
-edm4hep::TrackerHit SpacePointBuilderAlg::createSpacePoint( edm4hep::ConstTrackerHit a , edm4hep::ConstTrackerHit b, double stripLength ){
+edm4hep::MutableTrackerHit SpacePointBuilderAlg::createSpacePoint( edm4hep::TrackerHit a , edm4hep::TrackerHit b, double stripLength ){
   
   const edm4hep::Vector3d& pa = a.getPosition();
   double xa = pa[0];
@@ -406,7 +406,7 @@ edm4hep::TrackerHit SpacePointBuilderAlg::createSpacePoint( edm4hep::ConstTracke
   }
   
   //Create the new TrackerHit
-  edm4hep::TrackerHit spacePoint;// = new edm4hep::TrackerHit();
+  edm4hep::MutableTrackerHit spacePoint;// = new edm4hep::TrackerHit();
   
   edm4hep::Vector3d pos(point.x(), point.y(), point.z());
   spacePoint.setPosition(pos) ;

@@ -110,7 +110,7 @@ void ILDCylinderMeasLayer::CalcDhDa(const TVTrackHit &vht, // tracker hit not us
 
 /** Convert LCIO Tracker Hit to an ILDCylinderHit  */
 
-ILDVTrackHit* ILDCylinderMeasLayer::ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const {
+ILDVTrackHit* ILDCylinderMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit trkhit) const {
   if ( ! trkhit.isAvailable() ) {
     // streamlog_out(ERROR) << "ILDCylinderMeasLayer::ConvertLCIOTrkHit trkhit pointer is NULL" << std::endl;
     return NULL;

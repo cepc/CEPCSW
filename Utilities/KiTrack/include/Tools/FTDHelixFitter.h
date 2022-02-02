@@ -2,7 +2,8 @@
 #define FTDHelixFitter_h
 
 #include "edm4hep/Track.h"
-#include "edm4hep/TrackerHitConst.h"
+#include "edm4hep/MutableTrack.h"
+#include "edm4hep/TrackerHit.h"
 
 class FTDHelixFitterException : public std::exception {
  protected:
@@ -32,8 +33,8 @@ class FTDHelixFitterException : public std::exception {
 class FTDHelixFitter{
  public:
    
-  FTDHelixFitter( edm4hep::Track* track ) ;
-  FTDHelixFitter( std::vector<edm4hep::ConstTrackerHit> trackerHits ) ;
+  FTDHelixFitter( edm4hep::MutableTrack* track ) ;
+  FTDHelixFitter( std::vector<edm4hep::TrackerHit> trackerHits ) ;
    
    
    double getChi2(){ return _chi2; }
@@ -58,7 +59,7 @@ class FTDHelixFitter{
    float _d0;
    float _z0;
    
-   std::vector< edm4hep::ConstTrackerHit > _trackerHits;
+   std::vector< edm4hep::TrackerHit > _trackerHits;
      
 };
 

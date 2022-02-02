@@ -207,13 +207,13 @@ Bool_t ILDDiscMeasLayer::IsOnSurface(const TVector3 &xx) const
 }
 
 
-ILDVTrackHit* ILDDiscMeasLayer::ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const {
+ILDVTrackHit* ILDDiscMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit trkhit) const {
   
   //edm4hep::TrackerHitPlane* plane_hit = dynamic_cast<EVENT::TrackerHitPlane*>( trkhit ) ;
   //edm4hep::TrackerHitPlane* plane_hit = trkhit;
   if((trkhit.getType()&8)!=8) return NULL;
   
-  //edm4hep::ConstTrackerHit plane_hit = trkhit;
+  //edm4hep::TrackerHit plane_hit = trkhit;
   //if( plane_hit == NULL )  return NULL; // SJA:FIXME: should be replaced with an exception  
   
   //gear::Vector3D U(1.0,plane_hit.getU()[1],plane_hit.getU()[0],gear::Vector3D::spherical);
