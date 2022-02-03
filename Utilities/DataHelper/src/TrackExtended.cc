@@ -11,7 +11,7 @@ TrackExtended::TrackExtended( ) {
     _group = NULL;
 }
 
-TrackExtended::TrackExtended(ConstTrack track) {
+TrackExtended::TrackExtended(Track track) {
     _track = track;
     _superCluster = NULL;
     _trackerHitVector.clear();
@@ -32,7 +32,7 @@ TrackExtended::TrackExtended( TrackerHitExtended * trackerhit) {
 
 TrackExtended::~TrackExtended() {}
 
-ConstTrack TrackExtended::getTrack() {
+Track TrackExtended::getTrack() {
   if(!_track.isAvailable()){
     std::cout << "Error: track not available" << _track.isAvailable() << " id= " << _track.id() << std::endl;
     throw std::runtime_error("Error: track not available");

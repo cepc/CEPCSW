@@ -59,12 +59,12 @@ public:
     CollectionMaps();
     void clear();
 
-    std::map<std::string, std::vector<edm4hep::ConstMCParticle> >     collectionMap_MC;
-    std::map<std::string, std::vector<edm4hep::ConstCalorimeterHit> > collectionMap_CaloHit;
-    std::map<std::string, std::vector<edm4hep::ConstVertex> >         collectionMap_Vertex;
-    std::map<std::string, std::vector<edm4hep::ConstTrack> >          collectionMap_Track;
-    std::map<std::string, std::vector<edm4hep::ConstMCRecoCaloAssociation> > collectionMap_CaloRel;
-    std::map<std::string, std::vector<edm4hep::ConstMCRecoTrackerAssociation> > collectionMap_TrkRel;
+    std::map<std::string, std::vector<edm4hep::MCParticle> >     collectionMap_MC;
+    std::map<std::string, std::vector<edm4hep::CalorimeterHit> > collectionMap_CaloHit;
+    std::map<std::string, std::vector<edm4hep::Vertex> >         collectionMap_Vertex;
+    std::map<std::string, std::vector<edm4hep::Track> >          collectionMap_Track;
+    std::map<std::string, std::vector<edm4hep::MCRecoCaloAssociation> > collectionMap_CaloRel;
+    std::map<std::string, std::vector<edm4hep::MCRecoTrackerAssociation> > collectionMap_TrkRel;
 };
 
 

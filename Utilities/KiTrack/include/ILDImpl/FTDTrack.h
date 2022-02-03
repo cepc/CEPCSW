@@ -5,6 +5,7 @@
 //#include "MarlinTrk/IMarlinTrkSystem.h"
 //#include "MarlinTrk/IMarlinTrack.h"
 #include "edm4hep/Track.h"
+#include "edm4hep/MutableTrack.h"
 #include "TrackSystemSvc/IMarlinTrkSystem.h"
 
 #include <vector>
@@ -33,7 +34,7 @@ namespace KiTrackMarlin{
         
     /** @return a track in the lcio format
      */
-    edm4hep::Track* getLcioTrack(){ return ( _lcioTrack );}
+    edm4hep::MutableTrack* getLcioTrack(){ return ( _lcioTrack );}
         
     void addHit( IFTDHit* hit );
     
@@ -58,7 +59,7 @@ namespace KiTrackMarlin{
      */
     std::vector< IFTDHit* > _hits;
       
-    edm4hep::Track*  _lcioTrack;
+    edm4hep::MutableTrack*  _lcioTrack;
     
     // for fitting
     MarlinTrk::IMarlinTrkSystem* _trkSystem;

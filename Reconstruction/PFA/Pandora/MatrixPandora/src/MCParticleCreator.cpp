@@ -6,14 +6,10 @@
  */
 
 
-#include "edm4hep/MCParticleConst.h"
 #include "edm4hep/MCParticle.h" 
 #include "edm4hep/MCRecoCaloAssociation.h" 
-#include "edm4hep/SimCalorimeterHitConst.h" 
-#include "edm4hep/CaloHitContributionConst.h" 
 #include "edm4hep/Track.h" 
 #include "edm4hep/MCRecoTrackerAssociation.h" 
-#include "edm4hep/SimTrackerHitConst.h" 
 
 
 
@@ -30,7 +26,7 @@ MCParticleCreator::MCParticleCreator(const Settings &settings, const pandora::Pa
     m_pPandora(pPandora),
     m_bField(settings.m_bField)
 {
-m_id_pMC_map = new std::map<unsigned int, edm4hep::ConstMCParticle*>;
+m_id_pMC_map = new std::map<unsigned int, edm4hep::MCParticle*>;
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------
@@ -249,7 +245,7 @@ pandora::StatusCode MCParticleCreator::CreateCaloHitToMCParticleRelationships(co
 pandora::StatusCode MCParticleCreator::CreateCaloHitToMCParticleRelationships(const CollectionMaps& collectionMaps, const CalorimeterHitVector &calorimeterHitVector) const
 {
     std::cout<<"Do CreateCaloHitToMCParticleRelationships"<<std::endl;
-    typedef std::map<edm4hep::ConstMCParticle *, float> MCParticleToEnergyWeightMap;
+    typedef std::map<edm4hep::MCParticle *, float> MCParticleToEnergyWeightMap;
     MCParticleToEnergyWeightMap mcParticleToEnergyWeightMap;
 
     for (StringVector::const_iterator iter = m_settings.m_CaloHitRelationCollections.begin(), iterEnd = m_settings.m_CaloHitRelationCollections.end();
@@ -272,7 +268,7 @@ pandora::StatusCode MCParticleCreator::CreateCaloHitToMCParticleRelationships(co
                         auto pSimHit = pMCRecoCaloAssociationCollection.at(ic).getSim();
                         for (int iCont = 0, iEnd = pSimHit.contributions_size(); iCont < iEnd; ++iCont)
                         {
-                            edm4hep::ConstCaloHitContribution conb = pSimHit.getContributions(iCont);
+                            edm4hep::CaloHitContribution conb = pSimHit.getContributions(iCont);
                             auto ipa = conb.getParticle();
                             float  ien = conb.getEnergy();
                             if( m_id_pMC_map->find(ipa.id()) == m_id_pMC_map->end() ) continue;
@@ -320,7 +316,7 @@ pandora::StatusCode MCParticleCreator::CreateTrackToMCParticleRelationships(cons
         const pandora::Helix helixFit(pTrack->getTrackStates(0).phi, pTrack->getTrackStates(0).D0, pTrack->getTrackStates(0).Z0, pTrack->getTrackStates(0).omega, pTrack->getTrackStates(0).tanLambda, m_bField);
         const float recoMomentum(helixFit.GetMomentum().GetMagnitude());
         // Use momentum magnitude to identify best mc particle
-        edm4hep::ConstMCParticle *pBestMCParticle = NULL;
+        edm4hep::MCParticle *pBestMCParticle = NULL;
         float bestDeltaMomentum(std::numeric_limits<float>::max());
         try
         {

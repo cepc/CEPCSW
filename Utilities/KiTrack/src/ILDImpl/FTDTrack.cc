@@ -27,7 +27,7 @@ FTDTrack::FTDTrack( MarlinTrk::IMarlinTrkSystem* trkSystem ){
    _trkSystem = trkSystem;
    _chi2Prob = 0.;
  
-   _lcioTrack = new edm4hep::Track();
+   _lcioTrack = new edm4hep::MutableTrack();
    
    
 }
@@ -38,7 +38,7 @@ FTDTrack::FTDTrack( std::vector< IFTDHit* > hits , MarlinTrk::IMarlinTrkSystem* 
    _trkSystem = trkSystem;
    _chi2Prob = 0.;
    
-   _lcioTrack = new edm4hep::Track();
+   _lcioTrack = new edm4hep::MutableTrack();
    
    for( unsigned i=0; i < hits.size(); i++ ){
       
@@ -53,7 +53,7 @@ FTDTrack::FTDTrack( std::vector< IFTDHit* > hits , MarlinTrk::IMarlinTrkSystem* 
 FTDTrack::FTDTrack( const FTDTrack& f ){
 
    //make a new copied lcio track
-  _lcioTrack = new edm4hep::Track( *f._lcioTrack );
+  _lcioTrack = new edm4hep::MutableTrack( *f._lcioTrack );
    
    
    _hits = f._hits;
@@ -67,7 +67,7 @@ FTDTrack & FTDTrack::operator= (const FTDTrack & f){
    if (this == &f) return *this;   //protect against self assignment
    
    //make a new copied lcio track
-   _lcioTrack = new edm4hep::Track( *f._lcioTrack );
+   _lcioTrack = new edm4hep::MutableTrack( *f._lcioTrack );
    
    
    _hits = f._hits;

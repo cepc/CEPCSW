@@ -16,7 +16,7 @@ namespace KiTrackMarlin{
   class IFTDHit : public IHit{
   public:
         
-    edm4hep::ConstTrackerHit* getTrackerHit() { return &_trackerHit; };
+    edm4hep::TrackerHit* getTrackerHit() { return &_trackerHit; };
             
     int getSide() { return _side; }
     unsigned getModule() { return _module; }
@@ -31,7 +31,7 @@ namespace KiTrackMarlin{
     
   protected:
     
-    edm4hep::ConstTrackerHit _trackerHit;
+    edm4hep::TrackerHit _trackerHit;
             
     int _side;
     unsigned _layer;

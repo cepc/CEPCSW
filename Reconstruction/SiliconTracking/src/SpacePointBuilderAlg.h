@@ -144,7 +144,7 @@ class SpacePointBuilderAlg : public GaudiAlgorithm {
   
   
   /** @return a spacepoint (in the form of a TrackerHitImpl* ) created from two TrackerHitPlane* which stand for si-strips */
-  edm4hep::TrackerHit createSpacePoint( edm4hep::ConstTrackerHit a , edm4hep::ConstTrackerHit b, double stripLength );
+  edm4hep::MutableTrackerHit createSpacePoint( edm4hep::TrackerHit a , edm4hep::TrackerHit b, double stripLength );
   
 //   TrackerHitImpl* createSpacePointOld( TrackerHitPlane* a , TrackerHitPlane* b );
   

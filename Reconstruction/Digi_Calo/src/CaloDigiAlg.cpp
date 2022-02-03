@@ -45,7 +45,7 @@ StatusCode CaloDigiAlg::initialize()
 
 StatusCode CaloDigiAlg::execute()
 {
-  std::map<unsigned long long, edm4hep::SimCalorimeterHit> id_hit_map;
+  std::map<unsigned long long, edm4hep::MutableSimCalorimeterHit> id_hit_map;
   edm4hep::CalorimeterHitCollection* caloVec   = w_DigiCaloCol.createAndPut();
   edm4hep::MCRecoCaloAssociationCollection* caloAssoVec   = w_CaloAssociationCol.createAndPut();
   const edm4hep::SimCalorimeterHitCollection* SimHitCol =  r_SimCaloCol.get();
@@ -68,7 +68,7 @@ StatusCode CaloDigiAlg::execute()
       tot_e += en;
       if ( id_hit_map.find(id) != id_hit_map.end()) id_hit_map[id].setEnergy(id_hit_map[id].getEnergy() + en);
       else {
-        edm4hep::SimCalorimeterHit newSimHit(SimHit.getCellID(), SimHit.getEnergy(), SimHit.getPosition());
+        edm4hep::MutableSimCalorimeterHit newSimHit(SimHit.getCellID(), SimHit.getEnergy(), SimHit.getPosition());
         id_hit_map[id] = newSimHit ;
       }
 

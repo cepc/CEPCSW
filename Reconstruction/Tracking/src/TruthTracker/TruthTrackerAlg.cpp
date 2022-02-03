@@ -121,7 +121,7 @@ StatusCode TruthTrackerAlg::execute()
     if(nullptr!=siTrackCol) {
         ///New SDT track
         for(auto siTrack:*siTrackCol){
-            edm4hep::Track sdtTrack=sdtTrackCol->create();
+            auto sdtTrack=sdtTrackCol->create();
             edm4hep::TrackState sdtTrackState;
             edm4hep::TrackState siTrackStat=siTrack.getTrackStates(0);//FIXME?
             sdtTrackState.location=siTrackStat.location;
@@ -199,7 +199,7 @@ StatusCode TruthTrackerAlg::execute()
         helix.Initialize_VP(pos,mom,mcParticle.getCharge(),B[2]/dd4hep::tesla);
 
         ///new Track
-        edm4hep::Track dcTrack=dcTrackCol->create();
+        auto dcTrack=dcTrackCol->create();
         edm4hep::TrackState trackState;
         trackState.D0=helix.getD0();
         trackState.phi=helix.getPhi0();
@@ -227,7 +227,7 @@ StatusCode TruthTrackerAlg::execute()
         }
         dcTrack.setRadiusOfInnermostHit(radiusOfInnermostHit);//TODO
 
-        edm4hep::ReconstructedParticle dcRecParticle;
+        edm4hep::MutableReconstructedParticle dcRecParticle;
         if(m_writeRecParticle){
             dcRecParticle=dcRecParticleCol->create();
             ///new ReconstructedParticle

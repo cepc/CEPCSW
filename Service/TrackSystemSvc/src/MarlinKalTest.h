@@ -2,7 +2,7 @@
 #define MarlinKalTest_h
 
 #include "TrackSystemSvc/IMarlinTrkSystem.h"
-#include "edm4hep/TrackerHitConst.h"
+#include "edm4hep/TrackerHit.h"
 
 #include "gear/GearMgr.h"
 
@@ -80,7 +80,7 @@ namespace MarlinTrk{
     bool is_initialised ;
     
     //** find the measurment layer for a given hit 
-    const ILDVMeasLayer* findMeasLayer(edm4hep::ConstTrackerHit trkhit) const ; 
+    const ILDVMeasLayer* findMeasLayer(edm4hep::TrackerHit trkhit) const ; 
     //** find the measurment layer for a given det element ID and point in space 
     const ILDVMeasLayer* findMeasLayer(int detElementID, const TVector3& point) const ;
     

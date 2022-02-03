@@ -60,8 +60,8 @@ StatusCode SimHitMergeAlg::execute()
      
      for (unsigned int k0 = 0; k0 < m_inputColNames.size(); k0++)
      {
-          std::map<unsigned long long, edm4hep::SimCalorimeterHit> id_hit_map;
-          std::map<unsigned long long, std::vector<edm4hep::ConstCaloHitContribution> > id_vconb_map;
+          std::map<unsigned long long, edm4hep::MutableSimCalorimeterHit> id_hit_map;
+          std::map<unsigned long long, std::vector<edm4hep::CaloHitContribution> > id_vconb_map;
 	  edm4hep::SimCalorimeterHitCollection* mergedCol = m_OutputCollections[k0]->createAndPut();
 	  auto col = m_InputCollections[k0]->get();
           //std::cout<<"input="<<m_InputCollections[k0]->objKey()<<",size="<<col->size()<<std::endl;
@@ -78,10 +78,10 @@ StatusCode SimHitMergeAlg::execute()
               //std::cout<<"DD_sim_hit::ProcessHits, sp x="<<Simhit.getPosition()[0]<<", y="<<Simhit.getPosition()[1]<<", z="<<Simhit.getPosition()[2]<<",edep="<<Simhit.getEnergy()<<std::endl;
               if ( id_hit_map.find(id) != id_hit_map.end()) id_hit_map[id].setEnergy(id_hit_map[id].getEnergy() + Simhit.getEnergy());
               else {
-                  edm4hep::SimCalorimeterHit newSimhit(Simhit.getCellID(), Simhit.getEnergy(), Simhit.getPosition());
+                  edm4hep::MutableSimCalorimeterHit newSimhit(Simhit.getCellID(), Simhit.getEnergy(), Simhit.getPosition());
                   id_hit_map[id] = newSimhit;
               }
-              std::vector<edm4hep::ConstCaloHitContribution> tmp_vconb ;
+              std::vector<edm4hep::CaloHitContribution> tmp_vconb ;
               for(int kk=0; kk<Simhit.contributions_size(); kk++){
                   tmp_vconb.push_back(Simhit.getContributions(kk));
               }

@@ -546,10 +546,10 @@ StatusCode TPCDigiAlg::execute()
 
     debug() << "number of Pad-Row based SimHits = " << n_sim_hits << endmsg;
     
-    edm4hep::ConstMCParticle nMinus2MCP;
-    edm4hep::ConstMCParticle previousMCP;
-    edm4hep::ConstSimTrackerHit nMinus2SimHit;
-    edm4hep::ConstSimTrackerHit previousSimTHit;
+    edm4hep::MCParticle nMinus2MCP;
+    edm4hep::MCParticle previousMCP;
+    edm4hep::SimTrackerHit nMinus2SimHit;
+    edm4hep::SimTrackerHit previousSimTHit;
 
     debug() << "processing nhit=" << n_sim_hits << endmsg;
     // loop over all the pad row based sim hits
@@ -578,7 +578,7 @@ StatusCode TPCDigiAlg::execute()
       // conversion constant. r = pt / (FCT*bField)
       const double FCT = 2.99792458E-4;
       bool found_mc = false;
-      edm4hep::ConstMCParticle mcp;
+      edm4hep::MCParticle mcp;
       try{ // protect crash while MCParticle unavailable
         mcp = SimTHit.getMCParticle() ;
       }
@@ -647,18 +647,18 @@ StatusCode TPCDigiAlg::execute()
           padPhi = CLHEP::twopi/4.0 ;
         }
         else{
-          edm4hep::ConstSimTrackerHit nextSimTHit;
-          edm4hep::ConstSimTrackerHit nPlus2SimHit;
-          edm4hep::ConstMCParticle nextMCP;
-          edm4hep::ConstMCParticle nPlus2MCP;
+          edm4hep::SimTrackerHit nextSimTHit;
+          edm4hep::SimTrackerHit nPlus2SimHit;
+          edm4hep::MCParticle nextMCP;
+          edm4hep::MCParticle nPlus2MCP;
           // if there is at least one more hit after this one, set the pointer to the MCParticle for the next hit
           if (i < (n_sim_hits-1) ) {
             nextSimTHit = STHcol->at( i+1 ) ;
             nextMCP     = nextSimTHit.getMCParticle() ;
           }
           else{ // set make sure that the pointers are set back to NULL so that the comparisons later hold
-            //nextSimTHit = edm4hep::ConstSimTrackerHit;
-            //nextMCP     = edm4hep::ConstMCParticle;
+            //nextSimTHit = edm4hep::SimTrackerHit;
+            //nextMCP     = edm4hep::MCParticle;
           }
           // if there is at least two more hits after this one, set the pointer to the MCParticle for the next but one hit
           if (i < (n_sim_hits-2) ) {
@@ -666,8 +666,8 @@ StatusCode TPCDigiAlg::execute()
             nPlus2MCP    = nPlus2SimHit.getMCParticle() ;
           }
           else{ // set make sure that the pointers are set back to NULL so that the comparisons later hold
-            //_nPlus2SimHit = edm4hep::ConstSimTrackerHit;
-            //_nPlus2MCP    = edm4hep::ConstMCParticle;
+            //_nPlus2SimHit = edm4hep::SimTrackerHit;
+            //_nPlus2MCP    = edm4hep::MCParticle;
           }
 
           if      ( mcp==previousMCP && mcp==nextMCP )    { // middle hit of 3 from the same MCParticle
@@ -1166,7 +1166,7 @@ void TPCDigiAlg::writeVoxelToHit( Voxel_tpc* aVoxel){
   //  if( seed_hit->getRowIndex() > 5 ) return ;
   debug() << "==============" << endmsg;
   //store hit variables
-  edm4hep::TrackerHit trkHit;// = _trkhitVec->create();
+  edm4hep::MutableTrackerHit trkHit;// = _trkhitVec->create();
   //now the hit pos has to be smeared
 
   double tpcRPhiRes = seed_hit->getRPhiRes();
@@ -1302,7 +1302,7 @@ void TPCDigiAlg::writeMergedVoxelsToHit( vector <Voxel_tpc*>* hitsToMerge){
   const gear::PadRowLayout2D& padLayout = gearTPC.getPadLayout() ;
   const gear::Vector2D padCoord = padLayout.getPadCenter(1) ;
 
-  edm4hep::TrackerHit trkHit;// = _trkhitVec->create();
+  edm4hep::MutableTrackerHit trkHit;// = _trkhitVec->create();
 
   double sumZ = 0;
   double sumPhi = 0;

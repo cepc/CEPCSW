@@ -17,9 +17,9 @@ class Navigation{
   void AddTrackerHitCollection(const edm4hep::TrackerHitCollection* col){m_hitColVec.push_back(col);};
   void AddTrackerAssociationCollection(const edm4hep::MCRecoTrackerAssociationCollection* col){m_assColVec.push_back(col);};
 
-  edm4hep::ConstTrackerHit GetTrackerHit(const edm4hep::ObjectID& id, bool delete_by_caller=true);
-  std::vector<edm4hep::ConstSimTrackerHit> GetRelatedTrackerHit(const edm4hep::ObjectID& id);
-  std::vector<edm4hep::ConstSimTrackerHit> GetRelatedTrackerHit(const edm4hep::TrackerHit& hit);
+  edm4hep::TrackerHit GetTrackerHit(const edm4hep::ObjectID& id, bool delete_by_caller=true);
+  std::vector<edm4hep::SimTrackerHit> GetRelatedTrackerHit(const edm4hep::ObjectID& id);
+  std::vector<edm4hep::SimTrackerHit> GetRelatedTrackerHit(const edm4hep::TrackerHit& hit);
   
   //static Navigation* m_fNavigation;
  private:
@@ -27,6 +27,6 @@ class Navigation{
   //DataHandle<edm4hep::MCRecoTrackerAssociationCollection> _inHitAssColHdl{"FTDStripTrackerHitsAssociation", Gaudi::DataHandle::Reader, this};
   std::vector<const edm4hep::TrackerHitCollection*> m_hitColVec;
   std::vector<const edm4hep::MCRecoTrackerAssociationCollection*> m_assColVec;
-  std::map<int, edm4hep::ConstTrackerHit> m_trkHits;
+  std::map<int, edm4hep::TrackerHit> m_trkHits;
 };
 #endif 

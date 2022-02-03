@@ -39,7 +39,7 @@ public:
     CollectionMaps();
     void clear();
     std::map<std::string, std::vector<edm4hep::MCParticle> >     collectionMap_MC;
-    std::map<std::string, std::vector<edm4hep::ConstCalorimeterHit> > collectionMap_CaloHit;
+    std::map<std::string, std::vector<edm4hep::CalorimeterHit> > collectionMap_CaloHit;
     std::map<std::string, std::vector<edm4hep::Vertex> >         collectionMap_Vertex;
     std::map<std::string, std::vector<edm4hep::Track> >          collectionMap_Track;
     std::map<std::string, std::vector<edm4hep::MCRecoCaloAssociation> > collectionMap_CaloRel;
@@ -58,65 +58,65 @@ class ArborToolLCIO  : public GaudiAlgorithm
 
 
 		void Clean(); 
-	void ClusterBuilding(DataHandle<edm4hep::ClusterCollection>& _currbranchcoll, std::vector<edm4hep::ConstCalorimeterHit> Hits, branchcoll BranchOrder, int DHCALFlag);
+	void ClusterBuilding(DataHandle<edm4hep::ClusterCollection>& _currbranchcoll, std::vector<edm4hep::CalorimeterHit> Hits, branchcoll BranchOrder, int DHCALFlag);
 	
-	float ClusterT0(edm4hep::ConstCluster a_Clu);
+	float ClusterT0(edm4hep::Cluster a_Clu);
 
-	int NHScaleV2( std::vector<edm4hep::ConstCalorimeterHit> clu0, int RatioX, int RatioY, int RatioZ );
-	float FDV2( std::vector<edm4hep::ConstCalorimeterHit> clu);
+	int NHScaleV2( std::vector<edm4hep::CalorimeterHit> clu0, int RatioX, int RatioY, int RatioZ );
+	float FDV2( std::vector<edm4hep::CalorimeterHit> clu);
 	
-	int NHScaleV3( edm4hep::ConstCluster clu0, int RatioX, int RatioY, int RatioZ );
+	int NHScaleV3( edm4hep::Cluster clu0, int RatioX, int RatioY, int RatioZ );
 	
-	float FDV3( edm4hep::ConstCluster clu);
+	float FDV3( edm4hep::Cluster clu);
 	
-	int ActiveLayers(  std::vector<edm4hep::ConstCalorimeterHit> clu );
+	int ActiveLayers(  std::vector<edm4hep::CalorimeterHit> clu );
 	
-	float BushDis( edm4hep::ConstCluster clu1, edm4hep::ConstCluster clu2);
+	float BushDis( edm4hep::Cluster clu1, edm4hep::Cluster clu2);
 	
 	
-	float* SimpleDisTrackClu(edm4hep::ConstTrack a_trk, edm4hep::ConstCluster a_clu);
+	float* SimpleDisTrackClu(edm4hep::Track a_trk, edm4hep::Cluster a_clu);
 	
-	float SimpleBushTimeTrackClu(edm4hep::ConstTrack a_trk, edm4hep::ConstCluster a_clu);
+	float SimpleBushTimeTrackClu(edm4hep::Track a_trk, edm4hep::Cluster a_clu);
 	
-	int SimpleBushNC(edm4hep::ConstTrack a_trk, edm4hep::ConstCluster a_clu);
+	int SimpleBushNC(edm4hep::Track a_trk, edm4hep::Cluster a_clu);
 	
-	float DisPointToBush( TVector3 Pos1, edm4hep::ConstCluster clu1);
+	float DisPointToBush( TVector3 Pos1, edm4hep::Cluster clu1);
 	
-	TVector3 ClusterCoG(edm4hep::ConstCluster inputCluser);
+	TVector3 ClusterCoG(edm4hep::Cluster inputCluser);
 	
-	edm4hep::ClusterCollection* ClusterVecMerge( std::vector<edm4hep::ConstCluster> inputClusters, TMatrixF ConnectorMatrix, DataHandle<edm4hep::ClusterCollection>& clucol );
+	edm4hep::ClusterCollection* ClusterVecMerge( std::vector<edm4hep::Cluster> inputClusters, TMatrixF ConnectorMatrix, DataHandle<edm4hep::ClusterCollection>& clucol );
 	
-	edm4hep::ClusterCollection* ClusterVecColl( std::vector<edm4hep::ConstCluster> inputClusters, DataHandle<edm4hep::ClusterCollection>& m_clucol);
+	edm4hep::ClusterCollection* ClusterVecColl( std::vector<edm4hep::MutableCluster> inputClusters, DataHandle<edm4hep::ClusterCollection>& m_clucol);
 
-	edm4hep::Cluster NaiveCluImpl(edm4hep::ConstCluster a0_clu);
-	void NaiveCluConst(edm4hep::ConstCluster a0_clu, edm4hep::Cluster);
+	edm4hep::Cluster NaiveCluImpl(edm4hep::MutableCluster a0_clu);
+	void NaiveCluConst(edm4hep::MutableCluster a0_clu, edm4hep::MutableCluster b0_clu);
 	
-	std::vector<edm4hep::ConstCluster> CollClusterVec(const edm4hep::ClusterCollection * input_coll );
+	std::vector<edm4hep::Cluster> CollClusterVec(const edm4hep::ClusterCollection * input_coll );
 	
-	std::vector<edm4hep::ConstCalorimeterHit> CollHitVec(const edm4hep::CalorimeterHitCollection * input_coll, float EnergyThreshold);
+	std::vector<edm4hep::CalorimeterHit> CollHitVec(const edm4hep::CalorimeterHitCollection * input_coll, float EnergyThreshold);
 	
-	std::vector<edm4hep::Cluster> ClusterHitAbsorbtion( std::vector<edm4hep::ConstCluster> MainClusters, std::vector<edm4hep::ConstCalorimeterHit> IsoHits, float DisThreshold );
+	std::vector<edm4hep::MutableCluster> ClusterHitAbsorbtion( std::vector<edm4hep::Cluster> MainClusters, std::vector<edm4hep::CalorimeterHit> IsoHits, float DisThreshold );
 	
-	edm4hep::Cluster NaiveMergeClu(std::vector<edm4hep::ConstCluster> inputCluVec);
+	edm4hep::MutableCluster NaiveMergeClu(std::vector<edm4hep::Cluster> inputCluVec);
 
-	void NaiveMergeCluConst(std::vector<edm4hep::ConstCluster> inputCluVec,edm4hep::Cluster MergedClu);
-	std::vector<edm4hep::ConstCluster> ClusterAbsorbtion( std::vector<edm4hep::ConstCluster> MainClusters, std::vector<edm4hep::ConstCluster> FragClusters, float thresholds, float DepthSlope );
+	void NaiveMergeCluConst(std::vector<edm4hep::Cluster> inputCluVec,edm4hep::MutableCluster MergedClu);
+	std::vector<edm4hep::MutableCluster> ClusterAbsorbtion( std::vector<edm4hep::Cluster> MainClusters, std::vector<edm4hep::MutableCluster> FragClusters, float thresholds, float DepthSlope );
 	
 	
-	int JointsBetweenBush(edm4hep::ConstCluster a_Clu, edm4hep::ConstCluster b_Clu, float CellSize);
+	int JointsBetweenBush(edm4hep::Cluster a_Clu, edm4hep::Cluster b_Clu, float CellSize);
 	
-	TVector3 CluEndP(edm4hep::ConstCluster a_clu);
+	TVector3 CluEndP(edm4hep::Cluster a_clu);
 	
-	int ClusterFlag(edm4hep::ConstCluster a_tree, edm4hep::ConstTrack a_trk);
+	int ClusterFlag(edm4hep::Cluster a_tree, edm4hep::Track a_trk);
 	
-	int ClusterFlag1st(edm4hep::ConstCluster a_tree);
+	int ClusterFlag1st(edm4hep::Cluster a_tree);
 	
-	int newPhotonTag(edm4hep::ConstCluster a_clu);
-	float ClusterEE(edm4hep::ConstCluster inputCluster);
+	int newPhotonTag(edm4hep::Cluster a_clu);
+	float ClusterEE(edm4hep::Cluster inputCluster);
 	
-	float EMClusterEE( edm4hep::ConstCluster inputCluster );
+	float EMClusterEE( edm4hep::Cluster inputCluster );
 	
-	std::vector<float> ClusterTime(edm4hep::ConstCluster inputCluster);
+	std::vector<float> ClusterTime(edm4hep::Cluster inputCluster);
 
 	private:
 	SmartIF<IGeomSvc> m_geosvc;//=service<IGeomSvc>("GeomSvc");

@@ -6,7 +6,6 @@
 #include "edm4hep/Vector3d.h"
 #include "edm4hep/SimCalorimeterHit.h"
 #include "edm4hep/CaloHitContribution.h"
-#include "edm4hep/ClusterConst.h"
 #include "UTIL/ILDConf.h"
 #include <cmath>
 #include <algorithm>
@@ -639,16 +638,16 @@ StatusCode PandoraMatrixAlg::CreateMCRecoParticleAssociation()
     std::cout<<"CreateMCRecoParticleAssociation, reco_col size="<<reco_col->size()<<std::endl;
     for(int i=0; i<reco_col->size();i++)
     {
-        std::map<int, edm4hep::ConstMCParticle> mc_map;
+        std::map<int, edm4hep::MCParticle> mc_map;
         std::map<int, float > id_edep_map;
         float tot_en = 0 ;
         auto pReco = reco_col->at(i);
         for(int j=0; j < pReco.clusters_size(); j++)
         {
-            edm4hep::ConstCluster cluster = pReco.getClusters(j);
+            edm4hep::Cluster cluster = pReco.getClusters(j);
             for(int k=0; k < cluster.hits_size(); k++)
             {
-                edm4hep::ConstCalorimeterHit hit = cluster.getHits(k);
+                edm4hep::CalorimeterHit hit = cluster.getHits(k);
                 for(auto iter = m_CollectionMaps->collectionMap_CaloRel.begin(); iter != m_CollectionMaps->collectionMap_CaloRel.end(); iter++)
                 {
                     for(auto it = iter->second.begin(); it != iter->second.end(); it ++)
@@ -667,7 +666,7 @@ StatusCode PandoraMatrixAlg::CreateMCRecoParticleAssociation()
         }
         for(auto it = mc_map.begin(); it != mc_map.end(); it ++)
         {      
-            edm4hep::MCRecoParticleAssociation association = pMCRecoParticleAssociationCollection->create();
+            auto association = pMCRecoParticleAssociationCollection->create();
             association.setRec(pReco);
             association.setSim(it->second);
             if(tot_en==0) 

@@ -18,7 +18,6 @@
 #include "Gaudi/Property.h"
 #include "edm4hep/EventHeader.h"
 #include "edm4hep/EventHeaderCollection.h"
-#include "edm4hep/SimCalorimeterHitConst.h"
 #include "edm4hep/SimCalorimeterHit.h"
 #include "edm4hep/CalorimeterHit.h"
 #include "edm4hep/CalorimeterHitCollection.h"
@@ -122,7 +121,7 @@ ArborToolLCIO::ArborToolLCIO(const std::string& name,ISvcLocator* svcLoc)
 ArborToolLCIO::~ArborToolLCIO()
 {
 }
-void ArborToolLCIO::ClusterBuilding( DataHandle<edm4hep::ClusterCollection>& _currbranchcoll, std::vector<edm4hep::ConstCalorimeterHit> Hits, branchcoll BranchOrder, int DHCALFlag )
+void ArborToolLCIO::ClusterBuilding( DataHandle<edm4hep::ClusterCollection>& _currbranchcoll, std::vector<edm4hep::CalorimeterHit> Hits, branchcoll BranchOrder, int DHCALFlag )
 {
 	//DataHandle<edm4hep::ClusterCollection> _currbranchcoll {"Name",Gaudi::DataHandle::Writer, this};
 	//DataHandle<edm4hep::ClusterCollection> _currbranchcoll=new ClusterType(Name, Gaudi::DataHandle::Writer, this);
@@ -192,7 +191,7 @@ void ArborToolLCIO::ClusterBuilding( DataHandle<edm4hep::ClusterCollection>& _cu
 
 
 
-int ArborToolLCIO::NHScaleV2( std::vector<edm4hep::ConstCalorimeterHit> clu0, int RatioX, int RatioY, int RatioZ )
+int ArborToolLCIO::NHScaleV2( std::vector<edm4hep::CalorimeterHit> clu0, int RatioX, int RatioY, int RatioZ )
 {
 
 	int ReScaledNH = 0;
@@ -237,7 +236,7 @@ int ArborToolLCIO::NHScaleV2( std::vector<edm4hep::ConstCalorimeterHit> clu0, in
 	return ReScaledNH;
 }
 
-float ArborToolLCIO::FDV2( std::vector<edm4hep::ConstCalorimeterHit> clu)
+float ArborToolLCIO::FDV2( std::vector<edm4hep::CalorimeterHit> clu)
 {
 	float FractalDim = 0;
 	int NReSizeHit[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -257,7 +256,7 @@ float ArborToolLCIO::FDV2( std::vector<edm4hep::ConstCalorimeterHit> clu)
 }
 
 
-int ArborToolLCIO::NHScaleV3( edm4hep::ConstCluster clu0, int RatioX, int RatioY, int RatioZ )
+int ArborToolLCIO::NHScaleV3( edm4hep::Cluster clu0, int RatioX, int RatioY, int RatioZ )
 {
 
 	int ReScaledNH = 0;
@@ -305,7 +304,7 @@ int ArborToolLCIO::NHScaleV3( edm4hep::ConstCluster clu0, int RatioX, int RatioY
 
 }
 
-float ArborToolLCIO::FDV3( edm4hep::ConstCluster clu ){
+float ArborToolLCIO::FDV3( edm4hep::Cluster clu ){
 
 	float FractalDim = -1;
         int NReSizeHit[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -324,7 +323,7 @@ float ArborToolLCIO::FDV3( edm4hep::ConstCluster clu ){
 }
 
 
-float ArborToolLCIO::BushDis( edm4hep::ConstCluster clu1, edm4hep::ConstCluster clu2)
+float ArborToolLCIO::BushDis( edm4hep::Cluster clu1, edm4hep::Cluster clu2)
 {
 	float DisBetweenBush = 1.0E10; 
 
@@ -355,7 +354,7 @@ float ArborToolLCIO::BushDis( edm4hep::ConstCluster clu1, edm4hep::ConstCluster 
 }
 
 
-float ArborToolLCIO::DisPointToBush(TVector3 Pos1, edm4hep::ConstCluster clu1)
+float ArborToolLCIO::DisPointToBush(TVector3 Pos1, edm4hep::Cluster clu1)
 {
 	float Dis = 1.0E9; 
 	float HitDis = 1.0E8;
@@ -377,7 +376,7 @@ float ArborToolLCIO::DisPointToBush(TVector3 Pos1, edm4hep::ConstCluster clu1)
 }
 
 
-TVector3 ArborToolLCIO::ClusterCoG(edm4hep::ConstCluster inputCluster)
+TVector3 ArborToolLCIO::ClusterCoG(edm4hep::Cluster inputCluster)
 {
 	TVector3 CenterOfGravity; 
 
@@ -403,7 +402,7 @@ TVector3 ArborToolLCIO::ClusterCoG(edm4hep::ConstCluster inputCluster)
 }
 
 
-edm4hep::ClusterCollection* ArborToolLCIO::ClusterVecColl( std::vector<edm4hep::ConstCluster> inputClusters, DataHandle<edm4hep::ClusterCollection>& m_clucol )
+edm4hep::ClusterCollection* ArborToolLCIO::ClusterVecColl( std::vector<edm4hep::MutableCluster> inputClusters, DataHandle<edm4hep::ClusterCollection>& m_clucol )
 {
 
 	edm4hep::ClusterCollection* vec_coll_Clusters = m_clucol.createAndPut();
@@ -445,9 +444,9 @@ edm4hep::ClusterCollection* ArborToolLCIO::ClusterVecColl( std::vector<edm4hep::
 	return vec_coll_Clusters;
 }
 
-std::vector<edm4hep::ConstCluster> ArborToolLCIO::CollClusterVec(const edm4hep::ClusterCollection * input_coll )
+std::vector<edm4hep::Cluster> ArborToolLCIO::CollClusterVec(const edm4hep::ClusterCollection * input_coll )
 {
-	std::vector<edm4hep::ConstCluster> outputClusterVec; 
+	std::vector<edm4hep::Cluster> outputClusterVec; 
 
 
 	outputClusterVec.clear();
@@ -462,7 +461,7 @@ std::vector<edm4hep::ConstCluster> ArborToolLCIO::CollClusterVec(const edm4hep::
 }
 
 
-void ArborToolLCIO::NaiveCluConst(edm4hep::ConstCluster a0_clu,edm4hep::Cluster b0_clu)
+void ArborToolLCIO::NaiveCluConst(edm4hep::MutableCluster a0_clu,edm4hep::MutableCluster b0_clu)
 {
 	b0_clu.setPosition(a0_clu.getPosition());
 	b0_clu.setEnergy(a0_clu.getEnergy());
@@ -493,9 +492,9 @@ void ArborToolLCIO::NaiveCluConst(edm4hep::ConstCluster a0_clu,edm4hep::Cluster 
 }
 
 
-edm4hep::Cluster ArborToolLCIO::NaiveCluImpl(edm4hep::ConstCluster a0_clu)
+edm4hep::Cluster ArborToolLCIO::NaiveCluImpl(edm4hep::MutableCluster a0_clu)
 {
-	edm4hep::Cluster b0_clu;
+	edm4hep::MutableCluster b0_clu;
 	b0_clu.setPosition(a0_clu.getPosition());
 	b0_clu.setEnergy(a0_clu.getEnergy());
 	int NCaloHit = a0_clu.hits_size();
@@ -525,9 +524,9 @@ edm4hep::Cluster ArborToolLCIO::NaiveCluImpl(edm4hep::ConstCluster a0_clu)
 	return b0_clu; 
 }
 
-std::vector<edm4hep::ConstCalorimeterHit> ArborToolLCIO::CollHitVec(const edm4hep::CalorimeterHitCollection * input_coll, float EnergyThreshold)
+std::vector<edm4hep::CalorimeterHit> ArborToolLCIO::CollHitVec(const edm4hep::CalorimeterHitCollection * input_coll, float EnergyThreshold)
 {
-	std::vector<edm4hep::ConstCalorimeterHit> outputHitVec;
+	std::vector<edm4hep::CalorimeterHit> outputHitVec;
 
 	outputHitVec.clear();
 
@@ -544,9 +543,9 @@ std::vector<edm4hep::ConstCalorimeterHit> ArborToolLCIO::CollHitVec(const edm4he
 }
 
 
-std::vector<edm4hep::Cluster> ArborToolLCIO::ClusterHitAbsorbtion( std::vector<edm4hep::ConstCluster> MainClusters, std::vector<edm4hep::ConstCalorimeterHit> IsoHits, float DisThreshold )	// Projective Distance + Hit Depth correlation; 
+std::vector<edm4hep::MutableCluster> ArborToolLCIO::ClusterHitAbsorbtion( std::vector<edm4hep::Cluster> MainClusters, std::vector<edm4hep::CalorimeterHit> IsoHits, float DisThreshold )	// Projective Distance + Hit Depth correlation; 
 {
-	std::vector<edm4hep::Cluster> outputClusterVec;
+	std::vector<edm4hep::MutableCluster> outputClusterVec;
 
 	int N_Core = MainClusters.size();
 	int N_Hit = IsoHits.size();
@@ -582,7 +581,7 @@ std::vector<edm4hep::Cluster> ArborToolLCIO::ClusterHitAbsorbtion( std::vector<e
 	}
 
 	int N_frag_core_links = Frag_Core_Links.size();
-	std::vector<edm4hep::ConstCalorimeterHit> tomerge_hits;
+	std::vector<edm4hep::CalorimeterHit> tomerge_hits;
 	float ClusterEn = 0; 
 
 	for(int i2 = 0; i2 < N_Core; i2 ++)
@@ -599,7 +598,7 @@ std::vector<edm4hep::Cluster> ArborToolLCIO::ClusterHitAbsorbtion( std::vector<e
 				tomerge_hits.push_back(a_frag);
 			}
 		}
-		edm4hep::Cluster a_mergedfrag_core;
+		edm4hep::MutableCluster a_mergedfrag_core;
 		ClusterEn = 0; 
 
 		for(unsigned int j2 = 0; j2 < a_core.hits_size(); j2++)
@@ -629,7 +628,7 @@ std::vector<edm4hep::Cluster> ArborToolLCIO::ClusterHitAbsorbtion( std::vector<e
 }
 
 
-void ArborToolLCIO::NaiveMergeCluConst(std::vector<edm4hep::ConstCluster> inputCluVec,edm4hep::Cluster MergedClu)
+void ArborToolLCIO::NaiveMergeCluConst(std::vector<edm4hep::Cluster> inputCluVec,edm4hep::MutableCluster MergedClu)
 {
 
 	int NClu = inputCluVec.size();
@@ -693,9 +692,9 @@ void ArborToolLCIO::NaiveMergeCluConst(std::vector<edm4hep::ConstCluster> inputC
 	}
 
 }
-edm4hep::Cluster ArborToolLCIO::NaiveMergeClu(std::vector<edm4hep::ConstCluster> inputCluVec)
+edm4hep::MutableCluster ArborToolLCIO::NaiveMergeClu(std::vector<edm4hep::Cluster> inputCluVec)
 {
-	edm4hep::Cluster MergedClu;
+	edm4hep::MutableCluster MergedClu;
 
 	int NClu = inputCluVec.size();
 	float SeedDis = 1E9; 
@@ -762,9 +761,9 @@ edm4hep::Cluster ArborToolLCIO::NaiveMergeClu(std::vector<edm4hep::ConstCluster>
 
 
 
-std::vector<edm4hep::ConstCluster> ArborToolLCIO::ClusterAbsorbtion( std::vector<edm4hep::ConstCluster> MainClusters, std::vector<edm4hep::ConstCluster> FragClusters, float DisThreshold, float DepthSlope )	//ProjectiveDis
+std::vector<edm4hep::MutableCluster> ArborToolLCIO::ClusterAbsorbtion( std::vector<edm4hep::Cluster> MainClusters, std::vector<edm4hep::MutableCluster> FragClusters, float DisThreshold, float DepthSlope )	//ProjectiveDis
 {
-	std::vector<edm4hep::ConstCluster> outputClusterVec;
+	std::vector<edm4hep::MutableCluster> outputClusterVec;
 
 	int N_Core = MainClusters.size();
 	int N_frag = FragClusters.size();
@@ -805,7 +804,7 @@ std::vector<edm4hep::ConstCluster> ArborToolLCIO::ClusterAbsorbtion( std::vector
 	}
 
 	int N_frag_core_links = Frag_Core_Links.size();
-	std::vector<edm4hep::ConstCluster> tomerge_clu;
+	std::vector<edm4hep::Cluster> tomerge_clu;
 
 	for(int i4 = 0; i4 < N_Core; i4 ++)
 	{
@@ -824,7 +823,7 @@ std::vector<edm4hep::ConstCluster> ArborToolLCIO::ClusterAbsorbtion( std::vector
 			}
 		}
 		auto a_mergedfrag_core = NaiveMergeClu(tomerge_clu);
-		edm4hep::ConstCluster a_mergedfrag_coreCon=a_mergedfrag_core;
+		edm4hep::MutableCluster a_mergedfrag_coreCon=a_mergedfrag_core;
 		outputClusterVec.push_back(a_mergedfrag_core);
 	}
 
@@ -842,7 +841,7 @@ std::vector<edm4hep::ConstCluster> ArborToolLCIO::ClusterAbsorbtion( std::vector
 }
 
 
-edm4hep::ClusterCollection* ArborToolLCIO::ClusterVecMerge( std::vector<edm4hep::ConstCluster> inputClusters, TMatrixF ConnectorMatrix, DataHandle<edm4hep::ClusterCollection>& clucol  )
+edm4hep::ClusterCollection* ArborToolLCIO::ClusterVecMerge( std::vector<edm4hep::Cluster> inputClusters, TMatrixF ConnectorMatrix, DataHandle<edm4hep::ClusterCollection>& clucol  )
 {
 	edm4hep::ClusterCollection* mergedbranches = clucol.createAndPut();
 
@@ -856,11 +855,11 @@ edm4hep::ClusterCollection* ArborToolLCIO::ClusterVecMerge( std::vector<edm4hep:
 		cout<<"Size of Connector Matrix and inputClusterColl is not match"<<endl;
 	}
 
-	vector<edm4hep::ConstCluster> branchToMerge;
-	edm4hep::ConstCluster Mergebranch_A;
-	edm4hep::ConstCluster Mergebranch_B;
-	edm4hep::ConstCluster tmpMergebranch;
-	edm4hep::ConstCluster Mainbranch (0);
+	vector<edm4hep::Cluster> branchToMerge;
+	edm4hep::Cluster Mergebranch_A;
+	edm4hep::Cluster Mergebranch_B;
+	edm4hep::Cluster tmpMergebranch;
+	edm4hep::Cluster Mainbranch (0);
 
 	TVector3 tmpClusterSeedPos, MBSeedPos;	
 
@@ -934,7 +933,7 @@ edm4hep::ClusterCollection* ArborToolLCIO::ClusterVecMerge( std::vector<edm4hep:
 	return mergedbranches;
 
 }
-int ArborToolLCIO::JointsBetweenBush(edm4hep::ConstCluster a_Clu, edm4hep::ConstCluster b_Clu, float CellSize)
+int ArborToolLCIO::JointsBetweenBush(edm4hep::Cluster a_Clu, edm4hep::Cluster b_Clu, float CellSize)
 {
 	int NJoint = 0; 
 	int a_CluSize = a_Clu.hits_size();
@@ -964,7 +963,7 @@ int ArborToolLCIO::JointsBetweenBush(edm4hep::ConstCluster a_Clu, edm4hep::Const
 }
 
 
-float* ArborToolLCIO::SimpleDisTrackClu( edm4hep::ConstTrack a_trk, edm4hep::ConstCluster a_clu)
+float* ArborToolLCIO::SimpleDisTrackClu( edm4hep::Track a_trk, edm4hep::Cluster a_clu)
 {
 	float* Distance = new float[3];
        	Distance[0]	= 1.0E9;
@@ -995,7 +994,7 @@ float* ArborToolLCIO::SimpleDisTrackClu( edm4hep::ConstTrack a_trk, edm4hep::Con
 
 	return Distance;
 }
-float ArborToolLCIO::SimpleBushTimeTrackClu(edm4hep::ConstTrack a_trk, edm4hep::ConstCluster  a_clu)
+float ArborToolLCIO::SimpleBushTimeTrackClu(edm4hep::Track a_trk, edm4hep::Cluster  a_clu)
 {
         float Distance = 1.0E9;
         float Time = 0;
@@ -1020,7 +1019,7 @@ float ArborToolLCIO::SimpleBushTimeTrackClu(edm4hep::ConstTrack a_trk, edm4hep::
         return Time;
 }
 
-int ArborToolLCIO::SimpleBushNC(edm4hep::ConstTrack  a_trk, edm4hep::ConstCluster  a_clu)
+int ArborToolLCIO::SimpleBushNC(edm4hep::Track  a_trk, edm4hep::Cluster  a_clu)
 {
 	float Distance = 1.0E9;
 	//float Time = 0; 
@@ -1049,7 +1048,7 @@ int ArborToolLCIO::SimpleBushNC(edm4hep::ConstTrack  a_trk, edm4hep::ConstCluste
 	return NC;
 }
 
-int ArborToolLCIO::ClusterFlag(edm4hep::ConstCluster a_tree, edm4hep::ConstTrack a_trk)
+int ArborToolLCIO::ClusterFlag(edm4hep::Cluster a_tree, edm4hep::Track a_trk)
 {
 	// give each charged core cluster a flag
 	//  Fragmentation:       999
@@ -1110,26 +1109,26 @@ int ArborToolLCIO::ClusterFlag(edm4hep::ConstCluster a_tree, edm4hep::ConstTrack
 		EEClu_L10 = 0;
 
 
-		std::vector<edm4hep::ConstCalorimeterHit> Ecalhits;
-		std::vector<edm4hep::ConstCalorimeterHit> Hcalhits;
-		std::vector<edm4hep::ConstCalorimeterHit> allhits;
-		std::vector<edm4hep::ConstCalorimeterHit> EH_1;
-		std::vector<edm4hep::ConstCalorimeterHit> EH_2;
-		std::vector<edm4hep::ConstCalorimeterHit> EH_3;
-		std::vector<edm4hep::ConstCalorimeterHit> EH_4;
-		std::vector<edm4hep::ConstCalorimeterHit> EH_5;
-		std::vector<edm4hep::ConstCalorimeterHit> EH_6;
-		std::vector<edm4hep::ConstCalorimeterHit> HH_1;
-		std::vector<edm4hep::ConstCalorimeterHit> HH_2;
-		std::vector<edm4hep::ConstCalorimeterHit> HH_3;
-		std::vector<edm4hep::ConstCalorimeterHit> HH_4;
-		std::vector<edm4hep::ConstCalorimeterHit> HH_5;
-		std::vector<edm4hep::ConstCalorimeterHit> HH_6;
-		std::vector<edm4hep::ConstCalorimeterHit> HH_7;
-		std::vector<edm4hep::ConstCalorimeterHit> HH_8;
-		std::vector<edm4hep::ConstCalorimeterHit> HH_9;
-		std::vector<edm4hep::ConstCalorimeterHit> HH_0;
-		std::vector<edm4hep::ConstCalorimeterHit> Ecalf10hits;
+		std::vector<edm4hep::CalorimeterHit> Ecalhits;
+		std::vector<edm4hep::CalorimeterHit> Hcalhits;
+		std::vector<edm4hep::CalorimeterHit> allhits;
+		std::vector<edm4hep::CalorimeterHit> EH_1;
+		std::vector<edm4hep::CalorimeterHit> EH_2;
+		std::vector<edm4hep::CalorimeterHit> EH_3;
+		std::vector<edm4hep::CalorimeterHit> EH_4;
+		std::vector<edm4hep::CalorimeterHit> EH_5;
+		std::vector<edm4hep::CalorimeterHit> EH_6;
+		std::vector<edm4hep::CalorimeterHit> HH_1;
+		std::vector<edm4hep::CalorimeterHit> HH_2;
+		std::vector<edm4hep::CalorimeterHit> HH_3;
+		std::vector<edm4hep::CalorimeterHit> HH_4;
+		std::vector<edm4hep::CalorimeterHit> HH_5;
+		std::vector<edm4hep::CalorimeterHit> HH_6;
+		std::vector<edm4hep::CalorimeterHit> HH_7;
+		std::vector<edm4hep::CalorimeterHit> HH_8;
+		std::vector<edm4hep::CalorimeterHit> HH_9;
+		std::vector<edm4hep::CalorimeterHit> HH_0;
+		std::vector<edm4hep::CalorimeterHit> Ecalf10hits;
 
 
 
@@ -1531,7 +1530,7 @@ int ArborToolLCIO::ClusterFlag(edm4hep::ConstCluster a_tree, edm4hep::ConstTrack
 }
 
 
-int ArborToolLCIO::ActiveLayers(  std::vector<edm4hep::ConstCalorimeterHit> clu )
+int ArborToolLCIO::ActiveLayers(  std::vector<edm4hep::CalorimeterHit> clu )
 {
 	std::vector<int> hitlayers; 
 	hitlayers.clear();
@@ -1560,7 +1559,7 @@ int ArborToolLCIO::ActiveLayers(  std::vector<edm4hep::ConstCalorimeterHit> clu 
 }
 
 
-float ArborToolLCIO::ClusterT0(edm4hep::ConstCluster a_Clu)
+float ArborToolLCIO::ClusterT0(edm4hep::Cluster a_Clu)
 {
 	float T0 = 1E9; 
 	float tmpTime = 0; 
@@ -1580,7 +1579,7 @@ float ArborToolLCIO::ClusterT0(edm4hep::ConstCluster a_Clu)
 }
 
 
-int ArborToolLCIO::newPhotonTag(edm4hep::ConstCluster a_clu)
+int ArborToolLCIO::newPhotonTag(edm4hep::Cluster a_clu)
 {
 	int flag=0;
 
@@ -1606,7 +1605,7 @@ int ArborToolLCIO::newPhotonTag(edm4hep::ConstCluster a_clu)
 }
 
 
-int ArborToolLCIO::ClusterFlag1st(edm4hep::ConstCluster a_tree)
+int ArborToolLCIO::ClusterFlag1st(edm4hep::Cluster a_tree)
 {
 	int ClusterID = 211;
 	int EcalNHit, HcalNHit, NH_ECALF10;
@@ -1627,10 +1626,10 @@ int ArborToolLCIO::ClusterFlag1st(edm4hep::ConstCluster a_tree)
 	maxDepth = -100;
 	minDepth = 1E6;
 
-	std::vector<edm4hep::ConstCalorimeterHit> allhits;
-	std::vector<edm4hep::ConstCalorimeterHit> Ecalhits;
-	std::vector<edm4hep::ConstCalorimeterHit> Hcalhits;
-	std::vector<edm4hep::ConstCalorimeterHit> Ecalf10hits;
+	std::vector<edm4hep::CalorimeterHit> allhits;
+	std::vector<edm4hep::CalorimeterHit> Ecalhits;
+	std::vector<edm4hep::CalorimeterHit> Hcalhits;
+	std::vector<edm4hep::CalorimeterHit> Ecalf10hits;
 
 	allhits.clear();
 	Ecalhits.clear();
@@ -1804,7 +1803,7 @@ int ArborToolLCIO::ClusterFlag1st(edm4hep::ConstCluster a_tree)
 	return ClusterID;
 }
 
-float ArborToolLCIO::ClusterEE(edm4hep::ConstCluster inputCluster)
+float ArborToolLCIO::ClusterEE(edm4hep::Cluster inputCluster)
 {
 	float ClusterEnergy = 0;
 	float tmpCluEn = 0;
@@ -1857,7 +1856,7 @@ float ArborToolLCIO::ClusterEE(edm4hep::ConstCluster inputCluster)
 }
 
 
-float ArborToolLCIO::EMClusterEE( edm4hep::ConstCluster inputCluster )
+float ArborToolLCIO::EMClusterEE( edm4hep::Cluster inputCluster )
 {
 	float aaa = -50.2288, ab = 219.398,ac =0.17679,ad =  0.00241144;
 	float ba =  -56.6164,bbb = 162.647,bc = 0.679974,bd  = 0.00423267,be  = -0.324786;
@@ -1945,7 +1944,7 @@ float ArborToolLCIO::EMClusterEE( edm4hep::ConstCluster inputCluster )
 	return EMC;
 }
 
-std::vector<float> ArborToolLCIO::ClusterTime(edm4hep::ConstCluster inputCluster)
+std::vector<float> ArborToolLCIO::ClusterTime(edm4hep::Cluster inputCluster)
 {
 	std::vector<float> CluTimeVector; 
 	CluTimeVector.clear();

@@ -4,6 +4,7 @@
 #include "TrackSystemSvc/IMarlinTrkSystem.h"
 #include "TrackSystemSvc/IMarlinTrack.h"
 #include "edm4hep/Track.h"
+#include "edm4hep/MutableTrack.h"
 //#include "lcio.h"
 
 #include "Math/ProbFunc.h"
@@ -69,9 +70,9 @@ class Fitter{
    
 public:
    
-  Fitter( edm4hep::Track* track , MarlinTrk::IMarlinTrkSystem* trkSystem );
-  Fitter( std::vector < edm4hep::ConstTrackerHit > trackerHits, MarlinTrk::IMarlinTrkSystem* trkSystem );
-  Fitter( edm4hep::Track* track , MarlinTrk::IMarlinTrkSystem* trkSystem, int VXDFlag );  
+  Fitter( edm4hep::MutableTrack* track , MarlinTrk::IMarlinTrkSystem* trkSystem );
+  Fitter( std::vector < edm4hep::TrackerHit > trackerHits, MarlinTrk::IMarlinTrkSystem* trkSystem );
+  Fitter( edm4hep::MutableTrack* track , MarlinTrk::IMarlinTrkSystem* trkSystem, int VXDFlag );  
 
    
    double getChi2Prob( int trackStateLocation ) ;
@@ -110,7 +111,7 @@ private:
    static float _bField;
    
    
-   std::vector< edm4hep::ConstTrackerHit > _trackerHits;
+   std::vector< edm4hep::TrackerHit > _trackerHits;
    
    /** here the created TrackStates (plus) are stored */
    std::vector< const TrackStatePlus* > _trackStatesPlus;

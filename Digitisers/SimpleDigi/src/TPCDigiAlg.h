@@ -177,11 +177,11 @@ protected:
   int _nRun ;
   int _nEvt ;
 
-  //edm4hep::ConstMCParticle _mcp;
-  //edm4hep::ConstMCParticle _previousMCP;
-  //edm4hep::ConstMCParticle _nextMCP;
-  //edm4hep::ConstMCParticle _nMinus2MCP;
-  //edm4hep::ConstMCParticle _nPlus2MCP;
+  //edm4hep::MCParticle _mcp;
+  //edm4hep::MCParticle _previousMCP;
+  //edm4hep::MCParticle _nextMCP;
+  //edm4hep::MCParticle _nMinus2MCP;
+  //edm4hep::MCParticle _nPlus2MCP;
 
   //edm4hep::SimTrackerHit _SimTHit;
   //edm4hep::SimTrackerHit _previousSimTHit;
@@ -213,7 +213,7 @@ protected:
 
   std::vector< std::vector <Voxel_tpc *> > _tpcRowHits;
   // std::map< Voxel_tpc *,edm4hep::SimTrackerHit > _tpcHitMap;
-  std::map< Voxel_tpc *, edm4hep::ConstSimTrackerHit > _tpcHitMap;
+  std::map< Voxel_tpc *, edm4hep::SimTrackerHit > _tpcHitMap;
 
   UTIL::BitField64* _cellid_encoder;
 

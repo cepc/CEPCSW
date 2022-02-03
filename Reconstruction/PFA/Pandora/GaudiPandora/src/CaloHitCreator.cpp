@@ -802,7 +802,7 @@ pandora::StatusCode CaloHitCreator::CreateLHCalCaloHits(const CollectionMaps& co
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-void CaloHitCreator::GetCommonCaloHitProperties(edm4hep::ConstCalorimeterHit *const pCaloHit, PandoraApi::CaloHit::Parameters &caloHitParameters) const
+void CaloHitCreator::GetCommonCaloHitProperties(edm4hep::CalorimeterHit *const pCaloHit, PandoraApi::CaloHit::Parameters &caloHitParameters) const
 {
     const float pCaloHitPosition[3]={pCaloHit->getPosition()[0], pCaloHit->getPosition()[1], pCaloHit->getPosition()[2]};
     const pandora::CartesianVector positionVector(pCaloHitPosition[0], pCaloHitPosition[1], pCaloHitPosition[2]);
@@ -817,7 +817,7 @@ void CaloHitCreator::GetCommonCaloHitProperties(edm4hep::ConstCalorimeterHit *co
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-void CaloHitCreator::GetEndCapCaloHitProperties(edm4hep::ConstCalorimeterHit *const pCaloHit, const gear::LayerLayout &layerLayout,
+void CaloHitCreator::GetEndCapCaloHitProperties(edm4hep::CalorimeterHit *const pCaloHit, const gear::LayerLayout &layerLayout,
     PandoraApi::CaloHit::Parameters &caloHitParameters, float &absorberCorrection) const
 {
     caloHitParameters.m_hitRegion = pandora::ENDCAP;
@@ -862,7 +862,7 @@ void CaloHitCreator::GetEndCapCaloHitProperties(edm4hep::ConstCalorimeterHit *co
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------
-void CaloHitCreator::GetEndCapCaloHitProperties(edm4hep::ConstCalorimeterHit *const pCaloHit, const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer> &layers,
+void CaloHitCreator::GetEndCapCaloHitProperties(edm4hep::CalorimeterHit *const pCaloHit, const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer> &layers,
     PandoraApi::CaloHit::Parameters &caloHitParameters, float &absorberCorrection) const
 {
     caloHitParameters.m_hitRegion = pandora::ENDCAP;
@@ -914,7 +914,7 @@ void CaloHitCreator::GetEndCapCaloHitProperties(edm4hep::ConstCalorimeterHit *co
 }
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-void CaloHitCreator::GetBarrelCaloHitProperties(edm4hep::ConstCalorimeterHit *const pCaloHit, const gear::LayerLayout &layerLayout,
+void CaloHitCreator::GetBarrelCaloHitProperties(edm4hep::CalorimeterHit *const pCaloHit, const gear::LayerLayout &layerLayout,
     unsigned int barrelSymmetryOrder, float barrelPhi0, unsigned int staveNumber, PandoraApi::CaloHit::Parameters &caloHitParameters,
     float &absorberCorrection) const
 {
@@ -977,7 +977,7 @@ void CaloHitCreator::GetBarrelCaloHitProperties(edm4hep::ConstCalorimeterHit *co
     }
 }
 
-void CaloHitCreator::GetBarrelCaloHitProperties(edm4hep::ConstCalorimeterHit *const pCaloHit, const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer> &layers,
+void CaloHitCreator::GetBarrelCaloHitProperties(edm4hep::CalorimeterHit *const pCaloHit, const std::vector<dd4hep::rec::LayeredCalorimeterStruct::Layer> &layers,
     unsigned int barrelSymmetryOrder, float barrelPhi0, unsigned int staveNumber, PandoraApi::CaloHit::Parameters &caloHitParameters,
     float &absorberCorrection) const
 {
@@ -1054,7 +1054,7 @@ void CaloHitCreator::GetBarrelCaloHitProperties(edm4hep::ConstCalorimeterHit *co
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-int CaloHitCreator::GetNLayersFromEdge(edm4hep::ConstCalorimeterHit *const pCaloHit) const
+int CaloHitCreator::GetNLayersFromEdge(edm4hep::CalorimeterHit *const pCaloHit) const
 {
     // Calo hit coordinate calculations
     const float barrelMaximumRadius(this->GetMaximumRadius(pCaloHit, m_hCalBarrelOuterSymmetry, m_hCalBarrelOuterPhi0));
@@ -1096,7 +1096,7 @@ int CaloHitCreator::GetNLayersFromEdge(edm4hep::ConstCalorimeterHit *const pCalo
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-float CaloHitCreator::GetMaximumRadius(edm4hep::ConstCalorimeterHit *const pCaloHit, const unsigned int symmetryOrder, const float phi0) const
+float CaloHitCreator::GetMaximumRadius(edm4hep::CalorimeterHit *const pCaloHit, const unsigned int symmetryOrder, const float phi0) const
 {
     
     const float pCaloHitPosition[3]={pCaloHit->getPosition()[0], pCaloHit->getPosition()[1], pCaloHit->getPosition()[2]};

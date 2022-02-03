@@ -49,17 +49,17 @@ namespace MarlinTrk{
     /** add hit to track - the hits have to be added ordered in time ( i.e. typically outgoing )
      *  this order will define the direction of the energy loss used in the fit
      */
-    int addHit(edm4hep::ConstTrackerHit& hit) ;
+    int addHit(edm4hep::TrackerHit& hit) ;
     
     /** add hit to track - the hits have to be added ordered in time ( i.e. typically outgoing )
      *  this order will define the direction of the energy loss used in the fit
      */    
-    int addHit(edm4hep::ConstTrackerHit& trkhit, const ILDVMeasLayer* ml) ;
+    int addHit(edm4hep::TrackerHit& trkhit, const ILDVMeasLayer* ml) ;
     
     /** add hit to track - the hits have to be added ordered in time ( i.e. typically outgoing )
      *  this order will define the direction of the energy loss used in the fit
      */    
-    int addHit( edm4hep::ConstTrackerHit& trkhit, ILDVTrackHit* kalhit, const ILDVMeasLayer* ml) ;
+    int addHit( edm4hep::TrackerHit& trkhit, ILDVTrackHit* kalhit, const ILDVMeasLayer* ml) ;
     
     /** initialise the fit using the hits added up to this point -
      *  the fit direction has to be specified using IMarlinTrack::backward or IMarlinTrack::forward. 
@@ -90,13 +90,13 @@ namespace MarlinTrk{
     
     /** smooth track states from the last filtered hit back to the measurement site associated with the given hit 
      */
-    int smooth( edm4hep::ConstTrackerHit& hit )  ;
+    int smooth( edm4hep::TrackerHit& hit )  ;
     
     
     /** update the current fit using the supplied hit, return code via int. Provides the Chi2 increment to the fit from adding the hit via reference. 
      *  the given hit will not be added if chi2increment > maxChi2Increment. 
      */
-    int addAndFit( edm4hep::ConstTrackerHit& hit, double& chi2increment, double maxChi2Increment=DBL_MAX ) ;
+    int addAndFit( edm4hep::TrackerHit& hit, double& chi2increment, double maxChi2Increment=DBL_MAX ) ;
     
     /** update the current fit using the supplied hit, return code via int. Provides the Chi2 increment to the fit from adding the hit via reference. 
      *  the given hit will not be added if chi2increment > maxChi2Increment. 
@@ -106,7 +106,7 @@ namespace MarlinTrk{
     
     /** obtain the chi2 increment which would result in adding the hit to the fit. This method will not alter the current fit, and the hit will not be stored in the list of hits or outliers
      */
-    int testChi2Increment( edm4hep::ConstTrackerHit& hit, double& chi2increment ) ;
+    int testChi2Increment( edm4hep::TrackerHit& hit, double& chi2increment ) ;
     
     
     // Track State Accessesors
@@ -118,7 +118,7 @@ namespace MarlinTrk{
     
     /** get track state at measurement associated with the given hit, returning TrackState, chi2 and ndf via reference 
      */
-    int getTrackState( edm4hep::ConstTrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf ) ;
+    int getTrackState( edm4hep::TrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf ) ;
     
     
     /** get the list of hits included in the fit, together with the chi2 contributions of the hits. 
@@ -126,14 +126,14 @@ namespace MarlinTrk{
      *  pairs consitining of the pointer as the first part of the pair and the chi2 contribution as
      *  the second.
      */
-    int getHitsInFit( std::vector<std::pair<edm4hep::ConstTrackerHit, double> >& hits ) ;
+    int getHitsInFit( std::vector<std::pair<edm4hep::TrackerHit, double> >& hits ) ;
     
     /** get the list of hits which have been rejected by from the fit due to the a chi2 increment greater than threshold,
      *  Pointers to the hits together with their chi2 contribution will be filled into a vector of 
      *  pairs consitining of the pointer as the first part of the pair and the chi2 contribution as
      *  the second.
      */
-    int getOutliers( std::vector<std::pair<edm4hep::ConstTrackerHit, double> >& hits ) ;
+    int getOutliers( std::vector<std::pair<edm4hep::TrackerHit, double> >& hits ) ;
     
     
     /** get the current number of degrees of freedom for the fit.
@@ -142,7 +142,7 @@ namespace MarlinTrk{
     
     /** get TrackeHit at which fit became constrained, i.e. ndf >= 0
      */
-    int getTrackerHitAtPositiveNDF( edm4hep::ConstTrackerHit& trkhit ) ;
+    int getTrackerHitAtPositiveNDF( edm4hep::TrackerHit& trkhit ) ;
     
     // PROPAGATORS 
   
@@ -154,7 +154,7 @@ namespace MarlinTrk{
     /** propagate the fit at the measurement site associated with the given hit, to the point of closest approach to the given point,
      *  returning TrackState, chi2 and ndf via reference   
      */
-    int propagate( const edm4hep::Vector3d& point, edm4hep::ConstTrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf ) ;
+    int propagate( const edm4hep::Vector3d& point, edm4hep::TrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf ) ;
     
     
     /** propagate the fit at the provided measurement site, to the point of closest approach to the given point,
@@ -170,7 +170,7 @@ namespace MarlinTrk{
     /** propagate the fit at the measurement site associated with the given hit, to numbered sensitive layer, 
      *  returning TrackState, chi2, ndf and integer ID of sensitive detector element via reference 
      */
-    int propagateToLayer( int layerID, edm4hep::ConstTrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode=modeClosest )  ;
+    int propagateToLayer( int layerID, edm4hep::TrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode=modeClosest )  ;
     
     /** propagate the fit at the measurement site, to numbered sensitive layer, 
      *  returning TrackState, chi2, ndf and integer ID of sensitive detector element via reference 
@@ -184,7 +184,7 @@ namespace MarlinTrk{
     /** propagate the fit at the measurement site associated with the given hit, to sensitive detector element, 
      *  returning TrackState, chi2 and ndf via reference 
      */
-    int propagateToDetElement( int detEementID, edm4hep::ConstTrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode=modeClosest ) ;
+    int propagateToDetElement( int detEementID, edm4hep::TrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode=modeClosest ) ;
   
     /** propagate the fit at the measurement site, to sensitive detector element, 
      *  returning TrackState, chi2, ndf and integer ID of sensitive detector element via reference 
@@ -202,7 +202,7 @@ namespace MarlinTrk{
     /** extrapolate the fit at the measurement site associated with the given hit, to the point of closest approach to the given point, 
      *    returning TrackState, chi2 and ndf via reference   
      */
-    int extrapolate( const edm4hep::Vector3d& point, edm4hep::ConstTrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf ) ;
+    int extrapolate( const edm4hep::Vector3d& point, edm4hep::TrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf ) ;
     
     /** extrapolate the fit at the measurement site, to the point of closest approach to the given point, 
      *    returning TrackState, chi2 and ndf via reference   
@@ -216,7 +216,7 @@ namespace MarlinTrk{
     /** extrapolate the fit at the measurement site associated with the given hit, to numbered sensitive layer, 
      *  returning TrackState, chi2, ndf and integer ID of sensitive detector element via reference 
      */
-    int extrapolateToLayer( int layerID, edm4hep::ConstTrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode=modeClosest )  ;
+    int extrapolateToLayer( int layerID, edm4hep::TrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode=modeClosest )  ;
     
     /** extrapolate the fit at the measurement site, to numbered sensitive layer, 
      *  returning TrackState, chi2, ndf and integer ID of sensitive detector element via reference 
@@ -230,7 +230,7 @@ namespace MarlinTrk{
     /** extrapolate the fit at the measurement site associated with the given hit, to sensitive detector element, 
      *  returning TrackState, chi2 and ndf via reference 
    */
-    int extrapolateToDetElement( int detEementID, edm4hep::ConstTrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode=modeClosest ) ;
+    int extrapolateToDetElement( int detEementID, edm4hep::TrackerHit& hit, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode=modeClosest ) ;
     
     /** extrapolate the fit at the measurement site, to sensitive detector element, 
      *  returning TrackState, chi2, ndf and integer ID of sensitive detector element via reference 
@@ -250,7 +250,7 @@ namespace MarlinTrk{
     /** extrapolate the fit at the measurement site associated with the given hit, to numbered sensitive layer,
      *  returning intersection point in global coordinates and integer ID of the intersected sensitive detector element via reference 
      */
-    int intersectionWithLayer( int layerID, edm4hep::ConstTrackerHit& hit, edm4hep::Vector3d& point, int& detElementID, int mode=modeClosest )  ;
+    int intersectionWithLayer( int layerID, edm4hep::TrackerHit& hit, edm4hep::Vector3d& point, int& detElementID, int mode=modeClosest )  ;
     
     /** extrapolate the fit at the measurement site, to numbered sensitive layer,
      *  returning intersection point in global coordinates and integer ID of the intersected sensitive detector element via reference 
@@ -265,7 +265,7 @@ namespace MarlinTrk{
     /** extrapolate the fit at the measurement site associated with the given hit, to sensitive detector element,
      *  returning intersection point in global coordinates via reference 
      */ 
-    int intersectionWithDetElement( int detElementID, edm4hep::ConstTrackerHit& hit, edm4hep::Vector3d& point, int mode=modeClosest )  ;
+    int intersectionWithDetElement( int detElementID, edm4hep::TrackerHit& hit, edm4hep::Vector3d& point, int mode=modeClosest )  ;
     
     /** extrapolate the fit at the measurement site, to sensitive detector element,
      *  returning intersection point in global coordinates via reference 
@@ -297,7 +297,7 @@ namespace MarlinTrk{
     
     /** get the measurement site associated with the given lcio TrackerHit trkhit
      */
-    int getSiteFromLCIOHit( edm4hep::ConstTrackerHit& trkhit, TKalTrackSite*& site ) const ;
+    int getSiteFromLCIOHit( edm4hep::TrackerHit& trkhit, TKalTrackSite*& site ) const ;
     
     
     
@@ -314,13 +314,13 @@ namespace MarlinTrk{
     
     TKalTrack* _kaltrack;
     
-    std::vector<edm4hep::ConstTrackerHit> _lcioHits ; 
+    std::vector<edm4hep::TrackerHit> _lcioHits ; 
     
     TObjArray* _kalhits;
     
     MarlinKalTest* _ktest;
   
-    edm4hep::ConstTrackerHit _trackHitAtPositiveNDF;
+    edm4hep::TrackerHit _trackHitAtPositiveNDF;
     int _hitIndexAtPositiveNDF;
     
     /** used to store whether initial track state has been supplied or created 
@@ -338,23 +338,23 @@ namespace MarlinTrk{
     
     /** map to store relation between lcio hits and measurement sites
      */
-    std::map<edm4hep::ConstTrackerHit, TKalTrackSite*> _hit_used_for_sites ;
+    std::map<edm4hep::TrackerHit, TKalTrackSite*> _hit_used_for_sites ;
   
     /** map to store relation between lcio hits kaltest hits
      */
-    std::map<edm4hep::ConstTrackerHit, ILDVTrackHit*> _lcio_hits_to_kaltest_hits ;
+    std::map<edm4hep::TrackerHit, ILDVTrackHit*> _lcio_hits_to_kaltest_hits ;
     
     /** vector to store lcio hits rejected for measurement sites
      */
-    std::vector<edm4hep::ConstTrackerHit> _hit_not_used_for_sites ;
+    std::vector<edm4hep::TrackerHit> _hit_not_used_for_sites ;
     
     /** vector to store the chi-sqaure increment for measurement sites
      */
-    std::vector< std::pair<edm4hep::ConstTrackerHit, double> > _hit_chi2_values ;
+    std::vector< std::pair<edm4hep::TrackerHit, double> > _hit_chi2_values ;
     
     /** vector to store the chi-sqaure increment for measurement sites
      */
-    std::vector< std::pair<edm4hep::ConstTrackerHit, double> > _outlier_chi2_values ;
+    std::vector< std::pair<edm4hep::TrackerHit, double> > _outlier_chi2_values ;
     
   } ;
 }

@@ -8,7 +8,7 @@
 
 #include "GaudiAlg/GaudiAlgorithm.h"
 #include "edm4hep/Track.h"
-#include "edm4hep/TrackerHitConst.h"
+#include "edm4hep/TrackerHit.h"
 #include "edm4hep/TrackerHitCollection.h"
 #include "edm4hep/TrackCollection.h"
 #include <string>
@@ -104,7 +104,7 @@ class ClupatraAlg : public GaudiAlgorithm {
 
   /** helper method to compute a few track segment parameters (start and end points, z spread,...)
    */
-  void computeTrackInfo(edm4hep::ConstTrack lTrk) ;
+  void computeTrackInfo(edm4hep::Track lTrk) ;
 
 
   StatusCode pickUpSiTrackerHits(edm4hep::TrackCollection* trackCol) ;
