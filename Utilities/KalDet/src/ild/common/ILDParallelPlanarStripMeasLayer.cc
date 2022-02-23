@@ -162,7 +162,7 @@ void ILDParallelPlanarStripMeasLayer::CalcDhDa(const TVTrackHit &vht,
   
 }
 
-ILDVTrackHit* ILDParallelPlanarStripMeasLayer::ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const {
+ILDVTrackHit* ILDParallelPlanarStripMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit trkhit) const {
   
   //EVENT::TrackerHitPlane* plane_hit = dynamic_cast<EVENT::TrackerHitPlane*>( trkhit ) ;
   if((trkhit.getType()&8)!=8) {

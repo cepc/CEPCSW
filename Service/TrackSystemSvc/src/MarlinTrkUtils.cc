@@ -14,6 +14,7 @@
 #include "edm4hep/TrackerHit.h"
 #include "edm4hep/TrackState.h"
 #include "edm4hep/Track.h"
+#include "edm4hep/MutableTrack.h"
 
 #include <UTIL/BitField64.h>
 #include <UTIL/ILDConf.h>
@@ -91,9 +92,9 @@ namespace MarlinTrk {
   
   
   
-  int createTrackStateAtCaloFace( IMarlinTrack* marlinTrk, edm4hep::TrackState* track, edm4hep::ConstTrackerHit trkhit, bool tanL_is_positive );
+  int createTrackStateAtCaloFace( IMarlinTrack* marlinTrk, edm4hep::TrackState* track, edm4hep::TrackerHit trkhit, bool tanL_is_positive );
   
-  int createFinalisedLCIOTrack( IMarlinTrack* marlinTrk, std::vector<edm4hep::ConstTrackerHit>& hit_list, edm4hep::Track* track, bool fit_backwards, const std::array<float,15>& initial_cov_for_prefit, float bfield_z, double maxChi2Increment){
+  int createFinalisedLCIOTrack( IMarlinTrack* marlinTrk, std::vector<edm4hep::TrackerHit>& hit_list, edm4hep::MutableTrack* track, bool fit_backwards, const std::array<float,15>& initial_cov_for_prefit, float bfield_z, double maxChi2Increment){
     
     ///////////////////////////////////////////////////////
     // check inputs 
@@ -130,7 +131,7 @@ namespace MarlinTrk {
     return return_error;
   }
   
-  int createFinalisedLCIOTrack( IMarlinTrack* marlinTrk, std::vector<edm4hep::ConstTrackerHit>& hit_list, edm4hep::Track* track, bool fit_backwards, edm4hep::TrackState* pre_fit, float bfield_z, double maxChi2Increment){
+  int createFinalisedLCIOTrack( IMarlinTrack* marlinTrk, std::vector<edm4hep::TrackerHit>& hit_list, edm4hep::MutableTrack* track, bool fit_backwards, edm4hep::TrackState* pre_fit, float bfield_z, double maxChi2Increment){
     
     
     ///////////////////////////////////////////////////////
@@ -162,7 +163,7 @@ namespace MarlinTrk {
   
   
   
-  int createFit( std::vector<edm4hep::ConstTrackerHit>& hit_list, IMarlinTrack* marlinTrk, edm4hep::TrackState* pre_fit, float bfield_z, bool fit_backwards, double maxChi2Increment){
+  int createFit( std::vector<edm4hep::TrackerHit>& hit_list, IMarlinTrack* marlinTrk, edm4hep::TrackState* pre_fit, float bfield_z, bool fit_backwards, double maxChi2Increment){
     
     
     ///////////////////////////////////////////////////////
@@ -201,17 +202,17 @@ namespace MarlinTrk {
     // add hits to IMarlinTrk  
     ///////////////////////////////////////////////////////
     
-    std::vector<edm4hep::ConstTrackerHit>::iterator it = hit_list.begin();
+    std::vector<edm4hep::TrackerHit>::iterator it = hit_list.begin();
     
     //  start by trying to add the hits to the track we want to finally use. 
     //std::cout << "MarlinTrk::createFit Start Fit: AddHits: number of hits to fit " << hit_list.size() << std::endl;
     
-    std::vector<edm4hep::ConstTrackerHit> added_hits;
+    std::vector<edm4hep::TrackerHit> added_hits;
     unsigned int ndof_added = 0;
     
     for( it = hit_list.begin() ; it != hit_list.end() ; ++it ) {
       
-      edm4hep::ConstTrackerHit trkHit = *it;
+      edm4hep::TrackerHit trkHit = *it;
       bool isSuccessful = false;
       //std::cout << "debug: TrackerHit pointer " << trkHit << std::endl;
       if( UTIL::BitSet32( trkHit.getType() )[ UTIL::ILDTrkHitTypeBit::COMPOSITE_SPACEPOINT ]   ){ //it is a composite spacepoint        
@@ -221,7 +222,7 @@ namespace MarlinTrk {
 	//exit(1);
         int nRawHit = trkHit.rawHits_size();
         for( unsigned k=0; k< nRawHit; k++ ){
-          edm4hep::ConstTrackerHit rawHit = Navigation::Instance()->GetTrackerHit(trkHit.getRawHits(k));
+          edm4hep::TrackerHit rawHit = Navigation::Instance()->GetTrackerHit(trkHit.getRawHits(k));
 	  if( marlinTrk->addHit( rawHit ) == IMarlinTrack::success ){
 	    isSuccessful = true; //if at least one hit from the spacepoint gets added
             ++ndof_added;
@@ -278,7 +279,7 @@ namespace MarlinTrk {
   
   
   
-  int createPrefit( std::vector<edm4hep::ConstTrackerHit>& hit_list, edm4hep::TrackState* pre_fit, float bfield_z, bool fit_backwards){
+  int createPrefit( std::vector<edm4hep::TrackerHit>& hit_list, edm4hep::TrackState* pre_fit, float bfield_z, bool fit_backwards){
     
     ///////////////////////////////////////////////////////
     // check inputs 
@@ -293,7 +294,7 @@ namespace MarlinTrk {
     // loop over all the hits and create a list consisting only 2D hits 
     ///////////////////////////////////////////////////////
     
-    std::vector<edm4hep::ConstTrackerHit> twoD_hits;
+    std::vector<edm4hep::TrackerHit> twoD_hits;
     
     for (unsigned ihit=0; ihit < hit_list.size(); ++ihit) {
       
@@ -348,7 +349,7 @@ namespace MarlinTrk {
     
   }
   
-  int finaliseLCIOTrack( IMarlinTrack* marlintrk, edm4hep::Track* track, std::vector<edm4hep::ConstTrackerHit>& hit_list, edm4hep::TrackState* atLastHit, edm4hep::TrackState* atCaloFace){
+  int finaliseLCIOTrack( IMarlinTrack* marlintrk, edm4hep::MutableTrack* track, std::vector<edm4hep::TrackerHit>& hit_list, edm4hep::TrackState* atLastHit, edm4hep::TrackState* atCaloFace){
     
     ///////////////////////////////////////////////////////
     // check inputs 
@@ -403,9 +404,9 @@ namespace MarlinTrk {
     // add these to the track, add spacepoints as long as at least on strip hit is used.  
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-    std::vector<std::pair<edm4hep::ConstTrackerHit, double> > hits_in_fit;
-    std::vector<std::pair<edm4hep::ConstTrackerHit, double> > outliers;
-    std::vector<edm4hep::ConstTrackerHit> used_hits;
+    std::vector<std::pair<edm4hep::TrackerHit, double> > hits_in_fit;
+    std::vector<std::pair<edm4hep::TrackerHit, double> > outliers;
+    std::vector<edm4hep::TrackerHit> used_hits;
         
     hits_in_fit.reserve(300);
     outliers.reserve(300);
@@ -421,7 +422,7 @@ namespace MarlinTrk {
     
     for ( unsigned ihit = 0; ihit < hit_list.size(); ++ihit) {
       
-      edm4hep::ConstTrackerHit trkHit = hit_list[ihit];
+      edm4hep::TrackerHit trkHit = hit_list[ihit];
       
       if( UTIL::BitSet32( trkHit.getType() )[ UTIL::ILDTrkHitTypeBit::COMPOSITE_SPACEPOINT ]   ){ //it is a composite spacepoint
 	//std::cout << "Error: space point is not still valid! pelease wait updating..." <<std::endl;
@@ -429,7 +430,7 @@ namespace MarlinTrk {
 	// get strip hits 
         int nRawHit = trkHit.rawHits_size();
         for( unsigned k=0; k< nRawHit; k++ ){
-	  edm4hep::ConstTrackerHit rawHit = Navigation::Instance()->GetTrackerHit(trkHit.getRawHits(k));
+	  edm4hep::TrackerHit rawHit = Navigation::Instance()->GetTrackerHit(trkHit.getRawHits(k));
 	  bool is_outlier = false;
 	  // here we loop over outliers as this will be faster than looping over the used hits
           for ( unsigned ohit = 0; ohit < outliers.size(); ++ohit) {
@@ -473,16 +474,16 @@ namespace MarlinTrk {
     ///////////////////////////////////////////////////////
     
     edm4hep::TrackState* trkStateAtFirstHit = new edm4hep::TrackState() ;
-    edm4hep::ConstTrackerHit firstHit = hits_in_fit.back().first;
+    edm4hep::TrackerHit firstHit = hits_in_fit.back().first;
 
     ///////////////////////////////////////////////////////
     // last hit
     ///////////////////////////////////////////////////////
     
     edm4hep::TrackState* trkStateAtLastHit = new edm4hep::TrackState() ;
-    edm4hep::ConstTrackerHit lastHit = hits_in_fit.front().first;
+    edm4hep::TrackerHit lastHit = hits_in_fit.front().first;
           
-    edm4hep::ConstTrackerHit last_constrained_hit(0);// = 0 ;
+    edm4hep::TrackerHit last_constrained_hit(0);// = 0 ;
     marlintrk->getTrackerHitAtPositiveNDF(last_constrained_hit);
 
     return_error = marlintrk->smooth(lastHit);
@@ -604,7 +605,7 @@ namespace MarlinTrk {
   }
   
   
-  int createTrackStateAtCaloFace( IMarlinTrack* marlintrk, edm4hep::TrackState* trkStateCalo, edm4hep::ConstTrackerHit trkhit, bool tanL_is_positive ){
+  int createTrackStateAtCaloFace( IMarlinTrack* marlintrk, edm4hep::TrackState* trkStateCalo, edm4hep::TrackerHit trkhit, bool tanL_is_positive ){
     
     //streamlog_out( DEBUG5 ) << "  >>>>>>>>>>> createTrackStateAtCaloFace : using trkhit " << trkhit << " tanL_is_positive = " << tanL_is_positive << std::endl ;
     
@@ -659,7 +660,7 @@ namespace MarlinTrk {
     
   }
   
-  void addHitNumbersToTrack(edm4hep::Track* track, std::vector<edm4hep::ConstTrackerHit>& hit_list, bool hits_in_fit, UTIL::BitField64& cellID_encoder){
+  void addHitNumbersToTrack(edm4hep::MutableTrack* track, std::vector<edm4hep::TrackerHit>& hit_list, bool hits_in_fit, UTIL::BitField64& cellID_encoder){
     
     ///////////////////////////////////////////////////////
     // check inputs 
@@ -702,7 +703,7 @@ namespace MarlinTrk {
     //track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::ETD - offset ] = hitNumbers[lcio::ILDDetID::ETD];
   }
   
-  void addHitNumbersToTrack(edm4hep::Track* track, std::vector<std::pair<edm4hep::ConstTrackerHit , double> >& hit_list, bool hits_in_fit, UTIL::BitField64& cellID_encoder){
+  void addHitNumbersToTrack(edm4hep::MutableTrack* track, std::vector<std::pair<edm4hep::TrackerHit , double> >& hit_list, bool hits_in_fit, UTIL::BitField64& cellID_encoder){
     
     ///////////////////////////////////////////////////////
     // check inputs 

@@ -106,7 +106,7 @@ bool SLCIORdr::mutate(MyHepMC::GenEvent& event){
     for (int i=0; i < n_mc; i++){
         MCParticleImpl* mc = (MCParticleImpl*) lcMCVec->getElementAt(i);
         //std::cout<<"At mc :"<< i <<std::endl;
-        edm4hep::MCParticle mcp = event.m_mc_vec.create();
+        auto mcp = event.m_mc_vec.create();
         pmcid_lmcid.insert(std::pair<int, int>(mc->id(),i));
         //std::cout<<"map<id,i>:"<<mc->id()<<","<< i <<std::endl;
                                  
@@ -129,7 +129,7 @@ bool SLCIORdr::mutate(MyHepMC::GenEvent& event){
         MCParticleImpl* mc = (MCParticleImpl*) lcMCVec->getElementAt(i);
         const MCParticleVec & mc_parents = mc->getParents();
         const MCParticleVec & mc_daughters = mc->getDaughters();
-        edm4hep::MCParticle pmc = event.m_mc_vec.at(i);
+        auto pmc = event.m_mc_vec.at(i);
         //std::cout<<"mc at "<< i<<", parent size "<<mc_parents.size() <<std::endl;
         for(unsigned int j=0; j< mc_parents.size(); j++){int p_id = mc_parents.at(j)->id();
                                                  //std::cout<<"parent id "<<p_id<<std::endl;

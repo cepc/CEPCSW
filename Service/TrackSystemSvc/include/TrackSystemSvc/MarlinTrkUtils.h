@@ -4,7 +4,8 @@
 #include <vector>
 #include <array>
 #include <cfloat>
-#include <edm4hep/TrackerHitConst.h>
+#include <edm4hep/TrackerHit.h>
+#include <edm4hep/Track.h>
 
 #include <LCIOSTLTypes.h>
 
@@ -39,8 +40,8 @@ namespace MarlinTrk{
    *  it @IP, @First_Hit, @Last_Hit and @CaloFace */
   int createFinalisedLCIOTrack(
       IMarlinTrack* marlinTrk,
-      std::vector<edm4hep::ConstTrackerHit>& hit_list,
-      edm4hep::Track* track,
+      std::vector<edm4hep::TrackerHit>& hit_list,
+      edm4hep::MutableTrack* track,
       bool fit_backwards,
       edm4hep::TrackState* pre_fit,
       float bfield_z,
@@ -51,18 +52,18 @@ namespace MarlinTrk{
    *  it @IP, @First_Hit, @Last_Hit and @CaloFace */
   int createFinalisedLCIOTrack(
       IMarlinTrack* marlinTrk,
-      std::vector<edm4hep::ConstTrackerHit>& hit_list,
-      edm4hep::Track* track,
+      std::vector<edm4hep::TrackerHit>& hit_list,
+      edm4hep::MutableTrack* track,
       bool fit_backwards,
       const std::array<float,15>& initial_cov_for_prefit,
       float bfield_z,
       double maxChi2Increment=DBL_MAX);
   
   /** Provides the values of a track state from the first, middle and last hits in the hit_list. */
-  int createPrefit( std::vector<edm4hep::ConstTrackerHit>& hit_list, edm4hep::TrackState* pre_fit, float bfield_z, bool fit_backwards );
+  int createPrefit( std::vector<edm4hep::TrackerHit>& hit_list, edm4hep::TrackState* pre_fit, float bfield_z, bool fit_backwards );
 
   /** Takes a list of hits and uses the IMarlinTrack inferface to fit them using a supplied prefit containing a covariance matrix for the initialisation. */  
-  int createFit( std::vector<edm4hep::ConstTrackerHit>& hit_list, IMarlinTrack* marlinTrk, edm4hep::TrackState* pre_fit, float bfield_z, bool fit_backwards, double maxChi2Increment=DBL_MAX );
+  int createFit( std::vector<edm4hep::TrackerHit>& hit_list, IMarlinTrack* marlinTrk, edm4hep::TrackState* pre_fit, float bfield_z, bool fit_backwards, double maxChi2Increment=DBL_MAX );
 
   /** Takes a fitted MarlinTrack, TrackImpl to record the fit and the hits which have been added to the fit.
    *  The TrackImpl will have the 4 trackstates added to it @IP, @First_Hit, @Last_Hit and @CaloFace.
@@ -71,16 +72,16 @@ namespace MarlinTrk{
    *  that they can be recorded in the LCIO TrackImpl */
   int finaliseLCIOTrack(
       IMarlinTrack* marlinTrk,
-      edm4hep::Track* track,
-      std::vector<edm4hep::ConstTrackerHit>& hit_list,
+      edm4hep::MutableTrack* track,
+      std::vector<edm4hep::TrackerHit>& hit_list,
       edm4hep::TrackState* atLastHit=0,
       edm4hep::TrackState* atCaloFace=0);
   
   /** Set the subdetector hit numbers for the TrackImpl */
-  void addHitNumbersToTrack(edm4hep::Track* track, std::vector<edm4hep::ConstTrackerHit>& hit_list, bool hits_in_fit, UTIL::BitField64& cellID_encoder);
+  void addHitNumbersToTrack(edm4hep::MutableTrack* track, std::vector<edm4hep::TrackerHit>& hit_list, bool hits_in_fit, UTIL::BitField64& cellID_encoder);
 
   /** Set the subdetector hit numbers for the TrackImpl */
-  void addHitNumbersToTrack(edm4hep::Track* track, std::vector<std::pair<edm4hep::ConstTrackerHit , double> >& hit_list, bool hits_in_fit, UTIL::BitField64& cellID_encoder);
+  void addHitNumbersToTrack(edm4hep::MutableTrack* track, std::vector<std::pair<edm4hep::TrackerHit , double> >& hit_list, bool hits_in_fit, UTIL::BitField64& cellID_encoder);
   
 }
 

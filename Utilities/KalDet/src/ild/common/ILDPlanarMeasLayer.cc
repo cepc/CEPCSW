@@ -244,7 +244,7 @@ Bool_t ILDPlanarMeasLayer::IsOnSurface(const TVector3 &xx) const
 }
 
 
-ILDVTrackHit* ILDPlanarMeasLayer::ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const {
+ILDVTrackHit* ILDPlanarMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit trkhit) const {
   //std::cout << "ILDPlanarMeasLayer::ConvertLCIOTrkHit " << trkhit << " type=" << trkhit.getType() << std::endl;
   //EVENT::TrackerHitPlane* plane_hit = dynamic_cast<EVENT::TrackerHitPlane*>( trkhit ) ;
   if((trkhit.getType()&8)!=8){

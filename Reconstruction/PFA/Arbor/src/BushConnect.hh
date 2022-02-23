@@ -6,7 +6,6 @@
 #include "Gaudi/Property.h"
 #include "edm4hep/EventHeader.h"
 #include "edm4hep/EventHeaderCollection.h"
-#include "edm4hep/SimCalorimeterHitConst.h"
 #include "edm4hep/SimCalorimeterHit.h"
 #include "edm4hep/CalorimeterHit.h"
 #include "edm4hep/CalorimeterHitCollection.h"
@@ -51,49 +50,49 @@ class BushConnect  : public GaudiAlgorithm
 
 	protected:
 
-		std::vector<edm4hep::ConstCluster> SortedSMBushes;
-		std::vector<edm4hep::ConstTrack> SortedTracks;
-		std::map<edm4hep::ConstTrack, float> Track_Energy;
-		std::map<edm4hep::ConstTrack, TVector3> Track_P3;
-		std::map<edm4hep::ConstTrack, int> Track_Type;
-		std::map<edm4hep::ConstTrack, float> Track_Theta;
-		std::map<edm4hep::ConstTrack, float> Track_Phi;	
+		std::vector<edm4hep::Cluster> SortedSMBushes;
+		std::vector<edm4hep::Track> SortedTracks;
+		std::map<edm4hep::Track, float> Track_Energy;
+		std::map<edm4hep::Track, TVector3> Track_P3;
+		std::map<edm4hep::Track, int> Track_Type;
+		std::map<edm4hep::Track, float> Track_Theta;
+		std::map<edm4hep::Track, float> Track_Phi;	
 
-		std::map<edm4hep::ConstCluster, int> ClusterType_1stID;
-		std::map<edm4hep::ConstReconstructedParticle, int> ChCoreID; 
+		std::map<edm4hep::Cluster, int> ClusterType_1stID;
+		std::map<edm4hep::ReconstructedParticle, int> ChCoreID; 
 
-		std::vector<edm4hep::ConstCluster> ecalchcore_tight;         //TightCores
-		std::vector<edm4hep::ConstCluster> ecalchcore_medium;
-		std::vector<edm4hep::ConstCluster> ecalchcore_loose;         //LooseCores    Let's also get
-		std::vector<edm4hep::ConstCluster> ecalchcore; 		    //Above three
-		std::vector<edm4hep::ConstCluster> ecalnecore;
-		std::vector<edm4hep::ConstCluster> ecalnecore_EM;
-		std::vector<edm4hep::ConstCluster> ecalnecore_NonEM;
-		std::vector<edm4hep::ConstCluster> ecalfrag;
-		std::vector<edm4hep::ConstCluster> ecalundef;
-		std::vector<edm4hep::ConstCluster> ecalfrag_TBM_CH;
-		std::vector<edm4hep::ConstCluster> ecalfrag_TBM_NE_EM;
-		std::vector<edm4hep::ConstCluster> ecalfrag_TBM_NE_NonEM;
-		std::vector<edm4hep::ConstCluster> ecalundef_iso;
-		std::vector<edm4hep::ConstCluster> ecalpotentialbackscattering;
+		std::vector<edm4hep::Cluster> ecalchcore_tight;         //TightCores
+		std::vector<edm4hep::Cluster> ecalchcore_medium;
+		std::vector<edm4hep::Cluster> ecalchcore_loose;         //LooseCores    Let's also get
+		std::vector<edm4hep::Cluster> ecalchcore; 		    //Above three
+		std::vector<edm4hep::Cluster> ecalnecore;
+		std::vector<edm4hep::Cluster> ecalnecore_EM;
+		std::vector<edm4hep::Cluster> ecalnecore_NonEM;
+		std::vector<edm4hep::Cluster> ecalfrag;
+		std::vector<edm4hep::Cluster> ecalundef;
+		std::vector<edm4hep::Cluster> ecalfrag_TBM_CH;
+		std::vector<edm4hep::Cluster> ecalfrag_TBM_NE_EM;
+		std::vector<edm4hep::Cluster> ecalfrag_TBM_NE_NonEM;
+		std::vector<edm4hep::Cluster> ecalundef_iso;
+		std::vector<edm4hep::Cluster> ecalpotentialbackscattering;
 
-		std::vector<edm4hep::ConstCluster> chargedclustercore;
-		std::vector<edm4hep::ConstCluster> chargedclustercore_abs;
+		std::vector<edm4hep::Cluster> chargedclustercore;
+		std::vector<edm4hep::Cluster> chargedclustercore_abs;
 
-		std::vector<edm4hep::ConstCluster> selfmergedcluster; 
-		std::vector<edm4hep::ConstCluster> non_chargedclustercore;
-		std::vector<edm4hep::ConstCluster> onlyNeutralCore;
+		std::vector<edm4hep::MutableCluster> selfmergedcluster; 
+		std::vector<edm4hep::MutableCluster> non_chargedclustercore;
+		std::vector<edm4hep::Cluster> onlyNeutralCore;
 
-		std::vector<edm4hep::ConstCluster> non_charged_pem_neutral_core;
-		std::vector<edm4hep::ConstCluster> pem_neutral_core;
+		std::vector<edm4hep::Cluster> non_charged_pem_neutral_core;
+		std::vector<edm4hep::Cluster> pem_neutral_core;
 
-		std::map<edm4hep::ConstTrack, int>MCPTrack_Type;
-		std::map<edm4hep::ConstTrack, TVector3> Track_EndPoint;       //Last hit
-		std::map<edm4hep::ConstTrack, TVector3> TrackStartPoint;
-		std::map<edm4hep::ConstCluster, float> CluFD; 
-		std::map<edm4hep::ConstCluster, float> CluT0;
-		std::map<edm4hep::ConstCluster, float> Clu_Depth; 
-		std::map<edm4hep::ConstCluster, TVector3> CluCoG;
+		std::map<edm4hep::Track, int>MCPTrack_Type;
+		std::map<edm4hep::Track, TVector3> Track_EndPoint;       //Last hit
+		std::map<edm4hep::Track, TVector3> TrackStartPoint;
+		std::map<edm4hep::Cluster, float> CluFD; 
+		std::map<edm4hep::Cluster, float> CluT0;
+		std::map<edm4hep::Cluster, float> Clu_Depth; 
+		std::map<edm4hep::Cluster, TVector3> CluCoG;
 	typedef DataHandle<edm4hep::MCParticleCollection> MCParticleColHandler;
 	MCParticleColHandler m_mcParticle{"MCParticle", Gaudi::DataHandle::Reader, this};
 

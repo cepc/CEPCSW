@@ -524,7 +524,7 @@ StatusCode G2CDArborAlg::execute()
 	       // for(int k=0; k<SimEcalhit->getNMCContributions(); k++)
 	       // {
 	       for(int k=0; k<SimEcalhit.contributions_size(); k++){
-		    edm4hep::ConstCaloHitContribution hitContribution = SimEcalhit.getContributions(k);
+		    edm4hep::CaloHitContribution hitContribution = SimEcalhit.getContributions(k);
 	  	    // HitStepEn = SimEcalhit->getEnergyCont(k);
 		    HitStepEn = hitContribution.getEnergy();
 	  	    if(HitStepEn > EmaxStep)
@@ -626,7 +626,7 @@ StatusCode G2CDArborAlg::execute()
      	  //      for(int k=0; k<SimHcalhit->getNMCContributions(); k++)
      	  //      {
      	       for(int k=0; k<SimHcalhit.contributions_size(); k++){
-     		    edm4hep::ConstCaloHitContribution hitContribution = SimHcalhit.getContributions(k);
+     		    edm4hep::CaloHitContribution hitContribution = SimHcalhit.getContributions(k);
 
      	  	    // HitStepEn = SimHcalhit->getEnergyCont(k);
      		    HitStepEn = hitContribution.getEnergy();

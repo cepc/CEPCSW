@@ -50,7 +50,7 @@ public:
   
   void CalcDhDa(const TVTrackHit &vht, const TVector3   &xxv, const TKalMatrix &dxphiada, TKalMatrix &H)  const;
     
-  ILDVTrackHit* ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const;
+  ILDVTrackHit* ConvertLCIOTrkHit(edm4hep::TrackerHit trkhit) const;
   
 private:
   

@@ -9,9 +9,11 @@
 #include "DD4hep/DD4hepUnits.h"
 #include "edm4hep/MCParticle.h"
 #include "edm4hep/Track.h"
-#include "edm4hep/TrackerHitConst.h"
+#include "edm4hep/MutableTrack.h"
+#include "edm4hep/TrackerHit.h"
 #include "edm4hep/SimTrackerHit.h"
 #include "edm4hep/ReconstructedParticle.h"
+#include "edm4hep/MutableReconstructedParticle.h"
 #include "edm4hep/TrackerHitCollection.h"
 #include "edm4hep/MCRecoTrackerAssociationCollection.h"
 #include "edm4hep/Vector3d.h"
@@ -43,7 +45,7 @@ const int GenfitTrack::s_PDG[2][5]
 ={{-11,-13,211,321,2212},{11,13,-211,-321,-2212}};
 
     bool
-sortDCHit(edm4hep::ConstSimTrackerHit hit1,edm4hep::ConstSimTrackerHit hit2)
+sortDCHit(edm4hep::SimTrackerHit hit1,edm4hep::SimTrackerHit hit2)
 {
     //std::cout<<"hit1"<<hit1<<std::endl;
     //std::cout<<"hit2"<<hit2<<std::endl;
@@ -162,7 +164,7 @@ bool GenfitTrack::createGenfitTrackFromMCParticle(int pidType,
 
 ///Create a Genfit track with MCParticle, unit conversion here
 bool GenfitTrack::createGenfitTrackFromEDM4HepTrack(int pidType,
-        edm4hep::ConstTrack track, double eventStartTime)
+        edm4hep::Track track, double eventStartTime)
 {
     //std::cout<<__FILE__<<"   "<<__LINE__<<" bz kilogauss "<<m_genfitField->getBz({0.,0.,0.})/dd4hep::kilogauss<<std::endl;
     //std::cout<<__FILE__<<"   "<<__LINE__<<" bz tesla "<<m_genfitField->getBz({0.,0.,0.})/dd4hep::tesla<<std::endl;
@@ -196,7 +198,7 @@ bool GenfitTrack::createGenfitTrackFromEDM4HepTrack(int pidType,
 }
 
 /// Add a 3d SpacepointMeasurement on TrackerHit
-bool GenfitTrack::addSpacePointTrakerHit(edm4hep::ConstTrackerHit hit,
+bool GenfitTrack::addSpacePointTrakerHit(edm4hep::TrackerHit hit,
         int hitID)
 {
     edm4hep::Vector3d pos=hit.getPosition();
@@ -307,10 +309,10 @@ void GenfitTrack::addWireMeasurement(double driftDistance,
 }//end of addWireMeasurementOnTrack
 
 //Add wire measurement on wire, unit conversion here
-bool GenfitTrack::addWireMeasurementOnTrack(edm4hep::ConstTrack track,double sigma)
+bool GenfitTrack::addWireMeasurementOnTrack(edm4hep::Track track,double sigma)
 {
     for(unsigned int iHit=0;iHit<track.trackerHits_size();iHit++){
-        edm4hep::ConstTrackerHit hit=track.getTrackerHits(iHit);
+        edm4hep::TrackerHit hit=track.getTrackerHits(iHit);
 
         double driftVelocity=40;//FIXME, TODO, um/ns
         double driftDistance=hit.getTime()*driftVelocity*dd4hep::um;
@@ -644,11 +646,11 @@ double GenfitTrack::extrapolateToHit( TVector3& poca, TVector3& pocaDir,
 
 
 ///Add space point measurement from edm4hep::Track to genfit track
-int GenfitTrack::addSimTrackerHits(edm4hep::ConstTrack track,
+int GenfitTrack::addSimTrackerHits(edm4hep::Track track,
         const edm4hep::MCRecoTrackerAssociationCollection* assoHits,
         float sigma,bool smear){
     //A TrakerHit collection
-    std::vector<edm4hep::ConstSimTrackerHit> sortedDCTrackHitCol;
+    std::vector<edm4hep::SimTrackerHit> sortedDCTrackHitCol;
 
     if(m_debug>=2)std::cout<<m_name<<" VXD "
         <<lcio::ILDDetID::VXD<<" SIT "
@@ -658,7 +660,7 @@ int GenfitTrack::addSimTrackerHits(edm4hep::ConstTrack track,
     ///Get TrackerHit on Track
     int hitID=0;
     for(unsigned int iHit=0;iHit<track.trackerHits_size();iHit++){
-        edm4hep::ConstTrackerHit hit=track.getTrackerHits(iHit);
+        edm4hep::TrackerHit hit=track.getTrackerHits(iHit);
 
         UTIL::BitField64 encoder(lcio::ILDCellID0::encoder_string);
         encoder.setValue(hit.getCellID());
@@ -684,7 +686,7 @@ int GenfitTrack::addSimTrackerHits(edm4hep::ConstTrack track,
             //        <<detID<<" faieled" <<std::endl;
             //}
             float minTime=FLT_MAX;
-            edm4hep::ConstSimTrackerHit minTimeSimHit;
+            edm4hep::SimTrackerHit minTimeSimHit;
             //Select the SimTrakerHit with least time
             for(int iSimHit=0;iSimHit<(int) assoHits->size();iSimHit++){
                 if(assoHits->at(iSimHit).getRec()==hit &&
@@ -726,7 +728,7 @@ int GenfitTrack::addSimTrackerHits(edm4hep::ConstTrack track,
     return hitID;
 }
 
-bool GenfitTrack::storeTrack(edm4hep::ReconstructedParticle& recParticle,
+bool GenfitTrack::storeTrack(edm4hep::MutableReconstructedParticle& recParticle,
         int pidType, int ndfCut, double chi2Cut)
 {
 
@@ -801,7 +803,7 @@ bool GenfitTrack::storeTrack(edm4hep::ReconstructedParticle& recParticle,
     //    trackState.covMatrix=
 
     //new Track
-    edm4hep::Track* track = new edm4hep::Track();
+    edm4hep::MutableTrack* track = new edm4hep::MutableTrack();
     //track->setType();
     track->setChi2(fitState->getChi2());
     track->setNdf(fitState->getNdf());

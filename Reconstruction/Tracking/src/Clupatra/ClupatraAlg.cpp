@@ -62,10 +62,10 @@ using namespace clupatra_new ;
    };
    */
 
-RuntimeMap<edm4hep::ConstTrack, clupatra_new::TrackInfoStruct*> TrackInfo_of_edm4hepTrack;
-RuntimeMap<edm4hep::ConstTrack, MarlinTrk::IMarlinTrack*> MarTrk_of_edm4hepTrack;
+RuntimeMap<edm4hep::Track, clupatra_new::TrackInfoStruct*> TrackInfo_of_edm4hepTrack;
+RuntimeMap<edm4hep::Track, MarlinTrk::IMarlinTrack*> MarTrk_of_edm4hepTrack;
 RuntimeMap<MarlinTrk::IMarlinTrack*, clupatra_new::CluTrack*> CluTrk_of_MarTrack;
-RuntimeMap<edm4hep::ConstTrackerHit, clupatra_new::Hit*> GHitof;
+RuntimeMap<edm4hep::TrackerHit, clupatra_new::Hit*> GHitof;
 RuntimeMap<clupatra_new::CluTrack*, MarlinTrk::IMarlinTrack*> MarTrkof;
 
 gear::GearMgr* gearMgr; 
@@ -134,7 +134,7 @@ return 1;
 
 //----------------------------------------------------------------
 struct MeanAbsZOfTrack{
-	double operator()( ConstTrack t){
+	double operator()( Track t){
 		double z = 0 ;
 		int hitCount = 0 ;
 		/*
@@ -311,7 +311,7 @@ StatusCode ClupatraAlg::execute() {
 	for(int i=0 ; i < nHit ; ++i ) {
 
 		//------
-		ConstTrackerHit th(col->at(i));
+		TrackerHit th(col->at(i));
 		//debug() << i << " " << th->getCellID() << endmsg;
 		if ( fabs(th.getPosition()[2]) > driftLength ) continue;
 
@@ -543,7 +543,7 @@ StatusCode ClupatraAlg::execute() {
 
 				MarlinTrk::IMarlinTrack* mTrk = fitter( *icv ) ;
 				debug() << "before add hits and filter" << endmsg;
-                // std::vector<std::pair<edm4hep::ConstTrackerHit, double> > hitsInFit ;
+                // std::vector<std::pair<edm4hep::TrackerHit, double> > hitsInFit ;
                 // mTrk->getHitsInFit( hitsInFit ) ;
                 // for (auto hit : hitsInFit) std::cout << hit.first << std::endl;
 
@@ -559,7 +559,7 @@ StatusCode ClupatraAlg::execute() {
 				debug() << "Goes here" << endmsg;
 				if( nHitsAdded < 1  &&  outerRow >   2*_padRowRange  ){  //FIXME: make parameter ?
 
-					ConstTrack edm4hepTrk( converter( *icv ) ) ;
+					Track edm4hepTrk( converter( *icv ) ) ;
 					// debug() << "Goes goes here" << endmsg;
 
 					debug() << "=============  poor seed cluster - no hits added - started from row " <<  outerRow << " track id="
@@ -812,7 +812,7 @@ StatusCode ClupatraAlg::execute() {
 
 		MarlinTrk::IMarlinTrack* trk = fit( *icv ) ;
 		trk->smooth() ;
-		edm4hep::Track edm4hepTrk = converter( *icv ) ;
+		edm4hep::MutableTrack edm4hepTrk = converter( *icv ) ;
 		tsCol_tmp.push_back( new ClupaPlcioTrack(edm4hepTrk) ) ;
 		MarTrk_of_edm4hepTrack(edm4hepTrk) = 0 ;
 		delete trk ;
@@ -834,7 +834,7 @@ StatusCode ClupatraAlg::execute() {
 	MakePLCIOElement<ClupaPlcioTrack> trkMakeElement ;
 
 	for( int i=0,N=tsCol_tmp.size() ;  i<N ; ++i ) {
-	  edm4hep::ConstTrack track = tsCol_tmp.at(i)->edm4hepTrack;
+	  edm4hep::MutableTrack track = tsCol_tmp.at(i)->edm4hepTrack;
 	  computeTrackInfo(track) ;
 	}
 
@@ -859,7 +859,7 @@ StatusCode ClupatraAlg::execute() {
 
 			for( int i=0,N=tsCol_tmp.size() ;  i<N ; ++i ){
 
-			        edm4hep::ConstTrack trk = tsCol_tmp.at(i)->edm4hepTrack;
+			        edm4hep::Track trk = tsCol_tmp.at(i)->edm4hepTrack;
 
 				const TrackInfoStruct* ti = TrackInfo_of_edm4hepTrack(trk);
 
@@ -894,7 +894,7 @@ StatusCode ClupatraAlg::execute() {
 
 				TrackClusterer::cluster_type*  incSegClu = *it ;
 
-				std::vector<edm4hep::ConstTrack> mergedTrk ;
+				std::vector<edm4hep::Track> mergedTrk ;
 
 				// vector to collect hits from segments
 				//      std::vector< TrackerHit* >  hits ;
@@ -908,7 +908,7 @@ StatusCode ClupatraAlg::execute() {
 
 					//streamlog_out( DEBUG3 ) << lcshort(  (*itC)->first ) << std::endl ;
 
-					edm4hep::ConstTrack trk = (*itC)->first->edm4hepTrack;
+					edm4hep::MutableTrack trk = (*itC)->first->edm4hepTrack;
 
 					mergedTrk.push_back( trk ) ;
 
@@ -920,7 +920,7 @@ StatusCode ClupatraAlg::execute() {
 					   }
 					   */
 					for (auto it = trk.trackerHits_begin(); it != trk.trackerHits_end(); it++) {
-						ConstTrackerHit hit = *it;
+						TrackerHit hit = *it;
 						hits.addElement( GHitof(hit) );
 					}
 
@@ -945,7 +945,7 @@ StatusCode ClupatraAlg::execute() {
 
 				MarlinTrk::IMarlinTrack* mTrk = fit( &hits ) ;
 				mTrk->smooth() ;
-				edm4hep::Track track = converter( &hits ) ;
+				edm4hep::MutableTrack track = converter( &hits ) ;
 				tsCol_tmp.push_back( new ClupaPlcioTrack(track) ) ;
 				MarTrk_of_edm4hepTrack(track) = 0 ;
 				delete mTrk ;
@@ -977,7 +977,7 @@ StatusCode ClupatraAlg::execute() {
 		//for(std::vector<ClupaPlcioTrack*>::iterator it=tsCol_tmp.begin();it!=tsCol_tmp.end();it++){
 		for( int i=tsCol_tmp.size()-1 ;  i>=0 ; --i ){
 
-		        edm4hep::Track trk = tsCol_tmp.at(i)->edm4hepTrack;
+		        edm4hep::MutableTrack trk = tsCol_tmp.at(i)->edm4hepTrack;
 
 			std::bitset<32> type = trk.getType() ;
 
@@ -1042,7 +1042,7 @@ StatusCode ClupatraAlg::execute() {
 
 			TrackClusterer::cluster_type*  curSegClu = *it ;
 
-			std::list<edm4hep::Track> mergedTrk ;
+			std::list<edm4hep::MutableTrack> mergedTrk ;
 
 			for( TrackClusterer::cluster_type::iterator itC = curSegClu->begin() ; itC != curSegClu->end() ; ++ itC ){
 
@@ -1061,13 +1061,13 @@ StatusCode ClupatraAlg::execute() {
 
 				// ====== create a new LCIO track for the merged cluster ...
 				// edm4hep::Track trk;
-				edm4hep::Track trk; 
+				edm4hep::MutableTrack trk; 
 
 				trk.setType( lcio::ILDDetID::TPC ) ;
 
 				// == and copy all the hits
 				unsigned hitCount = 0 ;
-				for( std::list<edm4hep::Track>::iterator itML = mergedTrk.begin() ; itML != mergedTrk.end() ; ++ itML ){
+				for( std::list<edm4hep::MutableTrack>::iterator itML = mergedTrk.begin() ; itML != mergedTrk.end() ; ++ itML ){
 
 					for (auto itHit = (*itML).trackerHits_begin(); itHit != (*itML).trackerHits_end(); itHit++) {
 						trk.addToTrackerHits(*itHit);
@@ -1079,8 +1079,8 @@ StatusCode ClupatraAlg::execute() {
 				}
 
 				// take track states from first and last track :
-				ConstTrack firstTrk = mergedTrk.front() ;
-				ConstTrack lastTrk  = mergedTrk.back() ;
+				MutableTrack firstTrk = mergedTrk.front() ;
+				MutableTrack lastTrk  = mergedTrk.back() ;
 
 				/* !!!!!!!!!!!!!! critical important FIXME should wait zoujiaheng
 				   edm4hep::TrackState ts;
@@ -1145,9 +1145,9 @@ StatusCode ClupatraAlg::execute() {
 
 				// we move the first segment to the final list and keep pointers to the other segments
 
-			        std::list<edm4hep::Track>::iterator itML = mergedTrk.begin() ;
+			        std::list<edm4hep::MutableTrack>::iterator itML = mergedTrk.begin() ;
 
-				edm4hep::Track trk = (edm4hep::Track) *itML++ ;
+				edm4hep::MutableTrack trk = (edm4hep::MutableTrack) *itML++ ;
 
 				for(  ; itML != mergedTrk.end() ; ++itML ){
 
@@ -1184,13 +1184,13 @@ StatusCode ClupatraAlg::execute() {
 
                                 // std::cout << "Can I get the track? 2" << std::endl;
                                 // std::cout << (*it)->first->edm4hepTrack;
-			        edm4hep::Track trk = (*it)->first->edm4hepTrack ;
+			        edm4hep::MutableTrack trk = (*it)->first->edm4hepTrack ;
                                 // std::cout << "Can I get the track? 3" << std::endl;
                                 // std::cout << trk << std::endl;
 
 				if( copyTrackSegments) {
 
-				        edm4hep::Track t =  trk;
+				        edm4hep::MutableTrack t =  trk;
 
 					TrackInfo_of_edm4hepTrack(t) = 0 ; // set extension to 0 to prevent double free ...
 
@@ -1272,7 +1272,7 @@ StatusCode ClupatraAlg::execute() {
 // ####### 001
 /*************************************************************************************************/
 
-void ClupatraAlg::computeTrackInfo(  edm4hep::ConstTrack lTrk  ){
+void ClupatraAlg::computeTrackInfo(  edm4hep::Track lTrk  ){
 
 	if( ! TrackInfo_of_edm4hepTrack(lTrk) )
 		TrackInfo_of_edm4hepTrack(lTrk) = new TrackInfoStruct ;

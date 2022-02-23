@@ -62,8 +62,8 @@ void saveToRoot( std::string rootFileName, std::string treeName , std::vector < 
  * 
  * @return true if |a.z| < |b.z| , i.e. true if a is nearer to z=0 than b is
  */
-//bool compare_TrackerHit_z( edm4hep::ConstTrackerHit* a, edm4hep::ConstTrackerHit* b );
-bool compare_TrackerHit_z( edm4hep::ConstTrackerHit& a, edm4hep::ConstTrackerHit& b );
+//bool compare_TrackerHit_z( edm4hep::TrackerHit* a, edm4hep::TrackerHit* b );
+bool compare_TrackerHit_z( edm4hep::TrackerHit& a, edm4hep::TrackerHit& b );
 
 /** method that compares two TrackerHits.
  * 
@@ -71,7 +71,7 @@ bool compare_TrackerHit_z( edm4hep::ConstTrackerHit& a, edm4hep::ConstTrackerHit
  *
  * to be used at the VXD-SIT system
  */
-bool compare_TrackerHit_R( edm4hep::ConstTrackerHit& a, edm4hep::ConstTrackerHit& b );
+bool compare_TrackerHit_R( edm4hep::TrackerHit& a, edm4hep::TrackerHit& b );
 
 
 FTDHitSimple* createVirtualIPHit( int side , const SectorSystemFTD* sectorSystemFTD );
@@ -79,7 +79,7 @@ FTDHitSimple* createVirtualIPHit( int side , const SectorSystemFTD* sectorSystem
 VXDHitSimple* createVirtualIPHit( const SectorSystemVXD* sectorSystemVXD );
 
 
-std::string getPositionInfo( edm4hep::ConstTrackerHit hit );
+std::string getPositionInfo( edm4hep::TrackerHit hit );
 
 std::string getPositionInfo( IHit* hit );   
 

@@ -9,7 +9,6 @@
 #include "Gaudi/Property.h"
 #include "edm4hep/EventHeader.h"
 #include "edm4hep/EventHeaderCollection.h"
-#include "edm4hep/SimCalorimeterHitConst.h"
 #include "edm4hep/SimCalorimeterHit.h"
 #include "edm4hep/CalorimeterHit.h"
 #include "edm4hep/CalorimeterHitCollection.h"
@@ -57,7 +56,7 @@ class MarlinArbor  : public GaudiAlgorithm
 		virtual StatusCode finalize() ;
 		void HitsPreparation(); // LCEvent * evtP);
 
-		void MakeIsoHits(std::vector<edm4hep::ConstCalorimeterHit> inputCaloHits, DataHandle<edm4hep::CalorimeterHitCollection>& m_isohitcol);
+		void MakeIsoHits(std::vector<edm4hep::CalorimeterHit> inputCaloHits, DataHandle<edm4hep::CalorimeterHitCollection>& m_isohitcol);
 	protected:
 		std::string _colName;
 		std::vector<std::string> _CalCollections;
