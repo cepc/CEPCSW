@@ -21,7 +21,7 @@ jobs:
     runs-on: self-hosted
     strategy:
       matrix:
-        LCG_RELEASE: [LCG_98, KEY4HEP_STACK]
+        LCG_RELEASE: [LCG_101, KEY4HEP_STACK]
         # CEPCSW_BLDTOOL: [make, ninja]
         CEPCSW_BLDTOOL: [ninja]
 
