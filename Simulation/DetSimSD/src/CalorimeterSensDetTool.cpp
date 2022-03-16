@@ -43,7 +43,7 @@ CalorimeterSensDetTool::createSD(const std::string& name) {
       }
     }
     G4VSensitiveDetector* sd = new CaloSensitiveDetector(name, *dd4hep_geo, is_merge_enabled);
-    debug() << name << " set to merge true/false = " << is_merge_enabled << endmsg;
+    warning() << name << " set to merge true/false = " << is_merge_enabled << endmsg;
 
     return sd;
 }

@@ -31,6 +31,8 @@ private:
     // DD4hep XML compact file path
     Gaudi::Property<std::string> m_dd4hep_xmls{this, "detxml"};
 
+    Gaudi::Property<bool> m_SD_enabled{this, "SDenabled", true};
+
     SmartIF<IGeomSvc> m_geosvc;
     ToolHandle<ISensDetTool> m_calo_sdtool;
     ToolHandle<ISensDetTool> m_driftchamber_sdtool;
