@@ -382,7 +382,6 @@ void ILDVXDKalDetector::setupGearGeom( const gear::GearMgr& gearMgr ){
 
 
 void ILDVXDKalDetector::setupGearGeom( IGeomSvc* geoSvc){
-  /*
   dd4hep::DetElement world = geoSvc->getDD4HepGeo();
   dd4hep::DetElement vxd;
   const std::map<std::string, dd4hep::DetElement>& subs = world.children();
@@ -398,14 +397,13 @@ void ILDVXDKalDetector::setupGearGeom( IGeomSvc* geoSvc){
     std::cout << e.what() << " " << vxdData << std::endl;
     throw GaudiException(e.what(), "FATAL", StatusCode::FAILURE);
   }
-  */
+  
   const dd4hep::Direction& field = geoSvc->lcdd()->field().magneticField(dd4hep::Position(0,0,0));
   _bZ = field.z()/dd4hep::tesla;
+
+  const std::vector<dd4hep::rec::ZPlanarData::LayerLayout>& layers = vxdData->layers;
   
-  const gear::ZPlanarParametersImpl* pVXDDetMain = geoSvc->getVXDParameters();
-  const gear::VXDLayerLayout& pVXDLayerLayout = pVXDDetMain->getVXDLayerLayout();
-  
-  _nLayers = pVXDLayerLayout.getNLayers(); 
+  _nLayers = layers.size(); 
   _VXDgeo.resize(_nLayers);
   
   //SJA:FIXME: for now the support is taken as the same size the sensitive
@@ -414,16 +412,17 @@ void ILDVXDKalDetector::setupGearGeom( IGeomSvc* geoSvc){
   //           for a significant distance 
   
   for( int layer=0; layer < _nLayers; ++layer){
-    _VXDgeo[layer].nLadders = pVXDLayerLayout.getNLadders(layer); 
-    _VXDgeo[layer].phi0 = pVXDLayerLayout.getPhi0(layer); 
+    const dd4hep::rec::ZPlanarData::LayerLayout& thisLayer = layers[layer];
+    _VXDgeo[layer].nLadders = thisLayer.ladderNumber; 
+    _VXDgeo[layer].phi0 = thisLayer.phi0; 
     _VXDgeo[layer].dphi = 2*M_PI / _VXDgeo[layer].nLadders; 
-    _VXDgeo[layer].senRMin = pVXDLayerLayout.getSensitiveDistance(layer); 
-    _VXDgeo[layer].supRMin = pVXDLayerLayout.getLadderDistance(layer); 
-    _VXDgeo[layer].length = pVXDLayerLayout.getSensitiveLength(layer) * 2.0 ; // note: gear for historical reasons uses the halflength 
-    _VXDgeo[layer].width = pVXDLayerLayout.getSensitiveWidth(layer); 
-    _VXDgeo[layer].offset = pVXDLayerLayout.getSensitiveOffset(layer); 
-    _VXDgeo[layer].senThickness = pVXDLayerLayout.getSensitiveThickness(layer); 
-    _VXDgeo[layer].supThickness = pVXDLayerLayout.getLadderThickness(layer); 
+    _VXDgeo[layer].senRMin = thisLayer.distanceSensitive; 
+    _VXDgeo[layer].supRMin = thisLayer.distanceSupport; 
+    _VXDgeo[layer].length = thisLayer.zHalfSensitive * 2.0 ; // note: gear for historical reasons uses the halflength 
+    _VXDgeo[layer].width = thisLayer.widthSensitive; 
+    _VXDgeo[layer].offset = thisLayer.offsetSensitive; 
+    _VXDgeo[layer].senThickness = thisLayer.thicknessSensitive; 
+    _VXDgeo[layer].supThickness = thisLayer.thicknessSupport;
     //std::cout << layer << ": " << _VXDgeo[layer].nLadders << " " << _VXDgeo[layer].phi0 << " " << _VXDgeo[layer].dphi << " " << _VXDgeo[layer].senRMin 
     //	      << " " << _VXDgeo[layer].supRMin << " " << _VXDgeo[layer].length << " " << _VXDgeo[layer].width << " " << _VXDgeo[layer].offset
     //	      << " " << _VXDgeo[layer].senThickness << " " << _VXDgeo[layer].supThickness << std::endl; 
@@ -432,26 +431,20 @@ void ILDVXDKalDetector::setupGearGeom( IGeomSvc* geoSvc){
   // layer, this can optionally be changed, e.g. in the case of the FPCCD where the 
   // epitaxial layer is 15 mu thick (in a 50 mu wafer)
   _relative_position_of_measurement_surface = 0.5 ;
-  // Cryostat
-  try {
-    _vxd_Cryostat.alRadius    = geoSvc->getDetParameter("VXDInfra","CryostatAlRadius");
-    _vxd_Cryostat.alThickness = geoSvc->getDetParameter("VXDInfra","CryostatAlThickness");
-    _vxd_Cryostat.alInnerR    = geoSvc->getDetParameter("VXDInfra","CryostatAlInnerR");
-    _vxd_Cryostat.alZEndCap   = geoSvc->getDetParameter("VXDInfra","CryostatAlZEndCap");
-    _vxd_Cryostat.alHalfZ     = geoSvc->getDetParameter("VXDInfra","CryostatAlHalfZ");
 
-    _vxd_Cryostat.shellInnerR    = pVXDDetMain->getShellInnerRadius();
-    _vxd_Cryostat.shellThickness = pVXDDetMain->getShellOuterRadius() - _vxd_Cryostat.shellInnerR;    
-    _vxd_Cryostat.shelllHalfZ    = pVXDDetMain->getShellHalfLength();
-    
-    _vxd_Cryostat.exists = true;
-    //std::cout << "VXDInfra: " << _vxd_Cryostat.alRadius << " " << _vxd_Cryostat.alThickness << " " << _vxd_Cryostat.alInnerR << " " << _vxd_Cryostat.alZEndCap << " "
-    //          << _vxd_Cryostat.alHalfZ << " " << _vxd_Cryostat.shellInnerR << " " << _vxd_Cryostat.shellThickness << " " << _vxd_Cryostat.shelllHalfZ << std::endl;
-  }
-  catch (std::runtime_error& e) {
-    std::cout << e.what() << std::endl ;
-    _vxd_Cryostat.exists = false;
-  
-  }
+  // Cryostat
+  // FIXME not support by ZPlanarData, not install in current CEPC 
+  //_vxd_Cryostat.shellInnerR    = vxdData->rInnerShell;
+  //_vxd_Cryostat.shellThickness = vxdData->rOuterShell;
+  //_vxd_Cryostat.shelllHalfZ    = vxdData->zHalfShell;
+  //_vxd_Cryostat.alRadius    = geoSvc->getDetParameter("VXDInfra","CryostatAlRadius");
+  //_vxd_Cryostat.alThickness = geoSvc->getDetParameter("VXDInfra","CryostatAlThickness");
+  //_vxd_Cryostat.alInnerR    = geoSvc->getDetParameter("VXDInfra","CryostatAlInnerR");
+  //_vxd_Cryostat.alZEndCap   = geoSvc->getDetParameter("VXDInfra","CryostatAlZEndCap");
+  //_vxd_Cryostat.alHalfZ     = geoSvc->getDetParameter("VXDInfra","CryostatAlHalfZ");
+  _vxd_Cryostat.exists = false;
+
+  //std::cout << "VXDInfra: " << _vxd_Cryostat.alRadius << " " << _vxd_Cryostat.alThickness << " " << _vxd_Cryostat.alInnerR << " " << _vxd_Cryostat.alZEndCap << " "
+  //          << _vxd_Cryostat.alHalfZ << " " << _vxd_Cryostat.shellInnerR << " " << _vxd_Cryostat.shellThickness << " " << _vxd_Cryostat.shelllHalfZ << std::endl;
   
 }
