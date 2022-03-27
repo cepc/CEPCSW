@@ -35,7 +35,22 @@ TVKalDetector(10)
   std::vector<double> z, rInner, rOuter;
   // streamlog_out(DEBUG1) << "ILDSupportKalDetector building beampipe using GEAR " << std::endl ;
   if(geoSvc){
-    const dd4hep::rec::ConicalSupportData* pBeamPipeData = geoSvc->getBeamPipeData();
+    dd4hep::DetElement world = geoSvc->getDD4HepGeo();
+    dd4hep::DetElement pipe;
+    const std::map<std::string, dd4hep::DetElement>& subs = world.children();
+    for(std::map<std::string, dd4hep::DetElement>::const_iterator it=subs.begin();it!=subs.end();it++){
+      if(it->first!="Tube") continue;
+      pipe = it->second;
+    }
+    dd4hep::rec::ConicalSupportData* pBeamPipeData = nullptr;
+    try{
+      pBeamPipeData = pipe.extension<dd4hep::rec::ConicalSupportData>();
+    }
+    catch(std::runtime_error& e){
+      std::cout << e.what() << " " << pBeamPipeData << std::endl;
+      std::cerr << "Cannot find extension data in Beampipe!" << std::endl;
+    }
+
     const std::vector<dd4hep::rec::ConicalSupportData::Section>& sections = pBeamPipeData->sections;
     const dd4hep::Direction& field = geoSvc->lcdd()->field().magneticField(dd4hep::Position(0,0,0));
     bz = field.z()/dd4hep::tesla;

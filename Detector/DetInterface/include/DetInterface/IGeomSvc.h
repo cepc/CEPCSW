@@ -27,11 +27,6 @@ namespace dd4hep {
 
 class StructExtension;
 
-namespace gear{
-  class ZPlanarParametersImpl;
-  class GearParametersImpl;
-}
-class TMaterial;
 // class G4VUserDetectorConstruction;
 
 class GAUDI_API IGeomSvc : virtual public IService {
@@ -48,16 +43,6 @@ public:
 
   // short cut to retrieve the Decoder according to the Readout name
   virtual Decoder* getDecoder(const std::string& readout_name) = 0;
-
-  // obsolete parameter format, will remove once StructExtension<> validated
-  virtual const gear::ZPlanarParametersImpl*  getVXDParameters() = 0;
-
-  virtual const dd4hep::rec::ZPlanarData* getVXDData() = 0;
-  virtual const dd4hep::rec::ConicalSupportData* getBeamPipeData() =0;
-
-  virtual const std::map<std::string,double>& getDetParameters(std::string s) = 0;
-  virtual double getDetParameter(std::string set_name, std::string par_name) = 0;
-  virtual TMaterial* getMaterial(std::string s) = 0;
 
   virtual ~IGeomSvc() {}
 };
