@@ -84,6 +84,23 @@ detsimalg.AnaElems = [
 ]
 detsimalg.RootDetElem = "WorldDetElemTool"
 
+dedxoption = "BetheBlochEquationDedxSimTool"
+from Configurables import DriftChamberSensDetTool
+dc_sensdettool = DriftChamberSensDetTool("DriftChamberSensDetTool")
+dc_sensdettool.DedxSimTool = dedxoption
+
+from Configurables import DummyDedxSimTool
+from Configurables import BetheBlochEquationDedxSimTool
+
+if dedxoption == "DummyDedxSimTool":
+    dedx_simtool = DummyDedxSimTool("DummyDedxSimTool")
+elif dedxoption == "BetheBlochEquationDedxSimTool":
+    dedx_simtool = BetheBlochEquationDedxSimTool("BetheBlochEquationDedxSimTool")
+    dedx_simtool.material_Z = 2
+    dedx_simtool.material_A = 4
+    dedx_simtool.scale = 10
+    dedx_simtool.resolution = 0.0001
+
 from Configurables import MarlinEvtSeeder
 evtseeder = MarlinEvtSeeder("EventSeeder")
 

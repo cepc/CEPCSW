@@ -13,6 +13,8 @@ gaudi_add_module(DetSimSD
                          src/TimeProjectionChamberSensDetTool.cpp
                          src/TimeProjectionChamberSensitiveDetector.cpp
 
+                         src/GenericTrackerSensDetTool.cpp
+                         src/GenericTrackerSensitiveDetector.cpp
                  LINK DetSimInterface
                       DetInterface
                       ${DD4hep_COMPONENT_LIBRARIES} 
