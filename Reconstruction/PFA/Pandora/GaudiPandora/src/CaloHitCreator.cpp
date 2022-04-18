@@ -240,7 +240,7 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
         try
         {
             if(m_settings.m_debug) std::cout<<"CaloHitCreator for "<<tmp_col_name<<std::endl;
-            auto pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(tmp_col_name))->second;
+            auto & pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(tmp_col_name))->second;
             const int nElements(pCaloHitCollection.size());
 
             if (0 == nElements)
@@ -276,8 +276,7 @@ pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const CollectionMaps& col
             {
                 try
                 {
-                    auto pCaloHit0 = pCaloHitCollection.at(i);
-                    auto pCaloHit = &(pCaloHit0);
+                    auto pCaloHit = const_cast<edm4hep::CalorimeterHit*>(&(pCaloHitCollection.at(i)));
 
                     if (NULL == pCaloHit)
                         throw ("CreateECalCaloHits pCaloHit Collection type mismatch");
@@ -395,7 +394,7 @@ pandora::StatusCode CaloHitCreator::CreateHCalCaloHits(const CollectionMaps& col
         if(collectionMaps.collectionMap_CaloHit.find(tmp_col_name) == collectionMaps.collectionMap_CaloHit.end()) { if(m_settings.m_debug) std::cout<<"not find "<<tmp_col_name<<std::endl; continue;}
         try
         {
-            auto pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(tmp_col_name))->second;
+            auto & pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(tmp_col_name))->second;
             const int nElements(pCaloHitCollection.size());
 
             if (0 == nElements)
@@ -431,8 +430,7 @@ pandora::StatusCode CaloHitCreator::CreateHCalCaloHits(const CollectionMaps& col
             {
                 try
                 {
-                    auto pCaloHit0 = pCaloHitCollection.at(i);
-                    auto pCaloHit = &(pCaloHit0);
+                    auto pCaloHit = const_cast<edm4hep::CalorimeterHit*>(&(pCaloHitCollection.at(i)));
 
                     if (NULL == pCaloHit)
                         throw ("CreateHCalCaloHits Collection type mismatch");
@@ -520,7 +518,7 @@ pandora::StatusCode CaloHitCreator::CreateMuonCaloHits(const CollectionMaps& col
         if(collectionMaps.collectionMap_CaloHit.find(tmp_col_name) == collectionMaps.collectionMap_CaloHit.end()) {if(m_settings.m_debug) std::cout<<"not find "<<tmp_col_name<<std::endl; continue;}
         try
         {
-            auto pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(tmp_col_name))->second;
+            auto & pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(tmp_col_name))->second;
             const int nElements(pCaloHitCollection.size());
 
             if (0 == nElements)
@@ -558,8 +556,7 @@ pandora::StatusCode CaloHitCreator::CreateMuonCaloHits(const CollectionMaps& col
             {
                 try
                 {
-                    auto pCaloHit0 = pCaloHitCollection.at(i);
-                    auto pCaloHit = &(pCaloHit0);
+                    auto pCaloHit = const_cast<edm4hep::CalorimeterHit*>(&(pCaloHitCollection.at(i)));
 
                     if (NULL == pCaloHit)
                         throw ("Muon Collection type mismatch");
@@ -661,7 +658,7 @@ pandora::StatusCode CaloHitCreator::CreateLCalCaloHits(const CollectionMaps& col
         if(collectionMaps.collectionMap_CaloHit.find(*iter) == collectionMaps.collectionMap_CaloHit.end()) {if(m_settings.m_debug)std::cout<<"not find "<<(*iter)<<std::endl; continue;}
         try
         {
-            auto pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(*iter))->second;
+            auto & pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(*iter))->second;
             const int nElements(pCaloHitCollection.size());
 
             if (0 == nElements)
@@ -679,8 +676,7 @@ pandora::StatusCode CaloHitCreator::CreateLCalCaloHits(const CollectionMaps& col
             {
                 try
                 {
-                    auto pCaloHit0 = pCaloHitCollection.at(i);
-                    auto pCaloHit = &(pCaloHit0);
+                    auto pCaloHit = const_cast<edm4hep::CalorimeterHit*>(&(pCaloHitCollection.at(i)));
 
                     if (NULL == pCaloHit)
                         throw ("LCal Collection type mismatch");
@@ -736,7 +732,7 @@ pandora::StatusCode CaloHitCreator::CreateLHCalCaloHits(const CollectionMaps& co
         if(collectionMaps.collectionMap_CaloHit.find(*iter) == collectionMaps.collectionMap_CaloHit.end()) {if(m_settings.m_debug) std::cout<<"not find "<<(*iter)<<std::endl; continue;}
         try
         {
-            auto pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(*iter))->second;
+            auto & pCaloHitCollection = (collectionMaps.collectionMap_CaloHit.find(*iter))->second;
             const int nElements(pCaloHitCollection.size());
 
             if (0 == nElements)
@@ -753,8 +749,7 @@ pandora::StatusCode CaloHitCreator::CreateLHCalCaloHits(const CollectionMaps& co
             {
                 try
                 {
-                    auto pCaloHit0 = pCaloHitCollection.at(i);
-                    auto pCaloHit = &(pCaloHit0);
+                    auto pCaloHit = const_cast<edm4hep::CalorimeterHit*>(&(pCaloHitCollection.at(i)));
 
                     if (NULL == pCaloHit)
                         throw ("LHCal Collection type mismatch");

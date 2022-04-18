@@ -41,20 +41,20 @@ pandora::StatusCode MCParticleCreator::CreateMCParticles(const CollectionMaps& c
         if(collectionMaps.collectionMap_MC.find(*iter) == collectionMaps.collectionMap_MC.end()) continue;
         try
         {
-            auto pMCParticleCollection = (collectionMaps.collectionMap_MC.find(*iter))->second;
+            auto & pMCParticleCollection = (collectionMaps.collectionMap_MC.find(*iter))->second;
             std::cout<<"Do CreateMCParticles, collection:"<<(*iter)<<", size="<<pMCParticleCollection.size()<<std::endl;
             for (int im = 0; im < pMCParticleCollection.size(); im++)
             {
                 try
                 {
-                    auto pMcParticle = pMCParticleCollection.at(im);
+                    auto & pMcParticle = pMCParticleCollection.at(im);
                     PandoraApi::MCParticle::Parameters mcParticleParameters;
                     mcParticleParameters.m_energy =   sqrt(pMcParticle.getMomentum()[0] * pMcParticle.getMomentum()[0] + pMcParticle.getMomentum()[1] * pMcParticle.getMomentum()[1] + pMcParticle.getMomentum()[2] * pMcParticle.getMomentum()[2] + pMcParticle.getMass() * pMcParticle.getMass());
                     mcParticleParameters.m_particleId = pMcParticle.getPDG();
                     mcParticleParameters.m_mcParticleType = pandora::MC_3D;
                     mcParticleParameters.m_pParentAddress = &pMcParticle;
                     unsigned int p_id = pMcParticle.id();
-                    auto p_mc = &pMcParticle;
+                    auto p_mc = const_cast<edm4hep::MCParticle*>(&pMcParticle);
                     (*m_id_pMC_map) [p_id]   = p_mc;
                     mcParticleParameters.m_momentum = pandora::CartesianVector(pMcParticle.getMomentum()[0], pMcParticle.getMomentum()[1],
                         pMcParticle.getMomentum()[2]);

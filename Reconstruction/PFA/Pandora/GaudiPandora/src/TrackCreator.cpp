@@ -291,20 +291,20 @@ pandora::StatusCode TrackCreator::ExtractKinks(const CollectionMaps& collectionM
         if(collectionMaps.collectionMap_Vertex.find(*iter) == collectionMaps.collectionMap_Vertex.end()) { std::cout<<"not find "<<(*iter)<<std::endl; continue;}
         try
         {
-            auto pKinkCollection = (collectionMaps.collectionMap_Vertex.find(*iter))->second;
+            auto & pKinkCollection = (collectionMaps.collectionMap_Vertex.find(*iter))->second;
 
             for (int i = 0, iMax = pKinkCollection.size(); i < iMax; ++i)
             {
                 try
                 {
-                    auto  pVertex0 = pKinkCollection.at(i);
+                    auto &  pVertex0 = pKinkCollection.at(i);
                     auto pVertex  = &(pVertex0);
 
                     if (NULL == pVertex) throw ("Collection type mismatch");
 
                     //std::cout<<"pVertex getChi2="<<pVertex->getChi2()<<std::endl;
                     //std::cout<<"pReconstructedParticle en="<<pReconstructedParticle.getEnergy()<<",type="<<pReconstructedParticle.getType()<<std::endl;
-                    auto pReconstructedParticle = pVertex->getAssociatedParticle();
+                    auto & pReconstructedParticle = pVertex->getAssociatedParticle();
                     if (this->IsConflictingRelationship(pReconstructedParticle))continue;
 
                     const int vertexPdgCode(pReconstructedParticle.getType());
@@ -395,17 +395,17 @@ pandora::StatusCode TrackCreator::ExtractProngsAndSplits(const CollectionMaps& c
         if(collectionMaps.collectionMap_Vertex.find(*iter) == collectionMaps.collectionMap_Vertex.end()) { std::cout<<"not find "<<(*iter)<<std::endl; continue;}
         try
         {
-            auto pProngOrSplitCollection = (collectionMaps.collectionMap_Vertex.find(*iter))->second;
+            auto & pProngOrSplitCollection = (collectionMaps.collectionMap_Vertex.find(*iter))->second;
 
             for (int i = 0, iMax = pProngOrSplitCollection.size(); i < iMax; ++i)
             {
                 try
                 {
-                    auto  pVertex0 = pProngOrSplitCollection.at(i);
+                    auto & pVertex0 = pProngOrSplitCollection.at(i);
                     auto pVertex  = &(pVertex0);
 
                     if (NULL == pVertex) throw ("Collection type mismatch");
-                    const edm4hep::ReconstructedParticle pReconstructedParticle = pVertex->getAssociatedParticle();
+                    const edm4hep::ReconstructedParticle & pReconstructedParticle = pVertex->getAssociatedParticle();
 
                     if (this->IsConflictingRelationship(pReconstructedParticle))continue;
 
@@ -461,18 +461,18 @@ pandora::StatusCode TrackCreator::ExtractV0s(const CollectionMaps& collectionMap
         if(collectionMaps.collectionMap_Vertex.find(*iter) == collectionMaps.collectionMap_Vertex.end()) { std::cout<<"not find "<<(*iter)<<std::endl; continue;}
         try
         {
-            auto pV0Collection = (collectionMaps.collectionMap_Vertex.find(*iter))->second;
+            auto & pV0Collection = (collectionMaps.collectionMap_Vertex.find(*iter))->second;
 
             for (int i = 0, iMax = pV0Collection.size(); i < iMax; ++i)
             {
                 try
                 {
-                    auto  pVertex0 = pV0Collection.at(i);
+                    auto &  pVertex0 = pV0Collection.at(i);
                     auto  pVertex  = &(pVertex0);
 
                     if (NULL == pVertex) throw ("Collection type mismatch");
 
-                    const edm4hep::ReconstructedParticle pReconstructedParticle = pVertex->getAssociatedParticle();
+                    const edm4hep::ReconstructedParticle & pReconstructedParticle = pVertex->getAssociatedParticle();
 
                     if (this->IsConflictingRelationship(pReconstructedParticle))continue;
 
@@ -552,11 +552,11 @@ edm4hep::Track* TrackCreator::GetTrackAddress(const CollectionMaps& collectionMa
     for (StringVector::const_iterator iter = m_settings.m_trackCollections.begin(), iterEnd = m_settings.m_trackCollections.end(); iter != iterEnd; ++iter)
     {
         if(collectionMaps.collectionMap_Track.find(*iter) == collectionMaps.collectionMap_Track.end()) { std::cout<<"not find "<<(*iter)<<std::endl; continue;}
-        auto pTrackCollection = (collectionMaps.collectionMap_Track.find(*iter))->second;
+        auto & pTrackCollection = (collectionMaps.collectionMap_Track.find(*iter))->second;
         for (int i = 0, iMax = pTrackCollection.size(); i < iMax; ++i)
         {
-            auto pTrack0 = pTrackCollection.at(i);
-            if (pTrack.id() == pTrack0.id()) return (&pTrack0);
+            auto & pTrack0 = pTrackCollection.at(i);
+            if (pTrack.id() == pTrack0.id()) return (const_cast<edm4hep::Track*>(&pTrack0));
         }
     }
     return NULL;
@@ -572,15 +572,14 @@ pandora::StatusCode TrackCreator::CreateTracks(const CollectionMaps& collectionM
         if(collectionMaps.collectionMap_Track.find(*iter) == collectionMaps.collectionMap_Track.end()) { std::cout<<"not find "<<(*iter)<<std::endl; continue;}
         try
         {
-            auto pTrackCollection = (collectionMaps.collectionMap_Track.find(*iter))->second;
+            auto & pTrackCollection = (collectionMaps.collectionMap_Track.find(*iter))->second;
 
             if(m_settings.m_debug) std::cout<<"TrackSize:"<<pTrackCollection.size()<<std::endl;
             for (int i = 0, iMax = pTrackCollection.size(); i < iMax; ++i)
             {
                 try
                 {
-                    auto pTrack0 = pTrackCollection.at(i);
-                    auto pTrack  = (&pTrack0);
+                    auto pTrack  = const_cast<edm4hep::Track*>(&(pTrackCollection.at(i)));
 
                     if (NULL == pTrack) throw ("Collection type mismatch");
                     if(m_settings.m_debug){
