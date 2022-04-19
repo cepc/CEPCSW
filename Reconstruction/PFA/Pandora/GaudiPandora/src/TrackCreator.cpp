@@ -547,7 +547,7 @@ bool TrackCreator::IsConflictingRelationship(const edm4hep::ReconstructedParticl
     return false;
 }
 
-edm4hep::Track* TrackCreator::GetTrackAddress(const CollectionMaps& collectionMaps, const edm4hep::Track& pTrack )
+const edm4hep::Track* TrackCreator::GetTrackAddress(const CollectionMaps& collectionMaps, const edm4hep::Track& pTrack )
 {
     for (StringVector::const_iterator iter = m_settings.m_trackCollections.begin(), iterEnd = m_settings.m_trackCollections.end(); iter != iterEnd; ++iter)
     {
@@ -556,7 +556,7 @@ edm4hep::Track* TrackCreator::GetTrackAddress(const CollectionMaps& collectionMa
         for (int i = 0, iMax = pTrackCollection.size(); i < iMax; ++i)
         {
             auto & pTrack0 = pTrackCollection.at(i);
-            if (pTrack.id() == pTrack0.id()) return (const_cast<edm4hep::Track*>(&pTrack0));
+            if (pTrack.id() == pTrack0.id()) return (&pTrack0);
         }
     }
     return NULL;
@@ -579,7 +579,7 @@ pandora::StatusCode TrackCreator::CreateTracks(const CollectionMaps& collectionM
             {
                 try
                 {
-                    auto pTrack  = const_cast<edm4hep::Track*>(&(pTrackCollection.at(i)));
+                    auto pTrack  = &(pTrackCollection.at(i));
 
                     if (NULL == pTrack) throw ("Collection type mismatch");
                     if(m_settings.m_debug){
@@ -664,7 +664,7 @@ pandora::StatusCode TrackCreator::CreateTracks(const CollectionMaps& collectionM
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-void TrackCreator::GetTrackStates(edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const
+void TrackCreator::GetTrackStates(const edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const
 {
     // for DD4HEP, 0 is IP, 1 is AtFirstHit, 2 is AtLastHit, 3 is AtCalo
     edm4hep::TrackState pTrackState = pTrack->getTrackStates(0); 
@@ -690,7 +690,7 @@ void TrackCreator::GetTrackStates(edm4hep::Track *const pTrack, PandoraApi::Trac
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-float TrackCreator::CalculateTrackTimeAtCalorimeter(edm4hep::Track *const pTrack) const
+float TrackCreator::CalculateTrackTimeAtCalorimeter(const edm4hep::Track *const pTrack) const
 {
     const pandora::Helix helix(pTrack->getTrackStates(0).phi, pTrack->getTrackStates(0).D0, pTrack->getTrackStates(0).Z0, pTrack->getTrackStates(0).omega, pTrack->getTrackStates(0).tanLambda, m_bField);
     const pandora::CartesianVector &referencePoint(helix.GetReferencePoint());
@@ -763,7 +763,7 @@ void TrackCreator::CopyTrackState(const edm4hep::TrackState & pTrackState, pando
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-void TrackCreator::TrackReachesECAL(edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const
+void TrackCreator::TrackReachesECAL(const edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const
 {
     
     // Calculate hit position information
@@ -846,7 +846,7 @@ void TrackCreator::TrackReachesECAL(edm4hep::Track *const pTrack, PandoraApi::Tr
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-void TrackCreator::DefineTrackPfoUsage(edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const
+void TrackCreator::DefineTrackPfoUsage(const edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const
 {
     bool canFormPfo(false);
     bool canFormClusterlessPfo(false);
@@ -931,7 +931,7 @@ void TrackCreator::DefineTrackPfoUsage(edm4hep::Track *const pTrack, PandoraApi:
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-bool TrackCreator::PassesQualityCuts(edm4hep::Track *const pTrack, const PandoraApi::Track::Parameters &trackParameters) const
+bool TrackCreator::PassesQualityCuts(const edm4hep::Track *const pTrack, const PandoraApi::Track::Parameters &trackParameters) const
 {
     // First simple sanity checks
     if (trackParameters.m_trackStateAtCalorimeter.Get().GetPosition().GetMagnitude() < m_settings.m_minTrackECalDistanceFromIp)
@@ -1008,7 +1008,7 @@ bool TrackCreator::PassesQualityCuts(edm4hep::Track *const pTrack, const Pandora
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-int TrackCreator::GetNTpcHits(edm4hep::Track *const pTrack) const
+int TrackCreator::GetNTpcHits(const edm4hep::Track *const pTrack) const
 {
     // ATTN
     //fg: hit numbers are now given in different order wrt LOI:  
@@ -1027,7 +1027,7 @@ int TrackCreator::GetNTpcHits(edm4hep::Track *const pTrack) const
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-int TrackCreator::GetNFtdHits(edm4hep::Track *const pTrack) const
+int TrackCreator::GetNFtdHits(const edm4hep::Track *const pTrack) const
 {
     // ATTN
     //fg: hit numbers are now given in different order wrt LOI:  
