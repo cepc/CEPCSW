@@ -1,0 +1,90 @@
+<lccdd>
+  <define>
+    <constant name="SDHCal_cell_size" value="10*mm"/>
+    <constant name="AHCal_cell_size" value="10*mm"/>
+    <constant name="Hcal_endcap_lateral_structure_thickness" value="5.0*mm"/>
+    <constant name="Hcal_endcap_layer_air_gap" value="2.5*mm"/>
+    <constant name="Hcal_steel_cassette_thickness" value="0.5*mm"/>
+    <constant name="Hcal_services_outer_FR4_thickness" value="2.8*mm"/>
+    <constant name="Hcal_services_outer_Cu_thickness" value="0.4*mm"/>
+    <constant name="Hcal_endcap_services_module_width" value="100.0*mm"/>
+    <constant name="Hcal_endcap_nlayers" value="40"/>
+    <constant name="Hcal_endcap_env_thickness" value="Hcal_endcap_zmax-Hcal_endcap_zmin"/>
+    <constant name="Hcal_x_modul" value="12"/>
+    <constant name="Hcal_x_width" value="Hcal_endcap_inner_radius*2/2"/><!--350-->
+    <constant name="Hcal_y_height" value="Hcal_x_width*Hcal_x_modul/2"/><!--2100-->
+    <constant name="Hcal_hole_height" value="Hcal_endcap_inner_radius"/>
+    <constant name="Hcal_r_max" value="Hcal_y_height/cos(pi/Hcal_endcap_symmetry)"/><!--2174.08-->
+    <constant name="Hcal_x_top" value="Hcal_y_height*tan(pi/Hcal_endcap_symmetry)"/> <!--562.69-->
+    <constant name="Hcal_x_point" value="(Hcal_y_height+Hcal_x_top*tan(2*pi/Hcal_endcap_symmetry))/(1+tan(2*pi/Hcal_endcap_symmetry))"/><!--1537.30-->
+    <constant name="Hcal_y5" value="Hcal_y_height-(Hcal_x_width*2-Hcal_x_top)*tan(2*pi/Hcal_endcap_symmetry)"/>
+    <constant name="Hcal_y4" value="Hcal_y5-Hcal_x_width*tan(2*pi/Hcal_endcap_symmetry)"/>
+    <constant name="Hcal_y3" value="Hcal_y4-Hcal_x_width*tan(2*pi/Hcal_endcap_symmetry)"/>
+    <constant name="Hcal_y2" value="Hcal_x_top+Hcal_x_width/tan(2*pi/Hcal_endcap_symmetry)"/>
+    
+  </define>
+  <detectors>
+    <detector id="DetID_HCAL_ENDCAP" name="HcalEndcap" type="SHcalSc04_Endcaps_v01" readout="HcalEndcapsReadout"  vis="GreenVis" calorimeterType="HAD_ENDCAP">
+      <comment>Hadron Calorimeter Endcap</comment>
+
+      <envelope vis="ILD_HCALVis">
+        <shape type="BooleanShape" operation="Subtraction" material="Air"><!--2. create center box hole -->
+          <shape type="BooleanShape" operation="Subtraction" material="Air"><!--1. create Endcaps envelope -->
+            <shape type="Tube" rmin="0.0" rmax="Solenoid_inner_radius" dz="Hcal_endcap_zmax + env_safety"/>
+            <shape type="Tube" rmin="0.0" rmax="Solenoid_inner_radius" dz="Hcal_endcap_zmin - env_safety"/>
+          </shape>
+          <shape type="Box" dx="Hcal_endcap_inner_radius - env_safety" dy="Hcal_endcap_inner_radius - env_safety"
+                 dz="Hcal_endcap_zmax + 2.0*env_safety"/>
+        </shape>
+        <rotation x="0" y="0" z="0"/>
+      </envelope>
+
+      <type_flags type=" DetType_CALORIMETER + DetType_ENDCAP + DetType_HADRONIC " />
+
+      <material name="Steel235"/><!-- radiator and the thickness has been defined in the main xml file-->
+
+      <dimensions numsides="Hcal_x_modul" >
+	<dimensions id="1"  y_offset="Hcal_x_top/2"                       dim_x="Hcal_hole_height" dim_y="Hcal_x_top"                     dim_z="Hcal_endcap_env_thickness"/>
+	<dimensions id="2"  y_offset="Hcal_y2/2"                          dim_x="Hcal_hole_height" dim_y="Hcal_y2"                        dim_z="Hcal_endcap_env_thickness"/>
+	<dimensions id="3"  y_offset="Hcal_y3/2"                          dim_x="Hcal_hole_height" dim_y="Hcal_y3"                        dim_z="Hcal_endcap_env_thickness"/>
+	<dimensions id="4"  y_offset="Hcal_y4/2"                          dim_x="Hcal_hole_height" dim_y="Hcal_y4"                        dim_z="Hcal_endcap_env_thickness"/>
+	<dimensions id="5"  y_offset="Hcal_y5/2"                          dim_x="Hcal_hole_height" dim_y="Hcal_y5"                        dim_z="Hcal_endcap_env_thickness"/>
+        <dimensions id="6"  y_offset="Hcal_y_height/2+Hcal_hole_height/2" dim_x="Hcal_hole_height" dim_y="Hcal_y_height-Hcal_hole_height" dim_z="Hcal_endcap_env_thickness"/>
+	<dimensions id="7"  y_offset="Hcal_y_height/2+Hcal_hole_height/2" dim_x="Hcal_hole_height" dim_y="Hcal_y_height-Hcal_hole_height" dim_z="Hcal_endcap_env_thickness"/>
+	<dimensions id="8"  y_offset="Hcal_y5/2"                          dim_x="Hcal_hole_height" dim_y="Hcal_y5"                        dim_z="Hcal_endcap_env_thickness"/>
+	<dimensions id="9"  y_offset="Hcal_y4/2"                          dim_x="Hcal_hole_height" dim_y="Hcal_y4"                        dim_z="Hcal_endcap_env_thickness"/>
+	<dimensions id="10" y_offset="Hcal_y3/2"                          dim_x="Hcal_hole_height" dim_y="Hcal_y3"                        dim_z="Hcal_endcap_env_thickness"/>
+	<dimensions id="11" y_offset="Hcal_y2/2"                          dim_x="Hcal_hole_height" dim_y="Hcal_y2"                        dim_z="Hcal_endcap_env_thickness"/>
+	<dimensions id="12" y_offset="Hcal_x_top/2"                     dim_x="Hcal_hole_height" dim_y="Hcal_x_top"                     dim_z="Hcal_endcap_env_thickness"/>
+      </dimensions>
+
+      <!--  select which subsegmentation will be used to fill the DDRec:LayeredCalorimeterData cell dimensions -->
+      <subsegmentation key="slice" value="Hcal_readout_segmentation_slice"/>
+
+      <layer repeat="Hcal_endcap_nlayers" vis="SeeThrough">
+        <slice material="FloatGlass" thickness="HcalSD_glass_anode_thickness" vis="Invisible"/>
+        <slice material="RPCGAS2"    thickness="HcalSD_sensitive_gas_gap" sensitive="yes" limits="cal_limits" vis="YellowVis"/>
+        <slice material="FloatGlass" thickness="HcalSD_glass_cathode_thickness" vis="Invisible"/>
+        <slice material="G4_POLYSTYRENE" thickness = "Hcal_scintillator_thickness" sensitive = "yes"   limits="cal_limits"  vis="CyanVis"   />
+        <slice material="Air"      thickness="Hcal_chamber_thickness - ( HcalSD_glass_anode_thickness + HcalSD_sensitive_gas_gap + HcalSD_glass_cathode_thickness + Hcal_scintillator_thickness)" vis="Invisible" />
+      </layer>
+    </detector>
+  </detectors>
+
+  <readouts>
+    <readout name="HcalEndcapsReadout">
+      <segmentation   type="MultiSegmentation"  key="slice">
+        <segmentation name="RPCgrid" type="CartesianGridXY"    key_value="1"    grid_size_x="SDHCal_cell_size" grid_size_y="SDHCal_cell_size" offset_x="SDHCal_cell_size/2.0" offset_y="SDHCal_cell_size/2.0" />
+        <segmentation name="Scigrid"  type="CartesianGridXY"  key_value="3"  grid_size_x="AHCal_cell_size" grid_size_y="AHCal_cell_size" offset_x="AHCal_cell_size/2.0" offset_y="AHCal_cell_size/2.0" />
+      </segmentation>
+      <hits_collections>
+        <hits_collection name="HCalEndcapRPCHits"  key="slice" key_value="1"/>
+        <hits_collection name="HcalEndcapsCollection"  key="slice" key_value="3"/>
+      </hits_collections>
+      <id>system:5,module:3,stave:3,tower:5,layer:6,slice:4,x:32:-16,y:-16</id>
+    </readout>
+  </readouts>
+
+
+</lccdd>
+
