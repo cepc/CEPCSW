@@ -32,11 +32,13 @@ gaudi_add_module(DetCEPCv4
                          src/calorimeter/SHcalRpc02_Barrel.cpp
                          src/calorimeter/SHcalRpc01_Endcaps.cpp
                          src/calorimeter/SHcalRpc01_EndcapRing.cpp
-			 src/calorimeter/Yoke05_Barrel.cpp
-			 src/calorimeter/Yoke05_Endcaps.cpp
+                         src/calorimeter/SHcalSc04_Barrel_v04.cpp
+                         src/calorimeter/SHcalSc04_Endcaps_v01.cpp
+                         src/calorimeter/Yoke05_Barrel.cpp
+                         src/calorimeter/Yoke05_Endcaps.cpp
                          src/other/BoxSupport_o1_v01_geo.cpp
                          src/other/TubeSupport_o1_v01_geo.cpp
-			 src/other/SCoil02_geo.cpp
+                         src/other/SCoil02_geo.cpp
 
 		 LINK ${DD4hep_COMPONENT_LIBRARIES}
 )
