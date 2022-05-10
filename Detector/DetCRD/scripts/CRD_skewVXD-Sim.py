@@ -16,7 +16,7 @@ rndmgensvc = RndmGenSvc("RndmGenSvc")
 rndmgensvc.Engine = rndmengine.name()
 
 #geometry_option = "CRD_o1_v01/CRD_o1_v01.xml"
-geometry_option = "CRD_o1_v02/CRD_o1_v02.xml"
+geometry_option = "CRD_o1_v03/CRD_o1_v03.xml"
 #...
 
 if not os.getenv("DETCRDROOT"):
@@ -92,7 +92,7 @@ detsimalg.RootDetElem = "WorldDetElemTool"
 # output
 from Configurables import PodioOutput
 out = PodioOutput("outputalg")
-out.filename = "CRD-oi-v0j-Sim00.root"
+out.filename = "CRD-skewVXD-Sim-100.root"
 out.outputCommands = ["keep *"]
 
 # ApplicationMgr
@@ -100,7 +100,7 @@ from Configurables import ApplicationMgr
 ApplicationMgr(
     TopAlg = [genalg, detsimalg, out],
     EvtSel = 'NONE',
-    EvtMax = 10000,
+    EvtMax = 500,
     ExtSvc = [rndmengine, rndmgensvc, dsvc, geosvc],
     OutputLevel=INFO
 )
