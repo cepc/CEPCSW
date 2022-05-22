@@ -97,9 +97,13 @@ static Ref_t create_detector(Detector& description, xml_h e, SensitiveDetector s
   Volume crystalVol("crystal_whole", crystalTrap, crystalMat);
   crystalVol.setVisAttributes(description, crystalVis);
 
-  sens.setType("calorimeter");
+  if ( x_det.isSensitive() )   {
+    xml_dim_t sd_typ = x_det.child(_U(sensitive));
+    sens.setType(sd_typ.typeStr());
+    crystalVol.setSensitiveDetector(sens);
+  }
   // TODO: crystal pack
-  crystalVol.setSensitiveDetector(sens);
+
   for (xml_coll_t xp(x_crystal, _U(slice)); xp; ++xp){
     //
     xml_comp_t x_slice = xp;
