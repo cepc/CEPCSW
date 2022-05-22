@@ -138,7 +138,16 @@ AnExampleDetElemTool::ConstructSDandField() {
 		    warning() << "TimeProjectionChamberSensDetTool is not found, and default tracker SD will be used" << endmsg;
 		  }
 		}
-
+		else {
+		  m_tracker_sdtool = ToolHandle<ISensDetTool>("GenericTrackerSensDetTool");
+		  if (m_tracker_sdtool) {
+		    info() << "Find the GenericTrackerSensDetTool" << endmsg;
+		    g4sd = m_tracker_sdtool->createSD(nam);
+		  }
+		  else {
+		    warning() << "GenericTrackerSensDetTool is not found. " << endmsg;
+		  }
+		}
             }
         }
         

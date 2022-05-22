@@ -22,7 +22,7 @@ namespace gear { class GearMgr; }
 
 class CollectionMaps;
 
-typedef std::vector<edm4hep::Track *> TrackVector;
+typedef std::vector<const edm4hep::Track *> TrackVector;
 typedef std::set<unsigned int> TrackList;
 typedef std::map<edm4hep::Track, int> TrackToPidMap;
 /*
@@ -123,7 +123,7 @@ public:
      */
     pandora::StatusCode CreateTrackAssociations(const CollectionMaps& collectionMaps);
 
-    edm4hep::Track* GetTrackAddress(const CollectionMaps& collectionMaps, const edm4hep::Track& pTrack );
+    const edm4hep::Track* GetTrackAddress(const CollectionMaps& collectionMaps, const edm4hep::Track& pTrack );
     /**
      *  @brief  Create tracks, insert user code here
      * 
@@ -196,7 +196,7 @@ private:
      *  @brief  Copy track states stored in tracks to pandora track parameters
      * 
      */
-    void GetTrackStates(edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
+    void GetTrackStates(const edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
 
     /**
      *  @brief  Copy track state from track state instance to pandora input track state
@@ -208,13 +208,13 @@ private:
      *  @brief  Obtain track time when it reaches ECAL
      * 
      */
-    float CalculateTrackTimeAtCalorimeter(edm4hep::Track *const pTrack) const;
+    float CalculateTrackTimeAtCalorimeter(const edm4hep::Track *const pTrack) const;
 
     /**
      *  @brief  Decide whether track reaches the ecal surface
      * 
      */
-    void TrackReachesECAL(edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
+    void TrackReachesECAL(const edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
 
     /**
      *  @brief  Determine whether a track can be used to form a pfo under the following conditions:
@@ -222,7 +222,7 @@ private:
      *          2) if the track proves to have no cluster associations
      * 
      */
-    void DefineTrackPfoUsage(edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
+    void DefineTrackPfoUsage(const edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
 
     /**
      *  @brief  Whether track passes the quality cuts required in order to be used to form a pfo
@@ -230,19 +230,19 @@ private:
      * 
      *  @return boolean
      */
-    bool PassesQualityCuts(edm4hep::Track *const pTrack, const PandoraApi::Track::Parameters &trackParameters) const;
+    bool PassesQualityCuts(const edm4hep::Track *const pTrack, const PandoraApi::Track::Parameters &trackParameters) const;
 
     /**
      *  @brief  Get number of hits in TPC of a track
      * 
      */
-    int GetNTpcHits(edm4hep::Track *const pTrack) const;
+    int GetNTpcHits(const edm4hep::Track *const pTrack) const;
 
     /**
      *  @brief  Get number of hits in FTD of a track
      * 
      */
-    int GetNFtdHits(edm4hep::Track *const pTrack) const;
+    int GetNFtdHits(const edm4hep::Track *const pTrack) const;
 
     const Settings          m_settings;                     ///< The track creator settings
     const pandora::Pandora *m_pPandora;                     ///< Address of the pandora object to create tracks and track relationships

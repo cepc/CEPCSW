@@ -205,9 +205,12 @@ void MaterialDataBase::createMaterials(const gear::GearMgr& gearMgr, IGeomSvc* g
   
   // VXD Support Material
   if(geoSvc){
-    TMaterial* vxdsupport = geoSvc->getMaterial("VXDSupportMaterial");
-    if(vxdsupport) this->addMaterial(vxdsupport, "VXDSupportMaterial");
-    else std::cout << "Material VXDSupportMaterial not found" << std::endl;
+    //obselete
+    //TMaterial* vxdsupport = geoSvc->getMaterial("VXDSupportMaterial");
+    //if(vxdsupport) this->addMaterial(vxdsupport, "VXDSupportMaterial");
+    //else std::cout << "Material VXDSupportMaterial not found" << std::endl;
+    std::cout << "geoSvc should be set as NULL before new GeomSvc interface ready!" << std::endl;
+    exit(1);
   }
   else{
     try{
