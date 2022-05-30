@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lccdd>
+  <info name="DriftChamber" title="Drift Chamber only with straight wire" url="http://github.com/cepc/CEPCSW" author="FU Chengdong" status="development" version="v1">
+    <comment>Test with Drift Chamber</comment>
+  </info>
+
+  <define>
+    <constant name="DC_cell_size" value="15*mm"/>
+    <constant name="DC_layer_number" value="int((DC_chamber_layer_rend-DC_chamber_layer_rbegin)/DC_cell_size)"/>
+    <constant name="DC_sensitive_rmin" value="DC_chamber_layer_rbegin+0.5*(DC_chamber_layer_rend-DC_chamber_layer_rbegin-DC_cell_size*DC_layer_number)"/>
+    <constant name="DC_sensitive_rmax" value="DC_sensitive_rmin+DC_cell_size*DC_layer_number"/>
+  </define>
+
+  <detectors>
+    <detector id="DetID_DC" name="DriftChamber" type="StraightDriftChamber_v01" readout="DriftChamberHitsCollection" vis="DCVis" insideTrackingVolume="true" limits="dc_limits">
+      <envelope>
+        <shape type="BooleanShape" operation="Union" material="Air">
+          <shape type="Tube" rmin="DC_inner_radius" rmax="DC_outer_radius" dz="DC_half_length+DC_Endcap_dz" />
+        </shape>
+      </envelope>
+
+      <type_flags type="DetType_TRACKER + DetType_BARREL + DetType_GASEOUS + DetType_WIRE"/>
+
+      <shell>
+	<inner thickness="SDT_inner_wall_thickness" material="CarbonFiber" vis="LightGrayVis"/>
+	<outer thickness="SDT_outer_wall_thickness" material="CarbonFiber" vis="LightGrayVis"/>
+	<side  thickness="0.1*mm" material="CarbonFiber" vis="LightGrayVis"/>
+      </shell>
+      <chamber rmin="DC_chamber_layer_rbegin" rmax="DC_chamber_layer_rend" zhalf="DC_half_length" material="GasHe_90Isob_10" vis="DCVis">
+	<layer id="0" name="MainChamber" rmin="DC_sensitive_rmin" rmax="DC_sensitive_rmax" number="DC_layer_number" material="GasHe_90Isob_10" vis="DCLayerVis"/>
+      </chamber>
+     </detector>
+  </detectors>
+
+  <readouts>
+    <readout name="DriftChamberHitsCollection">
+      <id>system:5,layer:7:9,chamber:8,cellID:32:16</id>
+    </readout>
+  </readouts>
+
+</lccdd>

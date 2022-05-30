@@ -15,6 +15,7 @@ gaudi_add_module(DetSimSD
 
                          src/GenericTrackerSensDetTool.cpp
                          src/GenericTrackerSensitiveDetector.cpp
+                         src/TrackerCombineSensitiveDetector.cpp
                  LINK DetSimInterface
                       DetInterface
                       ${DD4hep_COMPONENT_LIBRARIES} 
