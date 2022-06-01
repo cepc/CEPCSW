@@ -9,6 +9,7 @@
   </display>
 
   <define>
+    <!--only needed for asymetry double pipe-->
     <!--constant name="ForkAsymThickness" value="BeamPipe_Dnstream_inner_radius+BeamPipe_Cu_thickness-BeamPipe_Upstream_inner_radius"/-->
   </define>
 
