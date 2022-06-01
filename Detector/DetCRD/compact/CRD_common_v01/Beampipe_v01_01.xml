@@ -13,53 +13,54 @@
   </define>
 
   <detectors>        
-    <detector name="BeamPipe" type="DD4hep_CRDBeamPipe_v01" vis="BeamPipeVis">
+    <detector name="BeamPipe" type="CRDBeamPipe_v01" vis="VacVis">
       <parameter crossingangle="CrossingAngle" />
       <envelope>
 	<shape type="Assembly"/>
       </envelope>
 
       <section type ="Center" name="IPInnerTube" zStart="0" zEnd="BeamPipe_CentralBe_zmax" rStart="0">
-	<layer material="beam" thickness="BeamPipe_Central_inner_radius"/>
-	<layer material="G4_Be" thickness="BeamPipe_Be_inner_thickness"/>
-	<layer material="G4_PARAFFIN" thickness="BeamPipe_Cooling_thickness"/>
-	<layer material="G4_Be" thickness="BeamPipe_Be_outer_thickness"/>
+	<layer material="beam" thickness="BeamPipe_Central_inner_radius" vis="VacVis"/>
+	<layer material="G4_Be" thickness="BeamPipe_Be_inner_thickness" vis="TubeVis"/>
+	<layer material="G4_PARAFFIN" thickness="BeamPipe_Cooling_thickness" vis="GrayVis"/>
+	<layer material="G4_Be" thickness="BeamPipe_Be_outer_thickness" vis="TubeVis"/>
       </section>
       <section type="Center" name="IPAl" zStart="BeamPipe_CentralBe_zmax" zEnd="BeamPipe_CentralAl_zmax" rStart="0">
-	<layer material="beam" thickness="BeamPipe_Central_inner_radius"/>
-	<layer material="G4_Al" thickness="BeamPipe_Al_thickness"/>
+	<layer material="beam" thickness="BeamPipe_Central_inner_radius" vis="VacVis"/>
+	<layer material="G4_Al" thickness="BeamPipe_Al_thickness" vis="TubeVis"/>
       </section>
       <section type="Center" name="ExpandPipe" zStart="BeamPipe_CentralAl_zmax" zEnd="BeamPipe_ConeAl_zmax" rStart="0">
-	<layer material="beam" thickness="BeamPipe_Central_inner_radius" thicknessEnd="BeamPipe_Expanded_inner_radius"/>
-	<layer material="G4_Al" thickness="BeamPipe_Al_thickness" thicknessEnd="BeamPipe_Al_thickness"/>
+	<layer material="beam" thickness="BeamPipe_Central_inner_radius" thicknessEnd="BeamPipe_Expanded_inner_radius" vis="VacVis"/>
+	<layer material="G4_Al" thickness="BeamPipe_Al_thickness" thicknessEnd="BeamPipe_Al_thickness" vis="TubeVis"/>
       </section>
       <section type="Center" name="ThickPipe" zStart="BeamPipe_ConeAl_zmax" zEnd="BeamPipe_LinkerAl_zmax" rStart="0">
-	<layer material="beam" thickness="BeamPipe_Expanded_inner_radius"/>
-	<layer material="G4_Al" thickness="BeamPipe_Al_thickness"/>
+	<layer material="beam" thickness="BeamPipe_Expanded_inner_radius" vis="VacVis"/>
+	<layer material="G4_Al" thickness="BeamPipe_Al_thickness" vis="TubeVis"/>
       </section>
       <section type="CenterSide" name="OutsideLink" zStart="BeamPipe_LinkerAl_zmax" zEnd="BeamPipe_LinkerCu_zmax" rStart="0">
-	<layer material="beam" thickness="BeamPipe_Expanded_inner_radius"/>
-	<layer material="G4_Cu" thickness="BeamPipe_Cu_thickness"/>
+	<layer material="beam" thickness="BeamPipe_Expanded_inner_radius" vis="VacVis"/>
+	<layer material="G4_Cu" thickness="BeamPipe_Cu_thickness" vis="TubeVis"/>
       </section>
       <section type="FatWaist" name="Waist" zStart="BeamPipe_LinkerCu_zmax" zEnd="BeamPipe_Waist_zmax" rStart="BeamPipe_Expanded_inner_radius" size="BeamPipe_Crotch_hole_height">
-	<layer material="G4_Cu" thickness="BeamPipe_Cu_thickness"/>
+	<layer material="G4_Cu" thickness="BeamPipe_Cu_thickness" vis="TubeVis"/>
       </section>
-      <!--CrotchAsymUp&CrotchAsymDn not work to fix, because of problem on convert from TGeo to Geant4--> 
-      <!--section type="CrotchAsymUp" name="Fork" zStart="BeamPipe_Waist_zmax" zEnd="BeamPipe_Crotch_zmax"
+      <!--CrotchAsymUp&CrotchAsymDn not work to fix, because of problem on convert from TGeo to Geant4-->
+      <!--Since lcg101, they work-->
+      <section type="CrotchAsymUp" name="Fork" zStart="BeamPipe_Waist_zmax" zEnd="BeamPipe_Crotch_zmax"
 	       rStart="BeamPipe_Expanded_inner_radius" rEnd="BeamPipe_Upstream_inner_radius" size="BeamPipe_Crotch_hole_height">
-	<layer material="G4_Cu" thickness="BeamPipe_Cu_thickness" thicknessEnd="ForkAsymThickness"/>
+	<layer material="G4_Cu" thickness="BeamPipe_Cu_thickness" thicknessEnd="ForkAsymThickness" vis="TubeVis"/>
       </section>
       <section type="CrotchAsymDn" name="Fork" zStart="BeamPipe_Waist_zmax" zEnd="BeamPipe_Crotch_zmax"
 	       rStart="BeamPipe_Expanded_inner_radius" rEnd="BeamPipe_Dnstream_inner_radius" size="BeamPipe_Crotch_hole_height">
-        <layer material="G4_Cu" thickness="BeamPipe_Cu_thickness"/>
-      </section-->
+        <layer material="G4_Cu" thickness="BeamPipe_Cu_thickness" vis="TubeVis"/>
+      </section>
       <section type="FlareLegUp" name="FirstDoublePipe" zStart="BeamPipe_Crotch_zmax" zEnd="BeamPipe_FirstSeparated_zmax" rStart="0">
-	<layer material="beam" thickness="BeamPipe_Upstream_inner_radius" thicknessEnd="BeamPipe_Dnstream_inner_radius"/>
-	<layer material="G4_Cu" thickness="ForkAsymThickness" thicknessEnd="BeamPipe_Cu_thickness"/>
+	<layer material="beam" thickness="BeamPipe_Upstream_inner_radius" thicknessEnd="BeamPipe_Dnstream_inner_radius" vis="VacVis"/>
+	<layer material="G4_Cu" thickness="ForkAsymThickness" thicknessEnd="BeamPipe_Cu_thickness" vis="TubeVis"/>
       </section>
       <section type="FlareLegDn" name="FirstDoublePipe" zStart="BeamPipe_Crotch_zmax" zEnd="BeamPipe_FirstSeparated_zmax" rStart="0">
-        <layer material="beam" thickness="BeamPipe_Dnstream_inner_radius"/>
-        <layer material="G4_Cu" thickness="BeamPipe_Cu_thickness"/>
+        <layer material="beam" thickness="BeamPipe_Dnstream_inner_radius" vis="VacVis"/>
+        <layer material="G4_Cu" thickness="BeamPipe_Cu_thickness" vis="TubeVis"/>
       </section>
     </detector>
   </detectors>        

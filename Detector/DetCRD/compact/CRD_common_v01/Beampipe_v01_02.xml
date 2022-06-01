@@ -1,0 +1,67 @@
+<lccdd>
+  <info name="CRD" title="CRD Beam pipe" author="Chengdong Fu" url="no" status="development" version="1.0">
+    <comment>A beampipe for CRD</comment>
+  </info>
+
+  <display>
+    <vis name="TubeVis"   alpha="0.1" r="1.0" g="0.7"  b="0.5"   showDaughters="true"  visible="true"/>
+    <vis name="VacVis"   alpha="1.0" r="0.0" g="0.0"  b="0.0"   showDaughters="true"  visible="false"/>
+  </display>
+
+  <define>
+    <!--constant name="ForkAsymThickness" value="BeamPipe_Dnstream_inner_radius+BeamPipe_Cu_thickness-BeamPipe_Upstream_inner_radius"/-->
+  </define>
+
+  <detectors>        
+    <detector name="BeamPipe" type="CRDBeamPipe_v01" vis="VacVis">
+      <parameter crossingangle="CrossingAngle" />
+      <envelope>
+	<shape type="Assembly"/>
+      </envelope>
+
+      <section type ="Center" name="IPInnerTube" zStart="0" zEnd="BeamPipe_CentralBe_zmax" rStart="0">
+	<layer material="beam" thickness="BeamPipe_Central_inner_radius" vis="VacVis"/>
+	<layer material="G4_Be" thickness="BeamPipe_Be_inner_thickness" vis="TubeVis"/>
+	<layer material="G4_PARAFFIN" thickness="BeamPipe_Cooling_thickness" vis="GrayVis"/>
+	<layer material="G4_Be" thickness="BeamPipe_Be_outer_thickness" vis="TubeVis"/>
+      </section>
+      <section type="Center" name="IPAl" zStart="BeamPipe_CentralBe_zmax" zEnd="BeamPipe_CentralAl_zmax" rStart="0">
+	<layer material="beam" thickness="BeamPipe_Central_inner_radius" vis="VacVis"/>
+	<layer material="G4_Al" thickness="BeamPipe_Al_thickness" vis="TubeVis"/>
+      </section>
+      <section type="Waist" name="Waist1st" zStart="BeamPipe_CentralAl_zmax" zEnd="BeamPipe_ExpandAl_zmax" rStart="BeamPipe_Central_inner_radius" size="BeamPipe_FirstExpand_width">
+	<layer material="G4_Al" thickness="BeamPipe_Al_thickness" vis="TubeVis"/>
+      </section>
+      <section type="Runway" name="Waist2nd" zStart="BeamPipe_ExpandAl_zmax" zEnd="BeamPipe_Linker_zmin" rStart="BeamPipe_Central_inner_radius" size="BeamPipe_FirstExpand_width">
+        <layer material="G4_Al" thickness="BeamPipe_Al_thickness" vis="TubeVis"/>
+      </section>
+      <section type="Runway" name="Waist3rd" zStart="BeamPipe_Linker_zmin" zEnd="BeamPipe_Linker_zmax" rStart="BeamPipe_Central_inner_radius" size="BeamPipe_FirstExpand_width">
+        <layer material="G4_Cu" thickness="BeamPipe_Cu_thickness" vis="TubeVis"/>
+      </section>
+      <section type="Runway" name="Waist4th" zStart="BeamPipe_Linker_zmax" zEnd="BeamPipe_Waist_zmax" rStart="BeamPipe_Central_inner_radius" size="BeamPipe_FirstExpand_width"
+	       shift="BeamPipe_SecondExpand_width-BeamPipe_FirstExpand_width">
+        <layer material="G4_Cu" thickness="BeamPipe_Cu_thickness" vis="TubeVis"/>
+      </section>
+      <section type="Crotch" name="Fork" zStart="BeamPipe_Waist_zmax" zEnd="BeamPipe_Crotch_zmax"
+	       rStart="BeamPipe_Central_inner_radius" rEnd="BeamPipe_Central_inner_radius" size="BeamPipe_SecondExpand_width">
+        <layer material="G4_Cu" thickness="BeamPipe_Cu_thickness" vis="TubeVis"/>
+      </section>
+      <section type="Legs" name="FirstDoublePipe" zStart="BeamPipe_Crotch_zmax" zEnd="BeamPipe_FirstSeparated_zmax" rStart="0">
+	<layer material="beam" thickness="BeamPipe_Fork_inner_radius" vis="VacVis"/>
+	<layer material="G4_Cu" thickness="BeamPipe_Cu_thickness" vis="TubeVis"/>
+      </section>
+      <section type="Legs" name="BeforeMask" zStart="BeamPipe_FirstSeparated_zmax" zEnd="BeamPipe_Mask_zmin" rStart="0">
+        <layer material="beam" thickness="BeamPipe_Fork_inner_radius" vis="VacVis"/>
+        <layer material="G4_Cu" thickness="BeamPipe_Cu_thickness" vis="TubeVis"/>
+      </section>
+      <section type="Legs" name="Mask" zStart="BeamPipe_Mask_zmin" zEnd="BeamPipe_Mask_zmax" rStart="0">
+        <layer material="beam" thickness="BeamPipe_Mask_inner_radius" vis="VacVis"/>
+        <layer material="G4_Cu" thickness="BeamPipe_Cu_thickness+BeamPipe_Fork_inner_radius-BeamPipe_Mask_inner_radius" vis="TubeVis"/>
+      </section>
+      <section type="Legs" name="SecondDoublePipe" zStart="BeamPipe_Mask_zmax" zEnd="BeamPipe_SecondSeparated_zmax" rStart="0">
+        <layer material="beam" thickness="BeamPipe_Fork_inner_radius" vis="VacVis"/>
+        <layer material="G4_Cu" thickness="BeamPipe_Cu_thickness" vis="TubeVis"/>
+      </section>
+    </detector>
+  </detectors>        
+</lccdd>
