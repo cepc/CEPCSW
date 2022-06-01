@@ -203,7 +203,6 @@ StatusCode DCHDigiAlg::execute()
 
     trkHit.setTime(min_distance*1e3/m_velocity);//m_velocity is um/ns, drift time in ns
     trkHit.setEDep(tot_edep);// GeV
-    trkHit.setEdx (tot_edep/tot_length); // GeV/mm
     trkHit.setPosition (edm4hep::Vector3d(pos_x, pos_y, pos_z));//position of closest sim hit
     trkHit.setCovMatrix(std::array<float, 6>{m_res_x, 0, m_res_y, 0, 0, m_res_z});//cov(x,x) , cov(y,x) , cov(y,y) , cov(z,x) , cov(z,y) , cov(z,z) in mm
 
@@ -218,7 +217,7 @@ StatusCode DCHDigiAlg::execute()
         m_hit_z    [m_n_digi] = pos_z;
         m_dca      [m_n_digi] = min_distance;
         m_hit_dE   [m_n_digi] = trkHit.getEDep();
-        m_hit_dE_dx[m_n_digi] = trkHit.getEdx() ;
+        m_hit_dE_dx[m_n_digi] = tot_edep/tot_length ;
         m_n_digi ++ ;
     }
   }
