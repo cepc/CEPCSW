@@ -35,6 +35,7 @@ private:
     ToolHandle<ISensDetTool> m_calo_sdtool;
     ToolHandle<ISensDetTool> m_driftchamber_sdtool;
     ToolHandle<ISensDetTool> m_tpc_sdtool;
+    ToolHandle<ISensDetTool> m_tracker_sdtool;
 };
 
 #endif
