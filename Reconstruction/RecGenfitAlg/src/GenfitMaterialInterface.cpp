@@ -1,8 +1,8 @@
 ///
 ///   Authors: ZHANG Yao (zhangyao@ihep.ac.cn)
 ///
-
 #include "GenfitMaterialInterface.h"
+#include "GenfitUnit.h"
 //Gaudi
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/SmartIF.h"
@@ -21,7 +21,7 @@
 #include "TGeoMaterial.h"
 #include "TGeoManager.h"
 #include "MaterialEffects.h"
-#include "Material.h"
+//#include "Material.h"
 //STL
 #include <assert.h>
 #include <math.h>
@@ -39,6 +39,8 @@ GenfitMaterialInterface::GenfitMaterialInterface(
     assert(nullptr!=dd4hepGeo);
     m_geoManager=&(dd4hepGeo->manager());
     assert(nullptr!=m_geoManager);
+    m_skipWireMaterial=false;
+    debugLvl_=0;
 }
 
 GenfitMaterialInterface* GenfitMaterialInterface::getInstance(
@@ -64,7 +66,6 @@ TGeoManager* GenfitMaterialInterface::getGeoManager()
 GenfitMaterialInterface::initTrack(double posX, double posY,
         double posZ, double dirX, double dirY, double dirZ)
 {
-    //debugLvl_ = 1;
 #ifdef DEBUG_GENFITGEO
     std::cout << "GenfitMaterialInterface::initTrack. \n";
     std::cout << "Pos    "; TVector3(posX, posY, posZ).Print();
@@ -77,11 +78,13 @@ GenfitMaterialInterface::initTrack(double posX, double posY,
     // Set the intended direction.
     setCurrentDirection(dirX, dirY, dirZ);
 
+#ifdef DEBUG_GENFITGEO
     if (debugLvl_ > 0) {
         std::cout << "      GenfitMaterialInterface::initTrack at \n";
         std::cout << "      position:  "; TVector3(posX, posY, posZ).Print();
         std::cout << "      direction: "; TVector3(dirX, dirY, dirZ).Print();
     }
+#endif
 
     return result;
 }
@@ -91,12 +94,26 @@ genfit::Material GenfitMaterialInterface::getMaterialParameters()
 {
     TGeoMaterial* mat =
         getGeoManager()->GetCurrentVolume()->GetMedium()->GetMaterial();
+#ifdef DEBUG_GENFITGEO
+    getGeoManager()->GetCurrentVolume()->Print();
+#endif
     //Scalar density;  /// Density in g / cm^3
     //Scalar Z;  /// Atomic number
     //Scalar A;  /// Mass number in g / mol
     //Scalar radiationLength;  /// Radiation Length in cm
     //Scalar mEE;  /// Mean excitaiton energy in eV
     //Material from CEPCSW is NOT follow the dd4hep?FIXME
+
+    //getGeoManager()->GetCurrentVolume()->Print();
+    if(m_skipWireMaterial){//FIXME
+        if((strncmp(getGeoManager()->GetCurrentVolume()->GetName(),"FieldWire",9) == 0) ||
+                (strncmp(getGeoManager()->GetCurrentVolume()->GetName(),"SenseWire",9) == 0)){
+            //Air: den 0.0012 radlen 30528.8 Z 7.366 A 14.7844
+            std::cout<<" skipWireMateria "<<std::endl;
+            std::cout<<"CurrentVolume "<<getGeoManager()->GetCurrentVolume()->GetName()<<std::endl;
+            return genfit::Material(0.0012,7.366,14.8744,30528.8,MeanExcEnergy_get(mat));
+        }
+    }
 
     //std::cout<<__FILE__<<" "<<__LINE__<<" yzhang debug material "<<std::endl;
     //mat->Print();
@@ -110,7 +127,6 @@ GenfitMaterialInterface::findNextBoundary(const genfit::RKTrackRep* rep,
         double sMax, // signed
         bool varField)
 {
-    //debugLvl_ = 1;
     // cm, distance limit beneath which straight-line steps are taken.
     const double delta(1.E-2);
     const double epsilon(1.E-1); // cm, allowed upper bound on arch
@@ -131,6 +147,8 @@ GenfitMaterialInterface::findNextBoundary(const genfit::RKTrackRep* rep,
     findNextBoundary(fabs(sMax) - s);
     double safety = getSafeDistance(); // >= 0
     double slDist = getStep();
+    if (debugLvl_ > 0)
+        std::cout << "   slDist=getStep()= " << slDist<< "; safety=getSafeDistance()=" << safety<< "\n";
 
     // this should not happen, but it happens sometimes.
     // The reason are probably overlaps in the geometry.
@@ -175,6 +193,11 @@ GenfitMaterialInterface::findNextBoundary(const genfit::RKTrackRep* rep,
         state7 = stateOrig;
         rep->RKPropagate(state7, nullptr, SA, stepSign*(s + step), varField);
 
+        if(debugLvl_){
+            std::cout<<" RKTrackRep at state "<<state7[0]<<" "<<state7[1]
+                <<" "<<state7[2] <<" "<<state7[3] <<" "<<state7[4]
+                <<" "<<state7[5] <<" "<<state7[6]<<std::endl;
+        }
         // Straight line distance² between extrapolation finish and
         // the end of the previously determined safe segment.
         double dist2 = (pow(state7[0] - oldState7[0], 2)
@@ -321,12 +344,12 @@ MeanExcEnergy_get(TGeoMaterial* mat) {
 
 double GenfitMaterialInterface::getSafeDistance()
 {
-    return getGeoManager()->GetSafeDistance();
+    return getGeoManager()->GetSafeDistance();//yzhang debug FIXME
 }
 
 double GenfitMaterialInterface::getStep()
 {
-    return getGeoManager()->GetSafeDistance();
+    return getGeoManager()->GetStep();//yzhang debug FIXME
 }
 
 TGeoNode* GenfitMaterialInterface::findNextBoundary(double stepmax,
@@ -340,8 +363,16 @@ bool GenfitMaterialInterface::isSameLocation(double posX, double posY,
 {
     //std::cout<<" MatInt  "<<__LINE__<<" posXYZ*dd4hep::cm "<<posX*dd4hep::cm
     //<<" posY "<<posY*dd4hep::cm<<" posZ "<<posZ*dd4hep::cm<<std::endl;
-    return getGeoManager()->IsSameLocation(posX,posY,
-            posZ,change);
+#ifdef DEBUG_GENFITGEO
+    std::cout<<" MatInt  "<<" posXYZ "<<posX<<" "<<posY<<" "<<posZ<<std::endl;
+#endif
+
+    double rootUnitCM=1.;//FIXME
+    //std::cout<<" MatInt  "<<" posXYZ cm "<<posX/rootUnitCM<<" "<<posY/rootUnitCM<<" "<<posZ/rootUnitCM<<std::endl;
+    return getGeoManager()->IsSameLocation(
+        posX/GenfitUnit::cm*rootUnitCM,
+        posY/GenfitUnit::cm*rootUnitCM,
+        posZ/GenfitUnit::cm*rootUnitCM,change);
 }
 
 void GenfitMaterialInterface::setCurrentDirection(double nx, double ny,
