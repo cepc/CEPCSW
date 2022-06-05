@@ -8,7 +8,6 @@
 #include "Gaudi/Property.h"
 #include "edm4hep/EventHeader.h"
 #include "edm4hep/EventHeaderCollection.h"
-#include "edm4hep/SimCalorimeterHitConst.h"
 #include "edm4hep/SimCalorimeterHit.h"
 #include "edm4hep/CalorimeterHit.h"
 #include "edm4hep/CalorimeterHitCollection.h"
@@ -105,18 +104,18 @@ void BushConnect::TrackSort() //, &std::map<Track*, int>Track_Tpye, &std::map<Tr
 		TVector3 EndPointPos, StartPointPos; 
 		int TrackType = 0; 
 
-		std::vector<edm4hep::ConstTrack> tracks_HQ_Barrel; 
-		std::vector<edm4hep::ConstTrack> tracks_HQ_Endcap;
-		std::vector<edm4hep::ConstTrack> tracks_HQ_Shoulder;
-		std::vector<edm4hep::ConstTrack> tracks_HQ_Forward; 
-		std::vector<edm4hep::ConstTrack> tracks_MQ_Barrel;
-		std::vector<edm4hep::ConstTrack> tracks_MQ_Endcap;
-		std::vector<edm4hep::ConstTrack> tracks_MQ_Shoulder;
-		std::vector<edm4hep::ConstTrack> tracks_MQ_Forward;
-		std::vector<edm4hep::ConstTrack> tracks_Vtx; 
-		std::vector<edm4hep::ConstTrack> tracks_LQ; 
-		std::vector<edm4hep::ConstTrack> tracks_LE; 
-		std::vector<edm4hep::ConstTrack> curr_tracks;
+		std::vector<edm4hep::Track> tracks_HQ_Barrel; 
+		std::vector<edm4hep::Track> tracks_HQ_Endcap;
+		std::vector<edm4hep::Track> tracks_HQ_Shoulder;
+		std::vector<edm4hep::Track> tracks_HQ_Forward; 
+		std::vector<edm4hep::Track> tracks_MQ_Barrel;
+		std::vector<edm4hep::Track> tracks_MQ_Endcap;
+		std::vector<edm4hep::Track> tracks_MQ_Shoulder;
+		std::vector<edm4hep::Track> tracks_MQ_Forward;
+		std::vector<edm4hep::Track> tracks_Vtx; 
+		std::vector<edm4hep::Track> tracks_LQ; 
+		std::vector<edm4hep::Track> tracks_LE; 
+		std::vector<edm4hep::Track> curr_tracks;
 	
 		Track_EndPoint.clear();
 	
@@ -132,15 +131,15 @@ void BushConnect::TrackSort() //, &std::map<Track*, int>Track_Tpye, &std::map<Tr
 		tracks_LQ.clear();
 		tracks_LE.clear();
 
-		std::vector<edm4hep::ConstTrack> tracks_ILL;
+		std::vector<edm4hep::Track> tracks_ILL;
 		tracks_ILL.clear();
-		std::vector<edm4hep::ConstTrack> tracks_preInteraction;
+		std::vector<edm4hep::Track> tracks_preInteraction;
 		tracks_preInteraction.clear();	//Used to denote pion and electron interaction inside TPC/Tracker. Simply vetoed for avoid double counting... but muon may still be problematic. Better way of treating would be find the cascade photons & tracks - clusters, and veto all the daughters instead of mother. Similar can done for Kshort...
 	// Condition, tracks_head to others tail. head position far from boundary. and, track energy >= sum of cascade
 
 		std::vector<int> TrackOrder; 
 		TrackOrder.clear();	
-		std::map<edm4hep::ConstTrack, int> Track_Index; 
+		std::map<edm4hep::Track, int> Track_Index; 
 		Track_Index.clear();
 		Track_Energy.clear();
 		Track_Type.clear();
@@ -349,9 +348,9 @@ void BushConnect::BushSelfMerge()
 	auto CaloClu = m_clucol.get();
 	int NClu = CaloClu->size();
 
-	std::vector<edm4hep::ConstCluster > Core_1st; 
-	std::vector<edm4hep::ConstCluster > Frag_1st;
-	std::vector<edm4hep::ConstCluster > UnId_1st; 
+	std::vector<edm4hep::Cluster > Core_1st; 
+	std::vector<edm4hep::MutableCluster > Frag_1st;
+	std::vector<edm4hep::Cluster > UnId_1st; 
 	Core_1st.clear();
 	Frag_1st.clear();
 	UnId_1st.clear();
@@ -425,11 +424,11 @@ void BushConnect::BushSelfMerge()
 		}
 	}
 
-	std::vector<edm4hep::ConstCluster> OriInputEHBushes = m_ArborToolLCIO->CollClusterVec(CaloClu);
+	std::vector<edm4hep::Cluster> OriInputEHBushes = m_ArborToolLCIO->CollClusterVec(CaloClu);
 	TMatrixF MergeSYM = MatrixSummarize(FlagMerge);
 	auto CloseMergedCaloClu = m_ArborToolLCIO->ClusterVecMerge( OriInputEHBushes, MergeSYM, clucol_merged);
 
-	std::map<edm4hep::ConstCluster,float> MinDisSeedToBush;
+	std::map<edm4hep::Cluster,float> MinDisSeedToBush;
 	MinDisSeedToBush.clear();
 	for(int i0 = 0; i0 < CloseMergedCaloClu->size(); i0++)
 	{
@@ -474,7 +473,7 @@ void BushConnect::BushSelfMerge()
 		}
 	}
 
-	std::vector<edm4hep::ConstCluster > UndefFrag_1stAB = m_ArborToolLCIO->ClusterAbsorbtion(UnId_1st, Frag_1st, 50, 0.02);
+	std::vector<edm4hep::MutableCluster > UndefFrag_1stAB = m_ArborToolLCIO->ClusterAbsorbtion(UnId_1st, Frag_1st, 50, 0.02);
 	selfmergedcluster = m_ArborToolLCIO->ClusterAbsorbtion(Core_1st, UndefFrag_1stAB, 50, 0.02);
 	auto CluAB_1st=m_ArborToolLCIO->ClusterVecColl(selfmergedcluster,m_1stclucol);
 }
@@ -492,11 +491,11 @@ void BushConnect::TagCore()
 
 	TVector3 TrkEndPoint(0, 0, 0);	
 	TVector3 CluPos(0, 0, 0);
-	std::map<edm4hep::ConstCluster, int> BushTouchFlag; 
-	std::map<edm4hep::ConstTrack, edm4hep::ConstCluster> FCMap_Track_CHCore;
-	std::map<edm4hep::ConstTrack, std::vector<edm4hep::ConstCluster>> FCMap_Track_CHCore_new;
+	std::map<edm4hep::Cluster, int> BushTouchFlag; 
+	std::map<edm4hep::Track, edm4hep::MutableCluster> FCMap_Track_CHCore;
+	std::map<edm4hep::Track, std::vector<edm4hep::Cluster>> FCMap_Track_CHCore_new;
 	std::map<int, int> Closest_Trk_Clu_Map;
-	std::vector<edm4hep::ConstCluster> TightLinkedCluster;
+	std::vector<edm4hep::Cluster> TightLinkedCluster;
 	TightLinkedCluster.clear();
 	Closest_Trk_Clu_Map.clear();
 	BushTouchFlag.clear();
@@ -651,7 +650,7 @@ void BushConnect::TagCore()
 		if(FCMap_Track_CHCore_new[a_trk].size() > 0 ) // && EcalCoreEnergy + HcalCoreEnergy < 2.0*currTrkEn )...
 		{
 			auto chcorecluster_eh =  m_ArborToolLCIO->NaiveMergeClu(FCMap_Track_CHCore_new[a_trk]);
-			edm4hep::ConstCluster chcorecluster_ehCon=chcorecluster_eh;
+			edm4hep::MutableCluster chcorecluster_ehCon=chcorecluster_eh;
 			FCMap_Track_CHCore[a_trk] = chcorecluster_ehCon;
 			chargedclustercore.push_back(chcorecluster_ehCon);
 		}
@@ -686,10 +685,10 @@ void BushConnect::TagCore()
 		auto a_clu = FCMap_Track_CHCore[a_trk];
 		if( FCMap_Track_CHCore[a_trk].hits_size()>0 )		// No really need to pertect, as quality will be controled in Part.Reco
 		{
-			edm4hep::Cluster chargedcorecluster = chargedcoreclusterCol->create();
+			auto chargedcorecluster = chargedcoreclusterCol->create();
 
 			m_ArborToolLCIO->NaiveCluConst(FCMap_Track_CHCore[a_trk],chargedcorecluster);
-			edm4hep::ConstCluster chargedcoreclusterCon=chargedcorecluster;
+			edm4hep::Cluster chargedcoreclusterCon=chargedcorecluster;
 			chargeparticle.addToClusters(chargedcoreclusterCon);
 			Track_Core_ID = m_ArborToolLCIO->ClusterFlag(a_clu, a_trk);
 		}
@@ -704,7 +703,7 @@ void BushConnect::ParticleReco()
 {
 
 	auto col_IsoHit = m_col_IsoHit.get();
-	std::vector<edm4hep::ConstCalorimeterHit> IsoHits = m_ArborToolLCIO->CollHitVec(col_IsoHit, 0);
+	std::vector<edm4hep::CalorimeterHit> IsoHits = m_ArborToolLCIO->CollHitVec(col_IsoHit, 0);
 
 	edm4hep::ReconstructedParticleCollection* arborrecoparticleCol = m_arborrecoparticleCol.createAndPut();
 
@@ -717,21 +716,21 @@ void BushConnect::ParticleReco()
 	double DisMatrix_Core_Neutral[NChargedObj][NNeutralCluster][2];		//Define different types of distances; 
 
 	float CluDepth = 0;
-	std::map<edm4hep::ConstCluster, double> CluDepthMap; 
+	std::map<edm4hep::Cluster, double> CluDepthMap; 
 	CluDepthMap.clear();
 	int currChargeCoreType = 0;  
 	TVector3 CluPos; 
 
-	std::vector<edm4hep::ConstCluster> loosecandicluster; 
-	std::vector<edm4hep::ConstCluster> tightcandicluster;		//Muon potential candi?
-	std::vector<edm4hep::ConstCluster> mergedcluster; 			//tmp for each charged P
-	std::vector<edm4hep::ConstCluster> chargedclustercore_merged; 	//overall
+	std::vector<edm4hep::Cluster> loosecandicluster; 
+	std::vector<edm4hep::Cluster> tightcandicluster;		//Muon potential candi?
+	std::vector<edm4hep::Cluster> mergedcluster; 			//tmp for each charged P
+	std::vector<edm4hep::Cluster> chargedclustercore_merged; 	//overall
 	chargedclustercore_merged.clear();
 
 	std::vector<double> reftightdis; 
 	std::vector<double> refloosedis; 
-	std::map<edm4hep::ConstCluster, int> NNCTouchFlag; 
-	std::vector<edm4hep::ConstTrack> SecondIterTracks;
+	std::map<edm4hep::Cluster, int> NNCTouchFlag; 
+	std::vector<edm4hep::Track> SecondIterTracks;
 	SecondIterTracks.clear();
 
 	TVector3 currTrkEnd, neighbourTrkEnd, LeadP; 
@@ -752,7 +751,7 @@ void BushConnect::ParticleReco()
 
 		float CurrClusterEnergy = 0;
 		float CurrTrackEnergy = Track_Energy[a_chargedTrk];
-		edm4hep::ConstCluster a_chargedClu;
+		edm4hep::Cluster a_chargedClu;
 		if(a_recoP_ch.clusters_size() != 0)
 		{
 			a_chargedClu = a_recoP_ch.getClusters(0);
@@ -1075,7 +1074,7 @@ void BushConnect::ParticleReco()
 
 			auto chclustermerged = mergedclu_chCol->create();
 			m_ArborToolLCIO->NaiveMergeCluConst(mergedcluster,chclustermerged);
-			edm4hep::ConstCluster chclustermergedCon=chclustermerged;
+			edm4hep::Cluster chclustermergedCon=chclustermerged;
 			chargeparticle.addToClusters(chclustermergedCon);
 			chargedclustercore_merged.push_back(chclustermerged);
 			currChargeCoreType2 = m_ArborToolLCIO->ClusterFlag(chclustermerged, a_chargedTrk);
@@ -1137,7 +1136,7 @@ void BushConnect::ParticleReco()
 		}	
 	}
 
-	std::vector<edm4hep::ConstCluster> BBCore; 
+	std::vector<edm4hep::MutableCluster> BBCore; 
 	BBCore.clear();
 	for(int p6 = 0; p6 < NNeutralCluster; p6 ++)
 	{
@@ -1151,7 +1150,7 @@ void BushConnect::ParticleReco()
 	float NAMom[3] = {0, 0, 0};
 
 	//Final Re-absorption
-	std::vector<edm4hep::ConstCluster> NBBNeutral; 
+	std::vector<edm4hep::Cluster> NBBNeutral; 
 	NBBNeutral.clear();
 
 	for(int s = 0; s < int (BBCore.size()); s++)
@@ -1178,7 +1177,7 @@ void BushConnect::ParticleReco()
 			auto a_neclu =  mergedclu_neCol->create();
 			m_ArborToolLCIO->NaiveCluConst(a_clu,a_neclu);
 			a_neclu.setEnergy( CoreEnCorr );	//Reset...
-			edm4hep::ConstCluster a_necluCon=a_neclu;
+			edm4hep::Cluster a_necluCon=a_neclu;
 			neutralparticle.addToClusters(a_neclu);
 		}
 		else	// Distance to Charged Core > sth;
@@ -1205,7 +1204,7 @@ void BushConnect::ParticleReco()
 	}
 
 	// Add: Neural Core Remerge & Energy Scale Recalculate, IsoHit Abso
-	std::vector<edm4hep::Cluster> NBBAbs = m_ArborToolLCIO->ClusterHitAbsorbtion(NBBNeutral, IsoHits, 100); //_HitAbsCut);	// Huge??
+	std::vector<edm4hep::MutableCluster> NBBAbs = m_ArborToolLCIO->ClusterHitAbsorbtion(NBBNeutral, IsoHits, 100); //_HitAbsCut);	// Huge??
 
 	std::vector<float> BBAbsEn; 
 	BBAbsEn.clear();
@@ -1217,8 +1216,8 @@ void BushConnect::ParticleReco()
 
 	std::vector<int> BBAbsIndex = SortMeasure(BBAbsEn, 1);
 
-	std::vector<edm4hep::ConstCluster > NeutronCore;
-	std::vector<edm4hep::ConstCluster > NeutronFlag;
+	std::vector<edm4hep::Cluster > NeutronCore;
+	std::vector<edm4hep::MutableCluster > NeutronFlag;
 	NeutronCore.clear();
 	NeutronFlag.clear();	
 
@@ -1237,7 +1236,7 @@ void BushConnect::ParticleReco()
 		}
 	}
 
-	std::vector<edm4hep::ConstCluster > Neutrons = m_ArborToolLCIO->ClusterAbsorbtion(NeutronCore, NeutronFlag, 200, 0.01);
+	std::vector<edm4hep::MutableCluster > Neutrons = m_ArborToolLCIO->ClusterAbsorbtion(NeutronCore, NeutronFlag, 200, 0.01);
 
 	for(unsigned int s3 = 0; s3 < Neutrons.size(); s3++)
 	{
@@ -1300,7 +1299,7 @@ void BushConnect::ParticleReco()
 			auto a_neclu =  mergedclu_neCol->create();
 			m_ArborToolLCIO->NaiveCluConst(a_clu,a_neclu);
 			a_neclu.setEnergy( CoreEnCorr );       //Reset...
-			edm4hep::ConstCluster a_necluCon=a_neclu;
+			edm4hep::Cluster a_necluCon=a_neclu;
 			neutralparticle.addToClusters(a_necluCon);
 		}
 	}

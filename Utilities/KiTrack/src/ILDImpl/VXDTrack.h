@@ -2,6 +2,7 @@
 #define VXDTrack_h
 
 #include "edm4hep/Track.h"
+#include "edm4hep/MutableTrack.h"
 #include "edm4hep/TrackerHit.h"
 #include "TrackSystemSvc/IMarlinTrkSystem.h"
 #include "TrackSystemSvc/IMarlinTrack.h"
@@ -41,7 +42,7 @@ namespace KiTrackMarlin{
           
     /** @return a track in the lcio format
      */
-    edm4hep::Track* getLcioTrack(){ return ( _lcioTrack );}
+    edm4hep::MutableTrack* getLcioTrack(){ return ( _lcioTrack );}
     
     //void addHit( IVXDHit* hit );
     void addHit( IMiniVector* MV );
@@ -76,7 +77,7 @@ namespace KiTrackMarlin{
     //std::vector< IVXDHit* > _hits;
     std::vector< IMiniVector* > _hits;     
       
-    edm4hep::Track* _lcioTrack;
+    edm4hep::MutableTrack* _lcioTrack;
       
     // for fitting
     MarlinTrk::IMarlinTrkSystem* _trkSystem;

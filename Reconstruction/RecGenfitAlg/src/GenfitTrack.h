@@ -41,10 +41,11 @@ namespace edm4hep{
     class MCParticle;
     class SimTrackerHitCollection;
     class ReconstructedParticle;
+    class MutableReconstructedParticle;
     class MCRecoTrackerAssociationCollection;
     class Track;
-    class ConstTrack;
-    class ConstTrackerHit;
+    class Track;
+    class TrackerHit;
     class Vector3d;
     class Vector3f;
 }
@@ -92,14 +93,14 @@ class GenfitTrack {
     ///Create genfit track from MCParticle
     bool createGenfitTrackFromMCParticle(int pidTyep,const edm4hep::MCParticle&
             mcParticle, double eventStartTime=0.);
-    bool createGenfitTrackFromEDM4HepTrack(int pidType, edm4hep::ConstTrack track,
+    bool createGenfitTrackFromEDM4HepTrack(int pidType, edm4hep::Track track,
             double eventStartTime);
 
     //  /// Prepare a hit list, return number of hits on track
     //  int PrepareHits();//TODO
 
     /// Add a space point measurement, return number of hits on track
-    bool addSpacePointTrakerHit(edm4hep::ConstTrackerHit hit, int hitID);
+    bool addSpacePointTrakerHit(edm4hep::TrackerHit hit, int hitID);
 
     /// Add a space point measurement, return number of hits on track
     virtual bool addSpacePointMeasurement(const TVectorD&, double,
@@ -111,15 +112,15 @@ class GenfitTrack {
             const TVector3& endPoint2, int lrAmbig, int detID, int hitID);
 
     /// Add a WireMeasurement with DC digi
-    virtual bool addWireMeasurementOnTrack(edm4hep::ConstTrack track, double sigma);
+    virtual bool addWireMeasurementOnTrack(edm4hep::Track track, double sigma);
 
     ///Add space point from truth to track
-    int addSimTrackerHits( edm4hep::ConstTrack track,
+    int addSimTrackerHits( edm4hep::Track track,
         const edm4hep::MCRecoTrackerAssociationCollection* assoHits,
         float sigma,bool smear=false);// float nSigmaSelection
 
     ///Store track to ReconstructedParticle
-    bool storeTrack(edm4hep::ReconstructedParticle& dcRecParticle,int pidType,
+    bool storeTrack(edm4hep::MutableReconstructedParticle& dcRecParticle,int pidType,
             int ndfCut=1e9, double chi2Cut=1.e9);
 
     ///A tool to convert track to the first layer of DC

@@ -8,7 +8,6 @@
 #include "Gaudi/Property.h"
 #include "edm4hep/EventHeader.h"
 #include "edm4hep/EventHeaderCollection.h"
-#include "edm4hep/SimCalorimeterHitConst.h"
 #include "edm4hep/SimCalorimeterHit.h"
 #include "edm4hep/CalorimeterHit.h"
 #include "edm4hep/CalorimeterHitCollection.h"
@@ -95,7 +94,7 @@ void MarlinArbor::HitsPreparation()
 	cout<<"Start to prepare Hits"<<endl;
 }
 
-void MarlinArbor::MakeIsoHits( std::vector<edm4hep::ConstCalorimeterHit> inputCaloHits, DataHandle<edm4hep::CalorimeterHitCollection>& m_hitcol)
+void MarlinArbor::MakeIsoHits( std::vector<edm4hep::CalorimeterHit> inputCaloHits, DataHandle<edm4hep::CalorimeterHitCollection>& m_hitcol)
 {
 	edm4hep::CalorimeterHitCollection* isohitcoll = m_hitcol.createAndPut();
 
@@ -124,9 +123,9 @@ StatusCode MarlinArbor::execute()
 
 	std::vector< TVector3 > inputHitsPos;
 	std::vector< ArborHit > inputABHit; 
-	std::vector< edm4hep::ConstCalorimeterHit > inputHits;  
-	std::vector< edm4hep::ConstCalorimeterHit > inputECALHits;  
-	std::vector< edm4hep::ConstCalorimeterHit > inputHCALHits;  
+	std::vector< edm4hep::CalorimeterHit > inputHits;  
+	std::vector< edm4hep::CalorimeterHit > inputECALHits;  
+	std::vector< edm4hep::CalorimeterHit > inputHCALHits;  
 	std::vector< std::vector<int> > Sequence; 
 	int LayerNum = 0; 
 	int StaveNum = 0; 
@@ -134,7 +133,7 @@ StatusCode MarlinArbor::execute()
 	float Depth = 0; 
 	int KShift = 0; 
 	TVector3 TrkEndPointPos; 
-	std::vector<edm4hep::ConstCalorimeterHit> IsoHits;
+	std::vector<edm4hep::CalorimeterHit> IsoHits;
 
 	for(unsigned int i1 = 0; i1 < _calCollections.size(); i1++)
 	{

@@ -69,6 +69,12 @@ static dd4hep::Ref_t create_detector(Detector& description, xml_h e, SensitiveDe
   sens.setType("tracker");
   std::cout << " ** building SiTrackerEndcapRing_v01 ..." << std::endl ;
 
+  dd4hep::xml::Component recPar = x_det.child(_Unicode(reconstruction));
+  const double strip_width  = recPar.attr< double >(_Unicode(strip_width));
+  const double strip_length = recPar.attr< double >(_Unicode(strip_length));
+  const double strip_pitch  = recPar.attr< double >(_Unicode(strip_pitch));
+  const double strip_angle  = recPar.attr< double >(_Unicode(strip_angle));
+
   dd4hep::rec::ZDiskPetalsData*  zDiskPetalsData = new dd4hep::rec::ZDiskPetalsData;
 
   PlacedVolume pv;
@@ -120,6 +126,7 @@ static dd4hep::Ref_t create_detector(Detector& description, xml_h e, SensitiveDe
     moduleVol.setVisAttributes(description.visAttributes(x_layer.visStr()));
     
     Placements sensitives;
+    vector<dd4hep::rec::VolPlane> planes;
     int    sensor_id = 1;
     int    c_id      = 0;
     double c_pos     = -half_thickness;
@@ -137,7 +144,27 @@ static dd4hep::Ref_t create_detector(Detector& description, xml_h e, SensitiveDe
         pv.addPhysVolID("sensor", sensor_id);
         c_vol.setSensitiveDetector(sens);
 	sensitives.push_back(pv);
-        ++sensor_id;
+
+	dd4hep::rec::Vector3D u(-1., 0.,  0.);
+	dd4hep::rec::Vector3D v( 0., 1.,  0.);
+	dd4hep::rec::Vector3D n( 0., 0., -1.);
+	dd4hep::rec::SurfaceType surfType(dd4hep::rec::SurfaceType::Sensitive);
+	double front_thickness = c_thickness/2;
+	double back_thickness  = (sensor_id==1) ? c_thickness/2+support_thickness : c_thickness/2;
+	if(!is_pixel){
+	  surfType.setProperty(dd4hep::rec::SurfaceType::Measurement1D, true) ;
+	  if(sensor_id==1){
+	    u.fill(-cos(strip_angle), sin(strip_angle), 0.);
+	    v.fill( sin(strip_angle), cos(strip_angle), 0.);
+	  }
+	  else{
+	    u.fill(-cos(strip_angle), -sin(strip_angle), 0.);
+	    v.fill(-sin(strip_angle),  cos(strip_angle), 0.);
+	  }
+	}
+	dd4hep::rec::VolPlane surf(c_vol, surfType , front_thickness, back_thickness, u,v,n);
+	planes.push_back(surf);
+	++sensor_id;
       }
       c_pos += c_thickness;
     }
@@ -160,6 +187,7 @@ static dd4hep::Ref_t create_detector(Detector& description, xml_h e, SensitiveDe
 	PlacedVolume sens_pv = sensitives[ic];
 	DetElement comp_elt(module, sens_pv.volume().name(), module_id);
 	comp_elt.setPlacement(sens_pv);
+	dd4hep::rec::volSurfaceList(comp_elt)->push_back(planes[ic]);
       }
 
       if(reflect){
@@ -172,6 +200,7 @@ static dd4hep::Ref_t create_detector(Detector& description, xml_h e, SensitiveDe
 	  PlacedVolume sens_pv = sensitives[ic];
 	  DetElement comp_elt(r_module, sens_pv.volume().name(), module_id);
 	  comp_elt.setPlacement(sens_pv);
+	  dd4hep::rec::volSurfaceList(comp_elt)->push_back(planes[ic]);
 	}
       }
       zshift_support = -zshift_support;
@@ -202,12 +231,6 @@ static dd4hep::Ref_t create_detector(Detector& description, xml_h e, SensitiveDe
 
     zDiskPetalsData->layers.push_back(thisLayer);
   }
-
-  dd4hep::xml::Component recPar = x_det.child(_Unicode(reconstruction));
-  const double strip_width  = recPar.attr< double >(_Unicode(strip_width));
-  const double strip_length = recPar.attr< double >(_Unicode(strip_length));
-  const double strip_pitch  = recPar.attr< double >(_Unicode(strip_pitch));
-  const double strip_angle  = recPar.attr< double >(_Unicode(strip_angle));
 
   zDiskPetalsData->widthStrip  = strip_width;
   zDiskPetalsData->lengthStrip = strip_length;

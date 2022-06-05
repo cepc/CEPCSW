@@ -115,7 +115,7 @@ TVector3 ILDSegmentedDiscStripMeasLayer::HitToXv(const TVTrackHit &vht) const
   const ILDPlanarStripHit &mv = dynamic_cast<const ILDPlanarStripHit &>(vht);
   
   UTIL::BitField64 encoder( lcio::ILDCellID0::encoder_string ) ;
-  edm4hep::ConstTrackerHit hit = mv.getLCIOTrackerHit();
+  edm4hep::TrackerHit hit = mv.getLCIOTrackerHit();
   encoder.setValue(hit.getCellID());
   int segmentIndex = encoder[lcio::ILDCellID0::module] / 2 ;
   
@@ -242,7 +242,7 @@ void ILDSegmentedDiscStripMeasLayer::CalcDhDa(const TVTrackHit &vht,
 
 
 
-ILDVTrackHit* ILDSegmentedDiscStripMeasLayer::ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const {
+ILDVTrackHit* ILDSegmentedDiscStripMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit trkhit) const {
   
   //EVENT::TrackerHitPlane* plane_hit = dynamic_cast<EVENT::TrackerHitPlane*>( trkhit ) ;
   if((trkhit.getType()&8)!=8){

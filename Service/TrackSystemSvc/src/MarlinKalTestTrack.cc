@@ -76,7 +76,7 @@ namespace MarlinTrk {
   
   
   MarlinKalTestTrack::MarlinKalTestTrack(MarlinKalTest* ktest) 
-    : _ktest(ktest), _trackHitAtPositiveNDF(edm4hep::ConstTrackerHit(0)) {
+    : _ktest(ktest), _trackHitAtPositiveNDF(edm4hep::TrackerHit(0)) {
     
     _kaltrack = new TKalTrack() ;
     _kaltrack->SetOwner() ;
@@ -109,13 +109,13 @@ namespace MarlinTrk {
   
   
   
-  int MarlinKalTestTrack::addHit( edm4hep::ConstTrackerHit& trkhit) {
+  int MarlinKalTestTrack::addHit( edm4hep::TrackerHit& trkhit) {
     
     return this->addHit( trkhit, _ktest->findMeasLayer( trkhit )) ;
     
   } 
   
-  int MarlinKalTestTrack::addHit( edm4hep::ConstTrackerHit& trkhit, const ILDVMeasLayer* ml) {
+  int MarlinKalTestTrack::addHit( edm4hep::TrackerHit& trkhit, const ILDVMeasLayer* ml) {
     //std::cout << "MarlinKalTestTrack::addHit: trkhit = "  << trkhit.id() << " addr: " << trkhit << " ml = " << ml << std::endl ;
     if( trkhit.isAvailable() && ml ) {
       //if(ml){
@@ -128,7 +128,7 @@ namespace MarlinTrk {
     return bad_intputs ;
   }
   
-  int MarlinKalTestTrack::addHit( edm4hep::ConstTrackerHit& trkhit, ILDVTrackHit* kalhit, const ILDVMeasLayer* ml) {
+  int MarlinKalTestTrack::addHit( edm4hep::TrackerHit& trkhit, ILDVTrackHit* kalhit, const ILDVMeasLayer* ml) {
     //std::cout << "MarlinKalTestTrack::addHit: trkhit = "  << trkhit.id() << " ILDVTrackHit: " << kalhit << " ml = " << ml << std::endl ;
     if( kalhit && ml ) {
       //if(ml){
@@ -659,7 +659,7 @@ namespace MarlinTrk {
     
   }
   
-  int MarlinKalTestTrack::addAndFit( edm4hep::ConstTrackerHit& trkhit, double& chi2increment, double maxChi2Increment) {
+  int MarlinKalTestTrack::addAndFit( edm4hep::TrackerHit& trkhit, double& chi2increment, double maxChi2Increment) {
     
     if( ! trkhit.isAvailable() ) {
       std::cout << "Error: MarlinKalTestTrack::addAndFit(edm4hep::TrackerHit trkhit, double& chi2increment, double maxChi2Increment): trkhit == 0" << std::endl;
@@ -736,7 +736,7 @@ namespace MarlinTrk {
   
   
   
-  int MarlinKalTestTrack::testChi2Increment( edm4hep::ConstTrackerHit& trkhit, double& chi2increment ) {
+  int MarlinKalTestTrack::testChi2Increment( edm4hep::TrackerHit& trkhit, double& chi2increment ) {
     
     //if( ! trkhit ) {
     //  streamlog_out( ERROR) << "MarlinKalTestTrack::addAndFit(edm4hep::TrackerHit trkhit, double& chi2increment, double maxChi2Increment): trkhit == 0" << std::endl;
@@ -810,7 +810,7 @@ namespace MarlinTrk {
       int error_code = this->addAndFit( kalhit, chi2increment, site, maxChi2Increment );
       
       
-      edm4hep::ConstTrackerHit trkhit = kalhit->getLCIOTrackerHit();
+      edm4hep::TrackerHit trkhit = kalhit->getLCIOTrackerHit();
       
       if( error_code == 0 ){ // add trkhit to map associating trkhits and sites
         _hit_used_for_sites[trkhit] = site;
@@ -900,7 +900,7 @@ namespace MarlinTrk {
   
   /** smooth track states from the last filtered hit back to the measurement site associated with the given hit 
    */
-  int MarlinKalTestTrack::smooth( edm4hep::ConstTrackerHit& trkhit ) {
+  int MarlinKalTestTrack::smooth( edm4hep::TrackerHit& trkhit ) {
     
     //streamlog_out( DEBUG2 )  << "MarlinKalTestTrack::smooth( edm4hep::TrackerHit " << trkhit << "  ) " << std::endl ;
 
@@ -908,7 +908,7 @@ namespace MarlinTrk {
       return bad_intputs ;
     }
         
-    std::map<edm4hep::ConstTrackerHit, TKalTrackSite*>::const_iterator it;
+    std::map<edm4hep::TrackerHit, TKalTrackSite*>::const_iterator it;
         
     TKalTrackSite* site = 0 ;
     int error_code = getSiteFromLCIOHit(trkhit, site);
@@ -941,9 +941,9 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::getTrackState( edm4hep::ConstTrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf ) {
+  int MarlinKalTestTrack::getTrackState( edm4hep::TrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf ) {
     
-    //streamlog_out( DEBUG2 )  << "MarlinKalTestTrack::getTrackState(edm4hep::ConstTrackerHit trkhit, edm4hep::TrackState& ts ) using hit: " << trkhit << " with cellID0 = " << trkhit.getCellID() << std::endl ;
+    //streamlog_out( DEBUG2 )  << "MarlinKalTestTrack::getTrackState(edm4hep::TrackerHit trkhit, edm4hep::TrackState& ts ) using hit: " << trkhit << " with cellID0 = " << trkhit.getCellID() << std::endl ;
     
     TKalTrackSite* site = 0 ;
     int error_code = getSiteFromLCIOHit(trkhit, site);
@@ -958,7 +958,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::getHitsInFit( std::vector<std::pair<edm4hep::ConstTrackerHit, double> >& hits ) {
+  int MarlinKalTestTrack::getHitsInFit( std::vector<std::pair<edm4hep::TrackerHit, double> >& hits ) {
     //std::cout << "debug: _hit_chi2_values address= " << &_hit_chi2_values << " " << &(*(_hit_chi2_values.begin())) << " want to copy to hits address=" << &hits << std::endl; 
     std::copy( _hit_chi2_values.begin() , _hit_chi2_values.end() , std::back_inserter(  hits  )  ) ;
     //hits.resize(_hit_chi2_values.size());
@@ -980,7 +980,7 @@ namespace MarlinTrk {
     
   }
   
-  int MarlinKalTestTrack::getOutliers( std::vector<std::pair<edm4hep::ConstTrackerHit, double> >& hits ) {
+  int MarlinKalTestTrack::getOutliers( std::vector<std::pair<edm4hep::TrackerHit, double> >& hits ) {
 
     std::copy( _outlier_chi2_values.begin() , _outlier_chi2_values.end() , std::back_inserter(  hits  )  ) ;
    
@@ -1011,7 +1011,7 @@ namespace MarlinTrk {
     
   }
   
-  int MarlinKalTestTrack::getTrackerHitAtPositiveNDF( edm4hep::ConstTrackerHit& trkhit ) {
+  int MarlinKalTestTrack::getTrackerHitAtPositiveNDF( edm4hep::TrackerHit& trkhit ) {
     if(_trackHitAtPositiveNDF.isAvailable()){
       trkhit = _trackHitAtPositiveNDF;
       return success;    
@@ -1031,7 +1031,7 @@ namespace MarlinTrk {
     
   }
   
-  int MarlinKalTestTrack::extrapolate( const edm4hep::Vector3d& point, edm4hep::ConstTrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf ) {
+  int MarlinKalTestTrack::extrapolate( const edm4hep::Vector3d& point, edm4hep::TrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf ) {
     
     TKalTrackSite* site = 0 ;
     int error_code = getSiteFromLCIOHit(trkhit, site);
@@ -1083,7 +1083,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::extrapolateToLayer( int layerID, edm4hep::ConstTrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode ) {
+  int MarlinKalTestTrack::extrapolateToLayer( int layerID, edm4hep::TrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode ) {
     
     TKalTrackSite* site = 0;
     int error_code = getSiteFromLCIOHit(trkhit, site);
@@ -1120,7 +1120,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::extrapolateToDetElement( int detElementID, edm4hep::ConstTrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode ) {
+  int MarlinKalTestTrack::extrapolateToDetElement( int detElementID, edm4hep::TrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode ) {
     
     TKalTrackSite* site = 0;
     int error_code = getSiteFromLCIOHit(trkhit, site);
@@ -1161,7 +1161,7 @@ namespace MarlinTrk {
     
   }
   
-  int MarlinKalTestTrack::propagate( const edm4hep::Vector3d& point, edm4hep::ConstTrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf ){
+  int MarlinKalTestTrack::propagate( const edm4hep::Vector3d& point, edm4hep::TrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf ){
     
     TKalTrackSite* site = 0;
     int error_code = getSiteFromLCIOHit(trkhit, site);
@@ -1271,7 +1271,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::propagateToLayer( int layerID, edm4hep::ConstTrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode ) {
+  int MarlinKalTestTrack::propagateToLayer( int layerID, edm4hep::TrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf, int& detElementID, int mode ) {
     
     TKalTrackSite* site = 0;
     int error_code = getSiteFromLCIOHit(trkhit, site);
@@ -1309,7 +1309,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::propagateToDetElement( int detElementID, edm4hep::ConstTrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode ) {
+  int MarlinKalTestTrack::propagateToDetElement( int detElementID, edm4hep::TrackerHit& trkhit, edm4hep::TrackState& ts, double& chi2, int& ndf, int mode ) {
     
     TKalTrackSite* site = 0;
     int error_code = getSiteFromLCIOHit(trkhit, site);
@@ -1347,7 +1347,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::intersectionWithDetElement( int detElementID,  edm4hep::ConstTrackerHit& trkhit, edm4hep::Vector3d& point, int mode ) {
+  int MarlinKalTestTrack::intersectionWithDetElement( int detElementID,  edm4hep::TrackerHit& trkhit, edm4hep::Vector3d& point, int mode ) {
     
     TKalTrackSite* site = 0;
     int error_code = getSiteFromLCIOHit(trkhit, site);
@@ -1414,7 +1414,7 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::intersectionWithLayer( int layerID,  edm4hep::ConstTrackerHit& trkhit, edm4hep::Vector3d& point, int& detElementID, int mode ) {
+  int MarlinKalTestTrack::intersectionWithLayer( int layerID,  edm4hep::TrackerHit& trkhit, edm4hep::Vector3d& point, int& detElementID, int mode ) {
     
     TKalTrackSite* site = 0;
     int error_code = getSiteFromLCIOHit(trkhit, site);
@@ -1662,9 +1662,9 @@ namespace MarlinTrk {
   }
   
   
-  int MarlinKalTestTrack::getSiteFromLCIOHit( edm4hep::ConstTrackerHit& trkhit, TKalTrackSite*& site ) const {
+  int MarlinKalTestTrack::getSiteFromLCIOHit( edm4hep::TrackerHit& trkhit, TKalTrackSite*& site ) const {
     
-    std::map<edm4hep::ConstTrackerHit,TKalTrackSite*>::const_iterator it;
+    std::map<edm4hep::TrackerHit,TKalTrackSite*>::const_iterator it;
     
     it = _hit_used_for_sites.find(trkhit) ;  
     

@@ -421,7 +421,7 @@ Edm4hepWriterAnaElemTool::PostUserTrackingAction(const G4Track* track) {
                     // create secondaries in MC particles
                     // todo: convert the const collection to non-const
                     // auto mcCol = const_cast<edm4hep::MCParticleCollection*>(m_mcParCol.get());
-                    edm4hep::MCParticle mcp = mcCol->create();
+                    auto mcp = mcCol->create();
                     mcp.setPDG(secparticle->GetPDGEncoding());
                     mcp.setGeneratorStatus(0); // not created by Generator
                     mcp.setCreatedInSimulation(1);

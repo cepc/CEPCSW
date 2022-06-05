@@ -200,7 +200,7 @@ class ForwardTrackingAlg : public GaudiAlgorithm {
    * Sets the subdetector hit numbers and the radius of the innermost hit.
    * Also sets chi2 and Ndf.
    */
-  void finaliseTrack( edm4hep::Track* track );
+  void finaliseTrack( edm4hep::MutableTrack* track );
   
   /* Sets the cut off values for all the criteria
    * 

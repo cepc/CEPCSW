@@ -13,7 +13,7 @@
 #include "kaltest/TAttDrawable.h"
 #include "kaltest/KalTrackDim.h"
 #include "TString.h"
-#include "edm4hep/TrackerHitConst.h"
+#include "edm4hep/TrackerHit.h"
 
 #include <vector>
 
@@ -44,7 +44,7 @@ public:
   inline Double_t GetBz() const { return _Bz; }
   
   /** Convert LCIO Tracker Hit to an ILDPLanarTrackHit  */
-  virtual ILDVTrackHit* ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const = 0 ;
+  virtual ILDVTrackHit* ConvertLCIOTrkHit(edm4hep::TrackerHit trkhit) const = 0 ;
   
   /** Check whether the measurement layer represents a series of detector elements */
   bool isMultilayer() const { return _isMultiLayer; } 

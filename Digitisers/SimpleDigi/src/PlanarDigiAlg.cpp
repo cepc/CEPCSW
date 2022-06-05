@@ -4,7 +4,7 @@
 #include "GearSvc/IGearSvc.h"
 #include "EventSeeder/IEventSeeder.h"
 #include "TrackSystemSvc/ITrackSystemSvc.h"
-#include "edm4hep/MCParticleConst.h"
+#include "edm4hep/MCParticle.h"
 #include "edm4hep/Vector3d.h"
 /*
 #include <EVENT/LCCollection.h>

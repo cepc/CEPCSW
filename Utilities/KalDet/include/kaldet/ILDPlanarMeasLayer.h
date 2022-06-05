@@ -63,7 +63,7 @@ public:
                                 const TKalMatrix &dxphiada,
                                 TKalMatrix &H)  const;
   
-  virtual ILDVTrackHit* ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const ;
+  virtual ILDVTrackHit* ConvertLCIOTrkHit(edm4hep::TrackerHit trkhit) const ;
   
   virtual Bool_t   IsOnSurface (const TVector3 &xx) const;
   

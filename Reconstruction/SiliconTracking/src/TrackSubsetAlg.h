@@ -84,7 +84,7 @@ class TrackSubsetAlg : public GaudiAlgorithm {
 /** A functor to return whether two tracks are compatible: The criterion is if the share a TrackerHit or more */
 class TrackCompatibility{
  public:
-  inline bool operator()( edm4hep::ConstTrack* trackA, edm4hep::ConstTrack* trackB ){
+  inline bool operator()( edm4hep::Track* trackA, edm4hep::Track* trackB ){
     unsigned nHitsA = trackA->trackerHits_size();
     unsigned nHitsB = trackB->trackerHits_size();
     for( unsigned i=0; i < nHitsA; i++){
@@ -104,7 +104,7 @@ class TrackQI{
   /** @param trkSystem a pointer to an IMarlinTrkSystem, needed for fitting of tracks */
   TrackQI( MarlinTrk::IMarlinTrkSystem* trkSystem ): _trkSystem(trkSystem){}
   
-  inline double operator()( edm4hep::ConstTrack* track ){
+  inline double operator()( edm4hep::Track* track ){
     return ROOT::Math::chisquared_cdf_c( track->getChi2() , track->getNdf() );   
   }
   

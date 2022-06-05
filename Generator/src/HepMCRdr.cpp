@@ -39,7 +39,7 @@ bool HepMCRdr::mutate(MyHepMC::GenEvent& event){
     int index = 0 ;
     for ( HepMC::GenEvent::particle_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p ) {
         //std::cout<<"start mc "<<index<<std::endl;
-        edm4hep::MCParticle mcp = event.m_mc_vec.create();
+        auto mcp = event.m_mc_vec.create();
         pmcid_lmcid.insert(std::pair<int, int>((*p)->barcode(),index));
         index++;
         //std::cout<<"map<id,i>:"<<mc->id()<<","<< i <<std::endl;
@@ -72,7 +72,7 @@ bool HepMCRdr::mutate(MyHepMC::GenEvent& event){
     // second loop for setting parents and daughters
     index = 0 ;
     for ( HepMC::GenEvent::particle_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p ) {
-        edm4hep::MCParticle pmc = event.m_mc_vec.at(index);
+        auto pmc = event.m_mc_vec.at(index);
         index++;
         if ( (*p)->production_vertex() ) {
             for ( HepMC::GenVertex::particle_iterator mother = (*p)->production_vertex()-> particles_begin(HepMC::parents); mother != (*p)->production_vertex()-> particles_end(HepMC::parents); ++mother ) {

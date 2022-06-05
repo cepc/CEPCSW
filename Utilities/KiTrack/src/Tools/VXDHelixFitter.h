@@ -47,7 +47,7 @@ class VXDHelixFitter{
 public:
    
   VXDHelixFitter( edm4hep::Track* track ) ;
-  VXDHelixFitter( std::vector < edm4hep::ConstTrackerHit > trackerHits ) ;
+  VXDHelixFitter( std::vector < edm4hep::TrackerHit > trackerHits ) ;
    
    
    double getChi2(){ return _chi2; }
@@ -74,7 +74,7 @@ private:
    float _d0;
    float _z0;
    
-   std::vector< edm4hep::ConstTrackerHit > _trackerHits;
+   std::vector< edm4hep::TrackerHit > _trackerHits;
   
    
 };

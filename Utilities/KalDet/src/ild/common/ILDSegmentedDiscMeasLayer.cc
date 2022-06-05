@@ -193,7 +193,7 @@ TVector3 ILDSegmentedDiscMeasLayer::HitToXv(const TVTrackHit &vht) const
 //  double z = this->GetXc().Z() ;
 
   UTIL::BitField64 encoder( lcio::ILDCellID0::encoder_string ) ;
-  edm4hep::ConstTrackerHit hit = mv.getLCIOTrackerHit();
+  edm4hep::TrackerHit hit = mv.getLCIOTrackerHit();
   encoder.setValue(hit.getCellID());
   int segmentIndex = encoder[lcio::ILDCellID0::module] / 2 ;
   
@@ -495,7 +495,7 @@ Bool_t ILDSegmentedDiscMeasLayer::IsOnSurface(const TVector3 &xx) const
 }
 
 
-ILDVTrackHit* ILDSegmentedDiscMeasLayer::ConvertLCIOTrkHit(edm4hep::ConstTrackerHit trkhit) const {
+ILDVTrackHit* ILDSegmentedDiscMeasLayer::ConvertLCIOTrkHit(edm4hep::TrackerHit trkhit) const {
   //EVENT::TrackerHitPlane* plane_hit = dynamic_cast<EVENT::TrackerHitPlane*>( trkhit ) ;
   if((trkhit.getType()&8)!=8) {
   //if( plane_hit == NULL )  { 

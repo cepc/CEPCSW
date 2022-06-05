@@ -24,6 +24,8 @@
 #include "gear/GEAR.h"
 
 #include "edm4hep/TrackState.h"
+#include "edm4hep/MutableTrack.h"
+
 
 #include "TrackSystemSvc/IMarlinTrack.h"
 #include "TrackSystemSvc/IMarlinTrkSystem.h"
@@ -60,7 +62,7 @@ namespace clupatra_new{
 		int layer ;
 		int zIndex ;
 		int phiIndex ;
-		edm4hep::ConstTrackerHit edm4hepHit ;
+		edm4hep::TrackerHit edm4hepHit ;
 		gear::Vector3D pos ;
 
 	};
@@ -82,8 +84,8 @@ namespace clupatra_new{
 	typedef std::vector< HitList > HitListVector ;
 
 	struct ClupaPlcioTrack {
-		edm4hep::Track edm4hepTrack ;
-                ClupaPlcioTrack(edm4hep::Track edm4hepTrack) : edm4hepTrack(edm4hepTrack) {}
+		edm4hep::MutableTrack edm4hepTrack ;
+                ClupaPlcioTrack(edm4hep::MutableTrack edm4hepTrack) : edm4hepTrack(edm4hepTrack) {}
 	};
 
 	// typedef GenericHitVec<ClupaHit>      GHitVec ;
@@ -142,6 +144,7 @@ namespace clupatra_new{
 			return ( std::abs( getOmega(l) ) < std::abs( getOmega(r) )  );  // pt ~ 1./omega
 		}
 	};
+
 
 	//------------------------------------------------------------------------------------------
 
@@ -222,7 +225,7 @@ namespace clupatra_new{
 		bool UsePropagate ;
 		PLCIOTrackConverter() : UsePropagate(false ) {}
 
-		edm4hep::Track operator() (CluTrack* c) ;
+		edm4hep::MutableTrack operator() (CluTrack* c) ;
 
 	} ;
 
@@ -354,7 +357,7 @@ namespace clupatra_new{
 	/** Helper class to compute track segment properties.
 	*/
 	struct ComputeTrackerInfo{
-		void operator()( edm4hep::Track o );
+		void operator()( edm4hep::MutableTrack o );
 	};
 
 	//=======================================================================================
@@ -374,8 +377,8 @@ namespace clupatra_new{
 			/** Merge condition: ... */
 			inline bool operator()( nnclu::Element<ClupaPlcioTrack>* h0, nnclu::Element<ClupaPlcioTrack>* h1){
 
-				edm4hep::Track trk0 = h0->first->edm4hepTrack ;
-				edm4hep::Track trk1 = h1->first->edm4hepTrack ;
+				edm4hep::MutableTrack trk0 = h0->first->edm4hepTrack ;
+				edm4hep::MutableTrack trk1 = h1->first->edm4hepTrack ;
 
 
 				// protect against merging multiple segments (and thus complete tracks)
@@ -396,11 +399,11 @@ namespace clupatra_new{
 				unsigned nhit0 = trk0.trackerHits_size() ;
 				unsigned nhit1 = trk1.trackerHits_size() ;
 
-				edm4hep::ConstTrackerHit thf0 = trk0.getTrackerHits( 0 ) ;
-				edm4hep::ConstTrackerHit thf1 = trk1.getTrackerHits( 0 ) ;
+				edm4hep::TrackerHit thf0 = trk0.getTrackerHits( 0 ) ;
+				edm4hep::TrackerHit thf1 = trk1.getTrackerHits( 0 ) ;
 
-				edm4hep::ConstTrackerHit thl0 = trk0.getTrackerHits( nhit0 - 1 ) ;
-				edm4hep::ConstTrackerHit thl1 = trk1.getTrackerHits( nhit1 - 1 ) ;
+				edm4hep::TrackerHit thl0 = trk0.getTrackerHits( nhit0 - 1 ) ;
+				edm4hep::TrackerHit thl1 = trk1.getTrackerHits( nhit1 - 1 ) ;
 
 				// lcio::TrackerHit* thm1 = trk1->getTrackerHits()[ nhit1 / 2 ] ;
 				// lcio::TrackerHit* thm0 = trk0->getTrackerHits()[ nhit0 / 2 ] ;
@@ -423,16 +426,16 @@ namespace clupatra_new{
 
 				// now we take the larger segment and see if we can add the three hits from the other segment...
 
-				edm4hep::Track trk = ( nhit0 > nhit1 ? trk0 :  trk1 ) ;
-				edm4hep::Track oth = ( nhit0 > nhit1 ? trk1 :  trk0 ) ;
+				edm4hep::MutableTrack trk = ( nhit0 > nhit1 ? trk0 :  trk1 ) ;
+				edm4hep::MutableTrack oth = ( nhit0 > nhit1 ? trk1 :  trk0 ) ;
 
 				bool  outward = ( nhit0 > nhit1  ?  lthl0 <= lthf1 + overlapRows :  lthl1 <= lthf0 + overlapRows ) ;
 
 				unsigned n = oth.trackerHits_size() ;
 
-				edm4hep::ConstTrackerHit th0 =  ( outward ? oth.getTrackerHits(0) : oth.getTrackerHits(n-1) ) ;
-				edm4hep::ConstTrackerHit th1 =              (oth.getTrackerHits(n/2) );
-				edm4hep::ConstTrackerHit th2 =  ( outward ? oth.getTrackerHits(n-1) : oth.getTrackerHits(0) );
+				edm4hep::TrackerHit th0 =  ( outward ? oth.getTrackerHits(0) : oth.getTrackerHits(n-1) ) ;
+				edm4hep::TrackerHit th1 =              (oth.getTrackerHits(n/2) );
+				edm4hep::TrackerHit th2 =  ( outward ? oth.getTrackerHits(n-1) : oth.getTrackerHits(0) );
 
 
 				// track state at last hit migyt be rubish....
@@ -465,7 +468,7 @@ namespace clupatra_new{
 				// FIXME Mingrui debug
 				// streamlog_out( DEBUG3  )  << "               -- extrapolate TrackState : " << lcshort( ts )    << std::endl ;
 
-				edm4hep::ConstTrackerHit ht = trk.getTrackerHits(0); 
+				edm4hep::TrackerHit ht = trk.getTrackerHits(0); 
 				//need to add a dummy hit to the track
 				mTrk->addHit( ht ) ;  // is this the right hit ??????????
 
@@ -540,6 +543,7 @@ namespace clupatra_new{
 	struct TrackZSort {  // sort tracks wtr to abs(z_average )
 		bool operator()( edm4hep::Track l, edm4hep::Track r);
 	};
+
 
 
 	//=======================================================================================

@@ -14,9 +14,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "edm4hep/Track.h"
-#include "edm4hep/TrackConst.h"
 #include "edm4hep/TrackState.h"
-#include "edm4hep/ReconstructedParticleConst.h"
 
 #include "Api/PandoraApi.h"
 #include "Objects/Helix.h"
@@ -25,9 +23,9 @@ namespace gear { class GearMgr; }
 
 class CollectionMaps;
 
-typedef std::vector<edm4hep::ConstTrack *> TrackVector;
+typedef std::vector<edm4hep::Track *> TrackVector;
 typedef std::set<unsigned int> TrackList;
-typedef std::map<edm4hep::ConstTrack, int> TrackToPidMap;
+typedef std::map<edm4hep::Track, int> TrackToPidMap;
 /*
 inline LCCollectionVec *newTrkCol(const std::string &name, LCEvent *evt , bool isSubset)
 {
@@ -127,7 +125,7 @@ public:
      */
     pandora::StatusCode CreateTrackAssociations(const CollectionMaps& collectionMaps);
 
-    edm4hep::ConstTrack* GetTrackAddress(const CollectionMaps& collectionMaps, const edm4hep::ConstTrack& pTrack );
+    edm4hep::Track* GetTrackAddress(const CollectionMaps& collectionMaps, const edm4hep::Track& pTrack );
     /**
      *  @brief  Create tracks, insert user code here
      * 
@@ -169,7 +167,7 @@ private:
      *  @brief  Whether the track vertex conflicts with previously provided relationship information
      * 
      */
-    bool IsConflictingRelationship(const edm4hep::ConstReconstructedParticle &Particle) const;
+    bool IsConflictingRelationship(const edm4hep::ReconstructedParticle &Particle) const;
 
     /**
      *  @brief  Whether a track is a v0 track
@@ -199,7 +197,7 @@ private:
      *  @brief  Copy track states stored in lcio tracks to pandora track parameters
      * 
      */
-    void GetTrackStates(edm4hep::ConstTrack *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
+    void GetTrackStates(edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
 
     /**
      *  @brief  Copy track state from lcio track state instance to pandora input track state
@@ -211,13 +209,13 @@ private:
      *  @brief  Obtain track time when it reaches ECAL
      * 
      */
-    float CalculateTrackTimeAtCalorimeter(edm4hep::ConstTrack *const pTrack) const;
+    float CalculateTrackTimeAtCalorimeter(edm4hep::Track *const pTrack) const;
 
     /**
      *  @brief  Decide whether track reaches the ecal surface
      * 
      */
-    void TrackReachesECAL(edm4hep::ConstTrack *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
+    void TrackReachesECAL(edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
 
     /**
      *  @brief  Determine whether a track can be used to form a pfo under the following conditions:
@@ -225,7 +223,7 @@ private:
      *          2) if the track proves to have no cluster associations
      * 
      */
-    void DefineTrackPfoUsage(edm4hep::ConstTrack *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
+    void DefineTrackPfoUsage(edm4hep::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
 
     /**
      *  @brief  Whether track passes the quality cuts required in order to be used to form a pfo
@@ -233,20 +231,20 @@ private:
      * 
      *  @return boolean
      */
-    bool PassesQualityCuts(edm4hep::ConstTrack *const pTrack, const PandoraApi::Track::Parameters &trackParameters) const;
+    bool PassesQualityCuts(edm4hep::Track *const pTrack, const PandoraApi::Track::Parameters &trackParameters) const;
 
     /**
      *  @brief  Get number of hits in TPC of a track
      * 
      */
-    int GetNTpcHits(edm4hep::ConstTrack *const pTrack) const;
+    int GetNTpcHits(edm4hep::Track *const pTrack) const;
 
     /**
      *  @brief  Get number of hits in FTD of a track
      * 
      * 
      */
-    int GetNFtdHits(edm4hep::ConstTrack *const pTrack) const;
+    int GetNFtdHits(edm4hep::Track *const pTrack) const;
 
     const Settings          m_settings;                     ///< The track creator settings
     const pandora::Pandora *m_pPandora;                     ///< Address of the pandora object to create tracks and track relationships
