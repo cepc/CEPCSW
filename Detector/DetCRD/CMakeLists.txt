@@ -17,17 +17,14 @@ find_package(ROOT COMPONENTS MathCore GenVector Geom REQUIRED)
 
 gaudi_add_module(DetCRD
                  SOURCES src/Calorimeter/CRDEcal_v01.cpp
+			 src/Calorimeter/RotatedPolyhedraBarrelCalorimeter_v01_geo.cpp
+                         src/Calorimeter/RotatedCrystalCalorimeter_v01_geo.cpp
                          src/Other/CRDBeamPipe_v01_geo.cpp
                          src/Tracker/SiTrackerSkewRing_v01_geo.cpp
                          src/Tracker/SiTrackerSkewBarrel_v01_geo.cpp
 
 		 LINK ${DD4hep_COMPONENT_LIBRARIES}
 )
-
-target_include_directories(DetCRD PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/src/include
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-
 set(LIBRARY_OUTPUT_PATH ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 message(STATUS "LIBRARY_OUTPUT_PATH -> ${LIBRARY_OUTPUT_PATH}")
 dd4hep_generate_rootmap(DetCRD)

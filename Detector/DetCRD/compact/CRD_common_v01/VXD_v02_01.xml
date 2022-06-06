@@ -38,10 +38,11 @@
     <constant name="VXD4_half_length"    value="90*mm"/>
     <!-- <constant name="VXD_half_length_1"  value="VXD1_half_length"/> -->
     <!-- <constant name="VXD_layer_gap" value="2.5*mm"/> -->
+    <constant name="VXD4_half_length"    value="90*mm"/>
   </define>
 
   <detectors>
-    <detector id="DetID_VXD" name="VXDskew" type="SiTrackerSkewBarrel_v01" vis="VXDVis" readout="VXDCollection" insideTrackingVolume="true">
+    <detector id="DetID_VXD" name="VXD" type="SiTrackerSkewBarrel_v01" vis="VXDVis" readout="VXDCollection" insideTrackingVolume="true">
       <!-- <envelope> -->
 	<!-- <shape type="Assembly"/> -->
         <!--shape type="BooleanShape" operation="Union" material="Air" >
@@ -50,7 +51,7 @@
         </shape-->
       <!-- </envelope> -->
     <envelope vis="VXDVis">
-	    <shape type="BooleanShape" operation="Subtraction" material="Air" >
+	    <shape type="BooleanShape" operation="Subtraction" material="Air" > -->
 	     <shape type="BooleanShape" operation="Subtraction" material="Air" >
 	      <shape type="BooleanShape" operation="Subtraction" material="Air" >
 	       <shape type="BooleanShape" operation="Subtraction" material="Air" >
@@ -61,16 +62,16 @@
 	        <shape type="Tube" rmin="0." rmax="VXD_inner_radius_1" dz="(VXD_half_length - VXD_cone_max_z)/2. + env_safety " />
 	        <position x="0" y="0" z="- ( VXD_half_length-(VXD_half_length - VXD_cone_max_z)/2.+ env_safety ) "/> 
 	        <rotation x="0" y="180.*deg" z="0" />
-	       </shape>
+	      </shape>
 	      <shape type="Cone" rmin1="0" rmax1="VXD_inner_radius" rmin2="0" rmax2="VXD_inner_radius_1" 
-		   z="(VXD_cone_max_z-VXD_cone_min_z)/2. + env_safety "/>
-	    <position x="0" y="0" z="VXD_cone_min_z+(VXD_cone_max_z-VXD_cone_min_z)/2."/> 
-	  </shape>
-	  <shape type="Cone" rmin1="0" rmax1="VXD_inner_radius" rmin2="0" rmax2="VXD_inner_radius_1" 
-		 z="(VXD_cone_max_z-VXD_cone_min_z)/2. + env_safety "/>
-	  <position x="0" y="0" z="-(VXD_cone_min_z+(VXD_cone_max_z-VXD_cone_min_z)/2.)"/> 
-	  <rotation x="0" y="180.*deg" z="0" />
-	   </shape>
+		      z="(VXD_cone_max_z-VXD_cone_min_z)/2. + env_safety "/>
+	        <position x="0" y="0" z="VXD_cone_min_z+(VXD_cone_max_z-VXD_cone_min_z)/2."/> 
+	      </shape>
+	    <shape type="Cone" rmin1="0" rmax1="VXD_inner_radius" rmin2="0" rmax2="VXD_inner_radius_1" 
+		    z="(VXD_cone_max_z-VXD_cone_min_z)/2. + env_safety "/>
+	      <position x="0" y="0" z="-(VXD_cone_min_z+(VXD_cone_max_z-VXD_cone_min_z)/2.)"/> 
+	      <rotation x="0" y="180.*deg" z="0" />
+	    </shape>
     </envelope>    
 
       <type_flags type="DetType_TRACKER + DetType_BARREL + DetType_PIXEL "/>
@@ -87,19 +88,19 @@
 	     n_ladders="10" ladder_clearance="0.1*mm" faces_IP="1" is_VXD1="1" is_VXD2="0"  >
         <ladder isDoubleSided="true">
           <ladderSupport height="2*mm" length="200*mm" thickness="350*um" width="16.8*mm" mat="CarbonFiber"/>
-          <flex n_layers="3">
-            <layer length="200*mm" thickness="60*um" width="16.8*mm" mat="Epoxy"/>
-            <layer length="200*mm" thickness="74*um" width="16.8*mm" mat="Kapton"/>
-            <layer length="200*mm" thickness="26.8*um" width="16.8*mm" mat="G4_Al"/>
-            <!-- <layer length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/> -->
-            <!-- <layer length="200*mm" thickness="12*um" width="16.8*mm" mat="Kapton"/> -->
-            <!-- <layer length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/> -->
-            <!-- <layer length="200*mm" thickness="13.4*um" width="16.8*mm" mat="G4_Al"/> -->
-            <!-- <layer length="200*mm" thickness="50*um" width="16.8*mm" mat="Kapton"/> -->
-            <!-- <layer length="200*mm" thickness="13.4*um" width="16.8*mm" mat="G4_Al"/> -->
-            <!-- <layer length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/> -->
-            <!-- <layer length="200*mm" thickness="12*um" width="16.8*mm" mat="Kapton"/> -->
-            <!-- <layer length="200*mm" thickness="15*um" width="14.8*mm" mat="Epoxy"/> -->
+          <flex n_slices="3">
+            <slice length="200*mm" thickness="60*um" width="16.8*mm" mat="Epoxy"/>
+            <slice length="200*mm" thickness="74*um" width="16.8*mm" mat="Kapton"/>
+            <slice length="200*mm" thickness="26.8*um" width="16.8*mm" mat="G4_Al"/>
+            <!-- <slice length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/> -->
+            <!-- <slice length="200*mm" thickness="12*um" width="16.8*mm" mat="Kapton"/> -->
+            <!-- <slice length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/> -->
+            <!-- <slice length="200*mm" thickness="13.4*um" width="16.8*mm" mat="G4_Al"/> -->
+            <!-- <slice length="200*mm" thickness="50*um" width="16.8*mm" mat="Kapton"/> -->
+            <!-- <slice length="200*mm" thickness="13.4*um" width="16.8*mm" mat="G4_Al"/> -->
+            <!-- <slice length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/> -->
+            <!-- <slice length="200*mm" thickness="12*um" width="16.8*mm" mat="Kapton"/> -->
+            <!-- <slice length="200*mm" thickness="15*um" width="14.8*mm" mat="Epoxy"/> -->
           </flex>
           <sensor n_sensors="7" gap="0.1*mm" thickness="50*um" active_length="25.6*mm" active_width="12.8*mm" dead_width="2*mm" sensor_mat="G4_Si"
                   deadwire_length="(7*(25.6+0.1)-0.1)*mm" deadwire_width="2*mm" deadwire_thickness="(50/10)*um" deadwire_mat="G4_Al"/>
@@ -109,19 +110,19 @@
              n_ladders="22" ladder_clearance="0.1*mm" faces_IP="1" is_VXD1="0" is_VXD2="1"  >
         <ladder isDoubleSided="true">
           <ladderSupport height="2*mm" length="200*mm" thickness="350*um" width="16.8*mm" mat="CarbonFiber"/>
-          <flex n_layers="3">
-            <layer length="200*mm" thickness="60*um" width="16.8*mm" mat="Epoxy"/>
-            <layer length="200*mm" thickness="74*um" width="16.8*mm" mat="Kapton"/>
-            <layer length="200*mm" thickness="26.8*um" width="16.8*mm" mat="G4_Al"/>
-            <!-- <layer length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/> -->
-            <!-- <layer length="200*mm" thickness="12*um" width="16.8*mm" mat="Kapton"/> -->
-            <!-- <layer length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/> -->
-            <!-- <layer length="200*mm" thickness="13.4*um" width="16.8*mm" mat="G4_Al"/> -->
-            <!-- <layer length="200*mm" thickness="50*um" width="16.8*mm" mat="Kapton"/> -->
-            <!-- <layer length="200*mm" thickness="13.4*um" width="16.8*mm" mat="G4_Al"/> -->
-            <!-- <layer length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/> -->
-            <!-- <layer length="200*mm" thickness="12*um" width="16.8*mm" mat="Kapton"/> -->
-            <!-- <layer length="200*mm" thickness="15*um" width="14.8*mm" mat="Epoxy"/> -->
+          <flex n_slices="3">
+            <slice length="200*mm" thickness="60*um" width="16.8*mm" mat="Epoxy"/>
+            <slice length="200*mm" thickness="74*um" width="16.8*mm" mat="Kapton"/>
+            <slice length="200*mm" thickness="26.8*um" width="16.8*mm" mat="G4_Al"/>
+            <!-- <slice length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/> -->
+            <!-- <slice length="200*mm" thickness="12*um" width="16.8*mm" mat="Kapton"/> -->
+            <!-- <slice length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/> -->
+            <!-- <slice length="200*mm" thickness="13.4*um" width="16.8*mm" mat="G4_Al"/> -->
+            <!-- <slice length="200*mm" thickness="50*um" width="16.8*mm" mat="Kapton"/> -->
+            <!-- <slice length="200*mm" thickness="13.4*um" width="16.8*mm" mat="G4_Al"/> -->
+            <!-- <slice length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/> -->
+            <!-- <slice length="200*mm" thickness="12*um" width="16.8*mm" mat="Kapton"/> -->
+            <!-- <slice length="200*mm" thickness="15*um" width="14.8*mm" mat="Epoxy"/> -->
           </flex>
           <sensor n_sensors="7" gap="0.1*mm" thickness="50*um" active_length="25.6*mm" active_width="12.8*mm" dead_width="2*mm" sensor_mat="G4_Si"
                   deadwire_length="(7*(25.6+0.1)-0.1)*mm" deadwire_width="2*mm" deadwire_thickness="(50/10)*um" deadwire_mat="G4_Al"/>
@@ -131,27 +132,25 @@
              n_ladders="32" ladder_clearance="0.1*mm" faces_IP="1" is_VXD1="0" is_VXD2="0"  >
         <ladder isDoubleSided="true">
           <ladderSupport height="2*mm" length="200*mm" thickness="350*um" width="16.8*mm" mat="CarbonFiber"/>
-          <flex n_layers="3">
-            <layer length="200*mm" thickness="60*um" width="16.8*mm" mat="Epoxy"/>
-            <layer length="200*mm" thickness="74*um" width="16.8*mm" mat="Kapton"/>
-            <layer length="200*mm" thickness="26.8*um" width="16.8*mm" mat="G4_Al"/>
-            <!-- <layer length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/>
-            <layer length="200*mm" thickness="12*um" width="16.8*mm" mat="Kapton"/>
-            <layer length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/>
-            <layer length="200*mm" thickness="13.4*um" width="16.8*mm" mat="G4_Al"/>
-            <layer length="200*mm" thickness="50*um" width="16.8*mm" mat="Kapton"/>
-            <layer length="200*mm" thickness="13.4*um" width="16.8*mm" mat="G4_Al"/>
-            <layer length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/>
-            <layer length="200*mm" thickness="12*um" width="16.8*mm" mat="Kapton"/>
-            <layer length="200*mm" thickness="15*um" width="14.8*mm" mat="Epoxy"/> -->
+          <flex n_slices="3">
+            <slice length="200*mm" thickness="60*um" width="16.8*mm" mat="Epoxy"/>
+            <slice length="200*mm" thickness="74*um" width="16.8*mm" mat="Kapton"/>
+            <slice length="200*mm" thickness="26.8*um" width="16.8*mm" mat="G4_Al"/>
+            <!-- <slice length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/>
+            <slice length="200*mm" thickness="12*um" width="16.8*mm" mat="Kapton"/>
+            <slice length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/>
+            <slice length="200*mm" thickness="13.4*um" width="16.8*mm" mat="G4_Al"/>
+            <slice length="200*mm" thickness="50*um" width="16.8*mm" mat="Kapton"/>
+            <slice length="200*mm" thickness="13.4*um" width="16.8*mm" mat="G4_Al"/>
+            <slice length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/>
+            <slice length="200*mm" thickness="12*um" width="16.8*mm" mat="Kapton"/>
+            <slice length="200*mm" thickness="15*um" width="14.8*mm" mat="Epoxy"/> -->
           </flex>
           <sensor n_sensors="7" gap="0.1*mm" thickness="50*um" active_length="25.6*mm" active_width="12.8*mm" dead_width="2*mm" sensor_mat="G4_Si"
                   deadwire_length="(7*(25.6+0.1)-0.1)*mm" deadwire_width="2*mm" deadwire_thickness="(50/10)*um" deadwire_mat="G4_Al"/>
         </ladder>
       </layer>
 
-      <!-- <layer layer_id="3" ladder_radius="VXD4_inner_radius+0.5*VXD_sensitive_thickness" n_sensors_per_side="VXD4_half_length*2/VXD_sensor_length" -->
-             <!-- n_ladders="2*pi*VXD4_inner_radius/VXD_sensor_length" ladder_clearance="0.1*mm" faces_IP="1" is_VXD1="0" is_VXD2="0"  /> -->
 
     </detector>
 

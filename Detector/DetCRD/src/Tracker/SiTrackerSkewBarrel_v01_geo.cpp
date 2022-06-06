@@ -11,7 +11,6 @@
 #include "DDRec/Surface.h"
 #include "DDRec/DetectorData.h"
 #include "XML/Utilities.h"
-#include "XMLHandlerDB.h"
 #include <cmath>
 
 using namespace std;
@@ -83,33 +82,30 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
   dd4hep::rec::ZPlanarData* zPlanarData = new dd4hep::rec::ZPlanarData;
 
    // fetch the global parameters
-   XMLHandlerDB db0 = XMLHandlerDB(  x_det.child( _Unicode( global ) ) ) ;
-   //Material support_mat         = theDetector.material(db0->fetchString("support_mat"));
    
    //fetch the display parameters
-   db0 = XMLHandlerDB(  x_det.child( _Unicode( display ) ) ) ;
-   std::string ladderVis      = db0->fetchString("ladder");
-   std::string supportVis     = db0->fetchString("support");
-   std::string flexVis        = db0->fetchString("flex");
-   std::string sensEnvVis     = db0->fetchString("sens_env");
-   std::string sensVis        = db0->fetchString("sens");
-   std::string deadsensVis    = db0->fetchString("deadsensor");
-   std::string deadwireVis    = db0->fetchString("deadwire");
+   xml_comp_t x_display(x_det.child(_Unicode(display)));
+   std::string ladderVis      = x_display.attr<string>(_Unicode(ladder));
+   std::string supportVis     = x_display.attr<string>(_Unicode(support));
+   std::string flexVis        = x_display.attr<string>(_Unicode(flex));
+   std::string sensEnvVis     = x_display.attr<string>(_Unicode(sens_env));
+   std::string sensVis        = x_display.attr<string>(_Unicode(sens));
+   std::string deadsensVis    = x_display.attr<string>(_Unicode(deadsensor));
+   std::string deadwireVis    = x_display.attr<string>(_Unicode(deadwire));
 
 
  for(xml_coll_t layer_i(x_det,_U(layer)); layer_i; ++layer_i){
    xml_comp_t x_layer(layer_i);
-   XMLHandlerDB db = XMLHandlerDB( x_layer );
    
    dd4hep::PlacedVolume pv;
-   int layer_id                 = db->fetchInt("layer_id");
+   int layer_id                 = x_layer.attr<int>(_Unicode(layer_id));
 
    std::cout << "layer_id: " << layer_id << endl;
 
-   double sensitive_radius      = db->fetchDouble("ladder_radius");
-   int n_sensors_per_ladder     = db->fetchInt("n_sensors_per_side");
-   int n_ladders                = db->fetchInt("n_ladders") ;
-   double ladder_offset         = db->fetchDouble("ladder_offset");
+   double sensitive_radius      = x_layer.attr<double>(_Unicode(ladder_radius));
+   int n_sensors_per_ladder     = x_layer.attr<int>(_Unicode(n_sensors_per_side));
+   int n_ladders                = x_layer.attr<int>(_Unicode(n_ladders)) ;
+   double ladder_offset         = x_layer.attr<double>(_Unicode(ladder_offset));
    double ladder_radius         = sqrt(ladder_offset*ladder_offset + sensitive_radius*sensitive_radius); 
    double ladder_phi0           = -atan(ladder_offset/sensitive_radius);
    std::cout << "ladder_radius: " << ladder_radius/mm <<" mm" << endl;
@@ -128,15 +124,15 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
 
    //fetch the ladder parameters
    xml_comp_t x_ladder(x_layer.child(_Unicode(ladder)));
-   db = XMLHandlerDB(x_ladder);
+  //  db = XMLHandlerDB(x_ladder);
    
    //fetch the ladder support parameters
-   db = XMLHandlerDB(x_ladder.child(_Unicode(ladderSupport)));
-   double support_length        = db->fetchDouble("length");
-   double support_thickness     = db->fetchDouble("thickness");
-   double support_height        = db->fetchDouble("height");
-   double support_width         = db->fetchDouble("width");
-   Material support_mat         = theDetector.material(db->fetchString("mat"));
+   xml_comp_t x_ladder_support(x_ladder.child(_Unicode(ladderSupport)));
+   double support_length        = x_ladder_support.attr<double>(_Unicode(length));
+   double support_thickness     = x_ladder_support.attr<double>(_Unicode(thickness));
+   double support_height        = x_ladder_support.attr<double>(_Unicode(height));
+   double support_width         = x_ladder_support.attr<double>(_Unicode(width));
+   Material support_mat         = theDetector.material(x_ladder_support.attr<string>(_Unicode(mat)));
    std::cout << "support_length: " << support_length/mm << " mm" << endl;
    std::cout << "support_thickness: " << support_thickness/mm << " mm" << endl;
    std::cout << "support_width: " << support_width/mm << " mm" << endl;
@@ -146,34 +142,33 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
    double flex_width(0);
    double flex_length(0);
    xml_comp_t x_flex(x_ladder.child(_Unicode(flex)));
-   for(xml_coll_t flex_i(x_flex,_U(layer)); flex_i; ++flex_i){
-     xml_comp_t x_flex_layer(flex_i);
-     db = XMLHandlerDB(x_flex_layer);
-     double x_flex_layer_thickness = db->fetchDouble("thickness");
-     double x_flex_layer_width = db->fetchDouble("width");
-     double x_flex_layer_length = db->fetchDouble("length");
-     flex_thickness += x_flex_layer_thickness;
-     if (x_flex_layer_width > flex_width) flex_width = x_flex_layer_width;
-     if (x_flex_layer_length > flex_length) flex_length = x_flex_layer_length;
-     std::cout << "x_flex_layer_thickness: " << x_flex_layer_thickness/mm << " mm" << endl;
+   for(xml_coll_t flex_i(x_flex,_U(slice)); flex_i; ++flex_i){
+     xml_comp_t x_flex_slice(flex_i);
+     double x_flex_slice_thickness = x_flex_slice.attr<double>(_Unicode(thickness));
+     double x_flex_slice_width = x_flex_slice.attr<double>(_Unicode(width));
+     double x_flex_slice_length = x_flex_slice.attr<double>(_Unicode(length));
+     flex_thickness += x_flex_slice_thickness;
+     if (x_flex_slice_width > flex_width) flex_width = x_flex_slice_width;
+     if (x_flex_slice_length > flex_length) flex_length = x_flex_slice_length;
+     std::cout << "x_flex_slice_thickness: " << x_flex_slice_thickness/mm << " mm" << endl;
    }
    std::cout << "flex_thickness: " << flex_thickness/mm << " mm" << endl;
    std::cout << "flex_width: " << flex_width/mm << " mm" << endl;
    std::cout << "flex_length: " << flex_length/mm << " mm" << endl;
    
    //fetch the sensor parameters
-   db = XMLHandlerDB(x_ladder.child(_Unicode(sensor)));
-   int n_sensors_per_side                  = db->fetchInt("n_sensors");
-   double dead_gap                         = db->fetchDouble("gap");
-   double sensor_thickness                 = db->fetchDouble("thickness");
-   double sensor_active_len                = db->fetchDouble("active_length");
-   double sensor_active_width              = db->fetchDouble("active_width");
-   double sensor_dead_width                = db->fetchDouble("dead_width");
-   double sensor_deadwire_length           = db->fetchDouble("deadwire_length");
-   double sensor_deadwire_width            = db->fetchDouble("deadwire_width");
-   double sensor_deadwire_thickness        = db->fetchDouble("deadwire_thickness");
-   Material sensor_mat                     = theDetector.material(db->fetchString("sensor_mat"));
-   Material sensor_deadwire_mat            = theDetector.material(db->fetchString("deadwire_mat"));
+   xml_comp_t x_sensor(x_ladder.child(_Unicode(sensor)));
+   int n_sensors_per_side                  = x_sensor.attr<int>(_Unicode(n_sensors));
+   double dead_gap                         = x_sensor.attr<double>(_Unicode(gap));
+   double sensor_thickness                 = x_sensor.attr<double>(_Unicode(thickness));
+   double sensor_active_len                = x_sensor.attr<double>(_Unicode(active_length));
+   double sensor_active_width              = x_sensor.attr<double>(_Unicode(active_width));
+   double sensor_dead_width                = x_sensor.attr<double>(_Unicode(dead_width));
+   double sensor_deadwire_length           = x_sensor.attr<double>(_Unicode(deadwire_length));
+   double sensor_deadwire_width            = x_sensor.attr<double>(_Unicode(deadwire_width));
+   double sensor_deadwire_thickness        = x_sensor.attr<double>(_Unicode(deadwire_thickness));
+   Material sensor_mat                     = theDetector.material(x_sensor.attr<string>(_Unicode(sensor_mat)));
+   Material sensor_deadwire_mat            = theDetector.material(x_sensor.attr<string>(_Unicode(deadwire_mat)));
 
    std::cout << "n_sensors_per_side: " << n_sensors_per_side << endl;
    std::cout << "dead_gap: " << dead_gap/mm << " mm" << endl;
@@ -196,22 +191,21 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
   //create the flex layers inside the flex envelope
   double flex_height(0); 
   int index = 0;
-  for(xml_coll_t flex_i(x_flex,_U(layer)); flex_i; ++flex_i){
-    xml_comp_t x_flex_layer(flex_i);
-    db = XMLHandlerDB(x_flex_layer);
-    double x_flex_layer_thickness = db->fetchDouble("thickness");
-    double x_flex_layer_width = db->fetchDouble("width");
-    double x_flex_layer_length = db->fetchDouble("length");
-    Material x_flex_layer_mat = theDetector.material(db->fetchString("mat"));
-    flex_height += x_flex_layer_thickness;
-    Box FlexLayerSolid(x_flex_layer_thickness/2.0, x_flex_layer_width/2.0, x_flex_layer_length/2.0);
-    Volume FlexLayerLogical(name + dd4hep::_toString( layer_id, "_FlexLayerLogical_%02d") + dd4hep::_toString( index, "index_%02d"), FlexLayerSolid, x_flex_layer_mat);
+  for(xml_coll_t flex_i(x_flex,_U(slice)); flex_i; ++flex_i){
+    xml_comp_t x_flex_slice(flex_i);
+    double x_flex_slice_thickness = x_flex_slice.attr<double>(_Unicode(thickness));
+    double x_flex_slice_width = x_flex_slice.attr<double>(_Unicode(width));
+    double x_flex_slice_length = x_flex_slice.attr<double>(_Unicode(length));
+    Material x_flex_slice_mat = theDetector.material(x_flex_slice.attr<string>(_Unicode(mat)));
+    flex_height += x_flex_slice_thickness;
+    Box FlexLayerSolid(x_flex_slice_thickness/2.0, x_flex_slice_width/2.0, x_flex_slice_length/2.0);
+    Volume FlexLayerLogical(name + dd4hep::_toString( layer_id, "_FlexLayerLogical_%02d") + dd4hep::_toString( index, "index_%02d"), FlexLayerSolid, x_flex_slice_mat);
     FlexLayerLogical.setVisAttributes(theDetector.visAttributes(flexVis));
     pv = FlexEnvelopeLogical.placeVolume(FlexLayerLogical, Position(flex_height/2.0, 0., 0.));
-    std::cout << "flex thickness = " << x_flex_layer_thickness << std::endl;
-    std::cout << "flex width = " << x_flex_layer_width << std::endl;
-    std::cout << "flex length = " << x_flex_layer_length << std::endl;
-    // std::cout << "flex material: " << x_flex_layer_mat << std::endl;
+    std::cout << "flex thickness = " << x_flex_slice_thickness << std::endl;
+    std::cout << "flex width = " << x_flex_slice_width << std::endl;
+    std::cout << "flex length = " << x_flex_slice_length << std::endl;
+    // std::cout << "flex material: " << x_flex_slice_mat << std::endl;
     index++;
   }
 
@@ -300,6 +294,24 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
     ladder_enum << "vxt_ladder_" << layer_id << "_" << i;
     DetElement ladderDE(layerDE, ladder_enum.str(), x_det.id());
     std::cout << "start building " << ladder_enum.str() << ":" << endl;
+
+    //====== create the meassurement surface ===================
+    dd4hep::rec::Vector3D o(0,0,0);
+	  dd4hep::rec::Vector3D u( 0., 0., 1.);
+	  dd4hep::rec::Vector3D v( 0., 1., 0.);
+	  dd4hep::rec::Vector3D n( 1., 0., 0.);
+    double inner_thick_top = sensor_thickness/2.0;
+    double outer_thick_top = support_height/2.0 + flex_height + sensor_thickness/2.0;
+    double inner_thick_bottom = support_height/2.0 + flex_height + sensor_thickness/2.0;
+    double outer_thick_bottom = sensor_thickness/2.0;
+    dd4hep::rec::VolPlane surfTop( SensorLogical ,
+                                dd4hep::rec::SurfaceType(dd4hep::rec::SurfaceType::Sensitive),
+                                inner_thick_top, outer_thick_top , u,v,n,o ) ;
+    dd4hep::rec::VolPlane surfBottom( SensorLogical ,
+                                dd4hep::rec::SurfaceType(dd4hep::rec::SurfaceType::Sensitive),
+                                inner_thick_bottom, outer_thick_bottom, u,v,n,o ) ;
+
+
     for(int isensor=0; isensor < n_sensors_per_side; ++isensor){
       std::stringstream topsensor_str;
       std::stringstream bottomsensor_str;
@@ -310,9 +322,11 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
       DetElement topsensorDE(ladderDE, topsensor_str.str(), x_det.id());
       DetElement bottomsensorDE(ladderDE, bottomsensor_str.str(), x_det.id());
       topsensorDE.setPlacement(TopSensor_pv[isensor]);
+      volSurfaceList(topsensorDE)->push_back(surfTop);
       // std::cout << "\t" << topsensor_str.str() << " done." << endl;
       bottomsensorDE.setPlacement(BottomSensor_pv[isensor]);
       // std::cout << "\t" << bottomsensor_str.str() << " done." << endl;
+      volSurfaceList(bottomsensorDE)->push_back(surfBottom);
     }
     Transform3D tr (RotationZYX(ladder_dphi*i,0.,0.),Position(ladder_radius*cos(ladder_phi0+ladder_dphi*i), ladder_radius*sin(ladder_phi0+ladder_dphi*i), 0.));
     pv = layer_assembly.placeVolume(LadderLogical,tr);
