@@ -189,7 +189,7 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
   //vxd.setVisAttributes(theDetector, flexVis, FlexEnvelopeLogical);
 
   //create the flex layers inside the flex envelope
-  double flex_height(0); 
+  double flex_start_height(-flex_thickness/2.); 
   int index = 0;
   for(xml_coll_t flex_i(x_flex,_U(slice)); flex_i; ++flex_i){
     xml_comp_t x_flex_slice(flex_i);
@@ -197,15 +197,16 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
     double x_flex_slice_width = x_flex_slice.attr<double>(_Unicode(width));
     double x_flex_slice_length = x_flex_slice.attr<double>(_Unicode(length));
     Material x_flex_slice_mat = theDetector.material(x_flex_slice.attr<string>(_Unicode(mat)));
-    flex_height += x_flex_slice_thickness;
     Box FlexLayerSolid(x_flex_slice_thickness/2.0, x_flex_slice_width/2.0, x_flex_slice_length/2.0);
     Volume FlexLayerLogical(name + dd4hep::_toString( layer_id, "_FlexLayerLogical_%02d") + dd4hep::_toString( index, "index_%02d"), FlexLayerSolid, x_flex_slice_mat);
     FlexLayerLogical.setVisAttributes(theDetector.visAttributes(flexVis));
-    pv = FlexEnvelopeLogical.placeVolume(FlexLayerLogical, Position(flex_height/2.0, 0., 0.));
+    double flex_slice_height = flex_start_height + x_flex_slice_thickness/2.;
+    pv = FlexEnvelopeLogical.placeVolume(FlexLayerLogical, Position(flex_slice_height, 0., 0.));
     std::cout << "flex thickness = " << x_flex_slice_thickness << std::endl;
     std::cout << "flex width = " << x_flex_slice_width << std::endl;
     std::cout << "flex length = " << x_flex_slice_length << std::endl;
     // std::cout << "flex material: " << x_flex_slice_mat << std::endl;
+    flex_start_height += x_flex_slice_thickness;
     index++;
   }
 
@@ -301,8 +302,8 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
 	  dd4hep::rec::Vector3D v( 0., 1., 0.);
 	  dd4hep::rec::Vector3D n( 1., 0., 0.);
     double inner_thick_top = sensor_thickness/2.0;
-    double outer_thick_top = support_height/2.0 + flex_height + sensor_thickness/2.0;
-    double inner_thick_bottom = support_height/2.0 + flex_height + sensor_thickness/2.0;
+    double outer_thick_top = support_height/2.0 + flex_thickness + sensor_thickness/2.0;
+    double inner_thick_bottom = support_height/2.0 + flex_thickness + sensor_thickness/2.0;
     double outer_thick_bottom = sensor_thickness/2.0;
     dd4hep::rec::VolPlane surfTop( SensorLogical ,
                                 dd4hep::rec::SurfaceType(dd4hep::rec::SurfaceType::Sensitive),

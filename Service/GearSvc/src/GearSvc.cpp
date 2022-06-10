@@ -86,9 +86,6 @@ StatusCode GearSvc::initialize()
       else if(it->first=="VXD"){
 	sc = convertVXD(sub);
       }
-      else if(it->first=="VXDskew"){
-	sc = convertVXDskew(sub);
-      }
       else if(it->first=="FTD"){
         sc = convertFTD(sub);
       }
@@ -209,9 +206,9 @@ StatusCode GearSvc::convertVXD(dd4hep::DetElement& vxd){
   double phi0=0;
   helpLayer thisLadder;
   double beryllium_ladder_block_length=0,end_electronics_half_z=0,side_band_electronics_width=0;
-  double rAlu=0, drAlu, rSty, drSty, dzSty, rInner, aluEndcapZ, aluHalfZ, alu_RadLen, Cryostat_dEdx;
-  double VXDSupportDensity, VXDSupportZeff, VXDSupportAeff, VXDSupportRadLen, VXDSupportIntLen=0;
-  double styDensity, styZeff, styAeff, styRadLen, styIntLen; 
+  double rAlu=0, drAlu=0, rSty=0, drSty=0, dzSty=0, rInner=0, aluEndcapZ=0, aluHalfZ=0, alu_RadLen=0, Cryostat_dEdx=0;
+  double VXDSupportDensity=0, VXDSupportZeff=0, VXDSupportAeff=0, VXDSupportRadLen=0, VXDSupportIntLen=0;
+  double styDensity=0, styZeff=0, styAeff=0, styRadLen=0, styIntLen=0; 
   dd4hep::Volume vxd_vol = vxd.volume();
   for(int i=0;i<vxd_vol->GetNdaughters();i++){
     TGeoNode* daughter = vxd_vol->GetNode(i);
@@ -405,11 +402,11 @@ StatusCode GearSvc::convertVXD(dd4hep::DetElement& vxd){
 
       int nFlexCable = 0, nFoamSpacer=0, nMetalTraces=0;
       int currentLayer = -1;
-      double tFlexCable, tFoamSpacer, tMetalTraces;
-      double radLFlexCable, radLFoamSpacer, radLMetalTraces;
-      double intLFlexCable, intLFoamSpacer, intLMetalTraces;
-      double dFlexCable, dFoamSpacer, dMetalTraces;
-      double metalZeff, metalZAeff, foamZeff, foamZAeff, flexZeff, flexZAeff;
+      double tFlexCable=0, tFoamSpacer=0, tMetalTraces=0;
+      double radLFlexCable=0, radLFoamSpacer=0, radLMetalTraces=0;
+      double intLFlexCable=0, intLFoamSpacer=0, intLMetalTraces=0;
+      double dFlexCable=0, dFoamSpacer=0, dMetalTraces=0;
+      double metalZeff=0, metalZAeff=0, foamZeff=0, foamZAeff=0, flexZeff=0, flexZAeff=0;
       for(int i=0;i<vol->GetNdaughters();i++){
 	TGeoNode* daughter = vol->GetNode(i);
         TGeoMaterial* matDaughter = daughter->GetMedium()->GetMaterial();
@@ -603,52 +600,6 @@ StatusCode GearSvc::convertVXD(dd4hep::DetElement& vxd){
   info() << rAlu << " " << drAlu << " " << rInner << " " << aluEndcapZ << " " << aluHalfZ << endmsg;
   //info() << m_materials["VXDSupportMaterial"] << endmsg;
   return sc;
-}
-
-StatusCode GearSvc::convertVXDskew(dd4hep::DetElement& vxd){
-  dd4hep::rec::ZPlanarData* vxdskewData = nullptr;
-  try{
-    vxdskewData = vxd.extension<dd4hep::rec::ZPlanarData>();
-  }
-  catch(std::runtime_error& e){
-    warning() << e.what() << " " << vxdskewData << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  std::vector<dd4hep::rec::ZPlanarData::LayerLayout>& vxdlayers = vxdskewData->layers;
-  int nLayers = vxdlayers.size();
-  double strip_angle_deg = vxdskewData->angleStrip*rad_to_deg;
-  
-  gear::ZPlanarParametersImpl* vxdParams = new gear::ZPlanarParametersImpl(gear::ZPlanarParametersImpl::CMOS, 0.0, 0.0, 0.0, 0.0, 0.0);
-  // sitParams->setDoubleVal("strip_width_mm",  sitData->widthStrip*CLHEP::cm);
-  // sitParams->setDoubleVal("strip_length_mm", sitData->lengthStrip*CLHEP::cm);
-  // sitParams->setDoubleVal("strip_pitch_mm",  sitData->pitchStrip*CLHEP::cm);
-  // sitParams->setDoubleVal("strip_angle_deg", strip_angle_deg);
-  std::vector<int> n_sensors_per_ladder;
-  for( int layer=0; layer < nLayers; layer++){
-    dd4hep::rec::ZPlanarData::LayerLayout& layout = vxdlayers[layer];
-
-    int nLadders = layout.ladderNumber;
-    double phi0 = layout.phi0;
-    double supRMin = layout.distanceSupport*CLHEP::mm;
-    double supOffset = layout.offsetSupport*CLHEP::mm;
-    double supThickness = layout.thicknessSupport*CLHEP::mm;
-    double supHalfLength = layout.zHalfSupport*CLHEP::mm;
-    double supWidth = layout.widthSupport*CLHEP::mm;
-    double senRMin = layout.distanceSensitive*CLHEP::mm;
-    double senOffset = layout.offsetSensitive*CLHEP::mm;
-    double senThickness = layout.thicknessSensitive*CLHEP::mm;
-    double senHalfLength = layout.zHalfSensitive*CLHEP::mm;
-    double senWidth = layout.widthSensitive*CLHEP::mm;
-    int nSensorsPerLadder = layout.sensorsPerLadder;
-    double stripAngle = strip_angle_deg*CLHEP::degree;
-    n_sensors_per_ladder.push_back(nSensorsPerLadder);
-    vxdParams->addLayer(nLadders, phi0, supRMin, supOffset, supThickness, supHalfLength, supWidth, 0, senRMin, senOffset, senThickness, senHalfLength, senWidth, 0);
-  }
-  vxdParams->setIntVals("n_sensors_per_ladder",n_sensors_per_ladder);
-  m_gearMgr->setVXDParameters( vxdParams ) ;
-
-  return StatusCode::SUCCESS;
 }
 
 StatusCode GearSvc::convertFTD(dd4hep::DetElement& ftd){
