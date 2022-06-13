@@ -16,7 +16,7 @@ rndmgensvc = RndmGenSvc("RndmGenSvc")
 rndmgensvc.Engine = rndmengine.name()
 
 #geometry_option = "CRD_o1_v01/CRD_o1_v01.xml"
-geometry_option = "CRD_o1_v03/CRD_o1_v03.xml"
+geometry_option = "CRD_o1_v03/CRD_o1_v03-onlyVXD.xml"
 #...
 
 if not os.getenv("DETCRDROOT"):
