@@ -76,6 +76,14 @@ AnExampleDetElemTool::getLV() {
 
 void
 AnExampleDetElemTool::ConstructSDandField() {
+
+    // DEBUG ONLY: turn off all the SD.
+    if (not m_SD_enabled) {
+        warning() << "All the Sensitive Detectors will be disabled by default. " << endmsg;
+        return;
+    }
+
+
     //
     // Construct SD using DD4hep.
     // Refer to FCCSW/Detector/DetComponents/src/
