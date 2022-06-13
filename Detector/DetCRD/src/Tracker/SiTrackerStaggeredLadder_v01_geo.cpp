@@ -132,7 +132,15 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
    double support_thickness     = x_ladder_support.attr<double>(_Unicode(thickness));
    double support_height        = x_ladder_support.attr<double>(_Unicode(height));
    double support_width         = x_ladder_support.attr<double>(_Unicode(width));
-   Material support_mat         = theDetector.material(x_ladder_support.attr<string>(_Unicode(mat)));
+   Material support_mat;
+   if(x_ladder_support.hasAttr(_Unicode(mat)))
+   {
+     support_mat = theDetector.material(x_ladder_support.attr<string>(_Unicode(mat)));
+   }
+   else
+   {
+     support_mat = theDetector.material(x_ladder_support.materialStr());
+   }
    std::cout << "support_length: " << support_length/mm << " mm" << endl;
    std::cout << "support_thickness: " << support_thickness/mm << " mm" << endl;
    std::cout << "support_width: " << support_width/mm << " mm" << endl;
@@ -196,7 +204,16 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
     double x_flex_slice_thickness = x_flex_slice.attr<double>(_Unicode(thickness));
     double x_flex_slice_width = x_flex_slice.attr<double>(_Unicode(width));
     double x_flex_slice_length = x_flex_slice.attr<double>(_Unicode(length));
-    Material x_flex_slice_mat = theDetector.material(x_flex_slice.attr<string>(_Unicode(mat)));
+    Material x_flex_slice_mat;
+    if(x_flex_slice.hasAttr(_Unicode(mat)))
+    {
+      x_flex_slice_mat = theDetector.material(x_flex_slice.attr<string>(_Unicode(mat)));
+    }
+    else
+    {
+      x_flex_slice_mat = theDetector.material(x_flex_slice.materialStr());
+    }
+    // Material x_flex_slice_mat = theDetector.material(x_flex_slice.attr<string>(_Unicode(mat)));
     Box FlexLayerSolid(x_flex_slice_thickness/2.0, x_flex_slice_width/2.0, x_flex_slice_length/2.0);
     Volume FlexLayerLogical(name + dd4hep::_toString( layer_id, "_FlexLayerLogical_%02d") + dd4hep::_toString( index, "index_%02d"), FlexLayerSolid, x_flex_slice_mat);
     FlexLayerLogical.setVisAttributes(theDetector.visAttributes(flexVis));
@@ -382,4 +399,4 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
  std::cout << "vxd done." << endl; 
   return vxd;
 }
-DECLARE_DETELEMENT(SiTrackerSkewBarrel_v01,create_element)
+DECLARE_DETELEMENT(SiTrackerStaggeredLadder_v01,create_element)

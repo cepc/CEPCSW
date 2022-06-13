@@ -21,7 +21,7 @@ gaudi_add_module(DetCRD
                          src/Calorimeter/RotatedCrystalCalorimeter_v01_geo.cpp
                          src/Other/CRDBeamPipe_v01_geo.cpp
                          src/Tracker/SiTrackerSkewRing_v01_geo.cpp
-                         src/Tracker/SiTrackerSkewBarrel_v01_geo.cpp
+                         src/Tracker/SiTrackerStaggeredLadder_v01_geo.cpp
 
 		 LINK ${DD4hep_COMPONENT_LIBRARIES}
 )
