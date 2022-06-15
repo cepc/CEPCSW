@@ -349,7 +349,7 @@ void Fitter::fit(){
   /**********************************************************************************************/
   /*       Create a TrackStateImpl from the helix values and use it to initalise the fit        */
   /**********************************************************************************************/
-  std::array<float,15> covMatrix;
+  decltype(edm4hep::TrackState::covMatrix) covMatrix;
   for (unsigned icov = 0; icov<covMatrix.size(); ++icov) {
     covMatrix[icov] = 0;
   }
