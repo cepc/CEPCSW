@@ -94,7 +94,7 @@ namespace MarlinTrk {
   
   int createTrackStateAtCaloFace( IMarlinTrack* marlinTrk, edm4hep::TrackState* track, edm4hep::TrackerHit trkhit, bool tanL_is_positive );
   
-  int createFinalisedLCIOTrack( IMarlinTrack* marlinTrk, std::vector<edm4hep::TrackerHit>& hit_list, edm4hep::MutableTrack* track, bool fit_backwards, const std::array<float,15>& initial_cov_for_prefit, float bfield_z, double maxChi2Increment){
+    int createFinalisedLCIOTrack( IMarlinTrack* marlinTrk, std::vector<edm4hep::TrackerHit>& hit_list, edm4hep::MutableTrack* track, bool fit_backwards, const decltype(edm4hep::TrackState::covMatrix)& initial_cov_for_prefit, float bfield_z, double maxChi2Increment){
     
     ///////////////////////////////////////////////////////
     // check inputs 
