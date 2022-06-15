@@ -27,9 +27,9 @@ inline edm4hep::TrackState getTrackStateAt(edm4hep::Track track, int location) {
     return edm4hep::TrackState();
 }
 
-inline std::array<float,15> getCovMatrix(const edm4hep::Track &track) {
+inline decltype(edm4hep::TrackState::covMatrix) getCovMatrix(const edm4hep::Track &track) {
   if(track.trackStates_size()>0) return track.getTrackStates(0).covMatrix;
-  std::array<float,15> dummy{};
+  decltype(edm4hep::TrackState::covMatrix) dummy{};
   return dummy;
 }
 inline float getTanLambda(const edm4hep::Track &track) {
