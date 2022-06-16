@@ -185,6 +185,7 @@ void Fitter::fitVXD(){
 				    helixTrack.getOmega(), 
 				    helixTrack.getZ0(), 
 				    helixTrack.getTanLambda(),
+				    0.f, // dummy value for time
 				    referencePoint,
 				    covMatrix};
   
@@ -366,6 +367,7 @@ void Fitter::fit(){
 				    helixTrack.getOmega(), 
 				    helixTrack.getZ0(), 
 				    helixTrack.getTanLambda(), 
+            0.f, // dummy value for time
 				    referencePoint,
 				    covMatrix};
   
