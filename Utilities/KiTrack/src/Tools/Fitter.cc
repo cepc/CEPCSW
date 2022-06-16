@@ -366,8 +366,8 @@ void Fitter::fit(){
 				    helixTrack.getPhi0(), 
 				    helixTrack.getOmega(), 
 				    helixTrack.getZ0(), 
-				    helixTrack.getTanLambda(), 
-            0.f, // dummy value for time
+				    helixTrack.getTanLambda(),
+				    0.f, // dummy value for time
 				    referencePoint,
 				    covMatrix};
   
