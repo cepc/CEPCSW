@@ -207,8 +207,8 @@ StatusCode TruthTrackerAlg::execute()
         trackState.Z0=helix.getZ0();
         trackState.tanLambda=helix.getTanLambda();
         trackState.referencePoint=helix.getReferencePoint();
-        std::array<float,15> covMatrix;
-        for(int i=0;i<15;i++){covMatrix[i]=999.;}//FIXME
+        decltype(trackState.covMatrix) covMatrix;
+        for(int i=0;i<covMatrix.size();i++){covMatrix[i]=999.;}//FIXME
         trackState.covMatrix=covMatrix;
         dcTrack.addToTrackStates(trackState);
         //dcTrack.setType();//TODO

@@ -1361,7 +1361,7 @@ start:
 				tsBase.Z0 = 0;
 				tsBase.tanLambda = 0;
 				tsBase.referencePoint = edm4hep::Vector3f(0,0,0);
-				tsBase.covMatrix = std::array<float, 15>{};
+				tsBase.covMatrix = decltype(edm4hep::TrackState::covMatrix){};
 				edm4hep::TrackState tsIP(tsBase);
 				edm4hep::TrackState tsFH(tsBase);
 				edm4hep::TrackState tsLH(tsBase);

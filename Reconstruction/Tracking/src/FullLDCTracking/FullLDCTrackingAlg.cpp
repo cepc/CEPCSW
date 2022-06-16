@@ -288,7 +288,7 @@ void FullLDCTrackingAlg::AddTrackColToEvt(TrackExtendedVec & trkVec, edm4hep::Tr
     edm4hep::MutableTrack track;// = new edm4hep::Track;
     
     // setup initial dummy covariance matrix
-    std::array<float,15> covMatrix;
+    decltype(edm4hep::TrackState::covMatrix) covMatrix;
     
     for (unsigned icov = 0; icov<covMatrix.size(); ++icov) {
       covMatrix[icov] = 0;
@@ -1115,9 +1115,10 @@ void FullLDCTrackingAlg::prepareVectors() {
       //param[3] = getD0(tpcTrack);
       //param[4] = getZ0(tpcTrack);
       
-      std::array<float, 15> Cov = getCovMatrix(tpcTrack);
+      auto Cov = getCovMatrix(tpcTrack);
       int NC = int(Cov.size());
       for (int ic=0;ic<NC;ic++) {
+        if (ic>=(sizeof(cov)/sizeof(float))) break;
         cov[ic] =  Cov[ic];
       }
       
@@ -1179,9 +1180,10 @@ void FullLDCTrackingAlg::prepareVectors() {
       //param[3] = getD0(siTrack);
       //param[4] = getZ0(siTrack);
             
-      std::array<float, 15> Cov = getCovMatrix(siTrack);
+      auto Cov = getCovMatrix(siTrack);
       int NC = int(Cov.size());
       for (int ic=0;ic<NC;ic++) {
+        if (ic>=(sizeof(cov)/sizeof(float))) break;
         cov[ic] =  Cov[ic];
       }
       trackExt->setCovMatrix(cov);
@@ -1571,7 +1573,7 @@ TrackExtended * FullLDCTrackingAlg::CombineTracks(TrackExtended * tpcTrack, Trac
   }
   
   // setup initial dummy covariance matrix
-  std::array<float,15> covMatrix;
+  decltype(edm4hep::TrackState::covMatrix) covMatrix;
   
   for (unsigned icov = 0; icov<covMatrix.size(); ++icov) {
     covMatrix[icov] = 0;
@@ -3628,7 +3630,7 @@ void FullLDCTrackingAlg::AssignOuterHitsToTracks(TrackerHitExtendedVec hitVec, f
           
           pre_fit.location = 1/*lcio::TrackState::AtIP*/;
           // setup initial dummy covariance matrix
-          std::array<float,15> covMatrix;
+          decltype(edm4hep::TrackState::covMatrix) covMatrix;
           
           for (unsigned icov = 0; icov<covMatrix.size(); ++icov) {
             covMatrix[icov] = 0;
@@ -4134,7 +4136,7 @@ void FullLDCTrackingAlg::AssignSiHitsToTracks(TrackerHitExtendedVec hitVec,
         pre_fit.location = 1/*lcio::TrackState::AtIP*/;
         
         // setup initial dummy covariance matrix
-        std::array<float,15> covMatrix;
+        decltype(edm4hep::TrackState::covMatrix) covMatrix;
 
         for (unsigned icov = 0; icov<covMatrix.size(); ++icov) {
           covMatrix[icov] = 0;

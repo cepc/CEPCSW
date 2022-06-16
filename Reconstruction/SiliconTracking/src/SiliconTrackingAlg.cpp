@@ -2698,7 +2698,7 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
       // setup initial dummy covariance matrix
       //std::vector<float> covMatrix;
       //covMatrix.resize(15);
-      std::array<float,15> covMatrix;
+      decltype(edm4hep::TrackState::covMatrix) covMatrix;
 
       for (unsigned icov = 0; icov<covMatrix.size(); ++icov) {
         covMatrix[icov] = 0;

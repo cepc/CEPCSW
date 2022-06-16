@@ -376,7 +376,7 @@ namespace MarlinTrk {
                         bfield_z );
     
     TMatrixD cov(5,5) ;   
-    std::array<float, 15> covLCIO = ts.covMatrix;
+    auto covLCIO = ts.covMatrix;
     
     cov( 0 , 0 ) =   covLCIO[ 0] ;                   //   d0, d0
     cov( 0 , 1 ) = - covLCIO[ 1] ;                   //   d0, phi
@@ -1599,7 +1599,7 @@ namespace MarlinTrk {
     Double_t cpa  = helix.GetKappa();
     double alpha = omega / cpa  ; // conversion factor for omega (1/R) to kappa (1/Pt) 
     
-    std::array<float, 15> covLCIO; 
+    decltype(ts.covMatrix) covLCIO; 
     covLCIO[ 0] =   covK( 0 , 0 )   ; //   d0,   d0
     
     covLCIO[ 1] = - covK( 1 , 0 )   ; //   phi0, d0
