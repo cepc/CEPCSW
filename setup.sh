@@ -49,7 +49,7 @@ function setup-external() {
 # CEPCSW_LCG_VERSION=${1}; shift
 
 if [ -z "$CEPCSW_LCG_VERSION" ]; then
-    CEPCSW_LCG_VERSION=101.0.0
+    CEPCSW_LCG_VERSION=101.0.1
 fi
 export CEPCSW_LCG_VERSION
 
