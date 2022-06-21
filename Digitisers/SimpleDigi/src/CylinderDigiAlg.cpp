@@ -91,7 +91,6 @@ StatusCode CylinderDigiAlg::execute(){
     trkHit.setCellID(cellId);
     trkHit.setTime(simhit.getTime());
     trkHit.setEDep(simhit.getEDep());
-    trkHit.setEdx (simhit.getEDep()/simhit.getPathLength());
     trkHit.setPosition (edm4hep::Vector3d(smearedX, smearedY, smearedZ));
     trkHit.setCovMatrix(std::array<float, 6>{m_resRPhi*m_resRPhi/2, 0, m_resRPhi*m_resRPhi/2, 0, 0, m_resZ*m_resZ});
     //trkHit.setType(CEPC::CYLINDER);
