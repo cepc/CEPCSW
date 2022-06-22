@@ -23,6 +23,7 @@ public:
     virtual void Initialize(G4HCofThisEvent* HCE);
     virtual G4bool ProcessHits(G4Step* step,G4TouchableHistory* history);
     virtual void EndOfEvent(G4HCofThisEvent* HCE);
+    void ApplyBirksLaw(){m_applyBirksLaw = true;};
 
 protected:
     CalorimeterHit* find(const HitCollection*, const dd4hep::sim::HitCompare<CalorimeterHit>&);
