@@ -35,7 +35,6 @@ private:
     SmartIF<IGeomSvc> m_geosvc;
     ToolHandle<IDedxSimTool> m_dedx_simtool;
     Gaudi::Property<std::string> m_dedx_sim_option{this, "DedxSimTool"};
-    Gaudi::Property<int>         m_sdTypeOption{this, "TypeOption", 0};
 
 };
 

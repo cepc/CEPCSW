@@ -39,12 +39,13 @@ DriftChamberSensDetTool::createSD(const std::string& name) {
     G4VSensitiveDetector* sd = nullptr;
 
     if (name == "DriftChamber") {
-      if(m_sdTypeOption==0){
+      auto sens = dd4hep_geo->sensitiveDetector(name);
+      if(!sens.combineHits()){
 	DriftChamberSensitiveDetector* dcsd = new DriftChamberSensitiveDetector(name, *dd4hep_geo);
 	dcsd->setDedxSimTool(m_dedx_simtool);
 	sd = dcsd;
       }
-      else if(m_sdTypeOption==1){
+      else{
 	sd = new TrackerCombineSensitiveDetector(name, *dd4hep_geo);
       }
     }
