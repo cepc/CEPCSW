@@ -42,8 +42,12 @@ CalorimeterSensDetTool::createSD(const std::string& name) {
 	break;
       }
     }
-    G4VSensitiveDetector* sd = new CaloSensitiveDetector(name, *dd4hep_geo, is_merge_enabled);
+    CaloSensitiveDetector* sd = new CaloSensitiveDetector(name, *dd4hep_geo, is_merge_enabled);
     debug() << name << " set to merge true/false = " << is_merge_enabled << endmsg;
+
+    auto sens = dd4hep_geo->sensitiveDetector(name);
+    std::string typ = sens.type();
+    if(typ=="scintillator"&&m_applyBirksLaw) sd->ApplyBirksLaw();
 
     return sd;
 }
