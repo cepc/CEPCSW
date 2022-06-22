@@ -231,6 +231,10 @@ static dd4hep::Ref_t create_detector(Detector& description, xml_h e, SensitiveDe
     if(x_layer.isSensitive()) chamber_id++;
   }
 
+  if ( x_det.hasAttr(_U(combineHits)) ) {
+    tracker.setCombineHits(x_det.attr<bool>(_U(combineHits)),sens);
+  }
+
   FixedPadSizeTPCData* dcData = new FixedPadSizeTPCData;
   dcData->zHalf = halflength_chamber+thickness_side;
   dcData->rMin = rmin_chamber-thickness_inner;
