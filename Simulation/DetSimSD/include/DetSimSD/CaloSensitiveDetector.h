@@ -32,8 +32,8 @@ protected:
 
     HitCollection* m_hc;
     std::map<unsigned long, CalorimeterHit*> m_hitMap;
-    bool                                     m_isMergeEnabled;
-    bool                                     m_applyBirksLaw = false;
+    bool                                     m_isMergeEnabled = false;
+    bool                                     m_applyBirksLaw  = false;
 };
 
 

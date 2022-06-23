@@ -22,7 +22,6 @@
           <shape type="Tube" rmin="Ecal_barrel_inner_radius" rmax="Ecal_barrel_outer_radius_redef" dz="Ecal_barrel_half_length" material="Air"/>
 	<!--/shape-->
       </envelope>
-      <sensitive type="scintillator"/>
       <dimensions rmin="Ecal_barrel_inner_radius" rmax="Ecal_barrel_outer_radius_redef" zhalf="Ecal_barrel_half_length_correct" alpha="Ecal_crystal_rotate_angle" nphi="1368" nz="numberZ" gap="0"/>
       <crystal material="G4_BGO" vis="ECALVis"/>
     </detector>

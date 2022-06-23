@@ -101,7 +101,7 @@ AnExampleDetElemTool::ConstructSDandField() {
 
         // try to use SD tool to find the SD
         if (!g4sd) {
-            if (typ=="calorimeter" || typ=="scintillator") {
+            if (typ=="calorimeter") {
                 m_calo_sdtool = ToolHandle<ISensDetTool>("CalorimeterSensDetTool");
                 if (m_calo_sdtool) {
                     info() << "Find the CalorimeterSensDetTool." << endmsg;

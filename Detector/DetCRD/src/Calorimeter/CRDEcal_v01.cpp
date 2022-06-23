@@ -183,8 +183,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
   	 sd.setPlacement(plv);
   }
 
-  xml_dim_t sd_typ = x_det.child(_U(sensitive));
-  sens.setType(sd_typ.typeStr());
+  sens.setType("calorimeter");
   ECAL.addExtension< LayeredCalorimeterData >( caloData ) ; 
 
   MYDEBUG("create_detector DONE. ");
