@@ -88,6 +88,10 @@ detsimalg.AnaElems = [
 ]
 detsimalg.RootDetElem = "WorldDetElemTool"
 
+from Configurables import CalorimeterSensDetTool
+cal_sensdettool = CalorimeterSensDetTool("CalorimeterSensDetTool")
+cal_sensdettool.CalNamesApplyBirks = ["EcalBarrel"]
+
 # output
 from Configurables import PodioOutput
 out = PodioOutput("outputalg")

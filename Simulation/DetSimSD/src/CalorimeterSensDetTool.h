@@ -30,6 +30,7 @@ private:
     SmartIF<IGeomSvc> m_geosvc;
 
     Gaudi::Property<std::vector<std::string> > m_listCalsMergeDisable{this, "CalNamesMergeDisable", {}};
+    Gaudi::Property<std::vector<std::string> > m_listCalsApplyBirks{this, "CalNamesApplyBirks", {}};
 };
 
 #endif
