@@ -2,12 +2,10 @@
 // CepC BeamPipe models in DD4hep 
 //--------------------------------------------------------------------
 #include "OtherDetectorHelpers.h"
-#include "TGeoScaledShape.h"
 
 #include "DD4hep/DetFactoryHelper.h"
 #include "DD4hep/DD4hepUnits.h"
 #include "DD4hep/DetType.h"
-#include "DD4hep/detail/Handle.inl"
 #include "DDRec/DetectorData.h"
 #include "DDRec/Surface.h"
 #include "XML/Utilities.h"
@@ -28,8 +26,7 @@ using dd4hep::rec::ConicalSupportData;
 using dd4hep::rec::SurfaceType;
 using dd4hep::rec::Vector3D;
 using dd4hep::rec::VolCylinder;
-using dd4hep::rec::VolCylinderImpl;
-using dd4hep::rec::VolSurface;
+using dd4hep::rec::VolCone;
 using dd4hep::rec::volSurfaceList;
 
 //BeamPipe
@@ -62,7 +59,7 @@ static Ref_t create_detector(Detector& theDetector,
   dd4hep::xml::Component xmlParameter = x_beampipe.child(_Unicode(parameter));
   const double crossingAngle  = xmlParameter.attr< double >(_Unicode(crossingangle));
   std::cout << "Crossing angle = " << crossingAngle << std::endl;
-
+  std::cout << "Section:                           Zstart  Zend    RiStart RiEnd   size    shift   type" << std::endl;
   for(xml_coll_t si( x_beampipe ,Unicode("section")); si; ++si) {
     xml_comp_t x_section(si);
     
@@ -78,7 +75,7 @@ static Ref_t create_detector(Detector& theDetector,
     catch(std::runtime_error& e){
       rInnerEnd = rInnerStart;
     }
-    if(type==CEPC::kWaist || type==CEPC::kFatWaist || type==CEPC::kCrotch || type==CEPC::kCrotchAsymUp || type==CEPC::kCrotchAsymDn){
+    if(type==CEPC::kWaist || type==CEPC::kFatWaist || type==CEPC::kCrotch || type==CEPC::kCrotchAsymUp || type==CEPC::kCrotchAsymDn || type==CEPC::kRunway){
       try{
 	size = x_section.attr< double > (_Unicode(size));
       }
@@ -94,15 +91,15 @@ static Ref_t create_detector(Detector& theDetector,
     }
     
     const std::string volName      = "BeamPipe_" + x_section.nameStr();
-
-    std::cout << "section: "
+    std::cout << std::setiosflags(std::ios::left)
+	      << std::setw(35) << volName
 	      << std::setw(8) << zstart      /dd4hep::mm
 	      << std::setw(8) << zend	     /dd4hep::mm
 	      << std::setw(8) << rInnerStart /dd4hep::mm
 	      << std::setw(8) << rInnerEnd   /dd4hep::mm
 	      << std::setw(8) << size        /dd4hep::mm
+	      << std::setw(8) << shift       /dd4hep::mm
 	      << std::setw(8) << type
-	      << std::setw(35) << volName
 	      << std::endl;    
 
     const double angle   = crossingAngle;
@@ -149,7 +146,7 @@ static Ref_t create_detector(Detector& theDetector,
       catch(std::runtime_error& e){
 	thicknessEnd = thickness;
       }
-      std::cout << "  layer: " << std::setw(8) << thickness/dd4hep::mm << std::setw(8) << thicknessEnd/dd4hep::mm << std::setw(15) << material.name() << std::endl;
+      std::cout << "->layer: " << std::setw(6) << thickness/dd4hep::mm << std::setw(6) << thicknessEnd/dd4hep::mm << std::setw(15) << material.name() << std::endl;
       
       char suffix[20];
       sprintf(suffix,"_%d",ilayer);
@@ -157,13 +154,11 @@ static Ref_t create_detector(Detector& theDetector,
       if(type==CEPC::kCenter || type==CEPC::kCenterSide){
 	dd4hep::ConeSegment subLayer(zHalf, radius, radius+thickness, radiusEnd, radiusEnd+thicknessEnd, phi0, dPhi);
 	dd4hep::Volume subLayerLog(volName, subLayer, material);
+	subLayerLog.setVisAttributes(theDetector, x_layer.visStr());
 	dd4hep::Transform3D transformer(dd4hep::RotationY(0), dd4hep::Position(0, 0, zCenter));
 	dd4hep::Transform3D transmirror(dd4hep::RotationY(180*dd4hep::degree), dd4hep::RotateY(dd4hep::Position(0, 0, zCenter), 180*dd4hep::degree));
 	envelope.placeVolume(subLayerLog,  transformer);
 	envelope.placeVolume(subLayerLog,  transmirror);
-	std::cout << "fucd debug: radL = " << material.radLength()/dd4hep::mm << " intL = " << material.intLength()/dd4hep::mm << std::endl; 
-	if(material.radLength()<10000*dd4hep::mm) subLayerLog.setVisAttributes(theDetector, "TubeVis");
-	else                                      subLayerLog.setVisAttributes(theDetector, "VacVis");
 	
         if(material.radLength()<10000*dd4hep::mm){
           double tEff    = thickness/material.radLength()*theDetector.material("G4_Be").radLength();
@@ -174,14 +169,30 @@ static Ref_t create_detector(Detector& theDetector,
 	  pipeThicknessEnd    += tEffEnd;
 	  pipeThicknessRel    += thickness;
 	  pipeThicknessRelEnd += thicknessEnd;
+
+	  // only the center pipe and the link are added to surface list for tracking
+	  /* have been added through envelope
+	  if(radius==radiusEnd&&thickness==thicknessEnd){
+	    Vector3D ocyl(radius+0.5*thickness, 0., 0.);
+	    VolCylinder surf(subLayerLog, SurfaceType(SurfaceType::Helper), 0.5*thickness, 0.5*thickness, ocyl ) ;
+	    volSurfaceList(tube)->push_back(surf);
+	  }
+	  else{
+	    Vector3D ocon(radius+0.5*thickness, 0., 0.);
+	    Vector3D con_angle(1., 0., atan((radiusEnd+0.5*thicknessEnd-radius-0.5*thickness)/(2.*zHalf)), Vector3D::spherical);
+	    VolCone surf(subLayerLog, SurfaceType(SurfaceType::Helper), 0.5*(thickness+thicknessEnd)/2, 0.5*(thickness+thicknessEnd)/2, con_angle, ocon);
+	    volSurfaceList(tube)->push_back(surf);
+	  }
+	  */
 	}
       }
-      else if(type==CEPC::kLegs){
+      else if(type==CEPC::kLegs){ // doubly pipe, same for up and down
         double clipAngle = 0.5*angle;
         double lowNorml[3]  = { sin(clipAngle), 0, -cos(clipAngle)};
         double highNorml[3] = {-sin(clipAngle), 0,  cos(clipAngle)};
 	dd4hep::CutTube subLayer(radius, radius+thickness, zHalf/cos(clipAngle), phi0, dPhi, lowNorml[0], lowNorml[1], lowNorml[2], highNorml[0], highNorml[1], highNorml[2]);
 	dd4hep::Volume subLayerLog(volName, subLayer, material);
+	subLayerLog.setVisAttributes(theDetector, x_layer.visStr());
 	dd4hep::Transform3D plusUpTransformer(dd4hep::RotationY(clipAngle), dd4hep::RotateY(dd4hep::Position(0,0,zCenter/cos(clipAngle)), clipAngle));
 	dd4hep::Transform3D plusDownTransformer(dd4hep::RotationZYX(180*dd4hep::degree, -clipAngle, 0), dd4hep::RotateY(dd4hep::Position(0,0,zCenter/cos(clipAngle)), -clipAngle));
 	dd4hep::Transform3D minusUpTransformer(dd4hep::RotationY(clipAngle), dd4hep::RotateY(dd4hep::Position(0,0,-zCenter/cos(clipAngle)), clipAngle));
@@ -190,11 +201,8 @@ static Ref_t create_detector(Detector& theDetector,
         envelope.placeVolume(subLayerLog, plusDownTransformer);
 	envelope.placeVolume(subLayerLog, minusUpTransformer);
 	envelope.placeVolume(subLayerLog, minusDownTransformer);
-
-	if(material.radLength()<10000*dd4hep::mm) subLayerLog.setVisAttributes(theDetector, "TubeVis");
-        else                                      subLayerLog.setVisAttributes(theDetector, "VacVis");
       }
-      else if(type==CEPC::kFlareLegUp || type==CEPC::kFlareLegDn){
+      else if(type==CEPC::kFlareLegUp || type==CEPC::kFlareLegDn){ // doubly pipe, different for up and down
         double clipAngle = (type==CEPC::kFlareLegUp)?0.5*angle:-0.5*angle;
         double rOuter = radius+thickness;
         double rOuterEnd = radiusEnd+thicknessEnd;
@@ -205,14 +213,12 @@ static Ref_t create_detector(Detector& theDetector,
 	dd4hep::ConeSegment wholeSolid(zHalf + clipSize, radius, rOuter, radiusEnd, rOuterEnd, phi0, dPhi);
 	dd4hep::IntersectionSolid layerSolid(wholeSolid, clipSolid, clipTransformer);
 	dd4hep::Volume subLayerLog(volName, layerSolid, material);
+	subLayerLog.setVisAttributes(theDetector, x_layer.visStr());
 
         envelope.placeVolume(subLayerLog, placementTransformer);
         envelope.placeVolume(subLayerLog, placementTransmirror);
-	
-	if(material.radLength()<10000*dd4hep::mm) subLayerLog.setVisAttributes(theDetector, "TubeVis");
-        else                                      subLayerLog.setVisAttributes(theDetector, "VacVis");
       }
-      else if(type==CEPC::kCrotch){
+      else if(type==CEPC::kCrotch){ // runway to doubly, center has obstruct between two pipes 
         double beamAngle = 0.5*angle;
         if(size==0) size = (zstart*tan(beamAngle)+radius)*2;
 	double x1 = 0.5*size - radius;
@@ -235,6 +241,7 @@ static Ref_t create_detector(Detector& theDetector,
 	dd4hep::UnionSolid tmp2Solid(tmp1Solid, side1, unionTransformer2);
 	dd4hep::IntersectionSolid shell(tmp2Solid, cut1, sameTransformer);
 	dd4hep::Volume shellLog(volName+"Shell", shell, material);
+	shellLog.setVisAttributes(theDetector, x_layer.visStr());
 	envelope.placeVolume(shellLog, dd4hep::Position(0, 0, zCenter));
 	envelope.placeVolume(shellLog, dd4hep::Transform3D(dd4hep::RotationY(180*dd4hep::degree), dd4hep::Position(0, 0, -zCenter)));
 
@@ -254,12 +261,10 @@ static Ref_t create_detector(Detector& theDetector,
 	dd4hep::UnionSolid tmp7Solid(tmp6Solid, side3, unionTransformer4);
 	dd4hep::IntersectionSolid vacuumPipe(tmp7Solid, cut1, sameTransformer);
 	dd4hep::Volume pipeLog(volName+"Vacuum", vacuumPipe, beamMaterial);
+	pipeLog.setVisAttributes(theDetector, x_beampipe.visStr());
         shellLog.placeVolume(pipeLog, dd4hep::Position(0, 0, 0));
-	
-	shellLog.setVisAttributes(theDetector, "TubeVis");
-        pipeLog.setVisAttributes(theDetector, "VacVis");
       }
-      else if(type==CEPC::kCrotchAsymUp || type==CEPC::kCrotchAsymDn){
+      else if(type==CEPC::kCrotchAsymUp || type==CEPC::kCrotchAsymDn){ // runway to doubly, center has obstruct between two pipes, and different between up and down
 	double beamAngle = 0.5*angle;
         double xC2 = (shift==0)?zend*tan(beamAngle):shift;
         if(radiusEnd==0) radiusEnd = radius;
@@ -301,11 +306,8 @@ static Ref_t create_detector(Detector& theDetector,
         double thetaCut1 = atan((0.5*(xC2+rOuterEnd)-0.5*rOuter)/(2*zHalf));
         double xcenterCut1 = 0.5*(0.5*(xC2+rOuterEnd)+0.5*rOuter);
 	dd4hep::Trap cut1(zHalf, thetaCut1, 0, yMax, 0.5*rOuter, 0.5*rOuter, 0, rOuterEnd, 0.5*(xC2+rOuterEnd), 0.5*(xC2+rOuterEnd), 0);
-	TGeoCone* pCone1 = new TGeoCone(pzTopCut, 0, a1, 0, a2); 
-	//double factor = 
-        TGeoScale* pScale1 = new TGeoScale(1, b1/a1, 1);
-        TGeoScaledShape* pScaledShape1 = new TGeoScaledShape(pCone1, pScale1);
-	dd4hep::Solid_type<TGeoScaledShape> side1(pScaledShape1);
+	dd4hep::Cone cone1(pzTopCut, 0, a1, 0, a2);
+	dd4hep::Scale side1(cone1, 1, b1/a1, 1);
 
         double xshift = 0.5*(xMaxEnd-a2*cos(rotateAngle)-rOuter+a1*cos(bottomAngle-edge2ToXAngle));
         double zshift = 0.5*(a2-a1)*sin(rotateAngle);
@@ -314,6 +316,7 @@ static Ref_t create_detector(Detector& theDetector,
 	dd4hep::UnionSolid tmp1Solid(body, side1, unionTransformer1);
 	dd4hep::IntersectionSolid shell(tmp1Solid, cut1, cutTransformer1);
 	dd4hep::Volume shellLog(volName, shell, material);
+	shellLog.setVisAttributes(theDetector, x_layer.visStr());
 	if(type==CEPC::kCrotchAsymUp){
           envelope.placeVolume(shellLog, dd4hep::Position(0, 0, zCenter));
           envelope.placeVolume(shellLog, dd4hep::Transform3D(dd4hep::RotationX(180*dd4hep::degree), dd4hep::Position(0, 0, -zCenter)));
@@ -353,21 +356,17 @@ static Ref_t create_detector(Detector& theDetector,
         double thetaCut2 = atan((xC2-0.5*radius)/(2*zHalf));
         double xcenterCut2 = 0.5*radius+0.5*(xC2-0.5*radius);
 	dd4hep::Trap cut2(zHalf, thetaCut2, 0, yMax-thickness, 0.5*radius, 0.5*radius, 0, radiusEnd, radiusEnd, radiusEnd, 0);
-	TGeoCone* pCone2 = new TGeoCone(pzTopCutHole, 0, a1Hole, 0, a2Hole);
-        TGeoScale* pScale2 = new TGeoScale(1, b1Hole/a1Hole, 1);
-        TGeoScaledShape* pScaledShape2 = new TGeoScaledShape(pCone2, pScale2);
-	dd4hep::Solid_type<TGeoScaledShape> side2(pScaledShape2);
+	dd4hep::Cone cone2(pzTopCutHole, 0, a1Hole, 0, a2Hole);
+	dd4hep::Scale side2(cone2, 1, b1Hole/a1Hole, 1);
         double xshiftHole = 0.5*(xMaxEnd-thicknessEnd-a2Hole*cos(rotate)-radius+a1Hole*cos(bottom-edge2ToX));
         double zshiftHole = 0.5*(a2Hole-a1Hole)*sin(rotate);
 	dd4hep::Transform3D cutTransformer2(dd4hep::RotationY(rotate), dd4hep::Position(xshiftHole-xcenterCut2, 0, zshiftHole));
 	dd4hep::IntersectionSolid vacuumPipe(cut2, side2, cutTransformer2);
 	dd4hep::Volume pipeLog(volName, vacuumPipe, beamMaterial);
+	pipeLog.setVisAttributes(theDetector, x_beampipe.visStr());
         shellLog.placeVolume(pipeLog, dd4hep::Position(xcenterCut2, 0, 0));
-	
-	shellLog.setVisAttributes(theDetector, "TubeVis");
-	pipeLog.setVisAttributes(theDetector, "VacVis");
       }
-      else if(type==CEPC::kWaist){
+      else if(type==CEPC::kWaist){ // expanded single pipe from circle to runway (each turn: 180 degree)
         double beamAngle = 0.5*angle;
         if(radiusEnd==0) radiusEnd = radius;
         if(size==0) size = (zend*tan(beamAngle)+radiusEnd)*2;
@@ -379,37 +378,42 @@ static Ref_t create_detector(Detector& theDetector,
 	dd4hep::Trd2 body1(0, xC2, rOuter, rOuterEnd, zHalf);
 	dd4hep::Trd2 cut(rOuter, rMaxEnd, rOuter, rOuterEnd, zHalf);
 
-        double expandAngle = atan(xC2/(2*zHalf));
-        double edge1ToZAngle = atan((rMaxEnd-rOuter)/(2*zHalf));
-        double edge2ToZAngle = atan((xC2-rOuterEnd+rOuter)/(2*zHalf));
-        double edge2ToXAngle = 90*dd4hep::degree - edge2ToZAngle;
-        double bottomAngle = 0.5*(180*dd4hep::degree-(edge2ToZAngle-edge1ToZAngle));
-        double rotateAngle = 0.5*(edge1ToZAngle+edge2ToZAngle);
-        double edge1ToCAngle = asin(sin(90*dd4hep::degree+edge1ToZAngle)/(xC2/sin(expandAngle))*(rOuter-rOuterEnd));
-        double CToEConeAxisAngle = edge1ToCAngle-0.5*(edge2ToZAngle-edge1ToZAngle);
-        if(fabs(rotateAngle-(expandAngle-CToEConeAxisAngle))>1e-12){
+	double pzTopCut = zHalf;
+	double expandAngle = atan(xC2/(2*zHalf));
+	double edge1ToZAngle = atan((rMaxEnd-rOuter)/(2*zHalf));
+	double edge2ToZAngle = atan((xC2-rOuterEnd+rOuter)/(2*zHalf));
+	double edge2ToXAngle = 90*dd4hep::degree - edge2ToZAngle;
+	double bottomAngle = 0.5*(180*dd4hep::degree-(edge2ToZAngle-edge1ToZAngle));
+	double rotateAngle = 0.5*(edge1ToZAngle+edge2ToZAngle);
+	double edge1ToCAngle = asin(sin(90*dd4hep::degree+edge1ToZAngle)/(xC2/sin(expandAngle))*(rOuter-rOuterEnd));
+	double CToEConeAxisAngle = edge1ToCAngle-0.5*(edge2ToZAngle-edge1ToZAngle);
+	std::cout << expandAngle/dd4hep::degree << " " << edge1ToZAngle/dd4hep::degree << " " << edge2ToZAngle/dd4hep::degree << " " << bottomAngle/dd4hep::degree << " " << rotateAngle/dd4hep::degree << " " << edge1ToCAngle/dd4hep::degree << " " << CToEConeAxisAngle/dd4hep::degree << std::endl;
+	if(fabs(rotateAngle-(expandAngle-CToEConeAxisAngle))>1e-12){
 	  std::cout << "Warning! rotate angle was not calculated rightly. Please check input parameters whether satisfy the Waist case." << std::endl;
-        }
+	}
 	double a1 = rOuter/sin(bottomAngle)*sin(90*dd4hep::degree-edge1ToZAngle);
-        double a2 = rOuterEnd/sin(180*dd4hep::degree-bottomAngle)*sin(90*dd4hep::degree-edge2ToZAngle);
-        double zC1 = rOuter/sin(edge1ToCAngle)*sin(90*dd4hep::degree+edge1ToZAngle)*cos(CToEConeAxisAngle);
-        double zC2 = rOuterEnd/rOuter*zC1;
-        double zBottom = a1*tan(bottomAngle);
-        double aC1 = a1/zBottom*zC1;
-        double aC2 = a1/zBottom*zC2;
-        double xC1InECone = zC1*tan(CToEConeAxisAngle);
-        double xC2InECone = zC2*tan(CToEConeAxisAngle);
-        double bC1 = sqrt(rOuter*rOuter/(1-xC1InECone*xC1InECone/aC1/aC1));
-        double bC2 = sqrt(rOuterEnd*rOuterEnd/(1-xC2InECone*xC2InECone/aC2/aC2));
-        double b1 = bC1/zC1*zBottom;
-        if(fabs(bC1/zC1-bC2/zC2)>1e-12){
-	  std::cout << "Warning! bC1/zC1 not equal to bC2/zC2." << std::endl;
-        }
-        double pzTopCut = 0.5*(a1-a2)*tan(bottomAngle);
-	TGeoCone* pCone1 = new TGeoCone(pzTopCut, 0, a1, 0, a2);
-	TGeoScale* pScale1 = new TGeoScale(1, b1/a1, 1);
-	TGeoScaledShape* pScaledShape1 = new TGeoScaledShape(pCone1,pScale1);
-	dd4hep::Solid_type<TGeoScaledShape> side1(pScaledShape1);
+	double a2 = rOuterEnd/sin(180*dd4hep::degree-bottomAngle)*sin(90*dd4hep::degree-edge2ToZAngle);
+	double b1 = rOuter;
+	if(rOuter!=rOuterEnd){
+	  double zC1 = rOuter/sin(edge1ToCAngle)*sin(90*dd4hep::degree+edge1ToZAngle)*cos(CToEConeAxisAngle);
+	  double zC2 = rOuterEnd/rOuter*zC1;
+	  double zBottom = a1*tan(bottomAngle);
+	  double aC1 = a1/zBottom*zC1;
+	  double aC2 = a1/zBottom*zC2;
+	  double xC1InECone = zC1*tan(CToEConeAxisAngle);
+	  double xC2InECone = zC2*tan(CToEConeAxisAngle);
+	  double bC1 = sqrt(rOuter*rOuter/(1-xC1InECone*xC1InECone/aC1/aC1));
+	  double bC2 = sqrt(rOuterEnd*rOuterEnd/(1-xC2InECone*xC2InECone/aC2/aC2));
+	  b1 = bC1/zC1*zBottom;
+	  std::cout << a1 << " " << a2 << " " << zC1 << " " << zC2 << std::endl;
+	  if(fabs(bC1/zC1-bC2/zC2)>1e-12){
+	    std::cout << "Warning! bC1/zC1 not equal to bC2/zC2." << std::endl;
+	  }
+	  std::cout << "b1/a1=" << b1/a1 << std::endl;
+	  pzTopCut = 0.5*(a1-a2)*tan(bottomAngle);
+	}
+	dd4hep::Cone cone1(pzTopCut, 0, a1, 0, a2);
+	dd4hep::Scale side1(cone1, 1, b1/a1, 1);
 
 	double xshift = 0.5*(rMaxEnd-a2*cos(rotateAngle)-rOuter+a1*cos(bottomAngle-edge2ToXAngle));
         double zshift = 0.5*(a2-a1)*sin(rotateAngle);
@@ -420,9 +424,11 @@ static Ref_t create_detector(Detector& theDetector,
 	dd4hep::UnionSolid tmp2Solid(tmp1Solid, side1, unionTransformer2);
 	dd4hep::IntersectionSolid shell(tmp2Solid, cut, sameTransformer);
 	dd4hep::Volume shellLog(volName+"Shell", shell, material);
+	shellLog.setVisAttributes(theDetector, x_layer.visStr());
         envelope.placeVolume(shellLog, dd4hep::Position(0, 0, zCenter));
 	envelope.placeVolume(shellLog, dd4hep::Transform3D(dd4hep::RotationY(180*dd4hep::degree), dd4hep::Position(0, 0, -zCenter)));
-	
+
+	double pzTopCutHole = zHalf;
         double edge1ToZ = atan((0.5*size-radius)/(2*zHalf));
         double edge2ToZ = atan((xC2-radiusEnd+radius)/(2*zHalf));
         double edge2ToX = 90*dd4hep::degree - edge2ToZ;
@@ -435,26 +441,27 @@ static Ref_t create_detector(Detector& theDetector,
         }
 	double a1Hole = radius/sin(bottom)*sin(90*dd4hep::degree-edge1ToZ);
         double a2Hole = radiusEnd/sin(180*dd4hep::degree-bottom)*sin(90*dd4hep::degree-edge2ToZ);
-        double zC1Hole = radius/sin(edge1ToC)*sin(90*dd4hep::degree+edge1ToZ)*cos(CToEConeAxis);
-        double zC2Hole = radiusEnd/radius*zC1Hole;
-        double zBottomHole = a1Hole*tan(bottom);
-        double aC1Hole = a1Hole/zBottomHole*zC1Hole;
-        double aC2Hole = a1Hole/zBottomHole*zC2Hole;
-        double xC1InEConeHole = zC1Hole*tan(CToEConeAxis);
-        double xC2InEConeHole = zC2Hole*tan(CToEConeAxis);
-        double bC1Hole = sqrt(radius*radius/(1-xC1InEConeHole*xC1InEConeHole/aC1Hole/aC1Hole));
-        double bC2Hole = sqrt(radiusEnd*radiusEnd/(1-xC2InEConeHole*xC2InEConeHole/aC2Hole/aC2Hole));
-        double b1Hole = bC1Hole/zC1Hole*zBottomHole;
-        if(fabs(bC1Hole/zC1Hole-bC2Hole/zC2Hole)>1e-12){
-	  std::cout << "Warning! bC1/zC1 not equal to bC2/zC2 for Hole." << std::endl;
-        }
-        double pzTopCutHole = 0.5*(a1Hole-a2Hole)*tan(bottom);
+	double b1Hole = radius;
+	if(radius!=radiusEnd){
+	  double zC1Hole = radius/sin(edge1ToC)*sin(90*dd4hep::degree+edge1ToZ)*cos(CToEConeAxis);
+	  double zC2Hole = radiusEnd/radius*zC1Hole;
+	  double zBottomHole = a1Hole*tan(bottom);
+	  double aC1Hole = a1Hole/zBottomHole*zC1Hole;
+	  double aC2Hole = a1Hole/zBottomHole*zC2Hole;
+	  double xC1InEConeHole = zC1Hole*tan(CToEConeAxis);
+	  double xC2InEConeHole = zC2Hole*tan(CToEConeAxis);
+	  double bC1Hole = sqrt(radius*radius/(1-xC1InEConeHole*xC1InEConeHole/aC1Hole/aC1Hole));
+	  double bC2Hole = sqrt(radiusEnd*radiusEnd/(1-xC2InEConeHole*xC2InEConeHole/aC2Hole/aC2Hole));
+	  b1Hole = bC1Hole/zC1Hole*zBottomHole;
+	  if(fabs(bC1Hole/zC1Hole-bC2Hole/zC2Hole)>1e-12){
+	    std::cout << "Warning! bC1/zC1 not equal to bC2/zC2 for Hole." << std::endl;
+	  }
+	  pzTopCutHole = 0.5*(a1Hole-a2Hole)*tan(bottom);
+	}
 	dd4hep::Trd2 body2(0, xC2, radius, radiusEnd, zHalf);
 	dd4hep::Trd2 cut2(radius, 0.5*size, radius, radiusEnd, zHalf);
-	TGeoCone* pCone2 = new TGeoCone(pzTopCutHole, 0, a1Hole, 0, a2Hole);
-        TGeoScale* pScale2 = new TGeoScale(1, b1Hole/a1Hole, 1);
-        TGeoScaledShape* pScaledShape2 = new TGeoScaledShape(pCone2,pScale2);
-	dd4hep::Solid_type<TGeoScaledShape> side2(pScaledShape2);
+	dd4hep::Cone cone2(pzTopCutHole, 0, a1Hole, 0, a2Hole);
+	dd4hep::Scale side2(cone2, 1, b1Hole/a1Hole, 1);
 
         double xshiftHole = 0.5*(0.5*size-a2Hole*cos(rotate)-radius+a1Hole*cos(bottom-edge2ToX));
         double zshiftHole = 0.5*(a2Hole-a1Hole)*sin(rotate);
@@ -464,12 +471,10 @@ static Ref_t create_detector(Detector& theDetector,
 	dd4hep::UnionSolid tmp4Solid(tmp3Solid, side2, unionTransformer4);
 	dd4hep::IntersectionSolid vacuumPipe(tmp4Solid, cut, sameTransformer);
 	dd4hep::Volume pipeLog(volName+"Vacuum", vacuumPipe, beamMaterial);
+	pipeLog.setVisAttributes(theDetector, x_beampipe.visStr());
         shellLog.placeVolume(pipeLog, dd4hep::Position(0, 0, 0));
-	
-	shellLog.setVisAttributes(theDetector, "TubeVis");
-	pipeLog.setVisAttributes(theDetector, "VacVis");
       }
-      else if(type == CEPC::kFatWaist){
+      else if(type == CEPC::kFatWaist){ // expanded single pipe from circle to cuted circle, runway but not 180 degree 
         double beamAngle = 0.5*angle;
         if(radiusEnd==0) radiusEnd = radius;
         if(size==0) size = (zend*tan(beamAngle)+radiusEnd)*2;
@@ -483,6 +488,7 @@ static Ref_t create_detector(Detector& theDetector,
 	dd4hep::ConeSegment cone1(zHalf, 0, rOuter, 0, rOuterEnd, phi0, dPhi);
 	dd4hep::IntersectionSolid shell(cone1, body1, sameTransformer);
 	dd4hep::Volume shellLog(volName, shell, material);
+	shellLog.setVisAttributes(theDetector, x_layer.visStr());
         envelope.placeVolume(shellLog, dd4hep::Position(0, 0, zCenter));
 	envelope.placeVolume(shellLog, dd4hep::Transform3D(dd4hep::RotationY(180*dd4hep::degree), dd4hep::Position(0, 0, -zCenter)));
 
@@ -490,10 +496,47 @@ static Ref_t create_detector(Detector& theDetector,
 	dd4hep::ConeSegment cone2(zHalf, 0, radius, 0, radius, phi0, dPhi);
 	dd4hep::IntersectionSolid vacuumPipe(cone2, body2, sameTransformer);
 	dd4hep::Volume pipeLog(volName, vacuumPipe, beamMaterial);
+	pipeLog.setVisAttributes(theDetector, x_beampipe.visStr());
         shellLog.placeVolume(pipeLog, dd4hep::Position(0, 0, 0));
+      }
+      else if(type == CEPC::kRunway){ // runway to runway (180 degree), same radius
+	double sizeEnd = size + shift;
+	if(size==0){
+	  size = (zstart*tan(0.5*angle)+radius)*2;
+	  sizeEnd = (zend*tan(0.5*angle)+radius)*2;
+	}
+	double x1 = 0.5*size - radius;
+        double x2 = 0.5*sizeEnd - radius;
+        double y1 = radius + thickness;
+        double y2 = y1;
+        double expandAngle = atan((x2-x1)/zHalf/2);
+        double zSide = 2*zHalf/cos(expandAngle)+y1*tan(expandAngle)+y2*tan(expandAngle);
+        double xshift = 0.5*(x1+x2);
 
-	shellLog.setVisAttributes(theDetector, "TubeVis");
-	pipeLog.setVisAttributes(theDetector, "VacVis");
+	dd4hep::Trd2 body1(x1, x2, y1, y2, zHalf);
+	dd4hep::Trd2 cut1(x1+y1, x2+y2, y1, y2, zHalf);
+	dd4hep::EllipticalTube side1(y1*cos(expandAngle), y1, 0.5*zSide);
+	dd4hep::Transform3D unionTransformer1(dd4hep::RotationY(expandAngle), dd4hep::Position(xshift, 0, 0));
+	dd4hep::Transform3D unionTransformer2(dd4hep::RotationY(-expandAngle), dd4hep::Position(-xshift, 0, 0));
+	dd4hep::Transform3D sameTransformer(dd4hep::RotationY(0), dd4hep::Position(0, 0, 0));
+	dd4hep::UnionSolid tmp1Solid(body1, side1, unionTransformer1);
+	dd4hep::UnionSolid tmp2Solid(tmp1Solid, side1, unionTransformer2);
+	dd4hep::IntersectionSolid shell(tmp2Solid, cut1, sameTransformer);
+	dd4hep::Volume shellLog(volName+"Shell", shell, material);
+	shellLog.setVisAttributes(theDetector, x_layer.visStr());
+	envelope.placeVolume(shellLog, dd4hep::Position(0, 0, zCenter));
+	envelope.placeVolume(shellLog, dd4hep::Transform3D(dd4hep::RotationY(180*dd4hep::degree), dd4hep::Position(0, 0, -zCenter)));
+
+	double yHole = y1-thickness;
+	dd4hep::Trd2 body2(x1, x2, yHole, yHole, zHalf);
+	dd4hep::Trd2 cut2(x1+y1, x2+y2, yHole, yHole, zHalf);
+	dd4hep::EllipticalTube side2(yHole*cos(expandAngle), yHole, zSide);
+	dd4hep::UnionSolid tmp3Solid(body2, side2, unionTransformer1);
+	dd4hep::UnionSolid tmp4Solid(tmp3Solid, side2, unionTransformer2);
+	dd4hep::IntersectionSolid vacuumPipe(tmp4Solid, cut2, sameTransformer);
+	dd4hep::Volume pipeLog(volName+"Vacuum", vacuumPipe, beamMaterial);
+	pipeLog.setVisAttributes(theDetector, x_beampipe.visStr());
+        shellLog.placeVolume(pipeLog, dd4hep::Position(0, 0, 0));
       }
       radius += thickness;
       radiusEnd += thicknessEnd;
@@ -532,7 +575,7 @@ static Ref_t create_detector(Detector& theDetector,
   tube.addExtension< ConicalSupportData >( beampipeData ) ;
 
   //--------------------------------------
-  tube.setVisAttributes( theDetector, x_beampipe.visStr(), envelope );
+  tube.setVisAttributes( theDetector, "SeeThrough", envelope );
   
   //debug
   std::cout << "============ConicalSupportData============" << std::endl;
@@ -545,6 +588,4 @@ static Ref_t create_detector(Detector& theDetector,
 
   return tube;
 }
-DECLARE_DETELEMENT(DD4hep_CRDBeamPipe_v01, create_detector)
-
-DD4HEP_INSTANTIATE_SHAPE_HANDLE(TGeoScaledShape);
+DECLARE_DETELEMENT(CRDBeamPipe_v01, create_detector)

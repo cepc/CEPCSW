@@ -16,7 +16,8 @@ namespace CEPC {
     kCrotchAsymDn               = 6,
     kLegs                       = 7,
     kFlareLegUp                 = 8,
-    kFlareLegDn                 = 9
+    kFlareLegDn                 = 9,
+    kRunway               = 10
   } ECrossType;
   
   inline ECrossType getCrossType( std::string const & type) {
@@ -30,7 +31,8 @@ namespace CEPC {
     CrossTypes["CrotchAsymDn"]          = CEPC::kCrotchAsymDn;
     CrossTypes["Legs"]                  = CEPC::kLegs;
     CrossTypes["FlareLegUp"]            = CEPC::kFlareLegUp;
-    CrossTypes["FlareLegDn"]           = CEPC::kFlareLegDn;
+    CrossTypes["FlareLegDn"]            = CEPC::kFlareLegDn;
+    CrossTypes["Runway"]                = CEPC::kRunway;
 
     std::map < std::string, CEPC::ECrossType>::const_iterator it = CrossTypes.find(type);
     if ( it == CrossTypes.end() ) {

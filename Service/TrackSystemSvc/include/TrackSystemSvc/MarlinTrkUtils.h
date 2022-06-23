@@ -55,7 +55,7 @@ namespace MarlinTrk{
       std::vector<edm4hep::TrackerHit>& hit_list,
       edm4hep::MutableTrack* track,
       bool fit_backwards,
-      const std::array<float,15>& initial_cov_for_prefit,
+      const decltype(edm4hep::TrackState::covMatrix)& initial_cov_for_prefit,
       float bfield_z,
       double maxChi2Increment=DBL_MAX);
   

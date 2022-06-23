@@ -166,7 +166,7 @@ void Fitter::fitVXD(){
   /**********************************************************************************************/
   /*       Create a TrackStateImpl from the helix values and use it to initalise the fit        */
   /**********************************************************************************************/
-  std::array<float,15> covMatrix;
+  decltype(edm4hep::TrackState::covMatrix) covMatrix;
   
   for (unsigned icov = 0; icov<covMatrix.size(); ++icov) {
     covMatrix[icov] = 0;
@@ -185,6 +185,7 @@ void Fitter::fitVXD(){
 				    helixTrack.getOmega(), 
 				    helixTrack.getZ0(), 
 				    helixTrack.getTanLambda(),
+				    0.f, // dummy value for time
 				    referencePoint,
 				    covMatrix};
   
@@ -349,7 +350,7 @@ void Fitter::fit(){
   /**********************************************************************************************/
   /*       Create a TrackStateImpl from the helix values and use it to initalise the fit        */
   /**********************************************************************************************/
-  std::array<float,15> covMatrix;
+  decltype(edm4hep::TrackState::covMatrix) covMatrix;
   for (unsigned icov = 0; icov<covMatrix.size(); ++icov) {
     covMatrix[icov] = 0;
   }
@@ -365,7 +366,8 @@ void Fitter::fit(){
 				    helixTrack.getPhi0(), 
 				    helixTrack.getOmega(), 
 				    helixTrack.getZ0(), 
-				    helixTrack.getTanLambda(), 
+				    helixTrack.getTanLambda(),
+				    0.f, // dummy value for time
 				    referencePoint,
 				    covMatrix};
   
