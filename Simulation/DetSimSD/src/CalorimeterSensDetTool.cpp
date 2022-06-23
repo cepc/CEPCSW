@@ -43,10 +43,11 @@ CalorimeterSensDetTool::createSD(const std::string& name) {
       }
     }
     CaloSensitiveDetector* sd = new CaloSensitiveDetector(name, *dd4hep_geo, is_merge_enabled);
-    debug() << name << " set to merge true/false = " << is_merge_enabled << endmsg;
+    warning() << name << " set to merge true/false = " << is_merge_enabled << endmsg;
 
     for(auto cal_name : m_listCalsApplyBirks){
       if(cal_name==name){
+	info() << name << " will apply Birks law" << endmsg;
 	sd->ApplyBirksLaw();
 	break;
       }
