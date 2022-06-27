@@ -19,9 +19,18 @@
 
   <detectors>
     <detector id="DetID_VXD" name="VXD" type="SiTrackerStaggeredLadder_v01" vis="VXDVis" readout="VXDCollection" insideTrackingVolume="true">
-    <envelope>
-		  <shape type="Tube" rmin="VXD_inner_radius" rmax="VXD_outer_radius" dz="VXD_half_length" material="Air"/>
-    </envelope>    
+      <envelope>
+	<shape type="BooleanShape" operation="Subtraction" material="Air" >
+	  <shape type="BooleanShape" operation="Subtraction" material="Air" >
+            <shape type="Tube" rmin="VXD_inner_radius+1*mm" rmax="VXD_outer_radius" dz="VXD_half_length" />
+            <shape type="Cone" rmin1="0" rmax1="BeamPipe_VertexRegion_rmax" rmin2="0" rmax2="Vertex_Side_rmin" z="(VXD_half_length-BeamPipe_CentralAl_zmax)/2." />
+            <position x="0" y="0" z="VXD_half_length-(VXD_half_length-BeamPipe_CentralAl_zmax)/2."/>
+          </shape>
+	  <shape type="Cone" rmin1="0" rmax1="BeamPipe_VertexRegion_rmax" rmin2="0" rmax2="Vertex_Side_rmin" z="(VXD_half_length-BeamPipe_CentralAl_zmax)/2." />
+          <position x="0" y="0" z="-(VXD_half_length-(VXD_half_length-BeamPipe_CentralAl_zmax)/2.)"/>
+          <rotation x="0" y="180.*deg" z="0" />
+	</shape>
+      </envelope>
 
       <type_flags type="DetType_TRACKER + DetType_BARREL + DetType_PIXEL "/>
 
@@ -92,7 +101,7 @@
   
   <readouts>
     <readout name="VXDCollection">
-      <id>system:5,side:-2,layer:9,module:8,sensor:8,barrelside:-2</id>
+      <id>system:5,side:-2,layer:9,module:8,active:8,sensor:8</id>
     </readout>
   </readouts>
 </lccdd>
