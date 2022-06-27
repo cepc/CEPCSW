@@ -27,6 +27,7 @@
 #include <UTIL/BitField64.h>
 #include <UTIL/ILDConf.h>
 
+#include "GaudiKernel/NTuple.h"
 //using namespace edm4hep ;
 
 //class gear::GearMgr ;
@@ -394,7 +395,7 @@ protected:
   Gaudi::Property<float> _vetoMergeMomentumCut{this, "VetoMergeMomentumCut", 2.5};
   Gaudi::Property<float> _maxAllowedPercentageOfOutliersForTrackCombination{this, "MaxAllowedPercentageOfOutliersForTrackCombination", 0.3};
   Gaudi::Property<int>   _maxAllowedSiHitRejectionsForTrackCombination{this, "MaxAllowedSiHitRejectionsForTrackCombination", 2};
-
+  Gaudi::Property<bool>  m_dumpTime{this, "DumpTime", true};
   //float _dPCutForForcedMerging;
   
   bool _runMarlinTrkDiagnostics = false;
@@ -514,6 +515,10 @@ protected:
   DataHandle<edm4hep::TrackCollection> _SiTrackColHdl{"SiTracks", Gaudi::DataHandle::Reader, this};
 
   DataHandle<edm4hep::TrackCollection> _OutputTrackColHdl{"MarlinTrkTracks", Gaudi::DataHandle::Writer, this};
+
+  NTuple::Tuple*       m_tuple;
+  NTuple::Item<float>  m_timeTotal;
+  NTuple::Item<float>  m_timeKalman;
 };
 
 #endif
