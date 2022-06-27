@@ -467,11 +467,12 @@ namespace clupatra_new{
 
 				// FIXME Mingrui debug
 				// streamlog_out( DEBUG3  )  << "               -- extrapolate TrackState : " << lcshort( ts )    << std::endl ;
-
-				edm4hep::TrackerHit ht = trk.getTrackerHits(0); 
-				//need to add a dummy hit to the track
-				mTrk->addHit( ht ) ;  // is this the right hit ??????????
-
+				// fucd: getTrackerHits(0) is possible to miss ILDVTrackHit
+				for(int ih=0;ih<nHit;ih++){
+				  edm4hep::TrackerHit ht = trk.getTrackerHits(ih);
+				  //need to add a dummy hit to the track
+				  if(mTrk->addHit( ht ) == MarlinTrk::IMarlinTrack::success) break;  // is this the right hit ??????????
+				}
 				mTrk->initialise( ts ,  _b ,  MarlinTrk::IMarlinTrack::backward ) ;
 
 				double deltaChi ;
