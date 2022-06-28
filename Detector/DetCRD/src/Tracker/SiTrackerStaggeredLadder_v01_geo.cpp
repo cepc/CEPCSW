@@ -274,11 +274,11 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
      double zpos = -sensor_total_z/2.0 + sensor_active_len/2.0 + isensor*(sensor_active_len + dead_gap);
      pv = SensorTopEnvelopeLogical.placeVolume(SensorLogical, Position(xpos,ypos_active,zpos));
      //pv.addPhysVolID("topsensor",  isensor ) ;
-     pv.addPhysVolID("sensor",  isensor ).addPhysVolID("barrelside", 1) ;
+     pv.addPhysVolID("layer", layer_id*2+1).addPhysVolID("active", 0).addPhysVolID("sensor", isensor) ;
      TopSensor_pv.push_back(pv);
      pv = SensorBottomEnvelopeLogical.placeVolume(SensorLogical, Position(xpos,ypos_active,zpos));
      //pv.addPhysVolID("bottomsensor",  isensor ) ;
-     pv.addPhysVolID("sensor",  isensor ).addPhysVolID("barrelside", -1) ;
+     pv.addPhysVolID("layer", layer_id*2  ).addPhysVolID("active", 0).addPhysVolID("sensor", isensor) ;
      BottomSensor_pv.push_back(pv);
      pv = SensorTopEnvelopeLogical.placeVolume(SensorDeadLogical, Position(xpos,ypos_dead,zpos));
      pv = SensorBottomEnvelopeLogical.placeVolume(SensorDeadLogical, Position(xpos,ypos_dead,zpos));
@@ -348,10 +348,10 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
     }
     Transform3D tr (RotationZYX(ladder_dphi*i,0.,0.),Position(ladder_radius*cos(ladder_phi0+ladder_dphi*i), ladder_radius*sin(ladder_phi0+ladder_dphi*i), 0.));
     pv = layer_assembly.placeVolume(LadderLogical,tr);
-    pv.addPhysVolID("layer", layer_id ).addPhysVolID("module", i ) ; 
+    pv.addPhysVolID("module", i ) ; 
     ladderDE.setPlacement(pv);
     std::cout << ladder_enum.str() << " done." << endl;
-
+    if(i==0) std::cout << "xy=" << ladder_radius*cos(ladder_phi0) << " " << ladder_radius*sin(ladder_phi0) << std::endl;
   }
   
   // package the reconstruction data
@@ -364,12 +364,12 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
   topLayer.lengthSensor         = sensor_active_len;
   topLayer.distanceSupport      = sensitive_radius;
   topLayer.thicknessSupport     = support_thickness / 2.0;
-  topLayer.offsetSupport        = ladder_offset;
+  topLayer.offsetSupport        = -ladder_offset;
   topLayer.widthSupport         = support_width;
   topLayer.zHalfSupport         = support_length / 2.0;
-  topLayer.distanceSensitive    = sensitive_radius + support_thickness / 2.0;
+  topLayer.distanceSensitive    = sensitive_radius + support_height / 2.0 + flex_thickness;
   topLayer.thicknessSensitive   = sensor_thickness;
-  topLayer.offsetSensitive      = ladder_offset;
+  topLayer.offsetSensitive      = -ladder_offset + (support_width/2.0 - sensor_active_width/2.0);
   topLayer.widthSensitive       = sensor_active_width;
   topLayer.zHalfSensitive       = (n_sensors_per_side*(sensor_active_len + dead_gap) - dead_gap) / 2.0;
 
@@ -377,19 +377,19 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
   bottomLayer.phi0                 = 0.;
   bottomLayer.sensorsPerLadder     = n_sensors_per_side;
   bottomLayer.lengthSensor         = sensor_active_len;
-  bottomLayer.distanceSupport      = sensitive_radius - support_thickness / 2.0;
+  bottomLayer.distanceSupport      = sensitive_radius - support_height / 2.0 - flex_thickness;
   bottomLayer.thicknessSupport     = support_thickness / 2.0;
-  bottomLayer.offsetSupport        = ladder_offset;
+  bottomLayer.offsetSupport        = -ladder_offset;
   bottomLayer.widthSupport         = support_width;
   bottomLayer.zHalfSupport         = support_length / 2.0;
-  bottomLayer.distanceSensitive    = sensitive_radius - support_thickness / 2.0 - sensor_thickness;
+  bottomLayer.distanceSensitive    = sensitive_radius - support_height / 2.0 - sensor_thickness - flex_thickness;
   bottomLayer.thicknessSensitive   = sensor_thickness;
-  bottomLayer.offsetSensitive      = ladder_offset;
+  bottomLayer.offsetSensitive      = -ladder_offset + (support_width/2.0 - sensor_active_width/2.0);
   bottomLayer.widthSensitive       = sensor_active_width;
   bottomLayer.zHalfSensitive       = (n_sensors_per_side*(sensor_active_len + dead_gap) - dead_gap) / 2.0;
 
-  zPlanarData->layers.push_back(topLayer);
   zPlanarData->layers.push_back(bottomLayer);
+  zPlanarData->layers.push_back(topLayer);
  }
  std::cout << (*zPlanarData) << endl;
  vxd.addExtension< ZPlanarData >(zPlanarData);
