@@ -1,0 +1,107 @@
+<lccdd>
+  <info name="VXD_StaggeredLadder_v01_01"
+        title="CepC VXD with staggered ladders"
+        author="H.Zeng, "
+        url="http://cepc.ihep.ac.cn"
+        status="developing"
+        version="v01">
+    <comment>CepC vertex detector based on MOST2 project </comment>
+  </info>
+  <define>
+    <constant name="VXD_inner_radius" value="Vertex_inner_radius"/>
+    <constant name="VXD_outer_radius" value="Vertex_outer_radius"/>
+    <constant name="VXD_half_length"  value="Vertex_half_length"/>
+    <constant name="VXDLayer1_half_length" value="90*mm" />
+    <constant name="VXDLayer2_half_length" value="90*mm" />
+    <constant name="VXDLayer3_half_length" value="90*mm" />
+    <constant name="VXD_sensor_length" value="30*mm" />
+  </define>
+
+  <detectors>
+    <detector id="DetID_VXD" name="VXD" type="SiTrackerStaggeredLadder_v01" vis="VXDVis" readout="VXDCollection" insideTrackingVolume="true">
+      <envelope>
+	<shape type="BooleanShape" operation="Subtraction" material="Air" >
+	  <shape type="BooleanShape" operation="Subtraction" material="Air" >
+            <shape type="Tube" rmin="VXD_inner_radius+1*mm" rmax="VXD_outer_radius" dz="VXD_half_length" />
+            <shape type="Cone" rmin1="0" rmax1="BeamPipe_VertexRegion_rmax" rmin2="0" rmax2="Vertex_Side_rmin" z="(VXD_half_length-BeamPipe_CentralAl_zmax)/2." />
+            <position x="0" y="0" z="VXD_half_length-(VXD_half_length-BeamPipe_CentralAl_zmax)/2."/>
+          </shape>
+	  <shape type="Cone" rmin1="0" rmax1="BeamPipe_VertexRegion_rmax" rmin2="0" rmax2="Vertex_Side_rmin" z="(VXD_half_length-BeamPipe_CentralAl_zmax)/2." />
+          <position x="0" y="0" z="-(VXD_half_length-(VXD_half_length-BeamPipe_CentralAl_zmax)/2.)"/>
+          <rotation x="0" y="180.*deg" z="0" />
+	</shape>
+      </envelope>
+
+      <type_flags type="DetType_TRACKER + DetType_BARREL + DetType_PIXEL "/>
+
+      <global sensitive_thickness="VXD_sensitive_thickness" support_thickness="VXD_support_thickness" sensor_length="VXD_sensor_length"
+              sensitive_mat="G4_Si" support_mat="G4_C" sensitive_threshold_KeV="64*keV"  />
+      <display ladder="SeeThrough" support="VXDSupportVis" flex="VXDFlexVis" sens_env="SeeThrough" sens="GrayVis" deadsensor="GreenVis" deadwire="RedVis"/>
+
+      <layer layer_id="0" ladder_radius="17.4*mm" ladder_offset="(8.4-1.5)*mm" n_sensors_per_side="VXDLayer1_half_length*2/VXD_sensor_length"
+	     n_ladders="10" >
+        <ladder isDoubleSided="true">
+          <ladderSupport height="2*mm" length="200*mm" thickness="350*um" width="16.8*mm" mat="CarbonFiber"/>
+          <flex n_slices="3">
+            <slice length="200*mm" thickness="60*um" width="16.8*mm" mat="Epoxy"/>
+            <slice length="200*mm" thickness="74*um" width="16.8*mm" mat="Kapton"/>
+            <slice length="200*mm" thickness="26.8*um" width="16.8*mm" mat="G4_Al"/>
+          </flex>
+          <sensor n_sensors="7" gap="0.1*mm" thickness="50*um" active_length="25.6*mm" active_width="12.8*mm" dead_width="2*mm" sensor_mat="G4_Si"
+                  deadwire_length="(7*(25.6+0.1)-0.1)*mm" deadwire_width="2*mm" deadwire_thickness="(50/10)*um" deadwire_mat="G4_Al"/>
+        </ladder>
+      </layer>
+      <layer layer_id="1" ladder_radius="36.9*mm" ladder_offset="(8.4+5.0)*mm" n_sensors_per_side="VXDLayer2_half_length*2/VXD_sensor_length"
+             n_ladders="22" >
+        <ladder isDoubleSided="true">
+          <ladderSupport height="2*mm" length="200*mm" thickness="350*um" width="16.8*mm" mat="CarbonFiber"/>
+          <flex n_slices="3">
+            <slice length="200*mm" thickness="60*um" width="16.8*mm" mat="Epoxy"/>
+            <slice length="200*mm" thickness="74*um" width="16.8*mm" mat="Kapton"/>
+            <slice length="200*mm" thickness="26.8*um" width="16.8*mm" mat="G4_Al"/>
+            <!-- <slice length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/> -->
+            <!-- <slice length="200*mm" thickness="12*um" width="16.8*mm" mat="Kapton"/> -->
+            <!-- <slice length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/> -->
+            <!-- <slice length="200*mm" thickness="13.4*um" width="16.8*mm" mat="G4_Al"/> -->
+            <!-- <slice length="200*mm" thickness="50*um" width="16.8*mm" mat="Kapton"/> -->
+            <!-- <slice length="200*mm" thickness="13.4*um" width="16.8*mm" mat="G4_Al"/> -->
+            <!-- <slice length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/> -->
+            <!-- <slice length="200*mm" thickness="12*um" width="16.8*mm" mat="Kapton"/> -->
+            <!-- <slice length="200*mm" thickness="15*um" width="14.8*mm" mat="Epoxy"/> -->
+          </flex>
+          <sensor n_sensors="7" gap="0.1*mm" thickness="50*um" active_length="25.6*mm" active_width="12.8*mm" dead_width="2*mm" sensor_mat="G4_Si"
+                  deadwire_length="(7*(25.6+0.1)-0.1)*mm" deadwire_width="2*mm" deadwire_thickness="(50/10)*um" deadwire_mat="G4_Al"/>
+        </ladder>
+      </layer>
+      <layer layer_id="2" ladder_radius="57.7*mm" ladder_offset="(8.4+9.6)*mm" n_sensors_per_side="VXDLayer3_half_length*2/VXD_sensor_length"
+             n_ladders="32" >
+        <ladder isDoubleSided="true">
+          <ladderSupport height="2*mm" length="200*mm" thickness="350*um" width="16.8*mm" mat="CarbonFiber"/>
+          <flex n_slices="3">
+            <slice length="200*mm" thickness="60*um" width="16.8*mm" mat="Epoxy"/>
+            <slice length="200*mm" thickness="74*um" width="16.8*mm" mat="Kapton"/>
+            <slice length="200*mm" thickness="26.8*um" width="16.8*mm" mat="G4_Al"/>
+            <!-- <slice length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/>
+            <slice length="200*mm" thickness="12*um" width="16.8*mm" mat="Kapton"/>
+            <slice length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/>
+            <slice length="200*mm" thickness="13.4*um" width="16.8*mm" mat="G4_Al"/>
+            <slice length="200*mm" thickness="50*um" width="16.8*mm" mat="Kapton"/>
+            <slice length="200*mm" thickness="13.4*um" width="16.8*mm" mat="G4_Al"/>
+            <slice length="200*mm" thickness="15*um" width="16.8*mm" mat="Epoxy"/>
+            <slice length="200*mm" thickness="12*um" width="16.8*mm" mat="Kapton"/>
+            <slice length="200*mm" thickness="15*um" width="14.8*mm" mat="Epoxy"/> -->
+          </flex>
+          <sensor n_sensors="7" gap="0.1*mm" thickness="50*um" active_length="25.6*mm" active_width="12.8*mm" dead_width="2*mm" sensor_mat="G4_Si"
+                  deadwire_length="(7*(25.6+0.1)-0.1)*mm" deadwire_width="2*mm" deadwire_thickness="(50/10)*um" deadwire_mat="G4_Al"/>
+        </ladder>
+      </layer>
+    </detector>
+    
+  </detectors>
+  
+  <readouts>
+    <readout name="VXDCollection">
+      <id>system:5,side:-2,layer:9,module:8,active:8,sensor:8</id>
+    </readout>
+  </readouts>
+</lccdd>

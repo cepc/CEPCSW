@@ -100,7 +100,7 @@ namespace LCIOTrackPropagators{
     
     CLHEP::HepSymMatrix covPrime =  cov0.similarity(propagatorMatrix);
     
-    std::array<float,15> cov;
+    decltype(edm4hep::TrackState::covMatrix) cov;
     
     icov = 0 ;
     

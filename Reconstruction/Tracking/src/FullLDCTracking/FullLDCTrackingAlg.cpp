@@ -53,6 +53,8 @@
 #include <vector>
 #include <bitset>
 
+#include <TStopwatch.h>
+
 typedef std::vector<edm4hep::TrackerHit> TrackerHitVec;
 
 using namespace edm4hep ;
@@ -143,7 +145,24 @@ StatusCode FullLDCTrackingAlg::initialize() {
   PI = acos(-1.);
   PIOVER2 = 0.5*PI;
   TWOPI = 2*PI;
-  
+
+  if(m_dumpTime){
+    NTuplePtr nt1(ntupleSvc(), "MyTuples/Time"+name());
+    if ( !nt1 ) {
+      m_tuple = ntupleSvc()->book("MyTuples/Time"+name(),CLID_ColumnWiseTuple,"Tracking time");
+      if ( 0 != m_tuple ) {
+	m_tuple->addItem ("timeTotal", m_timeTotal ).ignore();
+	m_tuple->addItem ("timeKalman", m_timeKalman ).ignore();
+      }
+      else {
+	fatal() << "Cannot book MyTuples/Time"+name() <<endmsg;
+	return StatusCode::FAILURE;
+      }
+    }
+    else{
+      m_tuple = nt1;
+    }
+  }
   // set up the geometery needed by KalTest
   //FIXME: for now do KalTest only - make this a steering parameter to use other fitters
   auto _trackSystemSvc = service<ITrackSystemSvc>("TrackSystemSvc");
@@ -181,6 +200,8 @@ StatusCode FullLDCTrackingAlg::execute() {
   
   // debug() << endmsg;
   info() << "FullLDCTrackingAlg -> run = " << 0/*evt->getRunNumber()*/ << "  event = " << _nEvt << endmsg;
+
+  auto stopwatch = TStopwatch();
   // debug() << endmsg;
   auto outCol = _OutputTrackColHdl.createAndPut();
   
@@ -222,6 +243,11 @@ StatusCode FullLDCTrackingAlg::execute() {
   debug() << "Cleanup is done." << endmsg;
   _nEvt++;
   //  getchar();
+  if(m_tuple){
+    m_timeTotal = stopwatch.RealTime()*1000;
+    m_tuple->write();
+  }
+
   debug() << "FullLDCTrackingAlg execute() finished" << endmsg;
   return StatusCode::SUCCESS;
   
@@ -248,6 +274,7 @@ void FullLDCTrackingAlg::AddTrackColToEvt(TrackExtendedVec & trkVec, edm4hep::Tr
   //SJA:FIXME: So here we are going to do one final refit. This can certainly be optimised, but rather than worry about the mememory management right now lets make it work, and optimise it later ...
   
   debug() << "Total " << nTrkCand << " trkCand to deal" << endmsg;
+  auto stopwatch = TStopwatch();
   for (int iTRK=0;iTRK<nTrkCand;++iTRK) {
     
     TrackExtended * trkCand = trkVec[iTRK];
@@ -288,7 +315,7 @@ void FullLDCTrackingAlg::AddTrackColToEvt(TrackExtendedVec & trkVec, edm4hep::Tr
     edm4hep::MutableTrack track;// = new edm4hep::Track;
     
     // setup initial dummy covariance matrix
-    std::array<float,15> covMatrix;
+    decltype(edm4hep::TrackState::covMatrix) covMatrix;
     
     for (unsigned icov = 0; icov<covMatrix.size(); ++icov) {
       covMatrix[icov] = 0;
@@ -385,9 +412,7 @@ void FullLDCTrackingAlg::AddTrackColToEvt(TrackExtendedVec & trkVec, edm4hep::Tr
     int error_code = 0;
     
     try {
-      
       error_code = MarlinTrk::createFinalisedLCIOTrack(marlinTrk, trkHits, &track, fit_backwards, &ts_initial, _bField, _maxChi2PerHit);
-      
     } catch (...) {
       
       //      delete track;
@@ -554,7 +579,7 @@ void FullLDCTrackingAlg::AddTrackColToEvt(TrackExtendedVec & trkVec, edm4hep::Tr
       debug() << " Add Track to final Collection: ID = " << track.id() << " for trkCand "<< trkCand << endmsg;
     }
   }
-  
+  if(m_tuple) m_timeKalman = stopwatch.RealTime()*1000;
   // streamlog_out(DEBUG5) << endmsg;
   debug() << "Number of accepted " << _OutputTrackColHdl.fullKey() << " = " << nTotTracks << endmsg;
   debug() << "Total 4-momentum of " << _OutputTrackColHdl.fullKey() << " : E = " << eTot
@@ -1115,7 +1140,7 @@ void FullLDCTrackingAlg::prepareVectors() {
       //param[3] = getD0(tpcTrack);
       //param[4] = getZ0(tpcTrack);
       
-      std::array<float, 15> Cov = getCovMatrix(tpcTrack);
+      auto Cov = getCovMatrix(tpcTrack);
       int NC = int(Cov.size());
       for (int ic=0;ic<NC;ic++) {
         cov[ic] =  Cov[ic];
@@ -1179,7 +1204,7 @@ void FullLDCTrackingAlg::prepareVectors() {
       //param[3] = getD0(siTrack);
       //param[4] = getZ0(siTrack);
             
-      std::array<float, 15> Cov = getCovMatrix(siTrack);
+      auto Cov = getCovMatrix(siTrack);
       int NC = int(Cov.size());
       for (int ic=0;ic<NC;ic++) {
         cov[ic] =  Cov[ic];
@@ -1571,7 +1596,7 @@ TrackExtended * FullLDCTrackingAlg::CombineTracks(TrackExtended * tpcTrack, Trac
   }
   
   // setup initial dummy covariance matrix
-  std::array<float,15> covMatrix;
+  decltype(edm4hep::TrackState::covMatrix) covMatrix;
   
   for (unsigned icov = 0; icov<covMatrix.size(); ++icov) {
     covMatrix[icov] = 0;
@@ -3411,7 +3436,7 @@ void FullLDCTrackingAlg::AddNotAssignedHits() {
         nonAssignedTPCHits.push_back(trkHitExt);
       }
     }
-    debug() << "AddNotAssignedHits : Number of Non Assigned TPC hits = " <<  nonAssignedTPCHits.size() << endmsg;
+    debug() << "AddNotAssignedHits : Number of Non Assigned TPC hits = " <<  nonAssignedTPCHits.size() << " distance cut = " << _distCutForTPCHits << endmsg;
     AssignTPCHitsToTracks(nonAssignedTPCHits, _distCutForTPCHits);
   }
   
@@ -3628,7 +3653,7 @@ void FullLDCTrackingAlg::AssignOuterHitsToTracks(TrackerHitExtendedVec hitVec, f
           
           pre_fit.location = 1/*lcio::TrackState::AtIP*/;
           // setup initial dummy covariance matrix
-          std::array<float,15> covMatrix;
+          decltype(edm4hep::TrackState::covMatrix) covMatrix;
           
           for (unsigned icov = 0; icov<covMatrix.size(); ++icov) {
             covMatrix[icov] = 0;
@@ -3854,6 +3879,7 @@ void FullLDCTrackingAlg::AssignTPCHitsToTracks(TrackerHitExtendedVec hitVec,
   debug() << "AssignTPCHitsToTracks: Starting loop " << nTrk << " tracks   and  " << nHits << " hits" << endmsg;
   
   for (int iT=0;iT<nTrk;++iT) { // loop over all tracks
+    debug() << "  track " << iT << endmsg;
     TrackExtended * foundTrack = _trkImplVec[iT];
     int tanlambdaSign = std::signbit(foundTrack->getTanLambda());//we only care about positive or negative
     GroupTracks * group = foundTrack->getGroupTracks();
@@ -3872,7 +3898,7 @@ void FullLDCTrackingAlg::AssignTPCHitsToTracks(TrackerHitExtendedVec hitVec,
       HelixClass helix;
       helix.Initialize_Canonical(phi0,d0,z0,omega,tanLambda,_bField);
       float OnePFivehalfPeriodZ = 1.5*fabs(acos(-1.)*tanLambda/omega);
-      
+      debug() << "    OnePFivehalfPeriodZ = " << OnePFivehalfPeriodZ << endmsg;
       for (int iH=0;iH<nHits;++iH) { // loop over leftover TPC hits
         
         //check if the hit and the track or on the same side
@@ -3884,9 +3910,10 @@ void FullLDCTrackingAlg::AssignTPCHitsToTracks(TrackerHitExtendedVec hitVec,
         bool consider = DeltaStart <= OnePFivehalfPeriodZ;
         consider = consider || (DeltaEnd <= OnePFivehalfPeriodZ);
         consider = consider || ( (HitPositions[iH][2]>=startPointZ) && (HitPositions[iH][2]<=endPointZ) );
-        
+        debug() << "     hit " << iH << " " << consider << " DeltaStart = " << DeltaStart << " DeltaEnd = " << DeltaEnd << endmsg;
         if(consider){
           float distance = helix.getDistanceToPoint(HitPositions[iH], minDistances[iH]);
+	  debug() << "     distance = " << distance << " cut = " << minDistances[iH] << endmsg;
           if (distance < minDistances[iH]) {
             minDistances[iH] = distance;
             tracksToAttach[iH] = foundTrack;
@@ -3901,7 +3928,9 @@ void FullLDCTrackingAlg::AssignTPCHitsToTracks(TrackerHitExtendedVec hitVec,
     if (tracksToAttach[iH]!=NULL) {
       tracksToAttach[iH]->addTrackerHitExtended(trkHitExt);
       trkHitExt->setTrackExtended( tracksToAttach[iH] );
-      trkHitExt->setUsedInFit( false );
+      //by fucd
+      //trkHitExt->setUsedInFit( false );
+      trkHitExt->setUsedInFit( true );
     }
   }
   
@@ -4134,7 +4163,7 @@ void FullLDCTrackingAlg::AssignSiHitsToTracks(TrackerHitExtendedVec hitVec,
         pre_fit.location = 1/*lcio::TrackState::AtIP*/;
         
         // setup initial dummy covariance matrix
-        std::array<float,15> covMatrix;
+        decltype(edm4hep::TrackState::covMatrix) covMatrix;
 
         for (unsigned icov = 0; icov<covMatrix.size(); ++icov) {
           covMatrix[icov] = 0;

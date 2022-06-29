@@ -458,8 +458,10 @@ void TruthTrackerAlg::getTrackStateFromMcParticle(
         trackState.Z0=helix.getZ0();
         trackState.tanLambda=helix.getTanLambda();
         trackState.referencePoint=helix.getReferencePoint();
-        std::array<float,15> covMatrix;
-        for(int i=0;i<15;i++){covMatrix[i]=1.;}//FIXME
+
+        decltype(trackState.covMatrix) covMatrix;
+        for(int i=0;i<covMatrix.size();i++){covMatrix[i]=999.;}//FIXME
+
         trackState.covMatrix=covMatrix;
 
         getCircleFromPosMom(pos,mom,B[2]/dd4hep::tesla,mcParticle.getCharge(),m_helixRadius,m_helixXC,m_helixYC);

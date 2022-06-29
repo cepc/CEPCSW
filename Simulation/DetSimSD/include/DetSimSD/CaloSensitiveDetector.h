@@ -23,6 +23,7 @@ public:
     virtual void Initialize(G4HCofThisEvent* HCE);
     virtual G4bool ProcessHits(G4Step* step,G4TouchableHistory* history);
     virtual void EndOfEvent(G4HCofThisEvent* HCE);
+    void ApplyBirksLaw(){m_applyBirksLaw = true;};
 
 protected:
     CalorimeterHit* find(const HitCollection*, const dd4hep::sim::HitCompare<CalorimeterHit>&);
@@ -31,7 +32,8 @@ protected:
 
     HitCollection* m_hc;
     std::map<unsigned long, CalorimeterHit*> m_hitMap;
-    bool                                     m_isMergeEnabled;
+    bool                                     m_isMergeEnabled = false;
+    bool                                     m_applyBirksLaw  = false;
 };
 
 

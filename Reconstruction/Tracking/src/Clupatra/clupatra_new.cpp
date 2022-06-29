@@ -1238,31 +1238,35 @@ start:
 		bool reverse_order =   ( std::abs( hf->first->pos.z() ) > std::abs( hb->first->pos.z()) + 3. ) ;
 
 		unsigned nHit = 0 ;
-
+		int code = 0;
 		if( reverse_order ){
 		  //std::cout << "It is true order" << std::endl;
 		  for( CluTrack::reverse_iterator it=clu->rbegin() ; it != clu->rend() ; ++it){
 		    edm4hep::TrackerHit ph = (*it)->first->edm4hepHit;
 		    trk->addHit(ph) ;
 		    ++nHit ;
-		    //std::cout  <<  "   hit  added  " <<  (*it)->first->edm4hepHit   << std::endl ;
+		    //std::cout  <<  "   hit  added  " <<  (*it)->first->edm4hepHit.id() << std::endl ;
 		  }
 		  
-		  trk->initialise( MarlinTrk::IMarlinTrack::forward ) ;
+		  code = trk->initialise( MarlinTrk::IMarlinTrack::forward ) ;
 
 		} else {
 		  //std::cout << "It is reverse order" << std::endl;
 		  for( CluTrack::iterator it=clu->begin() ; it != clu->end() ; ++it){
 		    edm4hep::TrackerHit ph = (*it)->first->edm4hepHit;
-		    trk->addHit(ph) ;
+		    if( trk->addHit(ph) == MarlinTrk::IMarlinTrack::success ){
+		      //std::cout << "   hit added  " <<  (*it)->first->edm4hepHit.id() << std::endl;
+		    }
+		    else{
+		      //std::cout << "   hit not added  " <<  (*it)->first->edm4hepHit.id() << std::endl;
+		    }
 		    ++nHit ;
-		    //std::cout <<  "   hit  added  "<<  (*it)->first->edm4hepHit   << std::endl ;
 		  }
 
-		  trk->initialise( MarlinTrk::IMarlinTrack::backward ) ;
+		  code = trk->initialise( MarlinTrk::IMarlinTrack::backward ) ;
 		}
 
-		int code = trk->fit(  maxChi2  ) ;
+		if( code != MarlinTrk::IMarlinTrack::error ) code = trk->fit(  maxChi2  ) ;
                 // for (auto hit : hitsInFit) std::cout << hit.first << std::endl;
 
 		if( code != MarlinTrk::IMarlinTrack::success ){
@@ -1270,7 +1274,8 @@ start:
 			std::cout << "  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> IMarlinTrkFitter :  problem fitting track "
 		          << " error code : " << MarlinTrk::errorCode( code )
 		          << std::endl ;
-
+			delete trk;
+			return 0;
 		}
 
 
@@ -1361,7 +1366,7 @@ start:
 				tsBase.Z0 = 0;
 				tsBase.tanLambda = 0;
 				tsBase.referencePoint = edm4hep::Vector3f(0,0,0);
-				tsBase.covMatrix = std::array<float, 15>{};
+				tsBase.covMatrix = decltype(edm4hep::TrackState::covMatrix){};
 				edm4hep::TrackState tsIP(tsBase);
 				edm4hep::TrackState tsFH(tsBase);
 				edm4hep::TrackState tsLH(tsBase);

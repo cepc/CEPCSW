@@ -182,7 +182,7 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
   	 DetElement sd(ECAL, _toString(i,"trap%3d"), detid);
   	 sd.setPlacement(plv);
   }
-  
+
   sens.setType("calorimeter");
   ECAL.addExtension< LayeredCalorimeterData >( caloData ) ; 
 

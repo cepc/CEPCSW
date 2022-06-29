@@ -11,6 +11,7 @@
 
 #include "Math/ProbFunc.h"
 
+#include "GaudiKernel/NTuple.h"
 /**  Processor that takes tracks from multiple sources and outputs them (or modified versions, or a subset of them)
  * as one track collection.
  * 
@@ -74,11 +75,15 @@ class TrackSubsetAlg : public GaudiAlgorithm {
   Gaudi::Property<float> _initialTrackError_tanL{this, "InitialTrackErrorTanL",1e2};
   Gaudi::Property<double> _maxChi2PerHit{this, "MaxChi2PerHit", 1e2};
   Gaudi::Property<double> _omega{this, "Omega", 0.75};
+  Gaudi::Property<bool> m_dumpTime{this, "DumpTime", true};
   
   float _bField;
   
   int _nRun ;
   int _nEvt ;
+
+  NTuple::Tuple*       m_tuple;
+  NTuple::Item<float>  m_timeTotal;
 };
 
 /** A functor to return whether two tracks are compatible: The criterion is if the share a TrackerHit or more */

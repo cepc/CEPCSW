@@ -15,6 +15,8 @@
 
 #include "TrackSystemSvc/MarlinTrkUtils.h"
 
+#include <TStopwatch.h>
+
 using namespace KiTrack;
 
 DECLARE_COMPONENT(TrackSubsetAlg)
@@ -38,6 +40,23 @@ StatusCode TrackSubsetAlg::initialize() {
 
   _nRun = 0 ;
   _nEvt = 0 ;
+
+  if(m_dumpTime){
+    NTuplePtr nt1(ntupleSvc(), "MyTuples/Time"+name());
+    if ( !nt1 ) {
+      m_tuple = ntupleSvc()->book("MyTuples/Time"+name(),CLID_ColumnWiseTuple,"Tracking time");
+      if ( 0 != m_tuple ) {
+	m_tuple->addItem ("timeTotal", m_timeTotal ).ignore();
+      }
+      else {
+	fatal() << "Cannot book MyTuples/Time"+name() <<endmsg;
+	return StatusCode::FAILURE;
+      }
+    }
+    else{
+      m_tuple = nt1;
+    }
+  }
 
   for(unsigned i=0; i<_trackInputColNames.size(); i++){
     _inTrackColHdls.push_back(new DataHandle<edm4hep::TrackCollection> (_trackInputColNames[i], Gaudi::DataHandle::Reader, this));
@@ -96,6 +115,8 @@ StatusCode TrackSubsetAlg::finalize(){
 }
 
 StatusCode TrackSubsetAlg::execute(){ 
+  auto stopwatch = TStopwatch();
+
   std::vector<edm4hep::Track> tracks;
 
   auto trkCol = _outColHdl.createAndPut();
@@ -214,7 +235,7 @@ StatusCode TrackSubsetAlg::execute(){
       trackerHits.push_back(Navigation::Instance()->GetTrackerHit(trackerHitsObj[i].getObjectID()));
     } 
     // setup initial dummy covariance matrix
-    std::array<float,15> covMatrix;
+    decltype(edm4hep::TrackState::covMatrix) covMatrix;
     for (unsigned icov = 0; icov<covMatrix.size(); ++icov) {
       covMatrix[icov] = 0;
     }
@@ -331,6 +352,12 @@ StatusCode TrackSubsetAlg::execute(){
   Navigation::Instance()->Initialize();
 
   _nEvt ++ ;
+
+  if(m_dumpTime&&m_tuple){
+    m_timeTotal = stopwatch.RealTime()*1000;
+    m_tuple->write();
+  }
+
   return StatusCode::SUCCESS;
 }
 

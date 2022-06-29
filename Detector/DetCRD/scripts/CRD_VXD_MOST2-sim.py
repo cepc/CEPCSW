@@ -15,7 +15,8 @@ rndmengine.Seeds = seed
 rndmgensvc = RndmGenSvc("RndmGenSvc")
 rndmgensvc.Engine = rndmengine.name()
 
-geometry_option = "Standalone/Standalone-EcalRotCrystal.xml"
+#geometry_option = "CRD_o1_v01/CRD_o1_v01.xml"
+geometry_option = "CRD_o1_v03/CRD_o1_v03-onlyVXD.xml"
 #...
 
 if not os.getenv("DETCRDROOT"):
@@ -41,7 +42,7 @@ from Configurables import SLCIORdr
 from Configurables import HepMCRdr
 from Configurables import GenPrinter
 gun = GtGunTool("GtGunTool")
-gun.Particles = ["e-"]
+gun.Particles = ["mu-"]
 #gun.Particles = ["nu_e"]
 #gun.PositionXs = [0]
 #gun.PositionYs = [0]
@@ -88,14 +89,10 @@ detsimalg.AnaElems = [
 ]
 detsimalg.RootDetElem = "WorldDetElemTool"
 
-from Configurables import CalorimeterSensDetTool
-cal_sensdettool = CalorimeterSensDetTool("CalorimeterSensDetTool")
-cal_sensdettool.CalNamesApplyBirks = ["EcalBarrel"]
-
 # output
 from Configurables import PodioOutput
 out = PodioOutput("outputalg")
-out.filename = "RCEcalSim00.root"
+out.filename = "CRD-skewVXD-Sim-100.root"
 out.outputCommands = ["keep *"]
 
 # ApplicationMgr
@@ -103,7 +100,7 @@ from Configurables import ApplicationMgr
 ApplicationMgr(
     TopAlg = [genalg, detsimalg, out],
     EvtSel = 'NONE',
-    EvtMax = 10,
+    EvtMax = 500,
     ExtSvc = [rndmengine, rndmgensvc, dsvc, geosvc],
     OutputLevel=INFO
 )

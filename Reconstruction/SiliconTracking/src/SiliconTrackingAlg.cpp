@@ -34,6 +34,7 @@
 #include "TrackSystemSvc/HelixFit.h"
 #include "TrackSystemSvc/IMarlinTrack.h"
 
+#include <TStopwatch.h>
 //#include "TrackSystemSvc/MarlinTrkDiagnostics.h"
 //#ifdef MARLINTRK_DIAGNOSTICS_ON
 //#include "TrackSystemSvc/DiagnosticsController.h"
@@ -104,7 +105,23 @@ StatusCode  SiliconTrackingAlg::initialize() {
   _nRun = -1 ;
   _nEvt = 0 ;
   //printParameters() ;
-  
+  if(m_dumpTime){
+    NTuplePtr nt1(ntupleSvc(), "MyTuples/Time"+name());
+    if ( !nt1 ) {
+      m_tuple = ntupleSvc()->book("MyTuples/Time"+name(),CLID_ColumnWiseTuple,"Tracking time");
+      if ( 0 != m_tuple ) {
+	m_tuple->addItem ("timeTotal",  m_timeTotal ).ignore();
+	m_tuple->addItem ("timeKalman", m_timeKalman ).ignore();
+      }
+      else {
+	fatal() << "Cannot book MyTuples/Time"+name() <<endmsg;
+	return StatusCode::FAILURE;
+      }
+    }
+    else{
+      m_tuple = nt1;
+    }
+  }
   // set up the geometery needed by KalTest
   //FIXME: for now do KalTest only - make this a steering parameter to use other fitters
   auto _trackSystemSvc = service<ITrackSystemSvc>("TrackSystemSvc");
@@ -157,6 +174,7 @@ StatusCode  SiliconTrackingAlg::initialize() {
 }
 
 StatusCode SiliconTrackingAlg::execute(){ 
+  auto stopwatch = TStopwatch();
   Navigation::Instance()->Initialize();
   //_current_event = evt;
   //_allHits.reserve(1000);
@@ -355,6 +373,10 @@ StatusCode SiliconTrackingAlg::execute(){
   CleanUp();
   debug() << "Event is done " << endmsg;
   _nEvt++;
+  if(m_dumpTime&&m_tuple){
+    m_timeTotal = stopwatch.RealTime()*1000;
+    m_tuple->write();
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -907,7 +929,7 @@ StatusCode  SiliconTrackingAlg::finalize(){
   //delete _trksystem ; _trksystem = 0;
   //delete _histos ; _histos = 0;
   info() << "Processed " << _nEvt << " events " << endmsg;
-  info() << lcio::ILDCellID0::encoder_string << " " << UTIL::ILDCellID0::encoder_string << endmsg;
+
   return GaudiAlgorithm::finalize();
 }
 
@@ -2545,6 +2567,7 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
   float pyTot = 0.;
   float pzTot = 0.;
   debug() << "Total " << nTracks << " candidate tracks will be dealed" << endmsg;
+  auto stopwatch = TStopwatch();
   for (int iTrk=0;iTrk<nTracks;++iTrk) {
     
     TrackExtended * trackAR = _trackImplVec[iTrk];    
@@ -2698,7 +2721,7 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
       // setup initial dummy covariance matrix
       //std::vector<float> covMatrix;
       //covMatrix.resize(15);
-      std::array<float,15> covMatrix;
+      decltype(edm4hep::TrackState::covMatrix) covMatrix;
 
       for (unsigned icov = 0; icov<covMatrix.size(); ++icov) {
         covMatrix[icov] = 0;
@@ -2886,7 +2909,8 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
       }
     }
   }
-  
+  if(m_dumpTime&&m_tuple) m_timeKalman = stopwatch.RealTime()*1000;
+
   debug() << " -> run " << _nRun << " event " << _nEvt << endmsg;
   debug() << "Number of Si tracks = " << nSiSegments << endmsg;
   debug() << "Total 4-momentum of Si Tracks : E = " << std::setprecision(7) << eTot

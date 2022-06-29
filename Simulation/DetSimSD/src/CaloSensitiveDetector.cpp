@@ -33,6 +33,7 @@ CaloSensitiveDetector::ProcessHits(G4Step* step, G4TouchableHistory*) {
     // std::cout << "CaloSensitiveDetector::ProcessHits" << std::endl;
 
     dd4hep::sim::Geant4StepHandler h(step);
+    if(m_applyBirksLaw) h.doApplyBirksLaw();
     dd4hep::Position pos = 0.5 * (h.prePos() + h.postPos());
     HitContribution contrib = dd4hep::sim::Geant4Hit::extractContribution(step);
     const std::string& name = GetName();
@@ -62,9 +63,9 @@ CaloSensitiveDetector::ProcessHits(G4Step* step, G4TouchableHistory*) {
         m_hc->insert(hit);
     }
     hit->truth.push_back(contrib);
-    hit->energyDeposit += contrib.deposit;
-
-
+    //hit->energyDeposit += contrib.deposit;
+    hit->energyDeposit += h.totalEnergy();
+    //std::cout << "Apply Birk law: before = " << contrib.deposit << " after = " << h.totalEnergy() << std::endl;
     
     return true;
 }

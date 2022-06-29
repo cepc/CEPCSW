@@ -27,6 +27,7 @@ gaudi_add_module(RecGenfitAlg
 )
 
 target_include_directories(RecGenfitAlg PUBLIC
+        ${LCIO_INCLUDE_DIRS}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
