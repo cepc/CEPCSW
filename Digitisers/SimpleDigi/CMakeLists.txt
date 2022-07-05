@@ -3,6 +3,7 @@ gaudi_add_module(SimpleDigi
                  SOURCES src/PlanarDigiAlg.cpp
                          src/TPCDigiAlg.cpp
                          src/voxel.cpp
+                         src/CylinderDigiAlg.cpp
                  LINK GearSvc
                       EventSeeder
                       TrackSystemSvcLib
