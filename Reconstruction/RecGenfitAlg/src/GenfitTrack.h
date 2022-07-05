@@ -70,10 +70,10 @@ namespace dd4hep {
 
 class GenfitTrack {
     friend int GenfitFitter::processTrack(
-            GenfitTrack* track, bool resort=true);
+            GenfitTrack* track, bool resort);
 
     friend int GenfitFitter::processTrackWithRep(
-            GenfitTrack* track, int repID, bool resort=true);
+            GenfitTrack* track, int repID, bool resort);
 
     public:
     GenfitTrack(const GenfitField* field,
