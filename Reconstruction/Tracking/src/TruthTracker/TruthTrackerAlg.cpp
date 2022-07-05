@@ -528,8 +528,8 @@ bool TruthTrackerAlg::getTrackStateFirstHit(
         trackState.Z0=helix.getZ0();
         trackState.tanLambda=helix.getTanLambda();
         trackState.referencePoint=helix.getReferencePoint();
-        std::array<float,15> covMatrix;
-        for(int i=0;i<15;i++){covMatrix[i]=100.;}//FIXME
+        std::array<float,21> covMatrix;
+        for(int i=0;i<21;i++){covMatrix[i]=100.;}//FIXME
         trackState.covMatrix=covMatrix;
         debug()<<"first hit trackState "<<trackState<<endmsg;
         return true;
@@ -667,7 +667,7 @@ int TruthTrackerAlg::makeNoiseHit(edm4hep::SimTrackerHitCollection* SimVec,
         trkHit.setCellID(wcellid);
         trkHit.setTime(pocaTime);
         trkHit.setEDep(mcHit.getEDep());
-        trkHit.setEdx(mcHit.getEdx());
+        //trkHit.setEdx(mcHit.getEdx());
         trkHit.setPosition(mcHit.getPosition());
         trkHit.setCovMatrix(mcHit.getCovMatrix());
         for(int iAsso=0;iAsso<(int) assoHits->size();iAsso++)
@@ -755,7 +755,7 @@ int TruthTrackerAlg::smearDCTkhit(DataHandle<edm4hep::TrackerHitCollection>&
         smearHit.setQuality(hit.getQuality());
         smearHit.setEDep(hit.getEDep());
         smearHit.setEDepError(hit.getEDepError());
-        smearHit.setEdx(hit.getEdx());
+        //smearHit.setEdx(hit.getEdx());
         smearHit.setPosition(hit.getPosition());
         smearHit.setCovMatrix(hit.getCovMatrix());
         smearHit.addToRawHits(hit.getObjectID());

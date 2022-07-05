@@ -727,7 +727,7 @@ void RecGenfitAlgSDT::debugTrack(int iStrack,int pidType,const GenfitTrack* genf
     edm4hep::TrackState trackState_Origin;
     CEPC::getTrackStateFromPosMom(trackState_Origin,m_genfitField->getBz(pocaToOrigin_POS.Vect())/GenfitUnit::tesla,pocaToOrigin_pos,
             pocaToOrigin_mom,charge,covMatrix_6);
-    std::array<float,15> errorCov_Origin;
+    std::array<float,21> errorCov_Origin;
     errorCov_Origin = trackState_Origin.covMatrix;
     for(int j=0; j<15; j++) {
         m_ErrorcovMatrix_Origin[iStrack][j] = errorCov_Origin[j];
@@ -899,7 +899,7 @@ void RecGenfitAlgSDT::debugEvent(const edm4hep::TrackCollection* sdtTrackCol,
         }
         for(unsigned int i=0; i<sdtRecTrack.trackStates_size(); i++) {
             edm4hep::TrackState trackStat=sdtRecTrack.getTrackStates(i);
-            std::array<float,15> errorCov;
+            std::array<float,21> errorCov;
             errorCov = trackStat.covMatrix;
             for(int j=0; j<15; j++) {
                 m_ErrorcovMatrix[isdttrack][j] = errorCov[j];

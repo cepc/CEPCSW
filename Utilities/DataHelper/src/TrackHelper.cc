@@ -29,7 +29,7 @@ void CEPC::getPosMomFromTrackState(const edm4hep::TrackState& trackState,
     TMatrixDSym covMatrix_5(5);
     ///< lower triangular covariance matrix of the track parameters.
     ///  the order of parameters is  d0, phi, omega, z0, tan(lambda).
-    std::array<float,15> covMatrix=trackState.covMatrix;
+    std::array<float,21> covMatrix=trackState.covMatrix;
     int k=0;
     for(int i=0;i<5;i++){
         for(int j=0;j<5;j++){
@@ -113,15 +113,16 @@ void CEPC::getTrackStateFromPosMom(edm4hep::TrackState& trackState,double Bz,
 
     TMatrixDSym covMatrix_5 = covMatrix_6.Similarity(Jacobian_matrix);
 
-    std::array<float,15> covMatrix;
+    std::array<float,21> covMatrix;
     int k=0;
     int k1;
-    for(int i=0;i<5;i++){
-        for(int j=0;j<5;j++){
+    for(int i=0;i<6;i++){
+        for(int j=0;j<6;j++){
             if(i>=j) { 
                 k1=k++;
                 //covMatrix[k++]=covMatrix_5(i,j);
                 covMatrix[k1]=covMatrix_5(i,j);
+                if(5==i) covMatrix[k1]=-999;
             }
         }
     }
