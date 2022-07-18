@@ -109,7 +109,7 @@ function run-make() {
 ##############################################################################
 
 # The current default platform
-k4_platform=x86_64-linux-gcc9-opt
+k4_platform=x86_64-linux-gcc11-opt
 k4_version=master
 bldtool=${CEPCSW_BLDTOOL} # make, ninja # set in env var
 
