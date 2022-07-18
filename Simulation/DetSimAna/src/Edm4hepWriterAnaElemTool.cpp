@@ -12,7 +12,7 @@
 #include "DDG4/Geant4Mapping.h"
 #include "DDG4/Geant4HitCollection.h"
 #include "DDG4/Geant4Data.h"
-#include "DDG4/Geant4Hits.h"
+#include "DetSimSD/Geant4Hits.h"
 
 DECLARE_COMPONENT(Edm4hepWriterAnaElemTool)
 
