@@ -46,9 +46,14 @@ public:
     bool finish() override;
     bool configure_gentool() override;
 
+
+private:
+    bool init_BeamBackgroundFileParserV0(const std::string& label, const std::string& inputfn);
+    bool init_GuineaPigPairsFileParser(const std::string& label, const std::string& inputfn);
+
 private:
     Gaudi::Property<std::map<std::string, std::string>> m_inputmaps{this, "InputFileMap"};
-    Gaudi::Property<std::map<std::string, std::string>> m_fomatmaps{this, "InputFormatMap"};
+    Gaudi::Property<std::map<std::string, std::string>> m_formatmaps{this, "InputFormatMap"};
     Gaudi::Property<std::map<std::string, double>>      m_ratemaps {this, "InputRateMap"};
 
     // unit of beam energy: GeV
