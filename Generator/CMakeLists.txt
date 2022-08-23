@@ -18,6 +18,7 @@ gaudi_add_module(GenAlgo
                          # ------- Beam Background -------
                          src/GtBeamBackgroundTool.cpp
                          src/BeamBackgroundFileParserV0.cpp
+                         src/GuineaPigPairsFileParser.cpp
                  LINK ${ROOT_LIBRARIES}
                       k4FWCore::k4FWCore 
                       Gaudi::GaudiAlgLib
