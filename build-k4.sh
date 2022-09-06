@@ -104,6 +104,10 @@ function run-make() {
     cmake --build .
 }
 
+function run-install() {
+    cmake --install .
+}
+
 ##############################################################################
 # Parse the command line options
 ##############################################################################
@@ -120,3 +124,5 @@ check-working-builddir || exit -1
 run-cmake || exit -1
 
 run-make || exit -1
+
+run-install || exit -1

@@ -9,6 +9,8 @@
 # Author: Tao Lin <lintao@ihep.ac.cn>
 ##############################################################################
 
+THISSCRITDIR=$(dirname $(readlink -e "${BASH_SOURCE[0]}" 2>/dev/null) 2>/dev/null) # Darwin readlink doesnt accept -e
+
 function info:() {
     echo "INFO: $*" 1>&2
 }
@@ -41,6 +43,25 @@ function setup-external() {
 
 }
 
+function setup-install-area() {
+    local installarea=$THISSCRITDIR/InstallArea
+    if [ ! -d "$installarea" ]; then
+        return
+    fi
+
+    export PATH=$installarea/bin:$PATH
+    export LD_LIBRARY_PATH=$installarea/lib:$LD_LIBRARY_PATH
+    export PYTHONPATH=$installarea/lib:$PYTHONPATH
+    export PYTHONPATH=$installarea/python:$PYTHONPATH
+    export ROOT_INCLUDE_PATH=$installarea/include:$ROOT_INCLUDE_PATH
+
+    local extrasetupscript=$installarea/setup.sh
+    if [ -f "$extrasetupscript" ]; then
+        source $extrasetupscript
+    fi
+
+    info: "Setup CEPCSW: $installarea"
+}
 
 ##############################################################################
 # Parse the command line options
@@ -54,3 +75,4 @@ fi
 export CEPCSW_LCG_VERSION
 
 setup-external
+setup-install-area
