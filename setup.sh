@@ -54,6 +54,12 @@ function setup-install-area() {
     export PYTHONPATH=$installarea/lib:$PYTHONPATH
     export PYTHONPATH=$installarea/python:$PYTHONPATH
     export ROOT_INCLUDE_PATH=$installarea/include:$ROOT_INCLUDE_PATH
+
+    local extrasetupscript=$installarea/setup.sh
+    if [ -f "$extrasetupscript" ]; then
+        source $extrasetupscript
+    fi
+
     info: "Setup CEPCSW: $installarea"
 }
 
