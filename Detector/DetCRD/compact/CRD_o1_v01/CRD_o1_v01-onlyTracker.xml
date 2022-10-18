@@ -13,7 +13,6 @@
   
   <includes>
     <gdmlFile  ref="${DD4hepINSTALL}/DDDetectors/compact/elements.xml"/>
-    <!--gdmlFile  ref="../CRD_common_v01/materials-woIsotope.xml"/-->
     <gdmlFile  ref="../CRD_common_v01/materials.xml"/>
   </includes>
   
