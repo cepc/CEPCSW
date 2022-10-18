@@ -46,11 +46,11 @@ using dd4hep::rec::LayeredCalorimeterData;
 
 // After reading in all the necessary parameters.
 // To check the radius range and the space for placing the total layers
-static bool validateEnvelope(double rInner, double rOuter, double radiatorThickness, double layerThickness, int layerNumber){
+static bool validateEnvelope(double rInner, double rOuter, double radiatorThickness, double layerThickness, int layerNumber, int symmetry){
   
   bool Error = false;
   bool Warning = false;
-  double spaceAllowed = rOuter*cos(M_PI/16.) - rInner;
+  double spaceAllowed = rOuter*cos(M_PI/symmetry) - rInner;
   double spaceNeeded  = (radiatorThickness + layerThickness)* layerNumber;
   double spaceToleranted  = (radiatorThickness + layerThickness)* (layerNumber+1);
   double rOuterRecommaned = ( rInner + spaceNeeded )/cos(M_PI/16.);
@@ -59,17 +59,17 @@ static bool validateEnvelope(double rInner, double rOuter, double radiatorThickn
   
   if( spaceNeeded > spaceAllowed )
     {
-      printout( dd4hep::ERROR,  "SHcalSc04_Barrel_v01", " Layer number is more than it can be built! "  ) ;
+      printout( dd4hep::ERROR,  "SHcalSc04_Barrel_v04", " Layer number is more than it can be built! "  ) ;
       Error = true;
     }
   else if ( spaceToleranted < spaceAllowed )
     {
-      printout( dd4hep::WARNING,  "SHcalSc04_Barrel_v01", " Layer number is less than it is able to build!" ) ;
+      printout( dd4hep::WARNING,  "SHcalSc04_Barrel_v04", " Layer number is less than it is able to build!" ) ;
       Warning = true;
     }
   else
     {
-      printout( dd4hep::DEBUG,  "SHcalSc04_Barrel_v01"," has been validated and start to build it." ) ;
+      printout( dd4hep::DEBUG,  "SHcalSc04_Barrel_v04"," has been validated and start to build it." ) ;
       Error = false;
       Warning = false;
     }
@@ -179,13 +179,8 @@ static Ref_t create_detector(Detector& theDetector, xml_h element, SensitiveDete
 
   int         Hcal_nlayers                     = theDetector.constant<int>("Hcal_nlayers");
 
-  double      TPC_outer_radius               = theDetector.constant<double>("TPC_outer_radius");
-
-  double      Ecal_outer_radius               = theDetector.constant<double>("Ecal_outer_radius");
-
-  printout( dd4hep::DEBUG,  "SHcalSc04_Barrel_v04", "TPC_outer_radius : %e   - Ecal_outer_radius: %e ", TPC_outer_radius , Ecal_outer_radius) ;
-
-  validateEnvelope(Hcal_inner_radius, Hcal_outer_radius, Hcal_radiator_thickness, Hcal_chamber_thickness, Hcal_nlayers);
+  printout( dd4hep::INFO, "SHcalSc04_Barrel_v04", "Hcal_inner_radius : %e   - Hcal_outer_radius %e ", Hcal_inner_radius , Hcal_outer_radius);
+  validateEnvelope(Hcal_inner_radius, Hcal_outer_radius, Hcal_radiator_thickness, Hcal_chamber_thickness, Hcal_nlayers, Hcal_inner_symmetry);
 
   Readout readout = sens.readout();
   dd4hep::Segmentation seg = readout.segmentation();
