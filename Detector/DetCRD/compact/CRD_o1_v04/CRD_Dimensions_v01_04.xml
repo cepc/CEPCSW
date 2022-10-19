@@ -5,7 +5,7 @@
 
   <info name="CRDDimensions"
        title="master file with includes and world dimension"
-       author="C.D.Fu"
+       author="C.D.Fu, Mengyao Liu"
        url="no"
        status="development"
        version="1.0">
@@ -91,8 +91,8 @@
     <constant name="DC_Endcap_dz" value="0.1*mm"/>
     <constant name="DC_half_length"  value="2980*mm" />
     <constant name="DC_safe_distance" value="0.02*mm"/>
-    <constant name="SDT_inner_wall_thickness" value="0.315*mm"/>
-    <constant name="SDT_outer_wall_thickness" value="3.86*mm"/>
+    <constant name="SDT_inner_wall_thickness" value="0.2*mm"/>
+    <constant name="SDT_outer_wall_thickness" value="2.8*mm"/>
     <constant name="MainTracker_half_length"  value="DC_half_length+DC_Endcap_dz" />
 
     <!--obselete for single drift chamber-->
