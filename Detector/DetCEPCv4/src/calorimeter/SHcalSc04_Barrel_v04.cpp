@@ -46,11 +46,11 @@ using dd4hep::rec::LayeredCalorimeterData;
 
 // After reading in all the necessary parameters.
 // To check the radius range and the space for placing the total layers
-static bool validateEnvelope(double rInner, double rOuter, double radiatorThickness, double layerThickness, int layerNumber, int symmetry){
+static bool validateEnvelope(double rInner, double rOuter, double radiatorThickness, double layerThickness, int layerNumber, int nsymmetry){
   
   bool Error = false;
   bool Warning = false;
-  double spaceAllowed = rOuter*cos(M_PI/symmetry) - rInner;
+  double spaceAllowed = rOuter*cos(M_PI/nsymmetry) - rInner;
   double spaceNeeded  = (radiatorThickness + layerThickness)* layerNumber;
   double spaceToleranted  = (radiatorThickness + layerThickness)* (layerNumber+1);
   double rOuterRecommaned = ( rInner + spaceNeeded )/cos(M_PI/16.);
