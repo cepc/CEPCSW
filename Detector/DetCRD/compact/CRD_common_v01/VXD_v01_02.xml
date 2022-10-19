@@ -3,7 +3,7 @@
     <constant name="VXD_inner_radius" value="Vertex_inner_radius"/>
     <constant name="VXD_outer_radius" value="Vertex_outer_radius"/>
     <constant name="VXD_half_length"  value="Vertex_half_length"/>
-    <constant name="VXD_inner_radius_1" value="BeamPipe_VertexRegion_rmax"/>
+    <constant name="VXD_inner_radius_1" value="Vertex_Side_rmin"/>
     <constant name="VXD_radius_r1" value="16*mm"/>
     <constant name="VXD_radius_r3" value="37*mm"/>
     <constant name="VXD_radius_r5" value="58*mm"/>
@@ -18,28 +18,6 @@
     <detector id="DetID_VXD" name="VXD" type="VXD04" vis="SeeThrough" readout="VXDCollection" insideTrackingVolume="true">
       <envelope>
 	<shape type="Assembly"/>
-	<!--shape type="BooleanShape" operation="Subtraction" material="Air" >
-	  <shape type="BooleanShape" operation="Subtraction" material="Air" >
-	    <shape type="BooleanShape" operation="Subtraction" material="Air" >
-	      <shape type="BooleanShape" operation="Subtraction" material="Air" >
-		<shape type="Tube" rmin="VXD_inner_radius" rmax="VXD_outer_radius" dz="VXD_half_length" />
-		<shape type="Tube" rmin="0." rmax="VXD_inner_radius_1" dz="(VXD_half_length - VXD_cone_max_z)/2. + env_safety " />
-		<position x="0" y="0" z="VXD_half_length-(VXD_half_length - VXD_cone_max_z)/2.+ env_safety"/> 
-	      </shape>
-	      <shape type="Tube" rmin="0." rmax="VXD_inner_radius_1" dz="(VXD_half_length - VXD_cone_max_z)/2. + env_safety " />
-	      <position x="0" y="0" z="- ( VXD_half_length-(VXD_half_length - VXD_cone_max_z)/2.+ env_safety ) "/> 
-	      <rotation x="0" y="180.*deg" z="0" />
-	    </shape>
-	    <shape type="Cone" rmin1="0" rmax1="VXD_inner_radius" rmin2="0" rmax2="VXD_inner_radius_1" 
-		   z="(VXD_cone_max_z-VXD_cone_min_z)/2. + env_safety "/>
-	    <position x="0" y="0" z="VXD_cone_min_z+(VXD_cone_max_z-VXD_cone_min_z)/2."/> 
-	  </shape>
-	  <shape type="Cone" rmin1="0" rmax1="VXD_inner_radius" rmin2="0" rmax2="VXD_inner_radius_1" 
-		 z="(VXD_cone_max_z-VXD_cone_min_z)/2. + env_safety "/>
-	  <position x="0" y="0" z="-(VXD_cone_min_z+(VXD_cone_max_z-VXD_cone_min_z)/2.)"/> 
-	  <rotation x="0" y="180.*deg" z="0" />
-	</shape-->
-	
       </envelope>
 
       <!-- set the detecor type flag - note: using the '+' operator here as the evaluator does not understand '|' 
