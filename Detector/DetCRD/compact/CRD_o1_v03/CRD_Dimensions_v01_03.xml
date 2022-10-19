@@ -81,7 +81,7 @@
 
     <constant name="Vertex_inner_radius" value="BeamPipe_Central_inner_radius+BeamPipe_Be_total_thickness"/>
     <constant name="Vertex_outer_radius" value="101*mm"/>
-    <constant name="Vertex_half_length"  value="200*mm"/>
+    <constant name="Vertex_half_length"  value="205*mm"/>
     <constant name="Vertex_Side_rmin"    value="BeamPipe_VertexRegion_rmax"/>
 
     <constant name="DC_Endcap_dz" value="0.1*mm"/>

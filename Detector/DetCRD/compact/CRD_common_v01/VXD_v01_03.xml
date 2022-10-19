@@ -3,9 +3,9 @@
     <constant name="VXD_inner_radius" value="Vertex_inner_radius"/>
     <constant name="VXD_outer_radius" value="Vertex_outer_radius"/>
     <constant name="VXD_half_length"  value="Vertex_half_length"/>
-    <constant name="VXD_inner_radius_1" value="Vertex_Side_rmin"/><!--BeamPipe_VertexRegion_rmax"/-->
-    <constant name="VXD_radius_r1" value="16*mm"/>
-    <constant name="VXD_radius_r3" value="37*mm"/>
+    <constant name="VXD_inner_radius_1" value="Vertex_Side_rmin"/>
+    <constant name="VXD_radius_r1" value="12*mm"/>
+    <constant name="VXD_radius_r3" value="34*mm"/>
     <constant name="VXD_radius_r5" value="58*mm"/>
     <constant name="VXD_length_r1" value="62.5*mm"/>
     <constant name="VXD_length_r3" value="125*mm"/>
@@ -15,17 +15,17 @@
   </define>
 
   <detectors>
-    <detector id="DetID_VXD" name="VXD" type="VXD04" vis="VXDVis" readout="VXDCollection" insideTrackingVolume="true">
+    <detector id="DetID_VXD" name="VXD" type="VXD04" vis="VXDVis" readout="VXDCollection" insideTrackingVolume="true" combineHits="true">
       <envelope>
 	<shape type="BooleanShape" operation="Subtraction" material="Air" >
 	  <shape type="BooleanShape" operation="Subtraction" material="Air" >
 	    <shape type="BooleanShape" operation="Subtraction" material="Air" >
 	      <shape type="BooleanShape" operation="Subtraction" material="Air" >
 		<shape type="Tube" rmin="VXD_inner_radius" rmax="VXD_outer_radius" dz="VXD_half_length" />
-		<shape type="Tube" rmin="0" rmax="VXD_inner_radius_1" dz="(VXD_half_length - VXD_cone_max_z)/2. + env_safety " />
+		<shape type="Tube" rmin="0." rmax="VXD_inner_radius_1" dz="(VXD_half_length - VXD_cone_max_z)/2. + env_safety " />
 		<position x="0" y="0" z="VXD_half_length-(VXD_half_length - VXD_cone_max_z)/2.+ env_safety"/> 
 	      </shape>
-	      <shape type="Tube" rmin="0" rmax="VXD_inner_radius_1" dz="(VXD_half_length - VXD_cone_max_z)/2. + env_safety " />
+	      <shape type="Tube" rmin="0." rmax="VXD_inner_radius_1" dz="(VXD_half_length - VXD_cone_max_z)/2. + env_safety " />
 	      <position x="0" y="0" z="- ( VXD_half_length-(VXD_half_length - VXD_cone_max_z)/2.+ env_safety ) "/> 
 	      <rotation x="0" y="180.*deg" z="0" />
 	    </shape>
@@ -77,18 +77,18 @@
       <support_shell id="0" inner_radious="65*mm" half_z="145*mm" thickess="0.49392*mm" endplate_inner_radious="30*mm" endplate_inner_radius_L1="15.7*mm" endplate_outer_radius_L1="20*mm" 
 		     offset_ladder_block="0.28224*mm" beryllium_ladder_block_length="5*mm" beryllium_ladder_block_thickness="0.25*mm" shell_endplate_thickness="2*mm" forward_shell_half_z="6.5*mm"  />
       <!-- SQL command: "select * from layer;"  -->
-      <layer id="0" layer_radius="VXD_radius_r1" ladder_length="VXD_length_r1" ladder_width="5.5*mm" nb_ladder="10" ladder_gap="0" strip_line_final_z="150*mm" end_electronics_width="5.5*mm" 
+      <layer id="0" layer_radius="VXD_radius_r1" ladder_length="VXD_length_r1" ladder_width="5.2*mm" nb_ladder="8" ladder_gap="0" strip_line_final_z="150*mm" end_electronics_width="5.2*mm" 
 	     initial_kapton_striplines_thickness="0.04566*mm" final_kapton_striplines_thickness="0.02435*mm" initial_metal_striplines_thickness="0.00806*mm" 
 	     final_metal_striplines_thickness="0.0043*mm" support_width="4.5*mm"  />
-      <layer id="1" layer_radius="VXD_radius_r1" ladder_length="VXD_length_r1" ladder_width="5.5*mm" nb_ladder="10" ladder_gap="0" strip_line_final_z="150*mm" end_electronics_width="5.5*mm" 
+      <layer id="1" layer_radius="VXD_radius_r1" ladder_length="VXD_length_r1" ladder_width="5.2*mm" nb_ladder="8" ladder_gap="0" strip_line_final_z="150*mm" end_electronics_width="5.2*mm" 
 	     initial_kapton_striplines_thickness="0.04566*mm" final_kapton_striplines_thickness="0.02435*mm" initial_metal_striplines_thickness="0.00806*mm" 
 	     final_metal_striplines_thickness="0.0043*mm" support_width="4.5*mm"  />
-      <layer id="2" layer_radius="VXD_radius_r3" ladder_length="VXD_length_r3" ladder_width="11*mm" nb_ladder="11" ladder_gap="0*mm" strip_line_final_z="150*mm" end_electronics_width="11*mm" 
+      <layer id="2" layer_radius="VXD_radius_r3" ladder_length="VXD_length_r3" ladder_width="10.2*mm" nb_ladder="11" ladder_gap="0*mm" strip_line_final_z="150*mm" end_electronics_width="10.2*mm" 
 	     initial_kapton_striplines_thickness="0.04102*mm" final_kapton_striplines_thickness="0.05059*mm" initial_metal_striplines_thickness="0.00724*mm" 
-	     final_metal_striplines_thickness="0.00893*mm" support_width="10*mm"  />
-      <layer id="3" layer_radius="VXD_radius_r3" ladder_length="VXD_length_r3" ladder_width="11*mm" nb_ladder="11" ladder_gap="0*mm" strip_line_final_z="150*mm" end_electronics_width="11*mm" 
+	     final_metal_striplines_thickness="0.00893*mm" support_width="9.2*mm"  />
+      <layer id="3" layer_radius="VXD_radius_r3" ladder_length="VXD_length_r3" ladder_width="10.2*mm" nb_ladder="11" ladder_gap="0*mm" strip_line_final_z="150*mm" end_electronics_width="10.2*mm" 
 	     initial_kapton_striplines_thickness="0.04102*mm" final_kapton_striplines_thickness="0.05059*mm" initial_metal_striplines_thickness="0.00724*mm" 
-	     final_metal_striplines_thickness="0.00893*mm" support_width="10*mm"  />
+	     final_metal_striplines_thickness="0.00893*mm" support_width="9.2*mm"  />
       <layer id="4" layer_radius="VXD_radius_r5" ladder_length="VXD_length_r3" ladder_width="11*mm" nb_ladder="17" ladder_gap="0*mm" strip_line_final_z="150*mm" end_electronics_width="11*mm" 
 	     initial_kapton_striplines_thickness="0.04044*mm" final_kapton_striplines_thickness="0.07819*mm" initial_metal_striplines_thickness="0.00714*mm" 
 	     final_metal_striplines_thickness="0.0138*mm" support_width="10*mm"  />

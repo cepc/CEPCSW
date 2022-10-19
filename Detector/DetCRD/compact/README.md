@@ -5,7 +5,9 @@ The following CRD detector models are available in CEPCSW
 | Model         |  Description                 | MainTracker |  Ecal   | Hcal | Status         |
 | ------------- | -----------------------------|------------ |---------|------|----------------|
 | CRD_o1_v01    | coil inside simulation model | SIT+DC+SET  | crystal | RPC  | developing     |
-| CRD_o1_v02    | pixel SET                    | SIT+DC+SET  | crystal | RPC  | developing     |
+| CRD_o1_v02    | strip SET                    | SIT+DC+SET  | crystal | RPC  | developing     |
+| CRD_o1_v03    | MOST2 vertex                 | SIT+DC+SET  | crystal | RPC  | developing     |
+| CRD_o1_v04    | smaller center beam pipe     | SIT+DC+SET  | crystal | RPC  | developing     |
 | ------------- | -----------------------------|-------------|---------|------|----------------|
  
 ## Details
@@ -47,3 +49,15 @@ The following CRD detector models are available in CEPCSW
  - strip SET: double layers
  - compact files:
          - [./CRD_o1_v02/CRD_o1_v02.xml](./CRD_o1_v02/CRD_o1_v02.xml)
+
+### CRD_o1_v03 (to update)
+ - based on CRD_o1_v01
+ - MOST2 vertex
+ - compact files:
+         - [./CRD_o1_v03/CRD_o1_v03.xml](./CRD_o1_v03/CRD_o1_v03.xml)
+
+### CRD_o1_v04 (to update)
+ - based on CRD_o1_v01
+ - smaller center beam pipe & new MDI: inner radius = 10mm, flat at y direction
+ - compact files:
+         - [./CRD_o1_v04/CRD_o1_v04.xml](./CRD_o1_v04/CRD_o1_v04.xml)

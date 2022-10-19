@@ -53,36 +53,40 @@
     <constant name="DetID_barrel"    value=" 0"/>
     <constant name="DetID_fwd"       value="+1"/>
     
-    <constant name="BeamPipe_Be_inner_thickness"   value="0.5*mm"/>
-    <constant name="BeamPipe_Cooling_thickness"    value="0.5*mm"/>
-    <constant name="BeamPipe_Be_outer_thickness"   value="0.3*mm"/>
+    <constant name="BeamPipe_Be_inner_thickness"   value="0.2*mm"/>
+    <constant name="BeamPipe_Cooling_thickness"    value="0.35*mm"/>
+    <constant name="BeamPipe_Be_outer_thickness"   value="0.15*mm"/>
     <constant name="BeamPipe_Be_total_thickness"   value="BeamPipe_Be_inner_thickness+BeamPipe_Cooling_thickness+BeamPipe_Be_outer_thickness"/>
     <constant name="BeamPipe_Al_thickness"         value="BeamPipe_Be_total_thickness"/>
-    <constant name="BeamPipe_Cu_thickness"         value="2.0*mm"/>
+    <constant name="BeamPipe_Cu_thickness"         value="4.0*mm"/>
     
-    <constant name="BeamPipe_CentralBe_zmax"       value="120*mm"/>
-    <constant name="BeamPipe_CentralAl_zmax"       value="205*mm"/>
-    <constant name="BeamPipe_ConeAl_zmax"          value="655*mm"/>
-    <constant name="BeamPipe_LinkerAl_zmax"        value="700*mm"/>
-    <constant name="BeamPipe_LinkerCu_zmax"        value="780*mm"/>
+    <constant name="BeamPipe_CentralBe_zmax"       value="85*mm"/>
+    <constant name="BeamPipe_CentralAl_zmax"       value="180*mm"/>
+    <constant name="BeamPipe_ExpandAl_zmax"        value="655*mm"/>
+    <constant name="BeamPipe_Linker_zmin"          value="700*mm"/>
+    <constant name="BeamPipe_Linker_zmax"          value="780*mm"/>
     <constant name="BeamPipe_Waist_zmax"           value="805*mm"/>
     <constant name="BeamPipe_Crotch_zmax"          value="855*mm"/>
     <constant name="BeamPipe_FirstSeparated_zmax"  value="1110*mm"/>
+    <constant name="BeamPipe_Mask_zmin"            value="1210*mm"/>
+    <constant name="BeamPipe_Mask_zmax"            value="1230*mm"/>
     <constant name="BeamPipe_SecondSeparated_zmax" value="2200*mm"/>
     <constant name="BeamPipe_end_z"                value="12*m"/>
 
-    <constant name="BeamPipe_Central_inner_radius"  value="14*mm"/>
-    <constant name="BeamPipe_Expanded_inner_radius" value="20*mm"/>
-    <constant name="BeamPipe_Upstream_inner_radius" value="6*mm"/>
-    <constant name="BeamPipe_Dnstream_inner_radius" value="10*mm"/>
-    <constant name="BeamPipe_Crotch_hole_height"    value="30.67*mm"/>
+    <constant name="BeamPipe_Central_inner_radius"  value="10*mm"/>
+    <constant name="BeamPipe_Fork_inner_radius"     value="10*mm"/>
+    <constant name="BeamPipe_FirstExpand_width"     value="35*mm"/>
+    <constant name="BeamPipe_SecondExpand_width"    value="39*mm"/>
+    <constant name="BeamPipe_Mask_inner_radius"     value="6*mm"/>
     <constant name="BeamPipe_VertexRegion_rmax"     value="BeamPipe_Central_inner_radius+BeamPipe_Al_thickness"/>
-    <constant name="BeamPipe_ForwardRegion_rmax"    value="BeamPipe_Expanded_inner_radius+BeamPipe_Cu_thickness"/>
+    <constant name="BeamPipe_FrontLinker_rmax"      value="BeamPipe_FirstExpand_width/2+BeamPipe_Al_thickness"/>
+    <constant name="BeamPipe_ForwardRegion_rmax"    value="BeamPipe_SecondExpand_width/2+BeamPipe_Cu_thickness"/>
 
     <constant name="Vertex_inner_radius" value="BeamPipe_Central_inner_radius+BeamPipe_Be_total_thickness"/>
-    <constant name="Vertex_outer_radius" value="101*mm"/>
+    <constant name="Vertex_outer_radius" value="70*mm"/>
     <constant name="Vertex_half_length"  value="200*mm"/>
-    <constant name="Vertex_Side_rmin"    value="BeamPipe_VertexRegion_rmax"/>
+    <constant name="Vertex_Side_rmin"    value="BeamPipe_VertexRegion_rmax+(BeamPipe_FrontLinker_rmax-BeamPipe_VertexRegion_rmax)/(BeamPipe_ExpandAl_zmax-BeamPipe_CentralAl_zmax)
+						                          *(Vertex_half_length-BeamPipe_CentralAl_zmax)"/>
 
     <constant name="DC_Endcap_dz" value="0.1*mm"/>
     <constant name="DC_half_length"  value="2980*mm" />
@@ -100,15 +104,15 @@
     <constant name="OuterTracker_outer_radius" value="1723*mm"/>
 
     <!-- Parameters of single drift chamber  -->
-    <constant name="DC_chamber_layer_rbegin" value="800*mm"/>
+    <constant name="DC_chamber_layer_rbegin" value="1000*mm"/>
     <constant name="DC_chamber_layer_rend" value="1800*mm"/>
 
     <constant name="DC_inner_radius" value="DC_chamber_layer_rbegin-SDT_inner_wall_thickness-DC_safe_distance"/>
     <constant name="DC_outer_radius" value="DC_chamber_layer_rend+SDT_outer_wall_thickness+DC_safe_distance"/>
 
-    <constant name="SIT1_inner_radius"   value="230*mm"/>
-    <constant name="SIT2_inner_radius"   value="410*mm"/>
-    <constant name="SIT3_inner_radius"   value="590*mm"/>
+    <constant name="SIT1_inner_radius"   value="80*mm"/>
+    <constant name="SIT3_inner_radius"   value="DC_chamber_layer_rbegin-30*mm"/>
+    <constant name="SIT2_inner_radius"   value="0.5*(SIT1_inner_radius+SIT3_inner_radius)"/>
     <constant name="SIT4_inner_radius"   value="770*mm"/>
     <constant name="SIT1_half_length"    value="461*mm"/>
     <constant name="SIT2_half_length"    value="691*mm"/>
@@ -119,16 +123,20 @@
 
     <constant name="SiTracker_barrel_endcap_gap" value="5*mm"/>
     <constant name="SiTracker_DC_endcap_gap"     value="10*mm"/>
-    <constant name="SiTracker_endcap_z1" value="SIT1_half_length+SiTracker_barrel_endcap_gap"/>
-    <constant name="SiTracker_endcap_z2" value="SIT2_half_length+SiTracker_barrel_endcap_gap"/>
-    <constant name="SiTracker_endcap_z3" value="SIT3_half_length+SiTracker_barrel_endcap_gap"/>
-    <constant name="SiTracker_endcap_z4" value="SIT4_half_length+SiTracker_barrel_endcap_gap"/>
-    <constant name="SiTracker_endcap_z5" value="MainTracker_half_length+SiTracker_DC_endcap_gap"/>
-    <constant name="SiTracker_endcap_outer_radius1" value="SIT1_inner_radius+SiTracker_barrel_endcap_gap"/>
-    <constant name="SiTracker_endcap_outer_radius2" value="SIT2_inner_radius+SiTracker_barrel_endcap_gap"/>
-    <constant name="SiTracker_endcap_outer_radius3" value="SIT3_inner_radius+SiTracker_barrel_endcap_gap"/>
-    <constant name="SiTracker_endcap_outer_radius4" value="SIT4_inner_radius+SiTracker_barrel_endcap_gap"/>
-    <constant name="SiTracker_endcap_outer_radius5" value="SET_inner_radius+SiTracker_barrel_endcap_gap"/>
+    <constant name="SiTracker_endcap_z1" value="Vertex_half_length+SiTracker_barrel_endcap_gap"/>
+    <constant name="SiTracker_endcap_z2" value="SiTracker_endcap_z1+100*mm"/>
+    <constant name="SiTracker_endcap_z3" value="SIT1_half_length+SiTracker_barrel_endcap_gap"/>
+    <constant name="SiTracker_endcap_z4" value="SIT2_half_length+SiTracker_barrel_endcap_gap"/>
+    <constant name="SiTracker_endcap_z5" value="SIT3_half_length+SiTracker_barrel_endcap_gap"/>
+    <constant name="SiTracker_endcap_z6" value="0.5*(SIT3_half_length+MainTracker_half_length)"/>
+    <constant name="SiTracker_endcap_z7" value="MainTracker_half_length+SiTracker_DC_endcap_gap"/>
+    <constant name="SiTracker_endcap_outer_radius1" value="Vertex_outer_radius"/>
+    <constant name="SiTracker_endcap_outer_radius2" value="Vertex_outer_radius"/>
+    <constant name="SiTracker_endcap_outer_radius3" value="SIT1_inner_radius+SiTracker_barrel_endcap_gap"/>
+    <constant name="SiTracker_endcap_outer_radius4" value="SIT2_inner_radius+SiTracker_barrel_endcap_gap"/>
+    <constant name="SiTracker_endcap_outer_radius5" value="SIT3_inner_radius+SiTracker_barrel_endcap_gap"/>
+    <constant name="SiTracker_endcap_outer_radius6" value="SIT3_inner_radius+SiTracker_barrel_endcap_gap"/>
+    <constant name="SiTracker_endcap_outer_radius7" value="SET_inner_radius+SiTracker_barrel_endcap_gap"/>
     <!--obseleted -->
     <constant name="FTD_BeamPipe_cable_clearance"     value="10*mm"/> 
     <constant name="FTD_BeamPipe_gap"     value="15*mm"/>
@@ -145,7 +153,7 @@
     <constant name="TUBE_IPOuterTube_end_z"       value="BeamPipe_CentralAl_zmax"/>
     <constant name="TUBE_IPOuterTube_end_radius"  value="BeamPipe_Central_inner_radius+BeamPipe_Al_thickness"/>
     <constant name="TUBE_IPOuterBulge_end_z"      value="BeamPipe_Crotch_zmax"/><!--"BeamPipe_ConeAl_zmax"/-->
-    <constant name="TUBE_IPOuterBulge_end_radius" value="BeamPipe_Crotch_zmax*tan(CrossingAngle/2)+BeamPipe_Dnstream_inner_radius+BeamPipe_Cu_thickness"/>
+    <!--constant name="TUBE_IPOuterBulge_end_radius" value="BeamPipe_Crotch_zmax*tan(CrossingAngle/2)+BeamPipe_Dnstream_inner_radius+BeamPipe_Cu_thickness"/-->
     <!--"BeamPipe_Expanded_inner_radius+BeamPipe_Al_thickness+5*mm"/-->
 
     <constant name="Ecal_barrel_inner_radius" value="1860*mm"/><!--1900->1860, since 1900-2180 is range for symmetry=12, but now fixed as 8 in constructor code-->
