@@ -110,10 +110,10 @@
     <constant name="DC_inner_radius" value="DC_chamber_layer_rbegin-SDT_inner_wall_thickness-DC_safe_distance"/>
     <constant name="DC_outer_radius" value="DC_chamber_layer_rend+SDT_outer_wall_thickness+DC_safe_distance"/>
 
-    <constant name="SIT1_inner_radius"   value="80*mm"/>
-    <constant name="SIT3_inner_radius"   value="DC_chamber_layer_rbegin-30*mm"/>
-    <constant name="SIT2_inner_radius"   value="0.5*(SIT1_inner_radius+SIT3_inner_radius)"/>
-    <constant name="SIT4_inner_radius"   value="770*mm"/>
+    <constant name="SIT1_inner_radius"   value="150*mm"/>
+    <constant name="SIT2_inner_radius"   value="350*mm"/>
+    <constant name="SIT4_inner_radius"   value="DC_chamber_layer_rbegin-30*mm"/>
+    <constant name="SIT3_inner_radius"   value="0.5*(SIT2_inner_radius+SIT4_inner_radius)"/>
     <constant name="SIT1_half_length"    value="461*mm"/>
     <constant name="SIT2_half_length"    value="691*mm"/>
     <constant name="SIT3_half_length"    value="1013*mm"/>
@@ -128,14 +128,14 @@
     <constant name="SiTracker_endcap_z3" value="SIT1_half_length+SiTracker_barrel_endcap_gap"/>
     <constant name="SiTracker_endcap_z4" value="SIT2_half_length+SiTracker_barrel_endcap_gap"/>
     <constant name="SiTracker_endcap_z5" value="SIT3_half_length+SiTracker_barrel_endcap_gap"/>
-    <constant name="SiTracker_endcap_z6" value="0.5*(SIT3_half_length+MainTracker_half_length)"/>
+    <constant name="SiTracker_endcap_z6" value="SIT4_half_length+SiTracker_barrel_endcap_gap"/>
     <constant name="SiTracker_endcap_z7" value="MainTracker_half_length+SiTracker_DC_endcap_gap"/>
-    <constant name="SiTracker_endcap_outer_radius1" value="Vertex_outer_radius"/>
-    <constant name="SiTracker_endcap_outer_radius2" value="Vertex_outer_radius"/>
+    <constant name="SiTracker_endcap_outer_radius1" value="SIT1_inner_radius"/>
+    <constant name="SiTracker_endcap_outer_radius2" value="SIT1_inner_radius"/>
     <constant name="SiTracker_endcap_outer_radius3" value="SIT1_inner_radius+SiTracker_barrel_endcap_gap"/>
     <constant name="SiTracker_endcap_outer_radius4" value="SIT2_inner_radius+SiTracker_barrel_endcap_gap"/>
     <constant name="SiTracker_endcap_outer_radius5" value="SIT3_inner_radius+SiTracker_barrel_endcap_gap"/>
-    <constant name="SiTracker_endcap_outer_radius6" value="SIT3_inner_radius+SiTracker_barrel_endcap_gap"/>
+    <constant name="SiTracker_endcap_outer_radius6" value="SIT4_inner_radius+SiTracker_barrel_endcap_gap"/>
     <constant name="SiTracker_endcap_outer_radius7" value="SET_inner_radius+SiTracker_barrel_endcap_gap"/>
     <!--obseleted -->
     <constant name="FTD_BeamPipe_cable_clearance"     value="10*mm"/> 
@@ -262,7 +262,7 @@
     <vis name="YOKEVis"          alpha="1.0" r="0.64"  g="0.75"    b="0.99"  showDaughters="false" visible="true"/>
     <vis name="LCALVis"          alpha="1.0" r="0.25"  g="0.88"    b="0.81"  showDaughters="true"  visible="true"/>
     <vis name="SupportVis"       alpha="1.0" r="0.2"   g="0.2"     b="0.2"   showDaughters="true"  visible="true"/>
-    <vis name="ShellVis"         alpha="1.0" r="0.83"  g="0.55"    b="0.89"  showDaughters="false" visible="true"/>
+    <vis name="ShellVis"         alpha="1.0" r="0.82"  g="0.59"    b="0.36"  showDaughters="false" visible="true"/>
 
     <vis name="WhiteVis"         alpha="0.0" r=".96" g=".96"  b=".96"   showDaughters="true"  visible="true"/>
     <vis name="LightGrayVis"     alpha="0.0" r=".75" g=".75"  b=".75"   showDaughters="true"  visible="true"/>
