@@ -23,10 +23,11 @@ void GenericTrackerSensitiveDetector::Initialize(G4HCofThisEvent* HCE){
 }
 
 G4bool GenericTrackerSensitiveDetector::ProcessHits(G4Step* step, G4TouchableHistory*){
-  
   G4TouchableHandle touchPost = step->GetPostStepPoint()->GetTouchableHandle(); 
   G4TouchableHandle touchPre  = step->GetPreStepPoint()->GetTouchableHandle(); 
   dd4hep::sim::Geant4StepHandler h(step);
+  if (fabs(h.trackDef()->GetPDGCharge()) < 0.01) return true;
+
   dd4hep::Position prePos    = h.prePos();
   dd4hep::Position postPos   = h.postPos();
   dd4hep::Position direction = postPos - prePos;

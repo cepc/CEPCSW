@@ -23,6 +23,8 @@ void TrackerCombineSensitiveDetector::Initialize(G4HCofThisEvent* HCE){
 
 G4bool TrackerCombineSensitiveDetector::ProcessHits(G4Step* step, G4TouchableHistory*){
   dd4hep::sim::Geant4StepHandler h(step);
+  if (fabs(h.trackDef()->GetPDGCharge()) < 0.01) return true;
+
   bool return_code = false;
   if ( userData.current == -1 ) userData.start(getCellID(step), step, h.pre);
   else if ( !userData.track || userData.current != h.track->GetTrackID() ) {
