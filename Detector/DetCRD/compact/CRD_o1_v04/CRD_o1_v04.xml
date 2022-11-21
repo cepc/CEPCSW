@@ -31,7 +31,7 @@
   <include ref="../CRD_common_v01/VXD_v01_03.xml"/>
   <include ref="../CRD_common_v01/FTD_SkewRing_v01_03.xml"/>
   <include ref="../CRD_common_v01/SIT_SimplePixel_v01_01.xml"/>
-  <include ref="../CRD_common_v01/DC_Simple_v01_01.xml"/>
+  <include ref="../CRD_common_v01/DC_Simple_v01_02.xml"/>
   <include ref="../CRD_common_v01/SET_SimplePixel_v01_01.xml"/>
   <include ref="../CRD_common_v01/Ecal_Crystal_Barrel_v01_01.xml"/>
   <!--include ref="../CRD_common_v01/Ecal_Crystal_Endcap_v01_01.xml"/-->
