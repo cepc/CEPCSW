@@ -799,7 +799,7 @@ StatusCode ClupatraAlg::execute() {
 	//===============================================================================================
 
 	// FIXME Mingrui
-	debug()  << " ===========    refitting final " << cluList.size() << " track segments  "   << endmsg ;
+	debug()  << " =========== refitting final " << cluList.size() << " track segments chi2 cut = " << _dChi2Max << endmsg ;
 
 	//---- refit cluster tracks individually to save memory ( KalTest tracks have ~1MByte each)
 
@@ -811,10 +811,12 @@ StatusCode ClupatraAlg::execute() {
 			continue ;
 
 		MarlinTrk::IMarlinTrack* trk = fit( *icv ) ;
-		trk->smooth() ;
-		edm4hep::MutableTrack edm4hepTrk = converter( *icv ) ;
-		tsCol_tmp.push_back( new ClupaPlcioTrack(edm4hepTrk) ) ;
-		MarTrk_of_edm4hepTrack(edm4hepTrk) = 0 ;
+		if(trk){
+		  trk->smooth() ;
+		  edm4hep::MutableTrack edm4hepTrk = converter( *icv ) ;
+		  tsCol_tmp.push_back( new ClupaPlcioTrack(edm4hepTrk) ) ;
+		  MarTrk_of_edm4hepTrack(edm4hepTrk) = 0 ;
+		}
 		delete trk ;
 	}
 
@@ -883,14 +885,13 @@ StatusCode ClupatraAlg::execute() {
 
 			nntrkclu.cluster( incSegVec.begin() , incSegVec.end() , std::back_inserter( incSegCluVec ), trkMerge , 2  ) ;
 
-			// FIXME: Mingrui
-			// streamlog_out( DEBUG4 ) << " ===== merged track segments - # cluster: " << incSegCluVec.size()
-			//  << " from " << incSegVec.size() << " incomplete track segments "    << "  ============================== " << std::endl ;
+			debug() << " ===== merged track segments - # cluster: " << incSegCluVec.size()
+				<< " from " << incSegVec.size() << " incomplete track segments =====" << endmsg;
 
 			for(  TrackClusterer::cluster_vector::iterator it= incSegCluVec.begin() ; it != incSegCluVec.end() ; ++it) {
 
 				// FIXME: Mingrui
-				// streamlog_out( DEBUG4 ) <<  edm4hep::header<edm4hep::Track>() << std::endl ;
+                                // streamlog_out( DEBUG4 ) <<  edm4hep::header<edm4hep::Track>() << std::endl ;
 
 				TrackClusterer::cluster_type*  incSegClu = *it ;
 
@@ -951,8 +952,7 @@ StatusCode ClupatraAlg::execute() {
 				delete mTrk ;
 				computeTrackInfo( track ) ;
 
-				// FIXME: Mingrui
-				// streamlog_out( DEBUG4 ) << "   ******  created new track : " << " : " << lcshort( (Track*) track )  << std::endl ;
+				debug() << "   ******  created new track : " << " : " << track.id() << endmsg;
 
 			}
 		}// loop over l
