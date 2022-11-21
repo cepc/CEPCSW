@@ -39,7 +39,7 @@ DetSimSvc::simulateEvent(int i_event) {
     StatusCode sc;
 
     m_runmgr->ProcessOneEvent(i_event);
-
+    m_runmgr->TerminateOneEvent();
     return sc;
 }
 
