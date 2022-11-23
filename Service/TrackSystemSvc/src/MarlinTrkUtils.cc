@@ -258,7 +258,9 @@ namespace MarlinTrk {
     // set the initial track parameters  
     ///////////////////////////////////////////////////////
     
-    return_error = marlinTrk->initialise( *pre_fit, bfield_z, IMarlinTrack::backward ) ;
+    //return_error = marlinTrk->initialise( *pre_fit, bfield_z, IMarlinTrack::backward ) ;
+    // fucd: previous fixed as IMarlinTrack::backward, can not change? using input value now
+    return_error = marlinTrk->initialise( *pre_fit, bfield_z, fit_backwards ) ;
     if (return_error != IMarlinTrack::success) {
       
       std::cout << "MarlinTrk::createFit Initialisation of track fit failed with error : " << return_error << std::endl;
@@ -388,10 +390,10 @@ namespace MarlinTrk {
     return_error = marlintrk->getNDF(ndf);
 
     if ( return_error != IMarlinTrack::success) {
-      //streamlog_out(DEBUG3) << "MarlinTrk::finaliseLCIOTrack: getNDF returns " << return_error << std::endl;
+      //std::cout << "MarlinTrk::finaliseLCIOTrack: getNDF returns " << return_error << std::endl;
       return return_error;
     } else if( ndf < 0 ) {
-      //streamlog_out(DEBUG2) << "MarlinTrk::finaliseLCIOTrack: number of degrees of freedom less than 0 track dropped : NDF = " << ndf << std::endl;
+      //std::cout << "MarlinTrk::finaliseLCIOTrack: number of degrees of freedom less than 0 track dropped : NDF = " << ndf << std::endl;
       return IMarlinTrack::error;
     } else {
       //streamlog_out(DEBUG1) << "MarlinTrk::finaliseLCIOTrack: NDF = " << ndf << std::endl;
@@ -543,7 +545,6 @@ namespace MarlinTrk {
       track->addToTrackStates(*trkStateAtFirstHit);
     } else {
       //streamlog_out( WARNING ) << "  >>>>>>>>>>> MarlinTrk::finaliseLCIOTrack:  could not get TrackState at First Hit " << firstHit << std::endl ;
-      delete trkStateAtFirstHit;
     }
     
     double r_first = firstHit.getPosition()[0]*firstHit.getPosition()[0] + firstHit.getPosition()[1]*firstHit.getPosition()[1];
@@ -569,7 +570,7 @@ namespace MarlinTrk {
         track->addToTrackStates(*trkStateAtLastHit);
       } else {
 	std::cout << "ERROR>>>>>>>>>>> MarlinTrk::finaliseLCIOTrack:  could not get TrackState at Last Hit " << last_constrained_hit.id() << std::endl ;
-        delete trkStateAtLastHit;
+        //delete trkStateAtLastHit;
       }
       
 //      const EVENT::FloatVec& ma = trkStateAtLastHit->getCovMatrix();
@@ -587,17 +588,22 @@ namespace MarlinTrk {
 //      return_error = createTrackStateAtCaloFace(marlintrk, trkStateCalo, lastHit, tanL_is_positive);
       
       if ( return_error == 0 ) {
+	//std::cout << "fucdout referencePoint " << trkStateCalo.referencePoint << std::endl;
         trkStateCalo.location = MarlinTrk::Location::AtCalorimeter;
         track->addToTrackStates(trkStateCalo);
       } else {
-        //streamlog_out( WARNING ) << "  >>>>>>>>>>> MarlinTrk::finaliseLCIOTrack:  could not get TrackState at Calo Face "  << std::endl ;
+	std::cout << "  >>>>>>>>>>> MarlinTrk::finaliseLCIOTrack:  could not get TrackState at Calo Face "  << std::endl ;
         //delete trkStateCalo;
       }
     } else {
       track->addToTrackStates(*atLastHit);
       track->addToTrackStates(*atCaloFace);
+      //delete trkStateAtLastHit;
     }
-    
+
+    if(trkStateAtFirstHit) delete trkStateAtFirstHit;
+    if(trkStateAtLastHit)  delete trkStateAtLastHit;
+    if(trkStateIP)         delete trkStateIP;
     ///////////////////////////////////////////////////////
     // done
     ///////////////////////////////////////////////////////

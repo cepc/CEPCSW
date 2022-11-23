@@ -29,6 +29,7 @@
 #include "TVSurface.h"       // from GeomLib
 #include <memory>            // from STL
 #include <iostream>          // from STL
+#include <map>
 
 ClassImp(TKalDetCradle)
 
@@ -45,6 +46,19 @@ fDone(kFALSE), fIsClosed(kFALSE)
 
 TKalDetCradle::~TKalDetCradle()
 {
+  //std::cout << "TKalDetCradle::~TKalDetCradle() " << this << " " << GetEntries() << std::endl;
+  std::map<TAttElement*, int> det_nelement;
+
+  TIter next(this);
+  TObject *mlp = 0;
+  while ((mlp = next())) {
+    TAttElement* det = const_cast<TAttElement*>(&(dynamic_cast<TAttElement *>(mlp)->GetParent(kFALSE)));
+    if(det_nelement.find(det)!=det_nelement.end()) det_nelement[det]++;
+    else det_nelement[det] = 1;
+  }
+  for (auto it : det_nelement) {
+    delete it.first;
+  }
 }
 
 //_________________________________________________________________________
@@ -71,6 +85,8 @@ void TKalDetCradle::Install(TVKalDetector &det)
     dynamic_cast<TAttElement *>(mlp)->SetParentPtr(&det);
     det.SetParentPtr(this);
   }
+  det.SetOwner(kFALSE);
+
   fDone = kFALSE;
 }
 

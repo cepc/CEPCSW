@@ -85,7 +85,7 @@ StatusCode PlanarDigiAlg::initialize()
   //TODO:trksystem->init() ;
   //FIXME:SJA gear surface store has now been filled so we can dispose of the MarlinTrkSystem
   //TODO:delete trksystem;
-  
+  // fucd: fix TODO - surface store is needed to fill once always if does not handle tracking algorithm in job
   auto _trackSystemSvc = service<ITrackSystemSvc>("TrackSystemSvc");
   if ( !_trackSystemSvc ) {
     error() << "Failed to find TrackSystemSvc ..." << endmsg;
@@ -166,6 +166,7 @@ StatusCode PlanarDigiAlg::execute()
 
   int i = 0;
   for( auto SimTHit : *STHcol ) {
+    if (SimTHit.getEDep()<=_eThreshold) continue;
 
     const int celId = SimTHit.getCellID() ;
 
@@ -252,11 +253,14 @@ StatusCode PlanarDigiAlg::execute()
                 << " sensor" << sensor << " : retries " << tries << endmsg;
       }
 
-      localPointSmeared.setX( localPoint.x() + gsl_ran_gaussian(_rng, resU) );
-      localPointSmeared.setY( localPoint.y() + gsl_ran_gaussian(_rng, resV) );
+      double dx = gsl_ran_gaussian(_rng, resU);
+      double dy = gsl_ran_gaussian(_rng, resV);
+      localPointSmeared.setX( localPoint.x() + dx );
+      localPointSmeared.setY( localPoint.y() + dy );
 
       //check if hit is in boundaries
-      if ( ms->isLocalInBoundary( localPointSmeared ) ) {
+      if ( ms->isLocalInBoundary( localPointSmeared ) && fabs(dx)<_maxPull*resU && fabs(dy)<_maxPull*resV ) {
+      //if ( ms->isLocalInBoundary( localPointSmeared ) ) {
         accept_hit = true;
         break;
       }
@@ -339,7 +343,7 @@ StatusCode PlanarDigiAlg::execute()
         trkHit.setType( UTIL::set_bit( trkHit.getType() , UTIL::ILDTrkHitTypeBit::ONE_DIMENSIONAL ) ) ;
     }
     trkHit.setEDep( SimTHit.getEDep() );
-
+    trkHit.setTime( SimTHit.getTime() );
     // make the relation
     auto rel = relCol->create();
 
@@ -374,5 +378,8 @@ StatusCode PlanarDigiAlg::execute()
 StatusCode PlanarDigiAlg::finalize()
 {
   info() << "Processed " << _nEvt << " events " << endmsg;
+
+  if(_rng) gsl_rng_free(_rng);
+
   return GaudiAlgorithm::finalize();
 }
