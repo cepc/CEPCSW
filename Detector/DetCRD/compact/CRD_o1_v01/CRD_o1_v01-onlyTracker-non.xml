@@ -35,7 +35,7 @@
   <include ref="../CRD_common_v01/SET_SimplePixel_v01_01.xml"/>
   
   <fields>
-    <field name="Non-uniformFieldMap" type="GenericBFieldMapBrBz" lunit="m" bunit="gauss"
+    <field name="Non-uniformFieldMap" type="GenericBFieldMapBrBz" lunit="m" bunit="tesla"
            provider="file">
       <!--source url="Br=/tmp/lint/CEPCSW/Br.csv;Bz=/tmp/lint/CEPCSW/fieldmap.csv"/-->
       <!--must include absolute path or relative to path to run job-->
