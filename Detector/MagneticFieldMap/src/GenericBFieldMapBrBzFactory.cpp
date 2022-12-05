@@ -70,6 +70,19 @@ static dd4hep::Ref_t create_GenericBFieldMapBrBz(dd4hep::Detector& ,
 
     ptr->init_provider(provider, url);
 
+    // set unit, default values will be m and tesla
+    double lunit = dd4hep::m;
+    double bunit = dd4hep::tesla;
+    bool hasLunit = xmlParameter.hasAttr(_Unicode(lunit));
+    if (hasLunit) {
+      lunit = xmlParameter.attr<double>(_Unicode(lunit));
+    }
+    bool hasBunit = xmlParameter.hasAttr(_Unicode(bunit));
+    if (hasBunit) {
+      bunit = xmlParameter.attr<double>(_Unicode(bunit));
+    }
+    ptr->init_unit(lunit, bunit);
+
     obj.assign(ptr, xmlParameter.nameStr(), xmlParameter.typeStr());
 
     return obj;

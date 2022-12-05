@@ -19,10 +19,14 @@ void GenericBFieldMapBrBz::fieldComponents(const double* pos, double* field) {
         throw std::runtime_error(error_msg); 
     }
 
+    if (m_length_unit<=0||m_bfield_unit<=0) {
+      std::string error_msg = "[ERROR] GenericBFieldMapBrBz: Not set units or error (<0)! ";
+      throw std::runtime_error(error_msg);
+    }
     // convert pos to r/z
-    double x = pos[0] / dd4hep::m; // convert to meter
-    double y = pos[1] / dd4hep::m;
-    double z = pos[2] / dd4hep::m;
+    double x = pos[0] / m_length_unit; // convert to length unit from input
+    double y = pos[1] / m_length_unit;
+    double z = pos[2] / m_length_unit;
     double r = sqrt(x*x+y*y);
     double phi = atan2(y, x);
 
@@ -98,9 +102,9 @@ void GenericBFieldMapBrBz::fieldComponents(const double* pos, double* field) {
               +        rn  *        zn  * Bz_r1z1;
 
     // update the global field
-    field[0] += Br*cos(phi);
-    field[1] += Br*sin(phi);
-    field[2] += Bz;
+    field[0] += Br*cos(phi)*m_bfield_unit; // convert to input unit
+    field[1] += Br*sin(phi)*m_bfield_unit;
+    field[2] += Bz*m_bfield_unit;
 
     return;
 }
@@ -115,4 +119,10 @@ void GenericBFieldMapBrBz::init_provider(const std::string& provider, const std:
         std::string error_msg = "[ERROR] GenericBFieldMapBrBz: Unknown provider: " + provider;
         throw std::runtime_error(error_msg); 
     }
+}
+
+void GenericBFieldMapBrBz::init_unit(double l, double b) {
+  m_length_unit = l;
+  m_bfield_unit = b;
+  std::cout << "Initialize units to l = " << m_length_unit/dd4hep::m << " m" << ", b = " << m_bfield_unit/dd4hep::tesla << " tesla" << std::endl;
 }
