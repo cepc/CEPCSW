@@ -12,12 +12,6 @@
 #include "GenEvent.h"
 
 class IGenTool;
-namespace plcio {
-    class MCParticleCollection;
-}
-
-
-using namespace std;
 
 class GenAlgo: public GaudiAlgorithm {
 
