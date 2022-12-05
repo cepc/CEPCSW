@@ -16,7 +16,7 @@ public:
     bool mutate(G4Event* anEvent) override;
 
 private:
-    DataHandle<edm4hep::MCParticleCollection> m_mcParCol{"MCParticle", Gaudi::DataHandle::Reader, this};
+    DataHandle<edm4hep::MCParticleCollection> m_mcParCol{"MCParticleGen", Gaudi::DataHandle::Reader, this};
 
     Gaudi::Property<double> m_chargedgeantino_mass{this, "ChargedGeantinoMass"};
 };
