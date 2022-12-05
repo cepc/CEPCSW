@@ -209,6 +209,13 @@ bool FieldMapFileProvider::loadCSV(const std::string& fn,
     std::ifstream input(fn);
     std::string tmpline;
 
+    if (!input) {
+      std::cout << "Open file failure: please check file name and path! " << std::endl;
+      std::cout << "Notice: need absolute path or relative to path to run job!" << std::endl;
+      std::string error_msg = "[ERROR] FieldMapFileProvider: Cannot open " + fn;
+      throw std::runtime_error(error_msg);
+    }
+
     ncol = 0;
     nrow = 0;
 
