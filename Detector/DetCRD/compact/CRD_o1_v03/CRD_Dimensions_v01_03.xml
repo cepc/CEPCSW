@@ -69,7 +69,7 @@
     <constant name="BeamPipe_Crotch_zmax"          value="855*mm"/>
     <constant name="BeamPipe_FirstSeparated_zmax"  value="1110*mm"/>
     <constant name="BeamPipe_SecondSeparated_zmax" value="2200*mm"/>
-    <constant name="BeamPipe_end_z"                value="12*m"/>
+    <constant name="BeamPipe_end_z"                value="7050*mm"/>
 
     <constant name="BeamPipe_Central_inner_radius"  value="14*mm"/>
     <constant name="BeamPipe_Expanded_inner_radius" value="20*mm"/>

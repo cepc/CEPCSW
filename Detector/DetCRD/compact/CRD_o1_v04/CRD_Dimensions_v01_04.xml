@@ -71,7 +71,7 @@
     <constant name="BeamPipe_Mask_zmin"            value="1210*mm"/>
     <constant name="BeamPipe_Mask_zmax"            value="1230*mm"/>
     <constant name="BeamPipe_SecondSeparated_zmax" value="2200*mm"/>
-    <constant name="BeamPipe_end_z"                value="12*m"/>
+    <constant name="BeamPipe_end_z"                value="7050*mm"/>
 
     <constant name="BeamPipe_Central_inner_radius"  value="10*mm"/>
     <constant name="BeamPipe_Fork_inner_radius"     value="10*mm"/>
