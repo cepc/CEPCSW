@@ -12,11 +12,13 @@ bool G4PrimaryCnvTool::mutate(G4Event* anEvent) {
     auto mcCol = m_mcParCol.get();
     info() << "Start a new event: " << endmsg;
     for ( auto p : *mcCol ) {
-        info() << p.getObjectID().index << " : [";
+        info() << " gen track: " << p.getObjectID().index 
+               << " : (status: " << p.getGeneratorStatus() << ")"
+               << " : (daughters: [";
         for ( auto it = p.daughters_begin(), end = p.daughters_end(); it != end; ++it ) {
             info() << " " << it->getObjectID().index;
         }
-        info() << " ]; " << endmsg;
+        info() << " ]); " << endmsg;
 
         // only the GeneratorStatus == 1 is used.
         if (p.getGeneratorStatus() != 1) {
@@ -31,7 +33,7 @@ bool G4PrimaryCnvTool::mutate(G4Event* anEvent) {
                                                      vertex.z*CLHEP::mm,
                                                      t);
 
-        info() << "Geant4 Primary Vertex: ("
+        info() << "--> Creating Geant4 Primary Vertex: ("
                << vertex.x*CLHEP::mm << ","
                << vertex.y*CLHEP::mm << ","
                << vertex.z*CLHEP::mm << ")"
