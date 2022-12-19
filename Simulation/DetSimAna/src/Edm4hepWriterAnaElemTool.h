@@ -6,6 +6,7 @@
 #include "GaudiKernel/AlgTool.h"
 #include "k4FWCore/DataHandle.h"
 #include "DetSimInterface/IAnaElemTool.h"
+#include "DetSimInterface/CommonUserEventInfo.hh"
 
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4hep/SimTrackerHitCollection.h"
@@ -140,6 +141,7 @@ private:
 
     std::map<int, int> m_track2primary;
 
+    CommonUserEventInfo* m_userinfo = nullptr;
 };
 
 #endif
