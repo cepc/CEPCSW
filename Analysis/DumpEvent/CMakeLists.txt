@@ -1,5 +1,6 @@
 gaudi_add_module(DumpEvent
                  SOURCES src/DumpMCParticleAlg.cpp
+                         src/DumpSimHitAlg.cpp
 		         #src/DumpHitAlg.cpp
 			 src/DumpTrackAlg.cpp
 			 #src/DumpCalorimeterAlg.cpp
