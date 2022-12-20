@@ -36,13 +36,13 @@ bool StdHepRdr::mutate(MyHepMC::GenEvent& event){
     m_processed_event ++;
     int n_mc = mc_vec->getNumberOfElements();
     //std::cout<<"Debug: Read event :"<< m_processed_event <<", mc size :"<< n_mc <<std::endl;
-    std::map<int, int> pmcid_lmcid;
+    std::map<int, int> pmcid_lmcid; // mapping between the obj idx in edm4hep and the idx in stdhep
     for (int i=0; i < n_mc; i++){
         MCParticleImpl* mc = (MCParticleImpl*) mc_vec->getElementAt(i);
         //std::cout<<"At mc :"<< i <<std::endl;
         auto mcp = event.m_mc_vec.create();
         pmcid_lmcid.insert(std::pair<int, int>(mc->id(),i));
-        //std::cout<<"map<id,i>:"<<mc->id()<<","<< i <<std::endl;
+        // std::cout<<"map<id,i>:"<<mc->id()<<","<< i <<std::endl;
                                  
         mcp.setPDG                (mc->getPDG());  
         mcp.setGeneratorStatus    (mc->getGeneratorStatus());

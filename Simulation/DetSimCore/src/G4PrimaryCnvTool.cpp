@@ -5,23 +5,42 @@
 #include "G4IonTable.hh"
 #include "G4ParticleDefinition.hh"
 
+#include "DetSimInterface/CommonUserEventInfo.hh"
+
 DECLARE_COMPONENT(G4PrimaryCnvTool)
 
 bool G4PrimaryCnvTool::mutate(G4Event* anEvent) {
 
+    // create a event info
+    auto eventinfo = new CommonUserEventInfo();
+    anEvent->SetUserInformation(eventinfo);
+
+    int idxG4 = 0;       // valid: [1, N+1)
+    int idxEdm4hep = -1; // valid: [0, N)
+
     auto mcCol = m_mcParCol.get();
     info() << "Start a new event: " << endmsg;
     for ( auto p : *mcCol ) {
-        info() << p.getObjectID().index << " : [";
+        info() << " gen track: " << p.getObjectID().index 
+               << " : (status: " << p.getGeneratorStatus() << ")"
+               << " : (daughters: [";
         for ( auto it = p.daughters_begin(), end = p.daughters_end(); it != end; ++it ) {
             info() << " " << it->getObjectID().index;
         }
-        info() << " ]; " << endmsg;
+        info() << " ]); " << endmsg;
+
+        // idx in mc particle collection
+        ++idxEdm4hep;
 
         // only the GeneratorStatus == 1 is used.
         if (p.getGeneratorStatus() != 1) {
             continue;
         }
+
+        // idx in g4 collection
+        ++idxG4;
+
+        eventinfo->setIdxG4Track2Edm4hep(idxG4, idxEdm4hep);
 
         // vertex
         const edm4hep::Vector3d& vertex = p.getVertex();
@@ -31,7 +50,7 @@ bool G4PrimaryCnvTool::mutate(G4Event* anEvent) {
                                                      vertex.z*CLHEP::mm,
                                                      t);
 
-        info() << "Geant4 Primary Vertex: ("
+        info() << "--> Creating Geant4 Primary Vertex: ("
                << vertex.x*CLHEP::mm << ","
                << vertex.y*CLHEP::mm << ","
                << vertex.z*CLHEP::mm << ")"

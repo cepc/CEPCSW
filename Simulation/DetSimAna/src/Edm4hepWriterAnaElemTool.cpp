@@ -30,6 +30,13 @@ void
 Edm4hepWriterAnaElemTool::BeginOfEventAction(const G4Event* anEvent) {
     msg() << "Event " << anEvent->GetEventID() << endmsg;
 
+    // event info
+    m_userinfo = nullptr;
+    if (anEvent->GetUserInformation()) {
+        m_userinfo = dynamic_cast<CommonUserEventInfo*>(anEvent->GetUserInformation());
+        m_userinfo->dumpIdxG4Track2Edm4hep();
+    }
+
     auto mcGenCol = m_mcParGenCol.get();
     mcCol = m_mcParCol.createAndPut();
 
@@ -50,7 +57,7 @@ Edm4hepWriterAnaElemTool::BeginOfEventAction(const G4Event* anEvent) {
         newparticle.setColorFlow      (mcGenParticle.getColorFlow());
     }
     
-    msg() << "mcCol size: " << mcCol->size() << endmsg;
+    msg() << "mcCol size (original) : " << mcCol->size() << endmsg;
 
     // reset
     m_track2primary.clear();
@@ -257,7 +264,12 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
                         pritrkid = 1;
                     }
 
-                    edm_trk_hit.setMCParticle(mcCol->at(pritrkid-1));
+                    if (m_userinfo) {
+                        auto idxedm4hep =  m_userinfo->idxG4Track2Edm4hep(pritrkid);
+                        if (idxedm4hep != -1) {
+                            edm_trk_hit.setMCParticle(mcCol->at(idxedm4hep));
+                        }
+                    }
 
                     if (pritrkid != trackID) {
                         // If the track is a secondary, then the primary track id and current track id is different
@@ -297,7 +309,12 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
                             pritrkid = 1;
                         }
 
-                        edm_calo_contrib.setParticle(mcCol->at(pritrkid-1)); // todo
+                        if (m_userinfo) {
+                            auto idxedm4hep =  m_userinfo->idxG4Track2Edm4hep(pritrkid);
+                            if (idxedm4hep != -1) {
+                                edm_calo_contrib.setParticle(mcCol->at(idxedm4hep)); // todo
+                            }
+                        }
                         edm_calo_hit.addToContributions(edm_calo_contrib);
                     }
                 }
@@ -345,17 +362,27 @@ void
 Edm4hepWriterAnaElemTool::PostUserTrackingAction(const G4Track* track) {
     int curtrkid = track->GetTrackID(); // starts from 1
     int curparid = track->GetParentID();
+    int idxedm4hep = -1;
 
-    if (curparid == 0) {
+    if (m_userinfo) {
+        idxedm4hep =  m_userinfo->idxG4Track2Edm4hep(curtrkid);
+    }
+
+    if (curparid == 0) { // Primary Track
         // select the primary tracks (parentID == 0)
         // auto mcCol = m_mcParCol.get();
 
-        if (curtrkid-1>=mcCol->size()) {
+        if (idxedm4hep == -1) {
+            error () << "Failed to get idxedm4hep according to the g4track id " << curtrkid << endmsg;
+            return;
+        }
+
+        if (idxedm4hep>=mcCol->size()) {
             error() << "out of range: curtrkid is " << curtrkid
                     << " while the MCParticle size is " << mcCol->size() << endmsg;
             return;
         }
-        auto primary_particle = mcCol->at(curtrkid-1);
+        auto primary_particle = mcCol->at(idxedm4hep);
 
         const G4ThreeVector& stop_pos  = track->GetPosition();
         edm4hep::Vector3d endpoint(stop_pos.x()/CLHEP::mm,
