@@ -472,6 +472,15 @@ Edm4hepWriterAnaElemTool::PostUserTrackingAction(const G4Track* track) {
 
                     mcp.addToParents(primary_particle);
                     primary_particle.addToDaughters(mcp);
+
+                    // store the edm4hep obj idx in track info.
+                    // using this idx, the MCParticle object could be modified later. 
+                    auto trackinfo = new CommonUserTrackInfo();
+                    trackinfo->setIdxEdm4hep(mcp.getObjectID().index);
+                    sectrk->SetUserInformation(trackinfo);
+                    info() << " Appending MCParticle: (id: " 
+                           << mcp.getObjectID().index << ")"
+                           << endmsg;
                 }
             }
         }

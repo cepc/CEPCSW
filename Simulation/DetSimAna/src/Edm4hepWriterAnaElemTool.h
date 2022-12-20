@@ -7,6 +7,7 @@
 #include "k4FWCore/DataHandle.h"
 #include "DetSimInterface/IAnaElemTool.h"
 #include "DetSimInterface/CommonUserEventInfo.hh"
+#include "DetSimInterface/CommonUserTrackInfo.hh"
 
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4hep/SimTrackerHitCollection.h"
