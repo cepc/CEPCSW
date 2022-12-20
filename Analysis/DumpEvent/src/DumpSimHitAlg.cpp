@@ -54,7 +54,18 @@ StatusCode DumpSimHitAlg::execute() {
     auto vxdCol = m_VXDCol.get();
 
     for (auto hit: *vxdCol) {
+        auto mcparticle = hit.getMCParticle();
 
+        if (mcparticle.getGeneratorStatus() != 1) {
+            error() << "Found generator status is not 1 for hit. " << endmsg;
+        }
+
+        info() << "hit -> "
+               << " mcparticle ("
+               << " ID: " << mcparticle.getObjectID().index << "; "
+               << " generator status: " << mcparticle.getGeneratorStatus() << "; "
+               << " simulator status: " << mcparticle.getSimulatorStatus() << ") "
+               << endmsg;
     }
 
     return StatusCode::SUCCESS;
