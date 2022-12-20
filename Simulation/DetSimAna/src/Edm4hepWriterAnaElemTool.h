@@ -9,6 +9,8 @@
 #include "DetSimInterface/CommonUserEventInfo.hh"
 #include "DetSimInterface/CommonUserTrackInfo.hh"
 
+#include "DetInterface/IGeomSvc.h"
+
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4hep/SimTrackerHitCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
@@ -143,6 +145,12 @@ private:
     std::map<int, int> m_track2primary;
 
     CommonUserEventInfo* m_userinfo = nullptr;
+
+    // get the limitation of R/Z in tracker
+    SmartIF<IGeomSvc> m_geosvc;
+    double R = 0;
+    double Z = 0;
+
 };
 
 #endif
