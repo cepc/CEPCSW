@@ -11,6 +11,7 @@ gaudi_add_module(DumpEvent
                       ${CLHEP_LIBRARIES}
 		      ${DD4hep_COMPONENT_LIBRARIES}
                       DetInterface
+                      k4FWCore::k4FWCore
 )
 
 install(TARGETS DumpEvent
