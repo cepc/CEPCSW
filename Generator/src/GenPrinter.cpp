@@ -4,6 +4,13 @@
 DECLARE_COMPONENT(GenPrinter)
 
 bool GenPrinter::mutate(MyHepMC::GenEvent& event){
+    auto msglevel = msgLevel();
+
+    // only print when current msglevel is MSG::DEBUG/VERBOSE
+    if (msglevel != MSG::NIL && msglevel != MSG::VERBOSE && msglevel != MSG::DEBUG) {
+        return true;
+    }
+
     std::cout << "print mc info for event "<< event.getID() << ", mc size ="<< event.m_mc_vec.size() <<  std::endl;
     for ( int i =0; i < event.m_mc_vec.size(); i++ ) {
         auto p = event.m_mc_vec.at(i); 

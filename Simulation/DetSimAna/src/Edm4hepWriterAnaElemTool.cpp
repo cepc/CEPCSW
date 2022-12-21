@@ -19,6 +19,11 @@ DECLARE_COMPONENT(Edm4hepWriterAnaElemTool)
 
 void
 Edm4hepWriterAnaElemTool::BeginOfRunAction(const G4Run*) {
+    auto msglevel = msgLevel();
+    if (msglevel == MSG::VERBOSE || msglevel == MSG::DEBUG) {
+        verboseOutput = true;
+    }
+
     G4cout << "Begin Run of detector simultion..." << G4endl;
 
     // access geometry service
@@ -52,7 +57,9 @@ Edm4hepWriterAnaElemTool::BeginOfEventAction(const G4Event* anEvent) {
     m_userinfo = nullptr;
     if (anEvent->GetUserInformation()) {
         m_userinfo = dynamic_cast<CommonUserEventInfo*>(anEvent->GetUserInformation());
-        m_userinfo->dumpIdxG4Track2Edm4hep();
+        if (verboseOutput) {
+            m_userinfo->dumpIdxG4Track2Edm4hep();
+        }
     }
 
     auto mcGenCol = m_mcParGenCol.get();
@@ -84,6 +91,8 @@ Edm4hepWriterAnaElemTool::BeginOfEventAction(const G4Event* anEvent) {
 
 void
 Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
+
+    msg() << "mcCol size (after simulation) : " << mcCol->size() << endmsg;
     // save all data
 
     // create collections.
@@ -452,14 +461,14 @@ Edm4hepWriterAnaElemTool::PostUserTrackingAction(const G4Track* track) {
 
                 // select the necessary processes
                 if (creatorProcess==proc_decay) {
-                    info() << "Creator Process is Decay for secondary particle: "
-                           << " idx: " << i
-                           << " trkid: " << sectrk->GetTrackID() // not valid until track
-                           << " particle: " << secparticle->GetParticleName()
-                           << " pdg: " << secparticle->GetPDGEncoding()
-                           << " at position: " << sectrk->GetPosition() //
-                           << " time: " << sectrk->GetGlobalTime()
-                           << " momentum: " << sectrk->GetMomentum() // 
+                    debug() << "Creator Process is Decay for secondary particle: "
+                            << " idx: " << i
+                            << " trkid: " << sectrk->GetTrackID() // not valid until track
+                            << " particle: " << secparticle->GetParticleName()
+                            << " pdg: " << secparticle->GetPDGEncoding()
+                            << " at position: " << sectrk->GetPosition() //
+                            << " time: " << sectrk->GetGlobalTime()
+                            << " momentum: " << sectrk->GetMomentum() // 
                            << endmsg;
                     is_decay = true;
 
@@ -496,9 +505,9 @@ Edm4hepWriterAnaElemTool::PostUserTrackingAction(const G4Track* track) {
                     auto trackinfo = new CommonUserTrackInfo();
                     trackinfo->setIdxEdm4hep(mcp.getObjectID().index);
                     sectrk->SetUserInformation(trackinfo);
-                    info() << " Appending MCParticle: (id: " 
-                           << mcp.getObjectID().index << ")"
-                           << endmsg;
+                    debug() << " Appending MCParticle: (id: " 
+                            << mcp.getObjectID().index << ")"
+                            << endmsg;
                 }
             }
         }
@@ -541,9 +550,9 @@ Edm4hepWriterAnaElemTool::UserSteppingAction(const G4Step* aStep) {
             // set back scattering
             auto idxedm4hep = trackinfo->idxEdm4hep();
             mcCol->at(idxedm4hep).setBackscatter(true);
-            info() << " set back scatter for MCParticle "
-                   << " (ID: " << idxedm4hep << ")"
-                   << endmsg;
+            debug() << " set back scatter for MCParticle "
+                    << " (ID: " << idxedm4hep << ")"
+                    << endmsg;
         }
     }
 }

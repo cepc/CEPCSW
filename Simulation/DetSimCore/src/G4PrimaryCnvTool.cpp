@@ -19,15 +19,15 @@ bool G4PrimaryCnvTool::mutate(G4Event* anEvent) {
     int idxEdm4hep = -1; // valid: [0, N)
 
     auto mcCol = m_mcParCol.get();
-    info() << "Start a new event: " << endmsg;
+    info() << "Start a new event " << anEvent->GetEventID() << endmsg;
     for ( auto p : *mcCol ) {
-        info() << " gen track: " << p.getObjectID().index 
-               << " : (status: " << p.getGeneratorStatus() << ")"
-               << " : (daughters: [";
+        debug() << " gen track: " << p.getObjectID().index 
+                << " : (status: " << p.getGeneratorStatus() << ")"
+                << " : (daughters: [";
         for ( auto it = p.daughters_begin(), end = p.daughters_end(); it != end; ++it ) {
-            info() << " " << it->getObjectID().index;
+            debug() << " " << it->getObjectID().index;
         }
-        info() << " ]); " << endmsg;
+        debug() << " ]); " << endmsg;
 
         // idx in mc particle collection
         ++idxEdm4hep;
@@ -50,11 +50,11 @@ bool G4PrimaryCnvTool::mutate(G4Event* anEvent) {
                                                      vertex.z*CLHEP::mm,
                                                      t);
 
-        info() << "--> Creating Geant4 Primary Vertex: ("
-               << vertex.x*CLHEP::mm << ","
-               << vertex.y*CLHEP::mm << ","
-               << vertex.z*CLHEP::mm << ")"
-               << endmsg;
+        debug() << "--> Creating Geant4 Primary Vertex: ("
+                << vertex.x*CLHEP::mm << ","
+                << vertex.y*CLHEP::mm << ","
+                << vertex.z*CLHEP::mm << ")"
+                << endmsg;
 
         // pdg/particle
         int pdgcode = p.getPDG();
