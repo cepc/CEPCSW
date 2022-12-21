@@ -1,5 +1,6 @@
 #include "Edm4hepWriterAnaElemTool.h"
 
+#include "G4Step.hh"
 #include "G4Event.hh"
 #include "G4THitsCollection.hh"
 #include "G4EventManager.hh"
@@ -19,6 +20,23 @@ DECLARE_COMPONENT(Edm4hepWriterAnaElemTool)
 void
 Edm4hepWriterAnaElemTool::BeginOfRunAction(const G4Run*) {
     G4cout << "Begin Run of detector simultion..." << G4endl;
+
+    // access geometry service
+    m_geosvc = service<IGeomSvc>("GeomSvc");
+    if (m_geosvc) {
+        dd4hep::Detector* dd4hep_geo = m_geosvc->lcdd();
+        // try to get the constants
+        R = dd4hep_geo->constant<double>("tracker_region_rmax")/dd4hep::mm*CLHEP::mm;
+        Z = dd4hep_geo->constant<double>("tracker_region_zmax")/dd4hep::mm*CLHEP::mm;
+
+        info() << "Tracker Region "
+               << " R: " << R
+               << " Z: " << Z
+               << endmsg;
+
+    } else {
+        error() << "Failed to find GeomSvc." << endmsg;
+    }
 }
 
 void
@@ -472,6 +490,15 @@ Edm4hepWriterAnaElemTool::PostUserTrackingAction(const G4Track* track) {
 
                     mcp.addToParents(primary_particle);
                     primary_particle.addToDaughters(mcp);
+
+                    // store the edm4hep obj idx in track info.
+                    // using this idx, the MCParticle object could be modified later. 
+                    auto trackinfo = new CommonUserTrackInfo();
+                    trackinfo->setIdxEdm4hep(mcp.getObjectID().index);
+                    sectrk->SetUserInformation(trackinfo);
+                    info() << " Appending MCParticle: (id: " 
+                           << mcp.getObjectID().index << ")"
+                           << endmsg;
                 }
             }
         }
@@ -489,8 +516,36 @@ Edm4hepWriterAnaElemTool::PostUserTrackingAction(const G4Track* track) {
 }
 
 void
-Edm4hepWriterAnaElemTool::UserSteppingAction(const G4Step*) {
+Edm4hepWriterAnaElemTool::UserSteppingAction(const G4Step* aStep) {
+    auto aTrack = aStep->GetTrack();
+    // try to get user track info
+    auto trackinfo = dynamic_cast<CommonUserTrackInfo*>(aTrack->GetUserInformation());
 
+    // ========================================================================
+    // Note:
+    // if there is no track info, then do nothing. 
+    // ========================================================================
+    if (trackinfo) {
+        // back scattering is defined as following:
+        // - pre point is not in tracker
+        // - post point is in tracker
+        // For details, look at Mokka's source code:
+        //   https://llrforge.in2p3.fr/trac/Mokka/browser/trunk/source/Kernel/src/SteppingAction.cc
+        const auto& pre_pos = aStep->GetPreStepPoint()->GetPosition();
+        const auto& post_pos = aStep->GetPostStepPoint()->GetPosition();
+
+        bool is_pre_in_tracker = pre_pos.perp() < R && std::fabs(pre_pos.z()) < Z;
+        bool is_post_in_tracker = post_pos.perp() < R && std::fabs(post_pos.z()) < Z;
+
+        if ((!is_pre_in_tracker) and is_post_in_tracker) {
+            // set back scattering
+            auto idxedm4hep = trackinfo->idxEdm4hep();
+            mcCol->at(idxedm4hep).setBackscatter(true);
+            info() << " set back scatter for MCParticle "
+                   << " (ID: " << idxedm4hep << ")"
+                   << endmsg;
+        }
+    }
 }
 
 StatusCode

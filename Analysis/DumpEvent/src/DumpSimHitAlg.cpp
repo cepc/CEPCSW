@@ -51,6 +51,13 @@ StatusCode DumpSimHitAlg::initialize() {
 StatusCode DumpSimHitAlg::execute() {
     auto mcCol = m_mcParCol.get();
 
+    for (auto particle: *mcCol) {
+        info() << "mc particle -> "
+               << " (ID: " << particle.getObjectID().index << ") "
+               << " (simulator status: " << particle.getSimulatorStatus() << ") "
+               << endmsg;
+    }
+
     auto vxdCol = m_VXDCol.get();
 
     for (auto hit: *vxdCol) {
