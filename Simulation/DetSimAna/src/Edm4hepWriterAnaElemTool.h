@@ -151,6 +151,7 @@ private:
     double R = 0;
     double Z = 0;
 
+    bool verboseOutput = false;
 };
 
 #endif
