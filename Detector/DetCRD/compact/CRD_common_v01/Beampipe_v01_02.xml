@@ -13,7 +13,7 @@
     <!--constant name="ForkAsymThickness" value="BeamPipe_Dnstream_inner_radius+BeamPipe_Cu_thickness-BeamPipe_Upstream_inner_radius"/-->
     <constant name="BeamPipe_QD0_zmax"             value="3950*mm"/>
     <constant name="BeamPipe_QF1_zmin"             value="4450*mm"/>
-    <constant name="BeamPipe_QF1_zmax"             value="4450*mm"/>
+    <constant name="BeamPipe_QF1_zmax"             value="5910*mm"/>
     <constant name="BeamPipe_QF1_inner_radius"     value="20.5*mm"/>
     <constant name="BeamPipe_Iron_thickness"       value="2.5*mm"/>
   </define>
