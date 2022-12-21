@@ -23,7 +23,7 @@
     <constant name="BeamPipe_SecondSeparated_zmax" value="2200*mm"/>
     <constant name="BeamPipe_QD0_zmax"             value="3950*mm"/>
     <constant name="BeamPipe_QF1_zmin"             value="4450*mm"/>
-    <constant name="BeamPipe_QF1_zmax"             value="4450*mm"/>
+    <constant name="BeamPipe_QF1_zmax"             value="5910*mm"/>
     <constant name="BeamPipe_end_z"                value="7050*mm"/>
     
     <constant name="BeamPipe_Central_inner_radius"  value="14*mm"/>
