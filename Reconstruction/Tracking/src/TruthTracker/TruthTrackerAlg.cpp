@@ -232,7 +232,7 @@ StatusCode TruthTrackerAlg::execute()
     //mcRecoTrackerAssociationCol=m_mcRecoParticleAssociation.get();
 
     ///New SDT track
-    edm4hep::MutableTrack sdtTk=sdtTkCol->create();
+    edm4hep::Track sdtTk=sdtTkCol->create();
 
     int nVXDHit=0;
     int nSITHit=0;
@@ -316,7 +316,7 @@ StatusCode TruthTrackerAlg::execute()
 
     if(m_useDC){
         ///Create DC Track
-        edm4hep::MutableTrack dcTrack=dcTrackCol->create();
+        edm4hep::Track dcTrack=dcTrackCol->create();
 
         //Create TrackState
         edm4hep::TrackState trackStateFirstDCHit;
@@ -458,10 +458,8 @@ void TruthTrackerAlg::getTrackStateFromMcParticle(
         trackState.Z0=helix.getZ0();
         trackState.tanLambda=helix.getTanLambda();
         trackState.referencePoint=helix.getReferencePoint();
-
-        decltype(trackState.covMatrix) covMatrix;
-        for(int i=0;i<covMatrix.size();i++){covMatrix[i]=999.;}//FIXME
-
+        std::array<float,15> covMatrix;
+        for(int i=0;i<15;i++){covMatrix[i]=1.;}//FIXME
         trackState.covMatrix=covMatrix;
 
         getCircleFromPosMom(pos,mom,B[2]/dd4hep::tesla,mcParticle.getCharge(),m_helixRadius,m_helixXC,m_helixYC);
@@ -528,8 +526,8 @@ bool TruthTrackerAlg::getTrackStateFirstHit(
         trackState.Z0=helix.getZ0();
         trackState.tanLambda=helix.getTanLambda();
         trackState.referencePoint=helix.getReferencePoint();
-        std::array<float,21> covMatrix;
-        for(int i=0;i<21;i++){covMatrix[i]=100.;}//FIXME
+        std::array<float,15> covMatrix;
+        for(int i=0;i<15;i++){covMatrix[i]=100.;}//FIXME
         trackState.covMatrix=covMatrix;
         debug()<<"first hit trackState "<<trackState<<endmsg;
         return true;
@@ -593,7 +591,7 @@ void TruthTrackerAlg::debugEvent()
 
 int TruthTrackerAlg::addIdealHitsToTk(DataHandle<edm4hep::TrackerHitCollection>&
         colHandle, edm4hep::TrackerHitCollection*& truthTrackerHitCol,
-        edm4hep::MutableTrack& track, const char* msg,int nHitAdded)
+        edm4hep::Track& track, const char* msg,int nHitAdded)
 {
     if(nHitAdded>0) return nHitAdded;
     int nHit=0;
@@ -616,7 +614,7 @@ int TruthTrackerAlg::addIdealHitsToTk(DataHandle<edm4hep::TrackerHitCollection>&
 
         //add modified hit
         auto tmpHit = truthTrackerHitCol->create();
-        tmpHit=hit.clone();
+        tmpHit=hit;
         tmpHit.setTime(fabs(docaIdeal)*1e3/40.);//40#um/ns, drift time in ns
         track.addToTrackerHits(tmpHit);
 
@@ -667,7 +665,7 @@ int TruthTrackerAlg::makeNoiseHit(edm4hep::SimTrackerHitCollection* SimVec,
         trkHit.setCellID(wcellid);
         trkHit.setTime(pocaTime);
         trkHit.setEDep(mcHit.getEDep());
-        //trkHit.setEdx(mcHit.getEdx());
+        trkHit.setEdx(mcHit.getEdx());
         trkHit.setPosition(mcHit.getPosition());
         trkHit.setCovMatrix(mcHit.getCovMatrix());
         for(int iAsso=0;iAsso<(int) assoHits->size();iAsso++)
@@ -755,7 +753,7 @@ int TruthTrackerAlg::smearDCTkhit(DataHandle<edm4hep::TrackerHitCollection>&
         smearHit.setQuality(hit.getQuality());
         smearHit.setEDep(hit.getEDep());
         smearHit.setEDepError(hit.getEDepError());
-        //smearHit.setEdx(hit.getEdx());
+        smearHit.setEdx(hit.getEdx());
         smearHit.setPosition(hit.getPosition());
         smearHit.setCovMatrix(hit.getCovMatrix());
         smearHit.addToRawHits(hit.getObjectID());
@@ -791,7 +789,7 @@ int TruthTrackerAlg::smearDCTkhit(DataHandle<edm4hep::TrackerHitCollection>&
 }
 
 int TruthTrackerAlg::addHitsToTk(DataHandle<edm4hep::TrackerHitCollection>&
-        colHandle, edm4hep::MutableTrack& track, const char* msg,int nHitAdded)
+        colHandle, edm4hep::Track& track, const char* msg,int nHitAdded)
 {
     if(nHitAdded>0) return nHitAdded;
     int nHit=0;
@@ -808,7 +806,7 @@ int TruthTrackerAlg::addHitsToTk(DataHandle<edm4hep::TrackerHitCollection>&
 int TruthTrackerAlg::addSimHitsToTk(
         DataHandle<edm4hep::SimTrackerHitCollection>& colHandle,
         edm4hep::TrackerHitCollection*& truthTrackerHitCol,
-        edm4hep::MutableTrack& track, const char* msg,int nHitAdded)
+        edm4hep::Track& track, const char* msg,int nHitAdded)
 {
     if(nHitAdded>0) return nHitAdded;
     int nHit=0;
@@ -863,12 +861,12 @@ int TruthTrackerAlg::addSimHitsToTk(
 }
 
 int TruthTrackerAlg::addHotsToTk(edm4hep::Track& sourceTrack,
-        edm4hep::MutableTrack& targetTrack, int hitType,const char* msg,int nHitAdded)
+        edm4hep::Track& targetTrack, int hitType,const char* msg,int nHitAdded)
 {
     if(nHitAdded>0) return nHitAdded;
     int nHit=0;
     for(unsigned int iHit=0;iHit<sourceTrack.trackerHits_size();iHit++){
-        edm4hep::TrackerHit hit=sourceTrack.getTrackerHits(iHit);
+        edm4hep::ConstTrackerHit hit=sourceTrack.getTrackerHits(iHit);
         UTIL::BitField64 encoder(lcio::ILDCellID0::encoder_string);
         encoder.setValue(hit.getCellID());
         if(encoder[lcio::ILDCellID0::subdet]==hitType){
@@ -887,7 +885,7 @@ int TruthTrackerAlg::nHotsOnTrack(edm4hep::Track& track, int hitType)
 {
     int nHit=0;
     for(unsigned int iHit=0;iHit<track.trackerHits_size();iHit++){
-        edm4hep::TrackerHit hit=track.getTrackerHits(iHit);
+        edm4hep::ConstTrackerHit hit=track.getTrackerHits(iHit);
         UTIL::BitField64 encoder(lcio::ILDCellID0::encoder_string);
         encoder.setValue(hit.getCellID());
         if(encoder[lcio::ILDCellID0::subdet]==hitType){
