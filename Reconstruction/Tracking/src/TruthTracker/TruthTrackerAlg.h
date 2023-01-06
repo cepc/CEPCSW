@@ -22,6 +22,7 @@ namespace edm4hep {
     class TrackerHitCollection;
     class TrackCollection;
     class Track;
+    class MutableTrack;
     class TrackState;
     class ReconstructedParticleCollection;
     class MCRecoTrackerAssociationCollection;
@@ -42,7 +43,7 @@ class TruthTrackerAlg: public GaudiAlgorithm
                 mcParticleCol, edm4hep::TrackState& stat);
         int addSimHitsToTk(DataHandle<edm4hep::SimTrackerHitCollection>&
                 colHandle, edm4hep::TrackerHitCollection*& truthTrackerHitCol,
-                edm4hep::Track& track, const char* msg,int nHitAdded);
+                edm4hep::MutableTrack& track, const char* msg,int nHitAdded);
         int smearDCTkhit(DataHandle<edm4hep::TrackerHitCollection>&
                 colHandle,DataHandle<edm4hep::TrackerHitCollection>& smearCol,
                 DataHandle<edm4hep::SimTrackerHitCollection>& SimDCHitCol,
@@ -51,12 +52,12 @@ class TruthTrackerAlg: public GaudiAlgorithm
                 DataHandle<edm4hep::MCRecoTrackerAssociationCollection>& AssoSmearDCHitCol,
                 double resX, double resY, double resZ);
         int addHitsToTk(DataHandle<edm4hep::TrackerHitCollection>&
-                colHandle, edm4hep::Track& track, const char* msg,int nHitAdded);
+                colHandle, edm4hep::MutableTrack& track, const char* msg,int nHitAdded);
         int addIdealHitsToTk(DataHandle<edm4hep::TrackerHitCollection>&
                 colHandle, edm4hep::TrackerHitCollection*& truthTrackerHitCol,
-                edm4hep::Track& track, const char* msg,int nHitAdded);
+                edm4hep::MutableTrack& track, const char* msg,int nHitAdded);
 
-        int addHotsToTk(edm4hep::Track& sourceTrack,edm4hep::Track&
+        int addHotsToTk(edm4hep::Track& sourceTrack,edm4hep::MutableTrack&
                 targetTrack, int hitType,const char* msg,int nHitAdded);
         int nHotsOnTrack(edm4hep::Track& track, int hitType);
         int trackerHitColSize(DataHandle<edm4hep::TrackerHitCollection>& hitCol);

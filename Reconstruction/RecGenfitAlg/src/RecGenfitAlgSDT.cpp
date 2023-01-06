@@ -273,7 +273,7 @@ StatusCode RecGenfitAlgSDT::initialize()
             //10 is greater than # of tracking detectors
             sc=m_tuple->addItem("hitDetID",10,m_nHitDetType);
             sc=m_tuple->addItem("nHitWithFitInfo",m_mcIndex,m_nHitWithFitInfo,5);
-            sc=m_tuple->addItem("nSimDCHit",m_nSimDCHit,0,500000);
+            sc=m_tuple->addItem("nSimDCHit",m_nSimDCHit,0,10000000);
             sc=m_tuple->addItem("mdcHitDriftT",m_nSimDCHit,m_mdcHitDriftT);
             sc=m_tuple->addItem("mdcHitDriftDl",m_nSimDCHit,m_mdcHitDriftDl);
             sc=m_tuple->addItem("mdcHitDriftDr",m_nSimDCHit,m_mdcHitDriftDr);
@@ -430,6 +430,7 @@ StatusCode RecGenfitAlgSDT::execute()
     std::vector<double> Res;
     for(auto sdtTrack: *sdtTrackCol)
     {
+        if(sdtTrack.trackerHits_size()<1e-9) continue;
         ///Loop over 5 particle hypothesis(0-4): e,mu,pi,K,p
         ///-1 for chargedgeantino
         for(unsigned int pidType=0;pidType<m_nPDG;pidType++)
@@ -451,11 +452,11 @@ StatusCode RecGenfitAlgSDT::execute()
             //        return StatusCode::SUCCESS;
             //    }
             //}else{
-std::cout << " sdtTrack size = " << sdtTrack.trackerHits_size() << std::endl;
             if(!genfitTrack->createGenfitTrackFromEDM4HepTrack(pidType,
                         sdtTrack, eventStartTime,m_isUseCovTrack)){
                 debug()<<"createGenfitTrackFromEDM4HepTrack from SDT track failed!"<<endmsg;
-                return StatusCode::SUCCESS;
+                delete genfitTrack;
+                continue;
             }
             //}
 
@@ -506,7 +507,8 @@ std::cout << " sdtTrack size = " << sdtTrack.trackerHits_size() << std::endl;
             // skip events w.o hits
             if(0==nHitAdded){
                 debug()<<m_eventNo<<" No hit added to track!"<<endmsg;
-                return StatusCode::SUCCESS;
+                delete genfitTrack;
+                continue;
             }
             if(m_debug) genfitTrack->printSeed();
 
@@ -787,6 +789,7 @@ void RecGenfitAlgSDT::debugEvent(const edm4hep::TrackCollection* sdtTrackCol,
     m_nSdtTrack=sdtTrackCol->size();
     for(auto sdtTrack: *sdtTrackCol){
         m_nSdtTrackHit = sdtTrack.trackerHits_size();
+        if(sdtTrack.trackerHits_size()<1e-9) continue;
         for(int ihit=0;ihit<sdtTrack.trackerHits_size();ihit++){
             edm4hep::TrackerHit sdtTrackHit = sdtTrack.getTrackerHits(ihit);
         }
@@ -829,48 +832,50 @@ void RecGenfitAlgSDT::debugEvent(const edm4hep::TrackCollection* sdtTrackCol,
 
     m_pidIndex=5;
 
-    mcParticleCol=m_mcParticleCol.get();
-    int iMcParticle=0;
-    HelixClass helix_mcP;
-    for(auto mcParticle : *mcParticleCol){
-        edm4hep::Vector3f mcPocaMom = mcParticle.getMomentum();//GeV
-        edm4hep::Vector3d mcPocaPos = mcParticle.getVertex();
+    if((m_mcParticleCol.get())!=nullptr){
+        mcParticleCol=m_mcParticleCol.get();
+        int iMcParticle=0;
+        HelixClass helix_mcP;
+        for(auto mcParticle : *mcParticleCol){
+            edm4hep::Vector3f mcPocaMom = mcParticle.getMomentum();//GeV
+            edm4hep::Vector3d mcPocaPos = mcParticle.getVertex();
 
-        double mcPos[3]={(mcPocaPos.x),(mcPocaPos.y),(mcPocaPos.z)};
-        double mcMom[3]={(mcPocaMom.x),(mcPocaMom.y),(mcPocaMom.z)};
-        //for(int i=0;i<3;i++){debug()<<"mcPos "<<mcPos[i]<<endmsg;}
-        //for(int i=0;i<3;i++){debug()<<"mcMom "<<mcMom[i]<<endmsg;}
-        float mcCharge = mcParticle.getCharge();
-        helix_mcP.Initialize_VP(mcPos,mcMom,mcCharge,
-                m_genfitField->getBz(mcPos)/GenfitUnit::tesla);
+            double mcPos[3]={(mcPocaPos.x),(mcPocaPos.y),(mcPocaPos.z)};
+            double mcMom[3]={(mcPocaMom.x),(mcPocaMom.y),(mcPocaMom.z)};
+            //for(int i=0;i<3;i++){debug()<<"mcPos "<<mcPos[i]<<endmsg;}
+            //for(int i=0;i<3;i++){debug()<<"mcMom "<<mcMom[i]<<endmsg;}
+            float mcCharge = mcParticle.getCharge();
+            helix_mcP.Initialize_VP(mcPos,mcMom,mcCharge,
+                    m_genfitField->getBz(mcPos)/GenfitUnit::tesla);
 
-        mcP_D0[iMcParticle] = helix_mcP.getD0();
-        mcP_phi[iMcParticle] = helix_mcP.getPhi0();
-        mcP_omega[iMcParticle] = helix_mcP.getOmega();
-        mcP_Z0[iMcParticle] = helix_mcP.getZ0();
-        mcP_tanLambda[iMcParticle] = helix_mcP.getTanLambda();
+            mcP_D0[iMcParticle] = helix_mcP.getD0();
+            mcP_phi[iMcParticle] = helix_mcP.getPhi0();
+            mcP_omega[iMcParticle] = helix_mcP.getOmega();
+            mcP_Z0[iMcParticle] = helix_mcP.getZ0();
+            mcP_tanLambda[iMcParticle] = helix_mcP.getTanLambda();
 
-        debug()<< "debugEvent Bz " << m_genfitField->getBz(mcPos)/GenfitUnit::tesla
-            << "Tesla mc d0= " << mcP_D0
-            << " phi0= " << mcP_phi
-            << " omega= " << mcP_omega
-            << " Z0= " << mcP_Z0
-            << " tanLambda= " << mcP_tanLambda << endmsg;
+            debug()<< "debugEvent Bz " << m_genfitField->getBz(mcPos)/GenfitUnit::tesla
+                << "Tesla mc d0= " << mcP_D0
+                << " phi0= " << mcP_phi
+                << " omega= " << mcP_omega
+                << " Z0= " << mcP_Z0
+                << " tanLambda= " << mcP_tanLambda << endmsg;
 
-        float px=mcPocaMom.x;
-        float py=mcPocaMom.y;
-        float pz=mcPocaMom.z;
-        debug()<<"mc pos("<<mcPos[0]<<","<<mcPos[1]<<","<<mcPos[2]
-            <<") pxyz("<<px<<","<<py<<","<<pz<<") p"<<sqrt(px*px+py*py+pz*pz)
-            <<endmsg;
-        m_pocaMomMcP[iMcParticle]=sqrt(px*px+py*py+pz*pz);
-        m_pocaMomMcPt[iMcParticle]=sqrt(px*px+py*py);
-        m_pocaMomMc[iMcParticle][0]=px;
-        m_pocaMomMc[iMcParticle][1]=py;
-        m_pocaMomMc[iMcParticle][2]=pz;
-        iMcParticle++;
+            float px=mcPocaMom.x;
+            float py=mcPocaMom.y;
+            float pz=mcPocaMom.z;
+            debug()<<"mc pos("<<mcPos[0]<<","<<mcPos[1]<<","<<mcPos[2]
+                <<") pxyz("<<px<<","<<py<<","<<pz<<") p"<<sqrt(px*px+py*py+pz*pz)
+                <<endmsg;
+            m_pocaMomMcP[iMcParticle]=sqrt(px*px+py*py+pz*pz);
+            m_pocaMomMcPt[iMcParticle]=sqrt(px*px+py*py);
+            m_pocaMomMc[iMcParticle][0]=px;
+            m_pocaMomMc[iMcParticle][1]=py;
+            m_pocaMomMc[iMcParticle][2]=pz;
+            iMcParticle++;
+        }
+        m_mcIndex=iMcParticle;
     }
-    m_mcIndex=iMcParticle;
 
     int iHit=0;
     simHitCol=m_simDCHitCol.get();

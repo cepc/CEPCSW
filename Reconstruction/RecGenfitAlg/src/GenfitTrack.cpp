@@ -1019,33 +1019,33 @@ bool GenfitTrack::debugDistance(const edm4hep::TrackerHitCollection* dCDigiCol,
     int SDTHit = 0;
     unsigned int nPoints = m_track->getNumPoints();
     for(unsigned int i = 0; i<nPoints; i++){
-      genfit::TrackPoint* point = m_track->getPoint(i);
-      genfit::AbsMeasurement* absMea = point->getRawMeasurement();
-      genfit::PlanarMeasurementSDT* sdtMea =
-          dynamic_cast<genfit::PlanarMeasurementSDT*>(absMea);
-      if(sdtMea){
-        const edm4hep::TrackerHit* TrackerHit_ = sdtMea->getTrackerHit();
-        SDTHit++;
-      }else{
-        WireMeasurementDC* dcMea =
-            dynamic_cast<WireMeasurementDC*>(absMea);
-        if(dcMea){
-          const edm4hep::TrackerHit* TrackerHit_ = dcMea->getTrackerHit();
-          smearDistance.push_back(1e-3*driftVelocity*TrackerHit_->getTime());
-          DCHit++;
-          for(auto dcDigi: *dCDigiCol){
-            if(dcDigi.getCellID() == TrackerHit_->getCellID())
-            {
-                truthDistance.push_back(1e-3*driftVelocity*(dcDigi.getTime()));
+        genfit::TrackPoint* point = m_track->getPoint(i);
+        genfit::AbsMeasurement* absMea = point->getRawMeasurement();
+        genfit::PlanarMeasurementSDT* sdtMea =
+            dynamic_cast<genfit::PlanarMeasurementSDT*>(absMea);
+        if(sdtMea){
+            const edm4hep::TrackerHit* TrackerHit_ = sdtMea->getTrackerHit();
+            SDTHit++;
+        }else{
+            WireMeasurementDC* dcMea =
+                dynamic_cast<WireMeasurementDC*>(absMea);
+            if(dcMea){
+                const edm4hep::TrackerHit* TrackerHit_ = dcMea->getTrackerHit();
+                smearDistance.push_back(1e-3*driftVelocity*TrackerHit_->getTime());
+                DCHit++;
+                for(auto dcDigi: *dCDigiCol){
+                    if(dcDigi.getCellID() == TrackerHit_->getCellID())
+                    {
+                        truthDistance.push_back(1e-3*driftVelocity*(dcDigi.getTime()));
+                    }
+                }
             }
-          }
         }
-      }
     }
 
     DCHit = nFittedDC;
     SDTHit = nFittedSDT;
-    ngenfitHit = nFittedDC+nFittedDC;
+    ngenfitHit = nFittedSDT+nFittedDC;
 
     return true;
 }
@@ -1185,6 +1185,7 @@ bool GenfitTrack::storeTrack(edm4hep::MutableReconstructedParticle& recParticle,
     std::cout<<"nFittedDC: "<<dcFit<<", nFittedSDT: "<<sdtFit<<std::endl;
     if(m_debug>0)std::cout<<m_name<<" store track ndfCut "<<ndfCut<<" chi2Cut "
         <<chi2Cut<<std::endl;
+
 
     /// Get fit status
     const genfit::FitStatus* fitState = getFitStatus();
