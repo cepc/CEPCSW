@@ -260,7 +260,7 @@ class DiskIOMonitor:
         print("failed to import ROOT")
         return
       ntime = len(self._read_count)
-      time_seq = list(range(0, ntime * self._interval, self._interval))
+      time_seq = list(range(0, int(ntime * self._interval), int(self._interval)))
 
       # Decide which
       ts = array('d')
