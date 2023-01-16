@@ -28,6 +28,7 @@ jobs:
       - name: Run the build script
         run: |
           pwd
+          source setup.sh
           bash build.sh
 
       - name: Run the simulation example
