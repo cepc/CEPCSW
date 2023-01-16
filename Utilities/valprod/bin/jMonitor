@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+from valprod.utils.TestConfig import *
+from valprod.workflow.TestWrapper import TestWrapper
+
+def getParser():
+  import argparse
+
+  argParser = argparse.ArgumentParser()
+  # job limit
+  argParser.add_argument('-T', '--time-limit', dest='maxTime', type=int, help='Time limit of process (s), if exceeded, process will be killed')
+  argParser.add_argument('-M', '--memory-limit', dest='maxVIR', type=float, help='Memory limit of process (Mb), if exceeded, process will be killed')
+  # log parser related
+  argParser.add_argument('--enable-parser', dest='parser', action='store_true', help='If enabled, log of the process will be parsed')
+  argParser.add_argument('-p', '--pattern', dest='fatalPattern', help='Python re patterns for the parser')
+  # monitor related
+  argParser.add_argument('--enable-monitor', dest='monitor', action='store_true', help='If enabled, process will be monitored (memory, cpu)')
+  argParser.add_argument('--enable-perf', dest='perf', action='store_true', help='If enabled, process will profiled via perf')
+  argParser.add_argument('--enable-io-profile', dest='io', action='store_true', help='If enabled, process disk IO will profiled')
+  argParser.add_argument('-i', '--interval', dest='interval', type=float, default='5', help='Time interval for monitor')
+  argParser.add_argument('-l', '--plotting-backend', dest='plotting_backend', default='root', choices=['root', 'matplotlib'], help='Backend for plotting monitoring figures')
+  argParser.add_argument('-b', '--monitor-backend', dest='monitor_backend', default='ps', choices=['ps', 'prmon'], help='Backend performance profiling')
+  # plot reference
+  argParser.add_argument('--enable-plotref', dest='plotref', action='store_true', help='If enabled, results of the process will be compared')
+  argParser.add_argument('-f', '--plotref-files', dest='plotreffile', help='reference file for plot testing')
+  argParser.add_argument('-o', '--plotref-output', dest='plotrefoutput', default='plotcmp.root', help='output root file for plot comparison')
+  argParser.add_argument('-m', '--histtest-method', dest='histtestmeth', choices=['Kolmogorov', 'Chi2'], default='Kolmogorov', help='Method of histogram testing')
+  argParser.add_argument('-c', '--histtest-cut', dest='histtestcut', type=float, default='0.9', help='P-Value cut for histogram testing')
+  # cmd
+  argParser.add_argument('command', nargs='+', help='job to be monitored')
+  argParser.add_argument('--gen-log', dest='log', action='store_true', help='whether to generate log file')
+  argParser.add_argument('-n', '--name', dest='name', default="None", help='name of the job')
+
+  return argParser
+
+def configureArgs(args):
+  # Decide the output names for log, plot etc.
+  name = args.name
+  if args.name == 'None':
+    from random import randrange
+    print(args.command)
+    name = "_".join(args.command) + str(randrange(1000))
+
+  globalConfig.setAttr('maxTime', args.maxTime)
+  globalConfig.setAttr('maxMEM', args.maxVIR)
+  globalConfig.setAttr('parser', args.parser)
+  if args.parser and args.fatalPattern:
+    globalConfig.setAttr('fatalPattern', args.fatalPattern)
+  if args.perf: args.monitor = True
+  if args.monitor:
+    globalConfig.setAttr('monitorBackend', args.monitor_backend)
+    globalConfig.setAttr('plottingBackend', args.plotting_backend)
+    if args.interval:
+      globalConfig.setAttr('timeInterval', args.interval)
+    if args.perf:
+      globalConfig.setAttr('perf', True)
+    if args.io:
+      globalConfig.setAttr('profileIO', True)
+  if args.plotref and args.plotreffile:
+    globalConfig.setAttr('plotRef', args.plotreffile)
+    globalConfig.setAttr('plotOutput', args.plotrefoutput)
+    globalConfig.setAttr('histTestMeth', args.histtestmeth)
+    globalConfig.setAttr('histTestCut', args.histtestcut)
+  if args.log:
+    logname = name + ".log"
+    globalConfig.setAttr('genLog', True)
+    globalConfig.setAttr('logName', logname)
+
+if __name__ == '__main__':
+  parser = getParser()
+  args = parser.parse_args()
+
+  configureArgs(args)
+  runner = TestWrapper(args.name, args.command)
+  ok, summary = runner.run()
+  print(summary)
+  print('--------------------------------')
