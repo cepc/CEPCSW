@@ -43,7 +43,7 @@ jobs:
         run: |
           pwd
           source setup.sh
-          perf -h
+          yum install -y perf
           jMonitor --gen-log -n SimTest --enable-io-profile --enable-perf  gaudirun.py Examples/options/tut_detsim.py
           ls -la
 
