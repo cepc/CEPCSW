@@ -134,6 +134,6 @@ out.outputCommands = ["keep *"]
 from Configurables import ApplicationMgr
 ApplicationMgr( TopAlg = [genalg, detsimalg, out],
                 EvtSel = 'NONE',
-                EvtMax = 10,
+                EvtMax = 1000,
                 ExtSvc = [rndmengine, rndmgensvc, dsvc, geosvc],
 )
