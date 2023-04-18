@@ -83,7 +83,8 @@ function run-cmake() {
 }
 
 function run-make() {
-    cmake --build .
+    local njobs=-j$(nproc)
+    cmake --build . $njobs
 }
 
 function run-install() {
@@ -95,8 +96,8 @@ function run-install() {
 ##############################################################################
 
 # The current default platform
-lcg_platform=x86_64-centos7-gcc8-opt
-lcg_version=101.0.1
+lcg_platform=x86_64-centos7-gcc11-opt
+lcg_version=103.0.0
 
 bldtool=${CEPCSW_BLDTOOL} # make, ninja # set in env var
 
