@@ -16,6 +16,15 @@
 #include "edm4hep/Track.h"
 #include "edm4hep/MutableTrack.h"
 
+#if __has_include("edm4hep/EDM4hepVersion.h")
+#include "edm4hep/EDM4hepVersion.h"
+#else
+// Copy the necessary parts from  the header above to make whatever we need to work here
+#define EDM4HEP_VERSION(major, minor, patch) ((UINT64_C(major) << 32) | (UINT64_C(minor) << 16) | (UINT64_C(patch)))
+// v00-09 is the last version without the capitalization change of the track vector members
+#define EDM4HEP_BUILD_VERSION EDM4HEP_VERSION(0, 9, 0)
+#endif
+
 #include <UTIL/BitField64.h>
 #include <UTIL/ILDConf.h>
 #include <UTIL/BitSet32.h>
@@ -694,12 +703,21 @@ namespace MarlinTrk {
     if ( hits_in_fit == false ) { // all hit atributed by patrec
       offset = 1 ;
     }
+#if EDM4HEP_BUILD_VERSION > EDM4HEP_VERSION(0, 9, 0)
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::VXD]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::FTD]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::SIT]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::TPC]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::SET]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::ETD]);
+#else
     track->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::VXD]);
     track->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::FTD]);
     track->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::SIT]);
     track->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::TPC]);
     track->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::SET]);
     track->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::ETD]);
+#endif
     //track->subdetectorHitNumbers().resize(2 * lcio::ILDDetID::ETD);
     //track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::VXD - offset ] = hitNumbers[lcio::ILDDetID::VXD];
     //track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::FTD - offset ] = hitNumbers[lcio::ILDDetID::FTD];
@@ -738,12 +756,21 @@ namespace MarlinTrk {
     if ( hits_in_fit == false ) { // all hit atributed by patrec
       offset = 1 ;
     }
+#if EDM4HEP_BUILD_VERSION > EDM4HEP_VERSION(0, 9, 0)
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::VXD]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::FTD]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::SIT]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::TPC]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::SET]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::ETD]);
+#else
     track->addToSubDetectorHitNumbers(hitNumbers[lcio::ILDDetID::VXD]);
     track->addToSubDetectorHitNumbers(hitNumbers[lcio::ILDDetID::FTD]);
     track->addToSubDetectorHitNumbers(hitNumbers[lcio::ILDDetID::SIT]);
     track->addToSubDetectorHitNumbers(hitNumbers[lcio::ILDDetID::TPC]);
     track->addToSubDetectorHitNumbers(hitNumbers[lcio::ILDDetID::SET]);
     track->addToSubDetectorHitNumbers(hitNumbers[lcio::ILDDetID::ETD]);
+#endif
     //track->subdetectorHitNumbers().resize(2 * lcio::ILDDetID::ETD);
     //track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::VXD - offset ] = hitNumbers[lcio::ILDDetID::VXD];
     //track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::FTD - offset ] = hitNumbers[lcio::ILDDetID::FTD];

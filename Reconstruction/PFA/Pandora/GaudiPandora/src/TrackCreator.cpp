@@ -10,6 +10,14 @@
 #include "edm4hep/Vertex.h"
 #include "edm4hep/Vector3f.h"
 #include "edm4hep/ReconstructedParticle.h"
+#if __has_include("edm4hep/EDM4hepVersion.h")
+#include "edm4hep/EDM4hepVersion.h"
+#else
+// Copy the necessary parts from  the header above to make whatever we need to work here
+#define EDM4HEP_VERSION(major, minor, patch) ((UINT64_C(major) << 32) | (UINT64_C(minor) << 16) | (UINT64_C(patch)))
+// v00-09 is the last version without the capitalization change of the track vector members
+#define EDM4HEP_BUILD_VERSION EDM4HEP_VERSION(0, 9, 0)
+#endif
 
 #include "gear/BField.h"
 #include "gear/CalorimeterParameters.h"
@@ -1020,9 +1028,15 @@ int TrackCreator::GetNTpcHits(const edm4hep::Track *const pTrack) const
         //According to FG: [ 2 * lcio::ILDDetID::TPC - 2 ] is the first number and it is supposed to
         //be the number of hits in the fit and this is what should be used !
         // at least for DD4hep/DDSim
+#if EDM4HEP_BUILD_VERSION > EDM4HEP_VERSION(0, 9, 0)
+        return pTrack->getSubdetectorHitNumbers(3);//FIXME https://github.com/wenxingfang/CEPCSW/blob/master/Reconstruction/Tracking/src/FullLDCTracking/FullLDCTrackingAlg.cpp#L483
+    }
+    else return pTrack->getSubdetectorHitNumbers(2 * 4 - 1);// lcio::ILDDetID::TPC=4, still use LCIO code now
+#else
         return pTrack->getSubDetectorHitNumbers(3);//FIXME https://github.com/wenxingfang/CEPCSW/blob/master/Reconstruction/Tracking/src/FullLDCTracking/FullLDCTrackingAlg.cpp#L483
     }
     else return pTrack->getSubDetectorHitNumbers(2 * 4 - 1);// lcio::ILDDetID::TPC=4, still use LCIO code now
+#endif
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------
@@ -1036,9 +1050,16 @@ int TrackCreator::GetNFtdHits(const edm4hep::Track *const pTrack) const
     // ---- use hitsInFit :
     //return pTrack->getSubdetectorHitNumbers()[ 2 * lcio::ILDDetID::FTD - 1 ];
     if(m_settings.m_use_dd4hep_geo){
+#if EDM4HEP_BUILD_VERSION > EDM4HEP_VERSION(0, 9, 0)
+        return pTrack->getSubdetectorHitNumbers(1);//FIXME https://github.com/wenxingfang/CEPCSW/blob/master/Reconstruction/Tracking/src/FullLDCTracking/FullLDCTrackingAlg.cpp#L481
+    }
+    else return pTrack->getSubdetectorHitNumbers( 2 * 3 - 1 );// lcio::ILDDetID::FTD=3
+#else
         return pTrack->getSubDetectorHitNumbers(1);//FIXME https://github.com/wenxingfang/CEPCSW/blob/master/Reconstruction/Tracking/src/FullLDCTracking/FullLDCTrackingAlg.cpp#L481
     }
     else return pTrack->getSubDetectorHitNumbers( 2 * 3 - 1 );// lcio::ILDDetID::FTD=3
+
+#endif
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------

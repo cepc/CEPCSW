@@ -8,6 +8,14 @@
 #include <edm4hep/TrackerHit.h>
 #include <edm4hep/TrackerHit.h>
 #include <edm4hep/Track.h>
+#if __has_include("edm4hep/EDM4hepVersion.h")
+#include "edm4hep/EDM4hepVersion.h"
+#else
+// Copy the necessary parts from  the header above to make whatever we need to work here
+#define EDM4HEP_VERSION(major, minor, patch) ((UINT64_C(major) << 32) | (UINT64_C(minor) << 16) | (UINT64_C(patch)))
+// v00-09 is the last version without the capitalization change of the track vector members
+#define EDM4HEP_BUILD_VERSION EDM4HEP_VERSION(0, 9, 0)
+#endif
 
 #include <iostream>
 #include <algorithm>
@@ -513,11 +521,19 @@ void FullLDCTrackingAlg::AddTrackColToEvt(TrackExtendedVec & trkVec, edm4hep::Tr
     float z0TrkCand = trkCand->getZ0();
     //    float phi0TrkCand = trkCand->getPhi();
     // FIXME, fucd
+#if EDM4HEP_BUILD_VERSION > EDM4HEP_VERSION(0, 9, 0)
+    int nhits_in_vxd = track.getSubdetectorHitNumbers(0);
+    int nhits_in_ftd = track.getSubdetectorHitNumbers(1);
+    int nhits_in_sit = track.getSubdetectorHitNumbers(2);
+    int nhits_in_tpc = track.getSubdetectorHitNumbers(3);
+    int nhits_in_set = track.getSubdetectorHitNumbers(4);
+#else
     int nhits_in_vxd = track.getSubDetectorHitNumbers(0);
     int nhits_in_ftd = track.getSubDetectorHitNumbers(1);
     int nhits_in_sit = track.getSubDetectorHitNumbers(2);
     int nhits_in_tpc = track.getSubDetectorHitNumbers(3);
     int nhits_in_set = track.getSubDetectorHitNumbers(4);
+#endif
     //int nhits_in_vxd = Track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::VXD - 2 ];
     //int nhits_in_ftd = Track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::FTD - 2 ];
     //int nhits_in_sit = Track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::SIT - 2 ];
