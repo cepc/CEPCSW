@@ -6,6 +6,14 @@
 #include "edm4hep/TrackerHit.h"
 #include "edm4hep/TrackerHit.h"
 #include "edm4hep/Track.h"
+#if __has_include("edm4hep/EDM4hepVersion.h")
+#include "edm4hep/EDM4hepVersion.h"
+#else
+// Copy the necessary parts from  the header above to make whatever we need to work here
+#define EDM4HEP_VERSION(major, minor, patch) ((UINT64_C(major) << 32) | (UINT64_C(minor) << 16) | (UINT64_C(patch)))
+// v00-09 is the last version without the capitalization change of the track vector members
+#define EDM4HEP_BUILD_VERSION EDM4HEP_VERSION(0, 9, 0)
+#endif
 
 #include "UTIL/ILDConf.h"
 
@@ -1001,13 +1009,21 @@ void ForwardTrackingAlg::finaliseTrack( edm4hep::MutableTrack* trackImpl ){
   //trackImpl->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::TPC - 1 ] = hitNumbers[lcio::ILDDetID::TPC];
   //trackImpl->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::SET - 1 ] = hitNumbers[lcio::ILDDetID::SET];
   //trackImpl->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::ETD - 1 ] = hitNumbers[lcio::ILDDetID::ETD];
+#if EDM4HEP_BUILD_VERSION > EDM4HEP_VERSION(0, 9, 0)
+  trackImpl->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::VXD]);
+  trackImpl->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::SIT]);
+  trackImpl->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::FTD]);
+  trackImpl->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::TPC]);
+  trackImpl->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::SET]);
+  trackImpl->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::ETD]);
+#else
   trackImpl->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::VXD]);
   trackImpl->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::SIT]);
   trackImpl->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::FTD]);
   trackImpl->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::TPC]);
   trackImpl->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::SET]);
   trackImpl->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::ETD]);
-     
+#endif
   return;
 }
 
