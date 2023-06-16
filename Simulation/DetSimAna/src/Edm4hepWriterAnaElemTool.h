@@ -15,6 +15,7 @@
 #include "edm4hep/SimTrackerHitCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/CaloHitContributionCollection.h"
+#include "edm4hep/SimPrimaryIonizationClusterCollection.h"
 
 class Edm4hepWriterAnaElemTool: public extends<AlgTool, IAnaElemTool> {
 
@@ -129,6 +130,8 @@ private:
             "DriftChamberHitsCollection", 
             Gaudi::DataHandle::Writer, this};
 
+    // for ionized electron
+    DataHandle<edm4hep::SimPrimaryIonizationClusterCollection>    m_SimPrimaryIonizationCol{"SimPrimaryIonizationClusterCollection", Gaudi::DataHandle::Writer, this};
 
 private:
     // in order to associate the hit contribution with the primary track,

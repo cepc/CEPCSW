@@ -28,6 +28,8 @@ public:
     virtual double dedx(const G4Step* aStep) = 0;
     virtual double dedx(const edm4hep::MCParticle& mc) = 0;
     virtual double dndx(double betagamma) = 0;
+    virtual void reset() {}
+    virtual void endOfEvent() {}
 
 };
 

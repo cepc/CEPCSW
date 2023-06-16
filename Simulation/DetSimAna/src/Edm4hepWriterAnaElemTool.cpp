@@ -14,6 +14,7 @@
 #include "DDG4/Geant4HitCollection.h"
 #include "DDG4/Geant4Data.h"
 #include "DetSimSD/Geant4Hits.h"
+#include <DetSimInterface/IDedxSimTool.h>
 
 DECLARE_COMPONENT(Edm4hepWriterAnaElemTool)
 
@@ -42,6 +43,7 @@ Edm4hepWriterAnaElemTool::BeginOfRunAction(const G4Run*) {
     } else {
         error() << "Failed to find GeomSvc." << endmsg;
     }
+
 }
 
 void
@@ -87,6 +89,14 @@ Edm4hepWriterAnaElemTool::BeginOfEventAction(const G4Event* anEvent) {
     // reset
     m_track2primary.clear();
 
+    auto SimPIonCol =  m_SimPrimaryIonizationCol.createAndPut();
+    ToolHandleArray<IDedxSimTool> tmp_m_dedx_tools;
+    tmp_m_dedx_tools.push_back("TrackHeedSimTool");
+    for (auto dedxtool: tmp_m_dedx_tools) {
+        debug() << "reset dedx_tool:" <<dedxtool << endmsg;
+        dedxtool->reset();
+    }
+ 
 }
 
 void
@@ -94,6 +104,15 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
 
     msg() << "mcCol size (after simulation) : " << mcCol->size() << endmsg;
     // save all data
+    auto SimPrimaryIonizationCol =  m_SimPrimaryIonizationCol.get();
+    msg() << "SimPrimaryIonizationCol size ="<<SimPrimaryIonizationCol->size()<<endmsg;
+    ToolHandleArray<IDedxSimTool> tmp_m_dedx_tools;
+    tmp_m_dedx_tools.push_back("TrackHeedSimTool");
+    for (auto dedxtool: tmp_m_dedx_tools) {
+        debug() << "call endOfEvent() for dedx_tool:" << dedxtool << endmsg;
+        dedxtool->endOfEvent();
+    }
+ 
 
     // create collections.
     auto trackercols = m_trackerCol.createAndPut();
