@@ -591,7 +591,7 @@ StatusCode PandoraMatrixAlg::Ana()
         {
             if(reco_associa_col->at(j).getRec().id() != pReco.id() ) continue;
             std::cout<<"MC pid ="<<reco_associa_col->at(j).getSim().getPDG()<<",weight="<<reco_associa_col->at(j).getWeight()<<", px="<<reco_associa_col->at(j).getSim().getMomentum()[0]<<", py="<<reco_associa_col->at(j).getSim().getMomentum()[1]<<",pz="<<reco_associa_col->at(j).getSim().getMomentum()[2]<<std::endl;
-            tmp_mc_id    .push_back(reco_associa_col->at(j).getSim().id());
+            tmp_mc_id    .push_back(reco_associa_col->at(j).getSim().id().index);
             tmp_mc_weight.push_back(reco_associa_col->at(j).getWeight());
         }
         m_pReco_mc_id    .push_back(tmp_mc_id);
@@ -604,7 +604,7 @@ StatusCode PandoraMatrixAlg::Ana()
     { 
         for(unsigned int i=0 ; i< MCParticle->size(); i++)
         {
-            m_mc_id    .push_back(MCParticle->at(i).id());
+            m_mc_id    .push_back(MCParticle->at(i).id().index);
             m_mc_p_size.push_back(MCParticle->at(i).parents_size());
             m_mc_pid   .push_back(MCParticle->at(i).getPDG());
             m_mc_mass  .push_back(MCParticle->at(i).getMass());
@@ -655,9 +655,9 @@ StatusCode PandoraMatrixAlg::CreateMCRecoParticleAssociation()
                         if(it->getRec().id() != hit.id()) continue;
                         for(auto itc = it->getSim().contributions_begin(); itc != it->getSim().contributions_end(); itc++)
                         {
-                            if(mc_map.find(itc->getParticle().id()) == mc_map.end()) mc_map[itc->getParticle().id()] = itc->getParticle() ;
-                            if(id_edep_map.find(itc->getParticle().id()) != id_edep_map.end()) id_edep_map[itc->getParticle().id()] = id_edep_map[itc->getParticle().id()] + itc->getEnergy() ;
-                            else                                                               id_edep_map[itc->getParticle().id()] = itc->getEnergy() ;
+                            if(mc_map.find(itc->getParticle().id().index) == mc_map.end()) mc_map[itc->getParticle().id().index] = itc->getParticle() ;
+                            if(id_edep_map.find(itc->getParticle().id().index) != id_edep_map.end()) id_edep_map[itc->getParticle().id().index] = id_edep_map[itc->getParticle().id().index] + itc->getEnergy() ;
+                            else                                                               id_edep_map[itc->getParticle().id().index] = itc->getEnergy() ;
                             tot_en += itc->getEnergy() ;
                         }
                     }
