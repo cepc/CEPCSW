@@ -148,7 +148,7 @@ digiTPC.TPCTrackerHitsCol = tpchitname
 from Configurables import ClupatraAlg
 clupatra = ClupatraAlg("Clupatra")
 clupatra.TPCHitCollection = tpchitname
-clupatra.OutputLevel = DEBUG
+#clupatra.OutputLevel = DEBUG
 
 from Configurables import SiliconTrackingAlg
 tracking = SiliconTrackingAlg("SiliconTracking")
