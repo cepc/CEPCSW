@@ -287,7 +287,8 @@ namespace clupatra_new{
 		UTIL::BitField64 encoder( UTIL::ILDCellID0::encoder_string ) ;
 		encoder[UTIL::ILDCellID0::subdet] = UTIL::ILDDetID::TPC ;
 
-		edm4hep::TrackerHit firstHit; // =  0 ;
+		edm4hep::TrackerHit firstHit = 0;
+		// = 0 equal to unlink() 
                 //firstHit.unlink();
 
 		IMarlinTrack* bwTrk = 0 ;

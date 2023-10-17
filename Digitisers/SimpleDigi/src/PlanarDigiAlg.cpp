@@ -259,7 +259,7 @@ StatusCode PlanarDigiAlg::execute()
       localPointSmeared.setY( localPoint.y() + dy );
 
       //check if hit is in boundaries
-      if ( ms->isLocalInBoundary( localPointSmeared ) && fabs(dx)<_maxPull*resU && fabs(dy)<_maxPull*resV ) {
+      if ( ms->isLocalInBoundary( localPointSmeared ) && fabs(dx)<=_maxPull*resU && fabs(dy)<=_maxPull*resV ) {
       //if ( ms->isLocalInBoundary( localPointSmeared ) ) {
         accept_hit = true;
         break;

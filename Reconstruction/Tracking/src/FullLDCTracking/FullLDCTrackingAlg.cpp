@@ -1166,13 +1166,18 @@ void FullLDCTrackingAlg::prepareVectors() {
       trackExt->setNDF(tpcTrack.getNdf());
       trackExt->setChi2(tpcTrack.getChi2());
       for (int iHit=0;iHit<nHits;++iHit) {
-	edm4hep::TrackerHit hit = tpcTrack.getTrackerHits(iHit);//hitVec[iHit];
-	if(!hit.isAvailable()) error() << "Tracker hit not available" << endmsg;
+	edm4hep::TrackerHit hit = tpcTrack.getTrackerHits(iHit);
+	if (!hit.isAvailable()) {
+	  error() << "Tracker hit not available" << endmsg;
+	  continue;
+	}
 	//info() << "hit " << hit.id() << " " << hit.getCellID() << " " << hit.getPosition()[0] << " " << hit.getPosition()[1] << " " << hit.getPosition()[2] << endmsg;
 	auto it = mapTrackerHits.find(hit);
-	if(it==mapTrackerHits.end()) error() << "Cannot find hit " << hit.id() << " in map" << endmsg;
-	else continue;
-        TrackerHitExtended * hitExt = it->second;
+	if (it==mapTrackerHits.end()) {
+	  error() << "Cannot find hit " << hit.id() << " in map" << endmsg;
+	  continue;
+	}
+        TrackerHitExtended* hitExt = it->second;
 	//info() << hit.id() << " " << hitExt << endmsg;
         hitExt->setTrackExtended( trackExt );
         trackExt->addTrackerHitExtended( hitExt );
@@ -1231,8 +1236,17 @@ void FullLDCTrackingAlg::prepareVectors() {
       char strg[200];
       HelixClass helixSi;
       for (int iHit=0;iHit<nHits;++iHit) {
-	edm4hep::TrackerHit hit = siTrack.getTrackerHits(iHit);//hitVec[iHit];
-        TrackerHitExtended * hitExt = mapTrackerHits[hit];
+	edm4hep::TrackerHit hit = siTrack.getTrackerHits(iHit);
+	if (!hit.isAvailable()) {
+	  error() << "Tracker hit not available" << endmsg;
+	  continue;
+	}
+	auto it = mapTrackerHits.find(hit);
+        if (it==mapTrackerHits.end()) {
+	  error() << "Cannot find hit " << hit.id() << " in map" << endmsg;
+	  continue;
+	}
+        TrackerHitExtended* hitExt = it->second;
         hitExt->setTrackExtended( trackExt );
         
         trackExt->addTrackerHitExtended( hitExt );
@@ -1534,8 +1548,8 @@ TrackExtended * FullLDCTrackingAlg::CombineTracks(TrackExtended * tpcTrack, Trac
   int nTPCHits = int(tpcHitVec.size());
   int nHits = nTPCHits + nSiHits;
   
-  //std::cout << "FullLDCTrackingAlg::CombineTracks nSiHits = " << nSiHits << endmsg;
-  //std::cout << "FullLDCTrackingAlg::CombineTracks nTPCHits = " << nTPCHits << endmsg;
+  //debug() << "FullLDCTrackingAlg::CombineTracks nSiHits = " << nSiHits << endmsg;
+  //debug() << "FullLDCTrackingAlg::CombineTracks nTPCHits = " << nTPCHits << endmsg;
   
   TrackerHitVec trkHits;
   trkHits.reserve(nHits);
@@ -1748,7 +1762,7 @@ TrackExtended * FullLDCTrackingAlg::CombineTracks(TrackExtended * tpcTrack, Trac
       tpcHitInFit.push_back(tpcHitVec[i]);
     }
   }
-  
+
   debug() << "FullLDCTrackingAlg::CombineTracks: Check for Silicon Hit rejections ... " << endmsg;
   
   if ( (int)siOutliers.size() > _maxAllowedSiHitRejectionsForTrackCombination ) {
