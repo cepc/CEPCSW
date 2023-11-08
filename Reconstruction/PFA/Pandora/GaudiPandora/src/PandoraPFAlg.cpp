@@ -669,9 +669,9 @@ StatusCode PandoraPFAlg::CreateMCRecoParticleAssociation()
                         if(it->getRec().id() != hit.id()) continue;
                         for(auto itc = it->getSim().contributions_begin(); itc != it->getSim().contributions_end(); itc++)
                         {
-                            if(mc_map.find(itc->getParticle().id()) == mc_map.end()) mc_map[itc->getParticle().id()] = itc->getParticle() ;
-                            if(id_edep_map.find(itc->getParticle().id()) != id_edep_map.end()) id_edep_map[itc->getParticle().id()] = id_edep_map[itc->getParticle().id()] + itc->getEnergy() ;
-                            else                                                               id_edep_map[itc->getParticle().id()] = itc->getEnergy() ;
+                            if(mc_map.find(itc->getParticle().id().index) == mc_map.end()) mc_map[itc->getParticle().id().index] = itc->getParticle() ;
+                            if(id_edep_map.find(itc->getParticle().id().index) != id_edep_map.end()) id_edep_map[itc->getParticle().id().index] = id_edep_map[itc->getParticle().id().index] + itc->getEnergy() ;
+                            else                                                               id_edep_map[itc->getParticle().id().index] = itc->getEnergy() ;
                             tot_en += itc->getEnergy() ;
                         }
                     }
