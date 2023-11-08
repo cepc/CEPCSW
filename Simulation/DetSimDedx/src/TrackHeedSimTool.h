@@ -39,6 +39,7 @@
 #include <string>
 
 #include "core/session/onnxruntime_cxx_api.h"
+#include "core/session/onnxruntime_c_api.h"
 using namespace Garfield;
 
 class TrackHeedSimTool: public extends<AlgTool, IDedxSimTool> {
@@ -135,9 +136,13 @@ class TrackHeedSimTool: public extends<AlgTool, IDedxSimTool> {
         std::vector<std::vector<int64_t>> m_input_node_dims;
         std::vector<const char*> m_output_node_names;
         std::vector<int64_t> m_output_node_dims;
+        #if (ORT_API_VERSION >=13)
         std::vector<Ort::AllocatedStringPtr> m_inputNodeNameAllocatedStrings;
         std::vector<Ort::AllocatedStringPtr> m_outputNodeNameAllocatedStrings;
-  
+        #else
+        std::vector<const char*> m_inputNodeNameAllocatedStrings;
+        std::vector<const char*> m_outputNodeNameAllocatedStrings;
+        #endif
   
         Gaudi::Property<bool> m_sim_pulse    { this, "sim_pulse"   , true  };
         Gaudi::Property<std::string> m_model_file{ this, "model", "model_test.onnx"};

@@ -428,9 +428,15 @@ StatusCode TrackHeedSimTool::initialize()
    auto num_input_nodes = m_session->GetInputCount();
    if(m_debug) std::cout << "num_input_nodes: " << num_input_nodes << std::endl;
    for (size_t i = 0; i < num_input_nodes; ++i) {
+      #if (ORT_API_VERSION >=13)
       auto name = m_session->GetInputNameAllocated(i, m_allocator);
       m_inputNodeNameAllocatedStrings.push_back(std::move(name));
       m_input_node_names.push_back(m_inputNodeNameAllocatedStrings.back().get());
+      #else
+      auto name = m_session->GetInputName(i, m_allocator);
+      m_inputNodeNameAllocatedStrings.push_back(name);
+      m_input_node_names.push_back(m_inputNodeNameAllocatedStrings.back());
+      #endif
 
       Ort::TypeInfo type_info  = m_session->GetInputTypeInfo(i);
       auto tensor_info = type_info.GetTensorTypeAndShapeInfo();
@@ -441,7 +447,11 @@ StatusCode TrackHeedSimTool::initialize()
 
 
       if(m_debug) std::cout<< "[" << i << "]"
+      #if (ORT_API_VERSION >=13)
               << " input_name: " << m_inputNodeNameAllocatedStrings.back().get()
+      #else
+              << " input_name: " << m_inputNodeNameAllocatedStrings.back()
+      #endif
               << " ndims: " << dims.size()
               << " dims: " << dims_str(dims)
               << std::endl;
@@ -449,15 +459,25 @@ StatusCode TrackHeedSimTool::initialize()
    // prepare the output
    size_t num_output_nodes = m_session->GetOutputCount();
    for(std::size_t i = 0; i < num_output_nodes; i++) {
+       #if (ORT_API_VERSION >=13)
        auto output_name = m_session->GetOutputNameAllocated(i, m_allocator);
        m_outputNodeNameAllocatedStrings.push_back(std::move(output_name));
        m_output_node_names.push_back(m_outputNodeNameAllocatedStrings.back().get());
+       #else
+       auto output_name = m_session->GetOutputName(i, m_allocator);
+       m_outputNodeNameAllocatedStrings.push_back(output_name);
+       m_output_node_names.push_back(m_outputNodeNameAllocatedStrings.back());
+       #endif
        Ort::TypeInfo type_info        = m_session->GetOutputTypeInfo(i);
        auto tensor_info               = type_info.GetTensorTypeAndShapeInfo();
        ONNXTensorElementDataType type = tensor_info.GetElementType();
        m_output_node_dims               = tensor_info.GetShape();
        if(m_debug) std::cout << "[" << i << "]"
+      #if (ORT_API_VERSION >=13)
                << " output_name: " << m_outputNodeNameAllocatedStrings.back().get()
+      #else
+               << " output_name: " << m_outputNodeNameAllocatedStrings.back()
+      #endif
                << " ndims: " << m_output_node_dims.size()
                << " dims: " << dims_str(m_output_node_dims)
                << std::endl;

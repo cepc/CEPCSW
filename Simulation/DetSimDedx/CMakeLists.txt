@@ -2,7 +2,9 @@
 find_package(Geant4 REQUIRED ui_all vis_all)
 include(${Geant4_USE_FILE})
 find_package(Garfield REQUIRED)
+message(Garfield::Garfield)
 message("libonnxruntime ${OnnxRuntime_LIBRARY}")
+message("libonnxruntime include ${OnnxRuntime_INCLUDE_DIR}")
 find_package(OnnxRuntime REQUIRED)
 
 message("libonnxruntime ${OnnxRuntime_LIBRARY}")
@@ -20,7 +22,8 @@ gaudi_add_module(DetSimDedx
                       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
                       k4FWCore::k4FWCore
                       Garfield::Garfield
-                      ${OnnxRuntime_LIBRARY}
+                      OnnxRuntime
+                      #${OnnxRuntime_LIBRARY}
                       #/cvmfs/sft.cern.ch/lcg/views/LCG_103/x86_64-centos7-gcc11-opt/lib/libonnxruntime.so
                       ${CLHEP_LIBRARIES}
  
