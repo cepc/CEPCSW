@@ -79,7 +79,7 @@ tpc_sensdettool.TypeOption = 1
 
 from Configurables import GearSvc
 gearsvc = GearSvc("GearSvc")
-gearsvc.GearXMLFile = "Detector/DetCEPCv4/compact/FullDetGear.xml"
+#gearsvc.GearXMLFile = "Detector/DetCEPCv4/compact/FullDetGear.xml"
 
 from Configurables import TrackSystemSvc
 tracksystemsvc = TrackSystemSvc("TrackSystemSvc")
@@ -331,7 +331,7 @@ ApplicationMgr(
     TopAlg = [genalg, detsimalg, digiVXD, digiSIT, digiSET, digiFTD, spSIT, spFTD, digiTPC, clupatra, tracking, forward, subset, full, simHitMerge, caloDigi, pandoralg, write],
     EvtSel = 'NONE',
     EvtMax = 10,
-    ExtSvc = [rndmengine, dsvc, evtseeder, gearsvc, geosvc, tracksystemsvc],
+    ExtSvc = [rndmengine, dsvc, evtseeder, geosvc, gearsvc, tracksystemsvc],
     HistogramPersistency='ROOT',
     OutputLevel=INFO
 )

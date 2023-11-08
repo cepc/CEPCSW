@@ -321,7 +321,7 @@ pandora::StatusCode TrackCreator::ExtractKinks(const CollectionMaps& collectionM
                     for (unsigned int iTrack = 0, nTracks = pReconstructedParticle.tracks_size(); iTrack < nTracks; ++iTrack)
                     {
                         auto pTrack = pReconstructedParticle.getTracks(iTrack);
-                        (0 == iTrack) ? m_parentTrackList.insert(pTrack.id()) : m_daughterTrackList.insert(pTrack.id());
+                        (0 == iTrack) ? m_parentTrackList.insert(pTrack.id().index) : m_daughterTrackList.insert(pTrack.id().index);
 
                         int trackPdgCode = pandora::UNKNOWN_PARTICLE_TYPE;
 
@@ -421,7 +421,7 @@ pandora::StatusCode TrackCreator::ExtractProngsAndSplits(const CollectionMaps& c
                     for (unsigned int iTrack = 0, nTracks = pReconstructedParticle.tracks_size(); iTrack < nTracks; ++iTrack)
                     {
                         edm4hep::Track pTrack = pReconstructedParticle.getTracks(iTrack);
-                        (0 == iTrack) ? m_parentTrackList.insert(pTrack.id()) : m_daughterTrackList.insert(pTrack.id());
+                        (0 == iTrack) ? m_parentTrackList.insert(pTrack.id().index) : m_daughterTrackList.insert(pTrack.id().index);
 
                         if (0 == m_settings.m_shouldFormTrackRelationships) continue;
 
@@ -490,7 +490,7 @@ pandora::StatusCode TrackCreator::ExtractV0s(const CollectionMaps& collectionMap
                     for (unsigned int iTrack = 0, nTracks = pReconstructedParticle.tracks_size(); iTrack < nTracks; ++iTrack)
                     {
                         edm4hep::Track pTrack = pReconstructedParticle.getTracks(iTrack);
-                        m_v0TrackList.insert(pTrack.id());
+                        m_v0TrackList.insert(pTrack.id().index);
 
                         int trackPdgCode = pandora::UNKNOWN_PARTICLE_TYPE;
 
@@ -546,7 +546,7 @@ bool TrackCreator::IsConflictingRelationship(const edm4hep::ReconstructedParticl
     for (unsigned int iTrack = 0, nTracks = Particle.tracks_size(); iTrack < nTracks; ++iTrack)
     {
         edm4hep::Track pTrack = Particle.getTracks(iTrack) ;
-        unsigned int pTrack_id = pTrack.id() ;
+        unsigned int pTrack_id = pTrack.id().index ;
 
         if (this->IsDaughter(pTrack_id) || this->IsParent(pTrack_id) || this->IsV0(pTrack_id))
             return true;
@@ -859,7 +859,7 @@ void TrackCreator::DefineTrackPfoUsage(const edm4hep::Track *const pTrack, Pando
     bool canFormPfo(false);
     bool canFormClusterlessPfo(false);
 
-    if (trackParameters.m_reachesCalorimeter.Get() && !this->IsParent(pTrack->id()))
+    if (trackParameters.m_reachesCalorimeter.Get() && !this->IsParent(pTrack->id().index))
     {
         const float d0(std::fabs(pTrack->getTrackStates(0).D0)), z0(std::fabs(pTrack->getTrackStates(0).Z0));
 
@@ -888,8 +888,8 @@ void TrackCreator::DefineTrackPfoUsage(const edm4hep::Track *const pTrack, Pando
             const float zCutForNonVertexTracks(m_tpcInnerR * std::fabs(pZ / pT) + m_settings.m_zCutForNonVertexTracks);
             const bool passRzQualityCuts((zMin < zCutForNonVertexTracks) && (rInner < m_tpcInnerR + m_settings.m_maxTpcInnerRDistance));
 
-            const bool isV0(this->IsV0(pTrack->id()));
-            const bool isDaughter(this->IsDaughter(pTrack->id()));
+            const bool isV0(this->IsV0(pTrack->id().index));
+            const bool isDaughter(this->IsDaughter(pTrack->id().index));
 
             // Decide whether track can be associated with a pandora cluster and used to form a charged PFO
             if ((d0 < m_settings.m_d0TrackCut) && (z0 < m_settings.m_z0TrackCut) && (rInner < m_tpcInnerR + m_settings.m_maxTpcInnerRDistance))
@@ -926,7 +926,7 @@ void TrackCreator::DefineTrackPfoUsage(const edm4hep::Track *const pTrack, Pando
                 }
             }
         }
-        else if (this->IsDaughter(pTrack->id()) || this->IsV0(pTrack->id()))
+        else if (this->IsDaughter(pTrack->id().index) || this->IsV0(pTrack->id().index))
         {
             std::cout<<"WARNING Recovering daughter or v0 track " << trackParameters.m_momentumAtDca.Get().GetMagnitude() << std::endl;
             canFormPfo = true;
