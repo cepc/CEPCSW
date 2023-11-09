@@ -14,7 +14,6 @@
 #include "DDG4/Geant4HitCollection.h"
 #include "DDG4/Geant4Data.h"
 #include "DetSimSD/Geant4Hits.h"
-#include <DetSimInterface/IDedxSimTool.h>
 
 DECLARE_COMPONENT(Edm4hepWriterAnaElemTool)
 
@@ -90,11 +89,9 @@ Edm4hepWriterAnaElemTool::BeginOfEventAction(const G4Event* anEvent) {
     m_track2primary.clear();
 
     auto SimPIonCol =  m_SimPrimaryIonizationCol.createAndPut();
-    ToolHandleArray<IDedxSimTool> tmp_m_dedx_tools;
-    tmp_m_dedx_tools.push_back("TrackHeedSimTool");
-    for (auto dedxtool: tmp_m_dedx_tools) {
-        debug() << "reset dedx_tool:" <<dedxtool << endmsg;
-        dedxtool->reset();
+    if(hasTrackHeedSimTool){
+        debug() << "reset TrackHeedSimTool" << endmsg;
+        m_TrackHeedSimTool->reset();
     }
  
 }
@@ -106,14 +103,10 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
     // save all data
     auto SimPrimaryIonizationCol =  m_SimPrimaryIonizationCol.get();
     msg() << "SimPrimaryIonizationCol size ="<<SimPrimaryIonizationCol->size()<<endmsg;
-    ToolHandleArray<IDedxSimTool> tmp_m_dedx_tools;
-    tmp_m_dedx_tools.push_back("TrackHeedSimTool");
-    for (auto dedxtool: tmp_m_dedx_tools) {
-        debug() << "call endOfEvent() for dedx_tool:" << dedxtool << endmsg;
-        dedxtool->endOfEvent();
+    if(hasTrackHeedSimTool){
+        debug() << "call endOfEvent() for TrackHeedSimTool" << endmsg;
+        m_TrackHeedSimTool->endOfEvent();
     }
- 
-
     // create collections.
     auto trackercols = m_trackerCol.createAndPut();
     auto calorimetercols = m_calorimeterCol.createAndPut();
@@ -580,6 +573,12 @@ StatusCode
 Edm4hepWriterAnaElemTool::initialize() {
     StatusCode sc;
 
+    m_TrackHeedSimTool = ToolHandle<IDedxSimTool>("TrackHeedSimTool",nullptr,false);
+    if(m_TrackHeedSimTool){
+        msg() << "find TrackHeedSimTool" << endmsg;
+        hasTrackHeedSimTool = true;
+    }
+ 
     return sc;
 }
 

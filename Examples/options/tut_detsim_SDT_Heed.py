@@ -181,7 +181,6 @@ elif dedxoption == "TrackHeedSimTool":
     dedx_simtool.save_mc = True##IF this is False then ... 
     dedx_simtool.debug = False 
     dedx_simtool.sim_pulse = True
-    #dedx_simtool.model='/junofs/users/wxfang/MyGit/tmp/fork_cepcsw_20220418/CEPCSW/Digitisers/SimCurrentONNX/src/model_test.onnx'
     #dedx_simtool.model='/junofs/users/wxfang/MyGit/tmp/fork_cepcsw_20220418/CEPCSW/Digitisers/SimCurrentONNX/src/model_90He10C4H10_18mm.onnx'
     dedx_simtool.model='model_90He10C4H10_18mm.onnx'
     dedx_simtool.batchsize = 100

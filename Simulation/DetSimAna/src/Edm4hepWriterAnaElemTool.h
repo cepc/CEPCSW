@@ -16,6 +16,7 @@
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/CaloHitContributionCollection.h"
 #include "edm4hep/SimPrimaryIonizationClusterCollection.h"
+#include <DetSimInterface/IDedxSimTool.h>
 
 class Edm4hepWriterAnaElemTool: public extends<AlgTool, IAnaElemTool> {
 
@@ -155,6 +156,8 @@ private:
     double Z = 0;
 
     bool verboseOutput = false;
+    ToolHandle<IDedxSimTool> m_TrackHeedSimTool;
+    bool hasTrackHeedSimTool = false;
 };
 
 #endif
