@@ -102,19 +102,19 @@ class TrackHeedSimTool: public extends<AlgTool, IDedxSimTool> {
         Sensor* m_sensor;
         std::map<int, std::string> m_particle_map;
         
-        int m_previous_track_ID;
-        float m_previous_KE;
+        int m_previous_track_ID=0;
+        float m_previous_KE=0;
         int m_current_track_ID;
         int m_current_Parent_ID;
         int m_pdg_code;
         G4StepPoint* m_pre_point;
         G4StepPoint* m_post_point;
         G4double m_total_range;
-        bool m_isFirst;
+        bool m_isFirst=true;
         bool m_change_track;
         edm4hep::MCParticle m_mc_paricle; 
-        float m_tot_edep;
-        float m_tot_length;
+        float m_tot_edep=0;
+        float m_tot_length=0;
         float m_pa_KE;
   
         G4double m_pre_x  ;

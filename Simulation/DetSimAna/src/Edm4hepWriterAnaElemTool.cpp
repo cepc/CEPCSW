@@ -89,10 +89,6 @@ Edm4hepWriterAnaElemTool::BeginOfEventAction(const G4Event* anEvent) {
     m_track2primary.clear();
 
     auto SimPIonCol =  m_SimPrimaryIonizationCol.createAndPut();
-    if(hasTrackHeedSimTool){
-        debug() << "reset TrackHeedSimTool" << endmsg;
-        m_TrackHeedSimTool->reset();
-    }
  
 }
 
@@ -102,11 +98,7 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
     msg() << "mcCol size (after simulation) : " << mcCol->size() << endmsg;
     // save all data
     auto SimPrimaryIonizationCol =  m_SimPrimaryIonizationCol.get();
-    msg() << "SimPrimaryIonizationCol size ="<<SimPrimaryIonizationCol->size()<<endmsg;
-    if(hasTrackHeedSimTool){
-        debug() << "call endOfEvent() for TrackHeedSimTool" << endmsg;
-        m_TrackHeedSimTool->endOfEvent();
-    }
+    //msg() << "SimPrimaryIonizationCol size ="<<SimPrimaryIonizationCol->size()<<endmsg;
     // create collections.
     auto trackercols = m_trackerCol.createAndPut();
     auto calorimetercols = m_calorimeterCol.createAndPut();
@@ -573,12 +565,6 @@ StatusCode
 Edm4hepWriterAnaElemTool::initialize() {
     StatusCode sc;
 
-    m_TrackHeedSimTool = ToolHandle<IDedxSimTool>("TrackHeedSimTool",nullptr,false);
-    if(m_TrackHeedSimTool){
-        msg() << "find TrackHeedSimTool" << endmsg;
-        hasTrackHeedSimTool = true;
-    }
- 
     return sc;
 }
 

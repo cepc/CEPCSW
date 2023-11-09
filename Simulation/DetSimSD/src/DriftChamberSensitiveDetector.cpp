@@ -71,5 +71,6 @@ DriftChamberSensitiveDetector::ProcessHits(G4Step* step, G4TouchableHistory*) {
 
 void
 DriftChamberSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE) {
-
+    m_dedx_simtool->endOfEvent();
+    m_dedx_simtool->reset();
 }
