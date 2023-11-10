@@ -178,8 +178,8 @@ elif dedxoption == "TrackHeedSimTool":
     #dedx_simtool.IonMobility_file ="/junofs/users/wxfang/MyGit/tmp/check_G4FastSim_20210121/CEPCSW/Digitisers/DigiGarfield/IonMobility_He+_He.txt" 
     dedx_simtool.gas_file         ="he_90_isobutane_10.gas"
     dedx_simtool.IonMobility_file ="IonMobility_He+_He.txt"
-    dedx_simtool.save_mc = True##IF this is False then ... 
-    dedx_simtool.debug = False 
+    dedx_simtool.save_mc = True
+    dedx_simtool.debug = False
     dedx_simtool.sim_pulse = True
     #dedx_simtool.model='/junofs/users/wxfang/MyGit/tmp/fork_cepcsw_20220418/CEPCSW/Digitisers/SimCurrentONNX/src/model_90He10C4H10_18mm.onnx'
     dedx_simtool.model='model_90He10C4H10_18mm.onnx'

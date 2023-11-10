@@ -53,11 +53,11 @@ class TrackHeedSimTool: public extends<AlgTool, IDedxSimTool> {
         double dndx(double betagamma) override;
         void getMom(float ee, float dx, float dy,float dz, float mom[3] );
         void reset(){ 
+            m_beginEvt = true;
             m_isFirst = true;
             m_previous_track_ID = 0;
             m_previous_KE = 0;
             m_tot_edep = 0;
-            //std::cout<<"m_tot_length="<<m_tot_length<<std::endl;
             m_tot_length = 0;
         }
         void endOfEvent();
@@ -89,7 +89,8 @@ class TrackHeedSimTool: public extends<AlgTool, IDedxSimTool> {
         Gaudi::Property<float> m_BField   {this, "BField", -3};
         Gaudi::Property<float> m_eps     { this, "eps"   , 1e-6  };//very small value, it is returned dedx for unsimulated step (may needed for SimTrackerHit)
         // Output collections
-        DataHandle<edm4hep::SimPrimaryIonizationClusterCollection>    m_SimPrimaryIonizationCol{"SimPrimaryIonizationClusterCollection", Gaudi::DataHandle::Writer, this};
+        DataHandle<edm4hep::SimPrimaryIonizationClusterCollection>    m_SimPrimaryIonizationColWriter{"SimPrimaryIonizationClusterCollection", Gaudi::DataHandle::Writer, this};
+        edm4hep::SimPrimaryIonizationClusterCollection* m_SimPrimaryIonizationCol;
         // In order to associate MCParticle with contribution, we need to access MC Particle.
         DataHandle<edm4hep::MCParticleCollection> m_mc_handle{"MCParticle", Gaudi::DataHandle::Writer, this};
 
@@ -102,19 +103,20 @@ class TrackHeedSimTool: public extends<AlgTool, IDedxSimTool> {
         Sensor* m_sensor;
         std::map<int, std::string> m_particle_map;
         
-        int m_previous_track_ID=0;
-        float m_previous_KE=0;
+        int m_previous_track_ID;
+        float m_previous_KE;
         int m_current_track_ID;
         int m_current_Parent_ID;
         int m_pdg_code;
         G4StepPoint* m_pre_point;
         G4StepPoint* m_post_point;
         G4double m_total_range;
-        bool m_isFirst=true;
+        bool m_isFirst;
+        bool m_beginEvt;
         bool m_change_track;
         edm4hep::MCParticle m_mc_paricle; 
-        float m_tot_edep=0;
-        float m_tot_length=0;
+        float m_tot_edep;
+        float m_tot_length;
         float m_pa_KE;
   
         G4double m_pre_x  ;
@@ -147,12 +149,12 @@ class TrackHeedSimTool: public extends<AlgTool, IDedxSimTool> {
         Gaudi::Property<bool> m_sim_pulse    { this, "sim_pulse"   , true  };
         Gaudi::Property<std::string> m_model_file{ this, "model", "model_test.onnx"};
         Gaudi::Property<int> m_batchsize     { this, "batchsize", 100};
-        Gaudi::Property<float> m_time_scale  { this, "time_scale", 99.0};
-        Gaudi::Property<float> m_time_shift  { this, "time_shift", 166.4};
-        Gaudi::Property<float> m_amp_scale   { this, "amp_scale" , 1e-2 };
-        Gaudi::Property<float> m_amp_shift   { this, "amp_shift" , 0    };
-        Gaudi::Property<float> m_x_scale     { this, "x_scale"   , 5.  };// in mm
-        Gaudi::Property<float> m_y_scale     { this, "y_scale"   , 5.  };// in mm
+        Gaudi::Property<float> m_time_scale  { this, "time_scale", 503.0};
+        Gaudi::Property<float> m_time_shift  { this, "time_shift", 814.0};
+        Gaudi::Property<float> m_amp_scale   { this, "amp_scale" , 1.15 };
+        Gaudi::Property<float> m_amp_shift   { this, "amp_shift" , 0.86 };
+        Gaudi::Property<float> m_x_scale     { this, "x_scale"   , 9.  };// in mm
+        Gaudi::Property<float> m_y_scale     { this, "y_scale"   , 9.  };// in mm
   
   
 

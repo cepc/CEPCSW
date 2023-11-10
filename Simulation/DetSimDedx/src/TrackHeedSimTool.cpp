@@ -25,7 +25,10 @@ double TrackHeedSimTool::dndx(double betagamma) {return 0;}
 
 double TrackHeedSimTool::dedx(const G4Step* Step)
 {
-
+    if(m_beginEvt){
+        m_SimPrimaryIonizationCol =  m_SimPrimaryIonizationColWriter.createAndPut();
+        m_beginEvt = false;
+    }
     clock_t t0 = clock();
     double de = 0;
     float cm_to_mm = 10; 
@@ -43,15 +46,12 @@ double TrackHeedSimTool::dedx(const G4Step* Step)
     if(g4Track->GetKineticEnergy() <=0) return 0;
     if(pdg_code == 11 && (tmp_str_pro=="phot" || tmp_str_pro=="hIoni" || tmp_str_pro=="eIoni" || tmp_str_pro=="muIoni" || tmp_str_pro=="ionIoni" ) ) return m_eps;//skip the electron produced by Ioni, because it is already simulated by TrackHeed
     if(m_particle_map.find(pdg_code) == m_particle_map.end() ) return m_eps;
-    edm4hep::SimPrimaryIonizationClusterCollection* SimPrimaryIonizationCol = nullptr;
     edm4hep::MCParticleCollection* mcCol = nullptr;
     try{
-        SimPrimaryIonizationCol =  const_cast<edm4hep::SimPrimaryIonizationClusterCollection*>(m_SimPrimaryIonizationCol.get());
         mcCol = const_cast<edm4hep::MCParticleCollection*>(m_mc_handle.get());
     }
     catch(...){
-        G4cout<<"Error! Can't find collection in event, please check it have been createAndPut() in Begin of event"<<G4endl;
-        G4cout<<"SimPrimaryIonizationCol="<<SimPrimaryIonizationCol<<",mcCol="<<mcCol<<G4endl;
+        G4cout<<"Error! Can't find MCParticle collection in event, please check it have been createAndPut() in Begin of event"<<G4endl;
         throw "stop here!";
     }
 
@@ -194,7 +194,8 @@ double TrackHeedSimTool::dedx(const G4Step* Step)
     clock_t t02 = clock();
     while (m_track->GetCluster(xc, yc, zc, tc, nc, ec, extra)) {
         //auto chit = SimHitCol->create();
-        auto chit = SimPrimaryIonizationCol->create();
+        //auto chit = SimPrimaryIonizationCol->create();
+        auto chit = m_SimPrimaryIonizationCol->create();
         chit.setTime(tc);
         double cpos[3] = { cm_to_mm*( (xc - init_x)+position_x/CLHEP::cm) , cm_to_mm*((yc - init_y)+position_y/CLHEP::cm), cm_to_mm*(zc + position_z/CLHEP::cm)};
         chit.setPosition(edm4hep::Vector3d(cpos));
@@ -395,7 +396,8 @@ StatusCode TrackHeedSimTool::initialize()
   m_current_Parent_ID = -1;
   m_change_track = false;
   m_total_range = 0;
-  m_isFirst = false;
+  m_isFirst = true;
+  m_beginEvt = true;
   m_tot_edep = 0;
   m_tot_length = 0;
   m_pa_KE =0;
@@ -555,26 +557,16 @@ float* TrackHeedSimTool::NNPred(std::vector<float>& inputs)
 
 void TrackHeedSimTool::endOfEvent() {
     if(m_sim_pulse){
-        edm4hep::SimPrimaryIonizationClusterCollection* SimPrimaryIonizationCol = nullptr;
-        try{
-            SimPrimaryIonizationCol =  const_cast<edm4hep::SimPrimaryIonizationClusterCollection*>(m_SimPrimaryIonizationCol.get());
-        }
-        catch(...){
-            G4cout<<"Error! Can't find collection in event, please check it have been createAndPut() in Begin of event"<<G4endl;
-            G4cout<<"SimPrimaryIonizationCol="<<SimPrimaryIonizationCol<<G4endl;
-            throw "stop here!";
-        }
-        if(m_debug) G4cout<<"SimPrimaryIonizationCol size="<<SimPrimaryIonizationCol->size()<<G4endl;
+        if(m_debug) G4cout<<"SimPrimaryIonizationCol size="<<m_SimPrimaryIonizationCol->size()<<G4endl;
         clock_t t01 = clock();
         std::vector<float> inputs;
         std::vector<unsigned long> indexs_c;
         std::vector<unsigned long> indexs_i;
         std::map<unsigned long long, std::vector<std::pair<float, float> > > id_pulse_map;
-        for (unsigned long z=0; z<SimPrimaryIonizationCol->size(); z++) {
-            for (unsigned long k=0; k<SimPrimaryIonizationCol->at(z).electronCellID_size(); k++) {
-                //auto simIon = SimIonizationCol->at(k);
-                auto position = SimPrimaryIonizationCol->at(z).getElectronPosition(k);//mm
-                auto cellId = SimPrimaryIonizationCol->at(z).getElectronCellID(k);
+        for (unsigned long z=0; z<m_SimPrimaryIonizationCol->size(); z++) {
+            for (unsigned long k=0; k<m_SimPrimaryIonizationCol->at(z).electronCellID_size(); k++) {
+                auto position = m_SimPrimaryIonizationCol->at(z).getElectronPosition(k);//mm
+                auto cellId = m_SimPrimaryIonizationCol->at(z).getElectronCellID(k);
                 TVector3 Wstart(0,0,0);
                 TVector3 Wend  (0,0,0);
                 m_segmentation->cellposition(cellId, Wstart, Wend);
@@ -590,9 +582,9 @@ void TrackHeedSimTool::endOfEvent() {
                 float local_y = 0;
                 getLocal(wire_x, wire_y, position[0], position[1], local_x, local_y);
                 //std::cout<<"pos_z="<<pos_z<<",wire_x="<<wire_x<<",wire_y="<<wire_y<<",position[0]="<<position[0]<<",position[1]="<<position[1]<<",local_x="<<local_x<<",local_y="<<local_y<<",dr="<<sqrt(local_x*local_x+local_y*local_y)<<",dr1="<<sqrt( (wire_x-position[0])*(wire_x-position[0])+(wire_y-position[1])*(wire_y-position[1]) )<<std::endl;
-                float m_x_scale = 1;
-                float m_y_scale = 1;
-                local_x = local_x/m_x_scale;//FIXME, default is 18mm x 18mm, the real cell size maybe a bit different. need konw size of cell for each layer, and do normalization
+                //float ext_x_scale = 1;//TODO, default is 18mm x 18mm, the real cell size maybe a bit different. need konw size of cell for each layer, and do normalization using ext_x_scale
+                //float ext_y_scale = 1;
+                local_x = local_x/m_x_scale;
                 local_y = local_y/m_y_scale;
                 float noise = CLHEP::RandGauss::shoot(0,1);
                 inputs.push_back(local_x);
@@ -611,7 +603,7 @@ void TrackHeedSimTool::endOfEvent() {
                         //tmp_pluse.setValue(tmp_amp);
                         //tmp_pluse.setType(SimIonizationCol->at(tmp_index).getType());
                         //tmp_pluse.setSimIonization(SimIonizationCol->at(tmp_index));
-                        auto ion_time = SimPrimaryIonizationCol->at(indexs_c.at(i)).getElectronTime(indexs_i.at(i));
+                        auto ion_time = m_SimPrimaryIonizationCol->at(indexs_c.at(i)).getElectronTime(indexs_i.at(i));
                         id_pulse_map[indexs_c.at(i)].push_back(std::make_pair(tmp_time+ion_time,tmp_amp) );
                     }
                     inputs.clear();
@@ -632,7 +624,7 @@ void TrackHeedSimTool::endOfEvent() {
                 //tmp_pluse.setType(SimIonizationCol->at(tmp_index).getType());
                 //tmp_pluse.setSimIonization(SimIonizationCol->at(tmp_index));
                 //id_pulse_map[SimIonizationCol->at(tmp_index).getCellID()].push_back(std::make_pair(tmp_pluse.getTime(), tmp_pluse.getValue() ) );
-                auto ion_time = SimPrimaryIonizationCol->at(indexs_c.at(i)).getElectronTime(indexs_i.at(i));
+                auto ion_time = m_SimPrimaryIonizationCol->at(indexs_c.at(i)).getElectronTime(indexs_i.at(i));
                 id_pulse_map[indexs_c.at(i)].push_back(std::make_pair(tmp_time+ion_time,tmp_amp) );
             }
             inputs.clear();
@@ -641,7 +633,7 @@ void TrackHeedSimTool::endOfEvent() {
             delete [] res;
         }
         for(auto iter = id_pulse_map.begin(); iter != id_pulse_map.end(); iter++){
-            edm4hep::MutableSimPrimaryIonizationCluster dcIonCls = SimPrimaryIonizationCol->at(iter->first); 
+            edm4hep::MutableSimPrimaryIonizationCluster dcIonCls = m_SimPrimaryIonizationCol->at(iter->first); 
             for(unsigned int i=0; i< iter->second.size(); i++){
                 auto tmp_time = iter->second.at(i).first ;
                 auto tmp_amp  = iter->second.at(i).second;
@@ -649,13 +641,14 @@ void TrackHeedSimTool::endOfEvent() {
                 dcIonCls.addToPulseAmplitude(tmp_amp);  
             }
             if(dcIonCls.electronPosition_size() != dcIonCls.pulseTime_size()){
-                G4cout<<"Error ion size != pulse size"<<G4endl;
+                G4cout<<"Error: ion size != pulse size"<<G4endl;
                 throw "stop here!";
             }
         }
         clock_t t02 = clock();
         if(m_debug) std::cout<<"time for Pulse Simulation=" << (double)(t02 - t01) / CLOCKS_PER_SEC <<" seconds"<< std::endl;
     }
+    reset();
 }
 
 StatusCode TrackHeedSimTool::finalize()

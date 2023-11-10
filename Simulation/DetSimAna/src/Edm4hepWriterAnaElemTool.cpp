@@ -87,8 +87,6 @@ Edm4hepWriterAnaElemTool::BeginOfEventAction(const G4Event* anEvent) {
 
     // reset
     m_track2primary.clear();
-
-    auto SimPIonCol =  m_SimPrimaryIonizationCol.createAndPut();
  
 }
 
@@ -97,8 +95,6 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
 
     msg() << "mcCol size (after simulation) : " << mcCol->size() << endmsg;
     // save all data
-    auto SimPrimaryIonizationCol =  m_SimPrimaryIonizationCol.get();
-    //msg() << "SimPrimaryIonizationCol size ="<<SimPrimaryIonizationCol->size()<<endmsg;
     // create collections.
     auto trackercols = m_trackerCol.createAndPut();
     auto calorimetercols = m_calorimeterCol.createAndPut();
