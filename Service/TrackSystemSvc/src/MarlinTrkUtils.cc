@@ -33,6 +33,8 @@
 
 #include "TMatrixD.h"
 
+#include "podio/podioVersion.h"
+
 #define MIN_NDF 6
 
 namespace MarlinTrk {
@@ -492,9 +494,14 @@ namespace MarlinTrk {
     ///////////////////////////////////////////////////////
     
     edm4hep::TrackState* trkStateAtLastHit = new edm4hep::TrackState() ;
+
     edm4hep::TrackerHit lastHit = hits_in_fit.front().first;
           
+#if PODIO_BUILD_VERSION < PODIO_VERSION(0, 17, 4)
     edm4hep::TrackerHit last_constrained_hit(0);// = 0 ;
+#else
+		auto last_constrained_hit = edm4hep::TrackerHit::makeEmpty();
+#endif
     marlintrk->getTrackerHitAtPositiveNDF(last_constrained_hit);
 
     return_error = marlintrk->smooth(lastHit);
