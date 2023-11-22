@@ -30,6 +30,8 @@
 #include "TrackSystemSvc/IMarlinTrack.h"
 #include "TrackSystemSvc/IMarlinTrkSystem.h"
 
+#include "podio/podioVersion.h"
+
 // ----- include for verbosity dependend logging ---------
 // #include "marlin/VerbosityLevels.h"
 
@@ -57,7 +59,11 @@ namespace clupatra_new{
 		ClupaHit() :layer(-1),
 		zIndex(-1),
 		phiIndex(-1),
+#if PODIO_BUILD_VERSION < PODIO_VERSION(0, 17, 4)
 		edm4hepHit(0),
+#else
+		edm4hepHit(edm4hep::TrackerHit::makeEmpty()),
+#endif
 		pos(0.,0.,0.) {}
 		int layer ;
 		int zIndex ;

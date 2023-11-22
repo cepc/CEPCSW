@@ -1,11 +1,18 @@
 #include "DataHelper/ClusterExtended.h"
 #include "DataHelper/TrackerHitExtended.h"
 #include "DataHelper/TrackExtended.h"
+
+#include "podio/podioVersion.h"
+
 #include <math.h>
 #include <iostream>
 
 TrackExtended::TrackExtended( ) {
+#if PODIO_BUILD_VERSION < PODIO_VERSION(0, 17, 4)
     _track = NULL;
+#else
+    _track = edm4hep::Track::makeEmpty();
+#endif
     _superCluster = NULL;
     _trackerHitVector.clear();
     _clusterVec.clear();
@@ -24,7 +31,11 @@ TrackExtended::TrackExtended(Track track) {
 TrackExtended::TrackExtended( TrackerHitExtended * trackerhit) {
     _trackerHitVector.clear();
     _trackerHitVector.push_back(trackerhit);
+#if PODIO_BUILD_VERSION < PODIO_VERSION(0, 17, 4)
     _track = NULL;
+#else
+    _track = edm4hep::Track::makeEmpty();
+#endif
     _superCluster = NULL;
     _clusterVec.clear();
     _group = NULL;

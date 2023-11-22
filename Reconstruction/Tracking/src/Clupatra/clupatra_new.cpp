@@ -19,6 +19,9 @@
 #include "k4FWCore/DataHandle.h"
 #include "GaudiAlg/GaudiAlgorithm.h"
 #include "GearSvc/IGearSvc.h"
+
+#include "podio/podioVersion.h"
+
 using namespace MarlinTrk ;
 
 namespace lcio{
@@ -287,8 +290,12 @@ namespace clupatra_new{
 		UTIL::BitField64 encoder( UTIL::ILDCellID0::encoder_string ) ;
 		encoder[UTIL::ILDCellID0::subdet] = UTIL::ILDDetID::TPC ;
 
+#if PODIO_BUILD_VERSION < PODIO_VERSION(0, 17, 4)
 		edm4hep::TrackerHit firstHit = 0;
-		// = 0 equal to unlink() 
+#else
+		auto firstHit = edm4hep::TrackerHit::makeEmpty();
+#endif
+		// = 0 equal to unlink()
                 //firstHit.unlink();
 
 		IMarlinTrack* bwTrk = 0 ;
@@ -1410,7 +1417,11 @@ start:
 #if use_fit_at_last_hit
 				code = mtrk->getTrackState( lHit, tsLH, chi2, ndf ) ;
 #else     // get the track state at the last hit by propagating from the last(first) constrained fit position (a la MarlinTrkUtils)
+#if PODIO_BUILD_VERSION < PODIO_VERSION(0, 17, 4)
 				edm4hep::TrackerHit last_constrained_hit(0);
+#else
+				auto last_constrained_hit = edm4hep::TrackerHit::makeEmpty();
+#endif
 				code = mtrk->getTrackerHitAtPositiveNDF( last_constrained_hit );
 				//code = mtrk->smooth() ;
 				if( code != MarlinTrk::IMarlinTrack::success ){
