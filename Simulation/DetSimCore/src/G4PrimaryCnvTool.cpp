@@ -72,7 +72,7 @@ bool G4PrimaryCnvTool::mutate(G4Event* anEvent) {
             particle_def = particletbl->FindParticle(pdgcode);
         }
         // momentum
-        const edm4hep::Vector3f& momentum = p.getMomentum();
+        const auto& momentum = p.getMomentum();
         G4PrimaryParticle* g4prim = new G4PrimaryParticle(particle_def,
                                                           momentum.x*CLHEP::GeV,
                                                           momentum.y*CLHEP::GeV,

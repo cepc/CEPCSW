@@ -397,7 +397,7 @@ void RecGenfitAlgDC::debugEvent()
     m_mcIndex=iHit;
     int iMcParticle=0;
     for(auto mcParticle : *mcParticleCol){
-        edm4hep::Vector3f mcPocaMom = mcParticle.getMomentum();//GeV
+        const auto& mcPocaMom = mcParticle.getMomentum();//GeV
         float px=mcPocaMom.x;
         float py=mcPocaMom.y;
         float pz=mcPocaMom.z;
