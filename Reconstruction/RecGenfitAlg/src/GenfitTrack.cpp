@@ -40,6 +40,7 @@
 
 //cpp
 #include <cfloat>
+#include <type_traits>
 
 const int GenfitTrack::s_PDG[2][5]
 ={{-11,-13,211,321,2212},{11,13,-211,-321,-2212}};
@@ -123,8 +124,8 @@ bool GenfitTrack::createGenfitTrackFromMCParticle(int pidType,
         const edm4hep::MCParticle& mcParticle, double eventStartTime)
 {
     ///get track parameters from McParticle
-    edm4hep::Vector3d mcPocaPos = mcParticle.getVertex();//mm
-    edm4hep::Vector3f mcPocaMom = mcParticle.getMomentum();//GeV
+    const auto& mcPocaPos = mcParticle.getVertex();//mm
+    const auto& mcPocaMom = mcParticle.getMomentum();//GeV
     if(m_debug>=2)std::cout<<"seedPos poca "<< mcPocaPos.x
         <<" "<<mcPocaPos.y<<" "<<mcPocaPos.z<<" mm "<<std::endl;
     if(m_debug>=2)std::cout<<"seedMom poca "<< mcPocaMom.x
@@ -132,7 +133,8 @@ bool GenfitTrack::createGenfitTrackFromMCParticle(int pidType,
 
     ///Pivot to first layer to avoid correction of beam pipe
     edm4hep::Vector3d firstLayerPos(1e9,1e9,1e9);
-    edm4hep::Vector3f firstLayerMom(1e9,1e9,1e9);
+    using MomentumT = std::remove_cv_t<std::remove_reference_t<decltype(mcPocaMom)>>;
+    MomentumT firstLayerMom{1e9,1e9,1e9};
     pivotToFirstLayer(mcPocaPos,mcPocaMom,firstLayerPos,firstLayerMom);
 
     //TODO convert unit
@@ -827,13 +829,3 @@ bool GenfitTrack::storeTrack(edm4hep::MutableReconstructedParticle& recParticle,
 
     return true;
 }
-
-void GenfitTrack::pivotToFirstLayer(edm4hep::Vector3d& pos,
-        edm4hep::Vector3f& mom, edm4hep::Vector3d& firstPos,
-        edm4hep::Vector3f& firstMom)
-{
-    //FIXME, TODO
-    firstPos=pos;
-    firstMom=mom;
-}
-

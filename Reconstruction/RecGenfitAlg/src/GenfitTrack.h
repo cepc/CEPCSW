@@ -124,8 +124,13 @@ class GenfitTrack {
             int ndfCut=1e9, double chi2Cut=1.e9);
 
     ///A tool to convert track to the first layer of DC
-    void pivotToFirstLayer(edm4hep::Vector3d& pos,edm4hep::Vector3f& mom,
-            edm4hep::Vector3d& firstPos, edm4hep::Vector3f& firstMom);
+    template<typename MomT>
+    void pivotToFirstLayer(const edm4hep::Vector3d& pos, const MomT& mom,
+                           edm4hep::Vector3d& firstPos, MomT& firstMom) {
+        //FIXME, TODO
+        firstPos=pos;
+        firstMom=mom;
+    }
 
     /// Copy a track to event
     //void CopyATrack()const;

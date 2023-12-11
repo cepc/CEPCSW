@@ -169,7 +169,7 @@ StatusCode TruthTrackerAlg::execute()
         mcParticleVertexSmeared.z=
             CLHEP::RandGauss::shoot(mcParticleVertex.z,m_resVertexZ);
         ///Momentum
-        edm4hep::Vector3f mcParticleMom=mcParticle.getMomentum();//GeV
+        const auto& mcParticleMom=mcParticle.getMomentum();//GeV
         double mcParticlePt=sqrt(mcParticleMom.x*mcParticleMom.x+
                 mcParticleMom.y*mcParticleMom.y);
         //double mcParticlePtSmeared=

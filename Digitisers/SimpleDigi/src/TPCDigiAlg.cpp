@@ -590,7 +590,7 @@ StatusCode TPCDigiAlg::execute()
       if(mcp.isAvailable()){
 
         // get the pt of the MCParticle, this will used later to uses nominal smearing for low momentum rubish
-        const edm4hep::Vector3f momentumMC= mcp.getMomentum() ;
+        const auto& momentumMC= mcp.getMomentum() ;
         ptSqrdMC = momentumMC[0]*momentumMC[0]+momentumMC[1]*momentumMC[1] ;
         
         debug() << " mcp id = " << mcp.id() 
@@ -1057,7 +1057,7 @@ StatusCode TPCDigiAlg::execute()
         auto mcp = (_tpcHitMap[ seed_hit ]).getMCParticle() ;
         if(mcp.isAvailable()) {
           ++_NLostPhysicsTPCHits;
-          const edm4hep::Vector3f mom= mcp.getMomentum() ;
+          const auto& mom= mcp.getMomentum() ;
           double ptSQRD = mom[0]*mom[0]+mom[1]*mom[1] ;
           if( ptSQRD > (0.2*0.2) ) ++_NLostPhysicsAbove02GeVPtTPCHits ;
           if( ptSQRD > 1.0 )  ++_NLostPhysicsAbove1GeVPtTPCHits ;
