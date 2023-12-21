@@ -42,6 +42,7 @@ Edm4hepWriterAnaElemTool::BeginOfRunAction(const G4Run*) {
     } else {
         error() << "Failed to find GeomSvc." << endmsg;
     }
+
 }
 
 void
@@ -86,7 +87,7 @@ Edm4hepWriterAnaElemTool::BeginOfEventAction(const G4Event* anEvent) {
 
     // reset
     m_track2primary.clear();
-
+ 
 }
 
 void
@@ -94,7 +95,6 @@ Edm4hepWriterAnaElemTool::EndOfEventAction(const G4Event* anEvent) {
 
     msg() << "mcCol size (after simulation) : " << mcCol->size() << endmsg;
     // save all data
-
     // create collections.
     auto trackercols = m_trackerCol.createAndPut();
     auto calorimetercols = m_calorimeterCol.createAndPut();

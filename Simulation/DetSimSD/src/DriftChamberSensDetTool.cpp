@@ -22,7 +22,6 @@ StatusCode DriftChamberSensDetTool::initialize() {
         error() << "Failed to find dedx simtoo." << endmsg;
         return StatusCode::FAILURE;
     }
-
     return sc;
 }
 

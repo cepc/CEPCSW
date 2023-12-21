@@ -67,7 +67,7 @@ function run-job() {
 
 # The current default platform
 lcg_platform=x86_64-centos7-gcc11-opt
-lcg_version=103.0.0
+lcg_version=103.0.2
 
 bldtool=${CEPCSW_BLDTOOL} # make, ninja # set in env var
 
