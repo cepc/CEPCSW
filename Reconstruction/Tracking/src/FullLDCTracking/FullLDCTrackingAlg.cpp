@@ -529,11 +529,11 @@ void FullLDCTrackingAlg::AddTrackColToEvt(TrackExtendedVec & trkVec, edm4hep::Tr
     float z0TrkCand = trkCand->getZ0();
     //    float phi0TrkCand = trkCand->getPhi();
     // FIXME, fucd
-    int nhits_in_vxd = track.getSubDetectorHitNumbers(0);
-    int nhits_in_ftd = track.getSubDetectorHitNumbers(1);
-    int nhits_in_sit = track.getSubDetectorHitNumbers(2);
-    int nhits_in_tpc = track.getSubDetectorHitNumbers(3);
-    int nhits_in_set = track.getSubDetectorHitNumbers(4);
+    int nhits_in_vxd = track.getSubdetectorHitNumbers(0);
+    int nhits_in_ftd = track.getSubdetectorHitNumbers(1);
+    int nhits_in_sit = track.getSubdetectorHitNumbers(2);
+    int nhits_in_tpc = track.getSubdetectorHitNumbers(3);
+    int nhits_in_set = track.getSubdetectorHitNumbers(4);
     //int nhits_in_vxd = Track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::VXD - 2 ];
     //int nhits_in_ftd = Track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::FTD - 2 ];
     //int nhits_in_sit = Track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::SIT - 2 ];
