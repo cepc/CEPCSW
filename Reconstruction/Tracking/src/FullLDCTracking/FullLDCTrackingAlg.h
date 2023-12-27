@@ -23,6 +23,8 @@
 #include "edm4hep/SimTrackerHitCollection.h"
 #include "edm4hep/TrackerHitCollection.h"
 #include "edm4hep/TrackCollection.h"
+#include "edm4hep/MCRecoTrackerAssociationCollection.h"
+#include "edm4hep/MCRecoTrackParticleAssociationCollection.h"
 
 #include <UTIL/BitField64.h>
 #include <UTIL/ILDConf.h>
@@ -297,6 +299,8 @@ protected:
   void AssignOuterHitsToTracks(TrackerHitExtendedVec hitVec, float dcut, int refit);
   
   void CreateExtrapolations();
+
+  void CreateTrackAssociation(edm4hep::TrackCollection* trkCol, edm4hep::MCRecoTrackParticleAssociationCollection* relCol);
   
   void CleanUpExtrapolations();
   
@@ -511,10 +515,17 @@ protected:
   DataHandle<edm4hep::TrackerHitCollection> _inFTDRawColHdl{"FTDStripTrackerHits", Gaudi::DataHandle::Reader, this};
   //DataHandle<edm4hep::SimTrackerHitCollection> _inVTXRawColHdl{"VXDCollection", Gaudi::DataHandle::Reader, this};
 
+  DataHandle<edm4hep::MCRecoTrackerAssociationCollection> _VTXHitRelColHdl{"VTXHitRelCol", Gaudi::DataHandle::Reader, this};
+  DataHandle<edm4hep::MCRecoTrackerAssociationCollection> _SITHitRelColHdl{"SITHitRelCol", Gaudi::DataHandle::Reader, this};
+  DataHandle<edm4hep::MCRecoTrackerAssociationCollection> _SETHitRelColHdl{"SETHitRelCol", Gaudi::DataHandle::Reader, this};
+  DataHandle<edm4hep::MCRecoTrackerAssociationCollection> _FTDHitRelColHdl{"FTDHitRelCol", Gaudi::DataHandle::Reader, this};
+  DataHandle<edm4hep::MCRecoTrackerAssociationCollection> _TPCHitRelColHdl{"TPCHitRelCol", Gaudi::DataHandle::Reader, this};
+
   DataHandle<edm4hep::TrackCollection> _TPCTrackColHdl{"ClupatraTracks", Gaudi::DataHandle::Reader, this};
   DataHandle<edm4hep::TrackCollection> _SiTrackColHdl{"SiTracks", Gaudi::DataHandle::Reader, this};
 
   DataHandle<edm4hep::TrackCollection> _OutputTrackColHdl{"MarlinTrkTracks", Gaudi::DataHandle::Writer, this};
+  DataHandle<edm4hep::MCRecoTrackParticleAssociationCollection> _OutputTrkRelColHdl{"MarlinTrkAssociation", Gaudi::DataHandle::Writer, this};
 
   NTuple::Tuple*       m_tuple;
   NTuple::Item<float>  m_timeTotal;

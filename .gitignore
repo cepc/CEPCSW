@@ -3,3 +3,4 @@ build
 spack*
 ./Generator/output/
 ./Generator/options/
+InstallArea/
