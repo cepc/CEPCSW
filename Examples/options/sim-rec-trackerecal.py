@@ -2,6 +2,8 @@
 
 from Gaudi.Configuration import *
 
+import os
+
 NTupleSvc().Output = ["MyTuples DATAFILE='sim-rec-trackerEcal.root' OPT='NEW' TYP='ROOT'"]
 
 from Configurables import RndmGenSvc, HepRndm__Engine_CLHEP__RanluxEngine_
