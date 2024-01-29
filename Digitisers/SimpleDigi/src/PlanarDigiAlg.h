@@ -84,6 +84,9 @@ protected:
   Gaudi::Property<bool> _usePlanarTag{ this, "UsePlanarTag", true };
   Gaudi::Property<float> _eThreshold{ this, "EnergyThreshold", 0 };
   Gaudi::Property<float> _maxPull{ this, "PullCutToRetry", 1000. };
+  Gaudi::Property<bool> _parameterize{ this, "ParameterizeResolution", false};
+  Gaudi::Property<FloatVec> _parU{ this, "ParametersU", {0} };
+  Gaudi::Property<FloatVec> _parV{ this, "ParametersV", {0} };
 
   // Input collections
   DataHandle<edm4hep::EventHeaderCollection> _headerCol{"EventHeaderCol", Gaudi::DataHandle::Reader, this};
