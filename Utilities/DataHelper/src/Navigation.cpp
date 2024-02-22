@@ -25,7 +25,7 @@ void Navigation::Initialize(){
   m_trkHits.clear();
 }
 
-#if EDM4HEP_BUILD_VERSION <= EDM4HEP_VERSION(0, 10, 4)
+#if EDM4HEP_BUILD_VERSION <= EDM4HEP_VERSION(0, 10, 5)
 edm4hep::TrackerHit Navigation::GetTrackerHit(const edm4hep::ObjectID& obj_id, bool delete_by_caller){
 #else
 edm4hep::TrackerHit Navigation::GetTrackerHit(const podio::ObjectID& obj_id, bool delete_by_caller){
@@ -61,7 +61,7 @@ edm4hep::TrackerHit Navigation::GetTrackerHit(const podio::ObjectID& obj_id, boo
   throw std::runtime_error("Not found TrackerHit");
 }
 
-#if EDM4HEP_BUILD_VERSION <= EDM4HEP_VERSION(0, 10, 4)
+#if EDM4HEP_BUILD_VERSION <= EDM4HEP_VERSION(0, 10, 5)
 std::vector<edm4hep::SimTrackerHit> Navigation::GetRelatedTrackerHit(const edm4hep::ObjectID& id){
 #else
 std::vector<edm4hep::SimTrackerHit> Navigation::GetRelatedTrackerHit(const podio::ObjectID& id){
