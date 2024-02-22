@@ -26,7 +26,7 @@ class Navigation{
   void AddTrackerHitCollection(const edm4hep::TrackerHitCollection* col){m_hitColVec.push_back(col);};
   void AddTrackerAssociationCollection(const edm4hep::MCRecoTrackerAssociationCollection* col){m_assColVec.push_back(col);};
 
-#if EDM4HEP_BUILD_VERSION <= EDM4HEP_VERSION(0, 10, 4)
+#if EDM4HEP_BUILD_VERSION <= EDM4HEP_VERSION(0, 10, 5)
   edm4hep::TrackerHit GetTrackerHit(const edm4hep::ObjectID& id, bool delete_by_caller=true);
   std::vector<edm4hep::SimTrackerHit> GetRelatedTrackerHit(const edm4hep::ObjectID& id);
 #else
