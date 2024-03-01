@@ -65,7 +65,7 @@ namespace UTIL{
     std::getline(inputFile, line);
     std::stringstream ss_(line);
     ss_ >>  NHEP >> NOUT >> BRE >> WEIGHT; 
-    std::cout << "NHEP: " << NHEP << std::endl;
+    // std::cout << "NHEP: " << NHEP << std::endl;
     if( inputFile.eof() ) 
       {
 	//
@@ -79,7 +79,7 @@ namespace UTIL{
     //  Create a Collection Vector
     //
     mcVec = new IMPL::LCCollectionVec(LCIO::MCPARTICLE);
-    std::cout << "mc size: " << mcVec->size() << std::endl;
+    // std::cout << "mc size: " << mcVec->size() << std::endl;
     MCParticleImpl* p;
     MCParticleImpl* d;
     
@@ -108,7 +108,10 @@ namespace UTIL{
     for( int IHEP=0; IHEP<NHEP; IHEP++ )
       {
         std::getline(inputFile, line);
-        std::cout << "LINE: " << line << std::endl;
+	if(inputFile.eof())
+		return nullptr;	
+
+        // std::cout << "LINE: " << line << std::endl;
         std::stringstream ss(line);
 
 	if ( theFileFormat == HEPEvt)
@@ -123,10 +126,8 @@ namespace UTIL{
 		    >> VHEP1 >> VHEP2 >> VHEP3
 		    >> VHEP4;
 
-        std::cout << "ISTHEP: " << ISTHEP << std::endl;
+        // std::cout << "ISTHEP: " << ISTHEP << std::endl;
 
-	if(inputFile.eof())
-		return nullptr;	
 	//
 	//  Create a MCParticle and fill it from stdhep info
 	//
@@ -135,7 +136,7 @@ namespace UTIL{
 	//  PDGID
 	//
 	mcp->setPDG(IDHEP);
-        std::cout << "PDG: " << IDHEP << std::endl;
+        // std::cout << "PDG: " << IDHEP << std::endl;
 	//
 	//  Momentum vector
 	//
@@ -233,7 +234,7 @@ namespace UTIL{
 //
     for( int IHEP=0; IHEP<NHEP; IHEP++ )
       {
-          continue;
+          // continue;
 	//
 	//  Get the MCParticle
 	//
