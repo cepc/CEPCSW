@@ -71,7 +71,7 @@ namespace dd4hep {
 class GenfitTrack {
     friend int GenfitFitter::processTrack(
             GenfitTrack* track, bool resort);
-
+    
     friend int GenfitFitter::processTrackWithRep(
             GenfitTrack* track, int repID, bool resort);
 
@@ -102,7 +102,6 @@ class GenfitTrack {
             const edm4hep::MCRecoTrackerAssociationCollection* assoHits,
         std::vector<float> sigmaU,std::vector<float> sigmaV);
 
-
     ///Add WireMeasurements of hits on track
     virtual int addWireMeasurementsOnTrack(edm4hep::Track& track,float sigma,
             const edm4hep::MCRecoTrackerAssociationCollection* assoHits,
@@ -112,6 +111,9 @@ class GenfitTrack {
     virtual int addWireMeasurementsFromList(std::vector<edm4hep::TrackerHit*>& hits,float sigma,
             const edm4hep::MCRecoTrackerAssociationCollection* assoHits,
             int sortMethod,bool truthAmbig,float skipCorner, float skipNear);
+
+    virtual int addWireMeasurementsFromListTrF(const edm4hep::TrackerHitCollection* trkHits,
+            float sigma,int sortMethod);
 
     ///Add one silicon hits
     bool addSiliconMeasurement(edm4hep::TrackerHit* hit,
@@ -141,7 +143,9 @@ class GenfitTrack {
             const edm4hep::MCRecoTrackerAssociationCollection* assoHits,
             std::vector<double>& driftDis,
             std::vector<double>& FittedDoca,
-            std::vector<double>& Res);
+            std::vector<double>& truthDoca,
+            std::vector<double>& Res,
+            std::vector<double>& truthRes);
 
     ///A tool to convert track to the first layer of DC
     void pivotToFirstLayer(const edm4hep::Vector3d& pos,
@@ -221,6 +225,10 @@ class GenfitTrack {
 
     /// Get a hit according to index
     GenfitHit* GetHit(long unsigned int i) const;
+    
+    static void getTrackFromEDMTrackFinding(const edm4hep::Track& edm4HepTrack,
+            double& charge, TVectorD& trackParam, TMatrixDSym& cov,TVector3& pos,
+            TVector3& mom);
     protected:
     //genfit::Track* getTrack() {return m_track;}
 
@@ -265,6 +273,9 @@ class GenfitTrack {
             const edm4hep::MCRecoTrackerAssociationCollection* assoHits,
             std::vector<edm4hep::TrackerHit*>& sortedDCTrackerHits,
             int sortMethod);
+    void getSortedTrackerHitsTrF(std::vector<edm4hep::TrackerHit*> trackerHits,
+            std::vector<edm4hep::TrackerHit*>& sortedDCTrackerHits,
+            int sortMethod=1);
 
     genfit::Track* m_track;/// track
     int m_debug;/// debug level

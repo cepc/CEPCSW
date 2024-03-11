@@ -32,7 +32,7 @@
     <constant name="DC_rbegin" value="800*mm"/>
     <constant name="DC_rend" value="1800*mm"/>
 
-    <constant name="DC_layer_number" value="100"/>
+    <constant name="DC_layer_number" value="55"/>
     <constant name="Alpha" value="0*deg"/>
 
     <constant name="Gas_radius_min" value="DC_rbegin+DC_inner_wall_thickness+DC_safe_distance"/>
@@ -44,7 +44,7 @@
     <constant name="Gas_half_length" value="DC_half_length-DC_Endcap_dz-DC_safe_distance"/>
     <constant name="Gas_length" value="Gas_half_length*2"/>
 
-    <constant name="DC_cell_width" value="10*mm"/>
+    <constant name="DC_cell_width" value="18*mm"/>
 
     <constant name="DC_inner_wall_radius_min" value="DC_rbegin"/>
     <constant name="DC_inner_wall_radius_max" value="DC_rbegin+DC_inner_wall_thickness"/>
