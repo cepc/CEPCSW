@@ -34,7 +34,6 @@ typedef struct CID
  {
    int chamberID;
    int layerID;
-//   CID(){}
    CID(int i, int j): chamberID(i),layerID(j){}
    // the operator < defines the operation used in map
    friend bool operator < (const CID &c1, const CID &c2);
@@ -176,7 +175,6 @@ protected:
  }
 
   double m_cellSize;
-//  double m_epsilon0;
   double m_detectorLength;
   double m_layer_width;
   double m_DC_rbegin;

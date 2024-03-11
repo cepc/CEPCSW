@@ -329,6 +329,5 @@ double GridDriftChamber::Distance(const CellID& cID, const TVector3& pointIn, co
     return distance;
 }
 
-
 }
 }

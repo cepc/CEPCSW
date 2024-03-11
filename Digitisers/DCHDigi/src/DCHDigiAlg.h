@@ -96,7 +96,6 @@ protected:
   Gaudi::Property<bool>  m_debug{ this, "debug", false};
   Gaudi::Property<double>  m_wireEff{ this, "wireEff", 1.0};
 
-
   // Input collections
   DataHandle<edm4hep::SimTrackerHitCollection> r_SimDCHCol{"DriftChamberHitsCollection", Gaudi::DataHandle::Reader, this};
   // Output collections

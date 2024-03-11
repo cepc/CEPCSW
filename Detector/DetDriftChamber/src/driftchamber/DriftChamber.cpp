@@ -171,7 +171,6 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
             offset = 0.5 * cell_phi;
         }
         double epsilon = sign_eps*std::atan(rmid_zZero * std::tan(alpha / 2.0) / chamber_half_length);
-        //double alpha0 = 2*std::asin(chamber_length * std::tan(epsilon)/(2*rmid_zEnd));
 
         segmentationDC->setGeomParams(chamber_id, layer_id, cell_phi, rmid_zEnd , epsilon, offset);
         segmentationDC->setWiresInLayer(chamber_id, layer_id, nCell);
@@ -241,8 +240,6 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         }//end of loop over cell
         dd4hep::Transform3D transform_layer(dd4hep::Rotation3D(),
                 dd4hep::Position(0,0,0));
-        dd4hep::PlacedVolume layer_phy = det_chamber_vol.placeVolume(layer_vol,transform_layer);
-        layer_phy.addPhysVolID("layer", layer_id);
     }//end of loop over layers
 
 

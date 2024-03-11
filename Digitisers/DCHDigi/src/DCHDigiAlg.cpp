@@ -167,9 +167,6 @@ StatusCode DCHDigiAlg::execute()
       TVector3 Wend  (0,0,0);
       m_segmentation->cellposition(wcellid, Wstart, Wend);
       float dd4hep_mm = dd4hep::mm;
-      //std::cout<<"dd4hep_mm="<<dd4hep_mm<<std::endl;
-      //    Wstart =(1/dd4hep_mm)* Wstart;// from DD4HEP cm to mm
-      //    Wend   =(1/dd4hep_mm)* Wend  ;
       if(m_debug) std::cout<<"DCHDigi wcellid ="<<wcellid<< ",chamber="<<chamber<<",layer="<<layer<<",cellID="<<cellID<<",s_x="<<Wstart.x()<<",s_y="<<Wstart.y()<<",s_z="<<Wstart.z()<<",E_x="<<Wend.x()<<",E_y="<<Wend.y()<<",E_z="<<Wend.z()<<std::endl;
 
       TVector3  denominator = (Wend-Wstart) ;
