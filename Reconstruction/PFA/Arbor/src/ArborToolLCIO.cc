@@ -35,6 +35,8 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include "DetInterface/IGeomSvc.h"
 
+#include "podio/podioVersion.h"
+
 using namespace std;
 /* 
 void ClusterBuilding( LCEvent * evtPP, std::string Name, std::vector<CalorimeterHit*> Hits, std::vector< std::vector<int> > BranchOrder, int DHCALFlag )
@@ -859,7 +861,12 @@ edm4hep::ClusterCollection* ArborToolLCIO::ClusterVecMerge( std::vector<edm4hep:
 	edm4hep::Cluster Mergebranch_A;
 	edm4hep::Cluster Mergebranch_B;
 	edm4hep::Cluster tmpMergebranch;
+#if PODIO_BUILD_VERSION < PODIO_VERSION(0, 17, 4)
 	edm4hep::Cluster Mainbranch (0);
+#else
+	auto Mainbranch = edm4hep::Cluster::makeEmpty();
+#endif
+
 
 	TVector3 tmpClusterSeedPos, MBSeedPos;	
 

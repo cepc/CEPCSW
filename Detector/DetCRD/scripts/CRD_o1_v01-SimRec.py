@@ -1,5 +1,9 @@
 #!/usr/bin/env python
+import os
+
 from Gaudi.Configuration import *
+
+NTupleSvc().Output = ["MyTuples DATAFILE='test.root' OPT='NEW' TYP='ROOT'"]
 
 from Configurables import k4DataSvc
 dsvc = k4DataSvc("EventDataSvc")
@@ -125,6 +129,10 @@ digiVXD.TrackerHitCollection = vxdhitname
 digiVXD.ResolutionU = [0.0028, 0.006, 0.004, 0.004, 0.004, 0.004]
 digiVXD.ResolutionV = [0.0028, 0.006, 0.004, 0.004, 0.004, 0.004]
 digiVXD.UsePlanarTag = True
+# if Parameterized spatial resolution, set ParameterizeResolution to True
+digiVXD.ParameterizeResolution = False
+digiVXD.ParametersU = [5.60959e-03, 5.74913e-03, 7.03433e-03, 1.99516, -663.952, 3.752e-03, 0, -0.0704734, 0.0454867e-03, 1.07359]
+digiVXD.ParametersV = [5.60959e-03, 5.74913e-03, 7.03433e-03, 1.99516, -663.952, 3.752e-03, 0, -0.0704734, 0.0454867e-03, 1.07359]
 #digiVXD.OutputLevel = DEBUG
 
 digiSIT = PlanarDigiAlg("SITDigi")
@@ -135,6 +143,10 @@ digiSIT.TrackerHitAssociationCollection = "SITTrackerHitAssociation"
 digiSIT.ResolutionU = [0.0072]
 digiSIT.ResolutionV = [0.086]
 digiSIT.UsePlanarTag = True
+# if Parameterized spatial resolution, set ParameterizeResolution to True
+digiSIT.ParameterizeResolution = False
+digiSIT.ParametersU = [2.29655e-03, 0.965899e-03, 0.584699e-03, 17.0856, 84.566, 12.4695e-03, -0.0643059, 0.168662, 1.87998e-03, 0.514452]
+digiSIT.ParametersV = [1.44629e-02, 2.20108e-03, 1.03044e-02, 4.39195e+00, 3.29641e+00, 1.55167e+18, -5.41954e+01, 5.72986e+00, -6.80699e-03, 5.04095e-01]
 #digiSIT.OutputLevel = DEBUG
 
 digiSET = PlanarDigiAlg("SETDigi")
@@ -145,6 +157,10 @@ digiSET.TrackerHitAssociationCollection = "SETTrackerHitAssociation"
 digiSET.ResolutionU = [0.0072]
 digiSET.ResolutionV = [0.086]
 digiSET.UsePlanarTag = True
+# if Parameterized spatial resolution, set ParameterizeResolution to True
+digiSET.ParameterizeResolution = False
+digiSET.ParametersU = [2.29655e-03, 0.965899e-03, 0.584699e-03, 17.0856, 84.566, 12.4695e-03, -0.0643059, 0.168662, 1.87998e-03, 0.514452]
+digiSET.ParametersV = [1.44629e-02, 2.20108e-03, 1.03044e-02, 4.39195e+00, 3.29641e+00, 1.55167e+18, -5.41954e+01, 5.72986e+00, -6.80699e-03, 5.04095e-01]
 #digiSET.OutputLevel = DEBUG
 
 digiFTD = PlanarDigiAlg("FTDDigi")
@@ -155,11 +171,17 @@ digiFTD.TrackerHitAssociationCollection = "FTDTrackerHitAssociation"
 digiFTD.ResolutionU = [0.003, 0.003, 0.0072, 0.0072, 0.0072, 0.0072, 0.0072]
 digiFTD.ResolutionV = [0.003, 0.003, 0.0072, 0.0072, 0.0072, 0.0072, 0.0072]
 digiFTD.UsePlanarTag = True
+# if Parameterized spatial resolution, set ParameterizeResolution to True
+digiFTD.ParameterizeResolution = False
+digiFTD.ParametersU = [2.29655e-03, 0.965899e-03, 0.584699e-03, 17.0856, 84.566, 12.4695e-03, -0.0643059, 0.168662, 1.87998e-03, 0.514452]
+digiFTD.ParametersV = [1.44629e-02, 2.20108e-03, 1.03044e-02, 4.39195e+00, 3.29641e+00, 1.55167e+18, -5.41954e+01, 5.72986e+00, -6.80699e-03, 5.04095e-01]
 #digiFTD.OutputLevel = DEBUG
 
 from Configurables import DCHDigiAlg
 digiDC = DCHDigiAlg("DCHDigi")
 digiDC.DigiDCHitCollection = dchitname
+# TODO: DCHDigiAlg need fixed, only WriteAna = True can run
+digiDC.WriteAna = True
 #digiDC.OutputLevel = DEBUG
 
 # two strip tracker hits -> one space point

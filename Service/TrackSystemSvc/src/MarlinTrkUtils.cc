@@ -16,6 +16,15 @@
 #include "edm4hep/Track.h"
 #include "edm4hep/MutableTrack.h"
 
+#if __has_include("edm4hep/EDM4hepVersion.h")
+#include "edm4hep/EDM4hepVersion.h"
+#else
+// Copy the necessary parts from  the header above to make whatever we need to work here
+#define EDM4HEP_VERSION(major, minor, patch) ((UINT64_C(major) << 32) | (UINT64_C(minor) << 16) | (UINT64_C(patch)))
+// v00-09 is the last version without the capitalization change of the track vector members
+#define EDM4HEP_BUILD_VERSION EDM4HEP_VERSION(0, 9, 0)
+#endif
+
 #include <UTIL/BitField64.h>
 #include <UTIL/ILDConf.h>
 #include <UTIL/BitSet32.h>
@@ -23,6 +32,8 @@
 //#include "streamlog/streamlog.h"
 
 #include "TMatrixD.h"
+
+#include "podio/podioVersion.h"
 
 #define MIN_NDF 6
 
@@ -258,7 +269,9 @@ namespace MarlinTrk {
     // set the initial track parameters  
     ///////////////////////////////////////////////////////
     
-    return_error = marlinTrk->initialise( *pre_fit, bfield_z, IMarlinTrack::backward ) ;
+    //return_error = marlinTrk->initialise( *pre_fit, bfield_z, IMarlinTrack::backward ) ;
+    // fucd: previous fixed as IMarlinTrack::backward, can not change? using input value now
+    return_error = marlinTrk->initialise( *pre_fit, bfield_z, fit_backwards ) ;
     if (return_error != IMarlinTrack::success) {
       
       std::cout << "MarlinTrk::createFit Initialisation of track fit failed with error : " << return_error << std::endl;
@@ -388,10 +401,10 @@ namespace MarlinTrk {
     return_error = marlintrk->getNDF(ndf);
 
     if ( return_error != IMarlinTrack::success) {
-      //streamlog_out(DEBUG3) << "MarlinTrk::finaliseLCIOTrack: getNDF returns " << return_error << std::endl;
+      //std::cout << "MarlinTrk::finaliseLCIOTrack: getNDF returns " << return_error << std::endl;
       return return_error;
     } else if( ndf < 0 ) {
-      //streamlog_out(DEBUG2) << "MarlinTrk::finaliseLCIOTrack: number of degrees of freedom less than 0 track dropped : NDF = " << ndf << std::endl;
+      //std::cout << "MarlinTrk::finaliseLCIOTrack: number of degrees of freedom less than 0 track dropped : NDF = " << ndf << std::endl;
       return IMarlinTrack::error;
     } else {
       //streamlog_out(DEBUG1) << "MarlinTrk::finaliseLCIOTrack: NDF = " << ndf << std::endl;
@@ -481,9 +494,14 @@ namespace MarlinTrk {
     ///////////////////////////////////////////////////////
     
     edm4hep::TrackState* trkStateAtLastHit = new edm4hep::TrackState() ;
+
     edm4hep::TrackerHit lastHit = hits_in_fit.front().first;
           
+#if PODIO_BUILD_VERSION < PODIO_VERSION(0, 17, 4)
     edm4hep::TrackerHit last_constrained_hit(0);// = 0 ;
+#else
+		auto last_constrained_hit = edm4hep::TrackerHit::makeEmpty();
+#endif
     marlintrk->getTrackerHitAtPositiveNDF(last_constrained_hit);
 
     return_error = marlintrk->smooth(lastHit);
@@ -543,7 +561,6 @@ namespace MarlinTrk {
       track->addToTrackStates(*trkStateAtFirstHit);
     } else {
       //streamlog_out( WARNING ) << "  >>>>>>>>>>> MarlinTrk::finaliseLCIOTrack:  could not get TrackState at First Hit " << firstHit << std::endl ;
-      delete trkStateAtFirstHit;
     }
     
     double r_first = firstHit.getPosition()[0]*firstHit.getPosition()[0] + firstHit.getPosition()[1]*firstHit.getPosition()[1];
@@ -569,7 +586,7 @@ namespace MarlinTrk {
         track->addToTrackStates(*trkStateAtLastHit);
       } else {
 	std::cout << "ERROR>>>>>>>>>>> MarlinTrk::finaliseLCIOTrack:  could not get TrackState at Last Hit " << last_constrained_hit.id() << std::endl ;
-        delete trkStateAtLastHit;
+        //delete trkStateAtLastHit;
       }
       
 //      const EVENT::FloatVec& ma = trkStateAtLastHit->getCovMatrix();
@@ -587,17 +604,22 @@ namespace MarlinTrk {
 //      return_error = createTrackStateAtCaloFace(marlintrk, trkStateCalo, lastHit, tanL_is_positive);
       
       if ( return_error == 0 ) {
+	//std::cout << "fucdout referencePoint " << trkStateCalo.referencePoint << std::endl;
         trkStateCalo.location = MarlinTrk::Location::AtCalorimeter;
         track->addToTrackStates(trkStateCalo);
       } else {
-        //streamlog_out( WARNING ) << "  >>>>>>>>>>> MarlinTrk::finaliseLCIOTrack:  could not get TrackState at Calo Face "  << std::endl ;
+	std::cout << "  >>>>>>>>>>> MarlinTrk::finaliseLCIOTrack:  could not get TrackState at Calo Face "  << std::endl ;
         //delete trkStateCalo;
       }
     } else {
       track->addToTrackStates(*atLastHit);
       track->addToTrackStates(*atCaloFace);
+      //delete trkStateAtLastHit;
     }
-    
+
+    if(trkStateAtFirstHit) delete trkStateAtFirstHit;
+    if(trkStateAtLastHit)  delete trkStateAtLastHit;
+    if(trkStateIP)         delete trkStateIP;
     ///////////////////////////////////////////////////////
     // done
     ///////////////////////////////////////////////////////
@@ -688,12 +710,21 @@ namespace MarlinTrk {
     if ( hits_in_fit == false ) { // all hit atributed by patrec
       offset = 1 ;
     }
+#if EDM4HEP_BUILD_VERSION > EDM4HEP_VERSION(0, 9, 0)
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::VXD]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::FTD]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::SIT]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::TPC]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::SET]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::ETD]);
+#else
     track->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::VXD]);
     track->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::FTD]);
     track->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::SIT]);
     track->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::TPC]);
     track->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::SET]);
     track->addToSubDetectorHitNumbers(hitNumbers[UTIL::ILDDetID::ETD]);
+#endif
     //track->subdetectorHitNumbers().resize(2 * lcio::ILDDetID::ETD);
     //track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::VXD - offset ] = hitNumbers[lcio::ILDDetID::VXD];
     //track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::FTD - offset ] = hitNumbers[lcio::ILDDetID::FTD];
@@ -732,12 +763,21 @@ namespace MarlinTrk {
     if ( hits_in_fit == false ) { // all hit atributed by patrec
       offset = 1 ;
     }
+#if EDM4HEP_BUILD_VERSION > EDM4HEP_VERSION(0, 9, 0)
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::VXD]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::FTD]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::SIT]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::TPC]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::SET]);
+    track->addToSubdetectorHitNumbers(hitNumbers[UTIL::ILDDetID::ETD]);
+#else
     track->addToSubDetectorHitNumbers(hitNumbers[lcio::ILDDetID::VXD]);
     track->addToSubDetectorHitNumbers(hitNumbers[lcio::ILDDetID::FTD]);
     track->addToSubDetectorHitNumbers(hitNumbers[lcio::ILDDetID::SIT]);
     track->addToSubDetectorHitNumbers(hitNumbers[lcio::ILDDetID::TPC]);
     track->addToSubDetectorHitNumbers(hitNumbers[lcio::ILDDetID::SET]);
     track->addToSubDetectorHitNumbers(hitNumbers[lcio::ILDDetID::ETD]);
+#endif
     //track->subdetectorHitNumbers().resize(2 * lcio::ILDDetID::ETD);
     //track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::VXD - offset ] = hitNumbers[lcio::ILDDetID::VXD];
     //track->subdetectorHitNumbers()[ 2 * lcio::ILDDetID::FTD - offset ] = hitNumbers[lcio::ILDDetID::FTD];

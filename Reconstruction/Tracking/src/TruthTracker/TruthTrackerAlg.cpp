@@ -418,7 +418,9 @@ void TruthTrackerAlg::getTrackStateFromMcParticle(
         mcParticleVertexSmeared.z=
             CLHEP::RandGauss::shoot(mcParticleVertex.z,m_resVertexZ);
         ///Momentum
+
         const edm4hep::Vector3f mcParticleMom=mcParticle.getMomentum();//GeV
+
         double mcParticlePt=sqrt(mcParticleMom.x*mcParticleMom.x+
                 mcParticleMom.y*mcParticleMom.y);
         //double mcParticlePtSmeared=

@@ -34,14 +34,23 @@ private:
 
     Gaudi::Property<std::vector<std::string>> m_particles{this, "Particles"};
 
+    // For fixed positions
     Gaudi::Property<std::vector<double>> m_positionXs{this, "PositionXs"};
     Gaudi::Property<std::vector<double>> m_positionYs{this, "PositionYs"};
     Gaudi::Property<std::vector<double>> m_positionZs{this, "PositionZs"};
 
+    // For positions
+    Gaudi::Property<std::vector<double>> m_posZmins{this, "PosZMins"};
+    Gaudi::Property<std::vector<double>> m_posZmaxs{this, "PosZMaxs"};
 
+    Gaudi::Property<std::vector<double>> m_posRmins{this, "PosRMins"};
+    Gaudi::Property<std::vector<double>> m_posRmaxs{this, "PosRMaxs"};
+
+    // For energies
     Gaudi::Property<std::vector<double>> m_energymins{this, "EnergyMins"};
     Gaudi::Property<std::vector<double>> m_energymaxs{this, "EnergyMaxs"};
 
+    // For directions
     Gaudi::Property<std::vector<double>> m_thetamins{this, "ThetaMins"};
     Gaudi::Property<std::vector<double>> m_thetamaxs{this, "ThetaMaxs"};
 

@@ -93,11 +93,11 @@ StatusCode DumpMCParticleAlg::execute(){
       m_charge[m_nParticles] = particle.getCharge();
       m_time[m_nParticles] = particle.getTime();
       m_mass[m_nParticles] = particle.getMass();
-      const edm4hep::Vector3d& vertex = particle.getVertex();
+      const auto& vertex = particle.getVertex();
       m_vx[m_nParticles] = vertex.x;
       m_vy[m_nParticles] = vertex.y;
       m_vz[m_nParticles] = vertex.z;
-      const edm4hep::Vector3f& momentum = particle.getMomentum();
+      const auto& momentum = particle.getMomentum();
       m_px[m_nParticles] = momentum.x;
       m_py[m_nParticles] = momentum.y;
       m_pz[m_nParticles] = momentum.z;

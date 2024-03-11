@@ -2,10 +2,13 @@
 <lccdd>
   <define>
     <constant name="ecalbarrel_inner_radius" value="Ecal_barrel_inner_radius"/>
-    <constant name="ecalbarrel_thickness"    value="Ecal_barrel_thickness"/>    <!--Must be n*10*mm! -->
-    <constant name="ecalbarrel_zlength"      value="Ecal_barrel_half_length*2"/>   <!--Must be n*10*mm! -->
-    <constant name="bar_x" value="1*cm"/>
-    <constant name="bar_y" value="1*cm"/>
+    <constant name="ecalbarrel_thickness"    value="Ecal_barrel_thickness"/>       <!--Must be n*10*mm! -->
+    <constant name="ecalbarrel_zlength"      value="Ecal_barrel_half_length*2"/>   <!--Must be n*10*mm n*Nblock_z! -->
+    <constant name="n_symm"                  value="Ecal_barrel_symmetry" />       <!--Only support 8 and 12 now -->
+    <constant name="Nblock_z"   value="11" />
+    <constant name="Nblock_phi" value="4" />
+    <constant name="bar_x"      value="1*cm"/>
+    <constant name="bar_y"      value="1*cm"/>
   </define>
 
   <regions>
@@ -21,7 +24,7 @@
   
   <readouts>
     <readout name="EcalBarrelCollection">
-      <!-- <segmentation type="NoSegmentation"/> -->
+      <!--segmentation type="NoSegmentation"/-->
 
       <!--segmentation type="CartesianGridXYZ"
                     grid_size_x="1*cm"

@@ -1,5 +1,9 @@
 #!/usr/bin/env python
+import os
+
 from Gaudi.Configuration import *
+
+NTupleSvc().Output = ["MyTuples DATAFILE='test.root' OPT='NEW' TYP='ROOT'"]
 
 from Configurables import k4DataSvc
 dsvc = k4DataSvc("EventDataSvc")
@@ -160,6 +164,8 @@ digiFTD.UsePlanarTag = True
 from Configurables import DCHDigiAlg
 digiDC = DCHDigiAlg("DCHDigi")
 digiDC.DigiDCHitCollection = dchitname
+# TODO: DCHDigiAlg need fixed, only WriteAna = True can run
+digiDC.WriteAna = True
 #digiDC.OutputLevel = DEBUG
 
 # two strip tracker hits -> one space point

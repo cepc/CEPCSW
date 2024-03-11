@@ -26,9 +26,15 @@ public:
     // following are interfaces to configure this field map
     void init_provider(const std::string& provider, const std::string& url);
 
+    // set unit
+    void init_unit(double l, double b);
+
 private:
 
     IFieldMapProvider* m_provider;
+
+    double m_length_unit = 0;
+    double m_bfield_unit = 0;
 };
 
 #endif

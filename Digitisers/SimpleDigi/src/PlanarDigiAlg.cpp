@@ -54,13 +54,20 @@ PlanarDigiAlg::PlanarDigiAlg(const std::string& name, ISvcLocator* svcLoc)
 
 StatusCode PlanarDigiAlg::initialize()
 {
+  if (_parameterize) {
+    if (_parU.size()!=10 || _parV.size()!=10) {
+      fatal() << "parameters number must be 10! now " << _parU.size() << " for U and " << _parV.size() << " for V" << endmsg;
+      return StatusCode::FAILURE;
+    }
+  }
+  else {
+    if (_resU.size() !=  _resV.size()) {
+      fatal() << "Inconsistent number of resolutions given for U and V coordinate: " 
+              << "ResolutionU  :" <<   _resU.size() << " != ResolutionV : " <<  _resV.size()
+              << endmsg;
 
-  if( _resU.size() !=  _resV.size() ) {
-    fatal() << "Inconsistent number of resolutions given for U and V coordinate: " 
-      << "ResolutionU  :" <<   _resU.size() << " != ResolutionV : " <<  _resV.size()
-      << endmsg;
-
-    return StatusCode::FAILURE;
+      return StatusCode::FAILURE;
+    }
   }
 
   // get the GEAR manager
@@ -85,7 +92,7 @@ StatusCode PlanarDigiAlg::initialize()
   //TODO:trksystem->init() ;
   //FIXME:SJA gear surface store has now been filled so we can dispose of the MarlinTrkSystem
   //TODO:delete trksystem;
-  
+  // fucd: fix TODO - surface store is needed to fill once always if does not handle tracking algorithm in job
   auto _trackSystemSvc = service<ITrackSystemSvc>("TrackSystemSvc");
   if ( !_trackSystemSvc ) {
     error() << "Failed to find TrackSystemSvc ..." << endmsg;
@@ -166,6 +173,8 @@ StatusCode PlanarDigiAlg::execute()
 
   int i = 0;
   for( auto SimTHit : *STHcol ) {
+    if (SimTHit.getEDep()<=_eThreshold) continue;
+    debug() << "MCParticle id " << SimTHit.getMCParticle().id() << endmsg;
 
     const int celId = SimTHit.getCellID() ;
 
@@ -205,27 +214,59 @@ StatusCode PlanarDigiAlg::execute()
     //                << endmsg;
     //        continue;
     //      }
-    if( (_resU.size() > 1 && layer > _resU.size()-1) || (_resV.size() > 1 && layer > _resV.size()-1) ) {
-      fatal() << "layer exceeds resolution vector, please check input parameters ResolutionU and ResolutionV" << endmsg;
-      return StatusCode::FAILURE;
-    }
+    gear::MeasurementSurface const* ms = _GEAR->getMeasurementSurfaceStore().GetMeasurementSurface( encoder.lowWord() );
+    gear::CartesianCoordinateSystem* cartesian = dynamic_cast< gear::CartesianCoordinateSystem* >( ms->getCoordinateSystem() );
+    CLHEP::Hep3Vector uVec = cartesian->getLocalXAxis();
+    CLHEP::Hep3Vector vVec = cartesian->getLocalYAxis();
 
-    float resU = ( _resU.size() > 1 ?   _resU.value().at(  layer )     : _resU.value().at(0)   )  ;
-    float resV = ( _resV.size() > 1 ?   _resV.value().at(  layer )     : _resV.value().at(0)   )  ; 
+    float u_direction[2] ;
+    u_direction[0] = uVec.theta();
+    u_direction[1] = uVec.phi();
+    
+    float v_direction[2] ;
+    v_direction[0] = vVec.theta();
+    v_direction[1] = vVec.phi();
+    
+    debug() << " U[0] = "<< u_direction[0] << " U[1] = "<< u_direction[1]
+            << " V[0] = "<< v_direction[0] << " V[1] = "<< v_direction[1]
+            << endmsg ;
+    
+    float resU(0), resV(0);
+
+    if (!_parameterize) {
+      if( (_resU.size() > 1 && layer > _resU.size()-1) || (_resV.size() > 1 && layer > _resV.size()-1) ) {
+        fatal() << "layer exceeds resolution vector, please check input parameters ResolutionU and ResolutionV" << endmsg;
+        return StatusCode::FAILURE;
+      }
+
+      resU = ( _resU.size() > 1 ?   _resU.value().at(  layer )     : _resU.value().at(0)   )  ;
+      resV = ( _resV.size() > 1 ?   _resV.value().at(  layer )     : _resV.value().at(0)   )  ; 
+    }
+    else { // Riccardo's parameterized model
+      auto mom = SimTHit.getMomentum();
+      CLHEP::Hep3Vector momVec(mom[0], mom[1], mom[2]);
+      const double alpha = uVec.azimAngle(momVec, vVec);
+      const double cotanAlpha = 1./tan(alpha);
+      // TODO: title angle (PI/2), magnetic field (3) 
+      const double tanLorentzAngle = (side==0) ? 0. : 0.053 * 3 * cos(M_PI/2.);
+      const double x = fabs(-cotanAlpha - tanLorentzAngle);
+      resU = _parU[0] + _parU[1] * x + _parU[2] * exp(-_parU[9] * x) * cos(_parU[3] * x + _parU[4])
+        + _parU[5] * exp(-0.5 * pow(((x - _parU[6]) / _parU[7]), 2)) + _parU[8] * pow(x, 0.5);
+      
+      const double beta = vVec.azimAngle(momVec, uVec);
+      const double cotanBeta = 1./tan(beta);
+      const double y = fabs(-cotanBeta);
+      resV = _parV[0] + _parV[1] * y + _parV[2] * exp(-_parV[9] * y) * cos(_parV[3] * y + _parV[4])
+        + _parV[5] * exp(-0.5 * pow(((y - _parV[6]) / _parV[7]), 2)) + _parV[8] * pow(y, 0.5);
+    }
 
     debug() << " --- will smear hit with resU = " << resU << " and resV = " << resV << endmsg;
 
     auto& pos =  SimTHit.getPosition() ;  
 
-    //edm4hep::Vector3d smearedPos;
-
-    //GearSurfaces::MeasurementSurface* ms = _GEAR->getMeasurementSurfaceStore().GetMeasurementSurface( SimTHit->getCellID0() );
-    
-    gear::MeasurementSurface const* ms = _GEAR->getMeasurementSurfaceStore().GetMeasurementSurface( encoder.lowWord() );;
     CLHEP::Hep3Vector globalPoint(pos[0],pos[1],pos[2]);
     CLHEP::Hep3Vector localPoint = ms->getCoordinateSystem()->getLocalPoint(globalPoint);
     CLHEP::Hep3Vector localPointSmeared = localPoint;
-
 
     debug() << std::setprecision(8) << "Position of hit before smearing global: ( "<<pos[0]<<" "<<pos[1]<<" "<<pos[2]<< " ) "
             << "local: ( " << localPoint.x() << " " << localPoint.y() << " " << localPoint.z() << " )" << endmsg;
@@ -252,11 +293,13 @@ StatusCode PlanarDigiAlg::execute()
                 << " sensor" << sensor << " : retries " << tries << endmsg;
       }
 
-      localPointSmeared.setX( localPoint.x() + gsl_ran_gaussian(_rng, resU) );
-      localPointSmeared.setY( localPoint.y() + gsl_ran_gaussian(_rng, resV) );
+      double dx = gsl_ran_gaussian(_rng, resU);
+      double dy = gsl_ran_gaussian(_rng, resV);
+      localPointSmeared.setX( localPoint.x() + dx );
+      localPointSmeared.setY( localPoint.y() + dy );
 
       //check if hit is in boundaries
-      if ( ms->isLocalInBoundary( localPointSmeared ) ) {
+      if ( ms->isLocalInBoundary( localPointSmeared ) && fabs(dx)<=_maxPull*resU && fabs(dy)<=_maxPull*resV ) {
         accept_hit = true;
         break;
       }
@@ -281,10 +324,6 @@ StatusCode PlanarDigiAlg::execute()
             << localPointSmeared.x() << " " << localPointSmeared.y() << " " << localPointSmeared.z() << " )"
             << endmsg;
     
-    //smearedPos[0] = globalPointSmeared.x();
-    //smearedPos[1] = globalPointSmeared.y();
-    //smearedPos[2] = globalPointSmeared.z();
-
     //make the TrackerHitPlaneImpl
     auto trkHit = trkhitVec->create();
 
@@ -292,7 +331,7 @@ StatusCode PlanarDigiAlg::execute()
 
     edm4hep::Vector3d smearedPos(globalPointSmeared.x(), globalPointSmeared.y(), globalPointSmeared.z());
     trkHit.setPosition( smearedPos ) ;
-
+    /*
     gear::CartesianCoordinateSystem* cartesian = dynamic_cast< gear::CartesianCoordinateSystem* >( ms->getCoordinateSystem() ); 
     CLHEP::Hep3Vector uVec = cartesian->getLocalXAxis();
     CLHEP::Hep3Vector vVec = cartesian->getLocalYAxis();
@@ -308,6 +347,7 @@ StatusCode PlanarDigiAlg::execute()
     debug() << " U[0] = "<< u_direction[0] << " U[1] = "<< u_direction[1]
             << " V[0] = "<< v_direction[0] << " V[1] = "<< v_direction[1]
             << endmsg ;
+    */
     // fucd: next TODO: cov[0] = resU*reU, cov[2] = resV*resV, cov[5] = 0
     if(_usePlanarTag){
       std::array<float, 6> cov;
@@ -339,7 +379,7 @@ StatusCode PlanarDigiAlg::execute()
         trkHit.setType( UTIL::set_bit( trkHit.getType() , UTIL::ILDTrkHitTypeBit::ONE_DIMENSIONAL ) ) ;
     }
     trkHit.setEDep( SimTHit.getEDep() );
-
+    trkHit.setTime( SimTHit.getTime() );
     // make the relation
     auto rel = relCol->create();
 
@@ -374,5 +414,8 @@ StatusCode PlanarDigiAlg::execute()
 StatusCode PlanarDigiAlg::finalize()
 {
   info() << "Processed " << _nEvt << " events " << endmsg;
+
+  if(_rng) gsl_rng_free(_rng);
+
   return GaudiAlgorithm::finalize();
 }

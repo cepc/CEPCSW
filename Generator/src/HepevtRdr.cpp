@@ -7,12 +7,10 @@
 #include "IMPL/MCParticleImpl.h"
 
 
-#include "plcio/MCParticle.h" //plcio
-#include "plcio/MCParticleObj.h"
-#include "plcio/MCParticleCollection.h"
-#include "plcio/DoubleThree.h"
-#include "plcio/FloatThree.h"
-#include "plcio/EventHeaderCollection.h"
+#include "edm4hep/MCParticle.h" //edm4hep
+#include "edm4hep/MCParticleObj.h"
+#include "edm4hep/MCParticleCollection.h"
+#include "edm4hep/EventHeaderCollection.h"
 
 
 
@@ -23,7 +21,7 @@
 
 using namespace lcio;
 using namespace IMPL;
-using namespace plcio;
+using namespace edm4hep;
 using namespace std;
 
 typedef enum HEPFILEFORMATS
@@ -35,28 +33,57 @@ typedef enum HEPFILEFORMATS
 }  HEPFILEFORMAT;
 
 
-HepevtRdr::HepevtRdr(string name){
-
-m_hepevt_rdr = new UTIL::LCAscHepRdr(name.c_str(), hepevt);
-m_processed_event=0;
-std::cout<<"initial hepevt_rdr"<<std::endl;
-}
+DECLARE_COMPONENT(HepevtRdr)
 
 HepevtRdr::~HepevtRdr(){
-delete m_hepevt_rdr;
+    delete m_hepevt_rdr;
+}
+
+StatusCode HepevtRdr::initialize() {
+    StatusCode sc;
+    if (not configure_gentool()) {
+        error() << "failed to initialize." << endmsg;
+        return StatusCode::FAILURE;
+    }
+
+    return sc;
+}
+
+StatusCode HepevtRdr::finalize() {
+    StatusCode sc;
+    if (not finish()) {
+        error() << "Failed to finalize." << endmsg;
+        return StatusCode::FAILURE;
+    }
+    return sc;
+}
+
+
+bool HepevtRdr::configure_gentool(){
+    int format = hepevt;
+    if (m_format == "HEPEvt") {
+        format = HEPEvt;
+    } else if (m_format == "hepevt") {
+        format = hepevt;
+    }
+
+    m_hepevt_rdr = new UTIL::LCAscHepRdr(m_filename.value().c_str(), format);
+    m_processed_event=0;
+    std::cout<<"initial hepevt_rdr"<<std::endl;
+    return true;
 }
 
 bool HepevtRdr::mutate(MyHepMC::GenEvent& event){
     LCCollectionVec* mc_vec = m_hepevt_rdr->readEvent();
     if(mc_vec==nullptr) return false;
     m_processed_event ++;
-    int n_mc = mc_vec->getNumberOfElements();
+    int n_mc = mc_vec->size();
     std::cout<<"Read event :"<< m_processed_event <<", mc size :"<< n_mc <<std::endl;
     std::map<int, int> pmcid_lmcid;
     for (int i=0; i < n_mc; i++){
         MCParticleImpl* mc = (MCParticleImpl*) mc_vec->getElementAt(i);
-        //std::cout<<"At mc :"<< i <<std::endl;
-        plcio::MCParticle mcp = event.m_mc_vec.create();
+        // std::cout<<"At mc :"<< i <<std::endl;
+        auto mcp = event.m_mc_vec.create();
         pmcid_lmcid.insert(std::pair<int, int>(mc->id(),i));
         //std::cout<<"map<id,i>:"<<mc->id()<<","<< i <<std::endl;
                                  
@@ -68,8 +95,8 @@ bool HepevtRdr::mutate(MyHepMC::GenEvent& event){
         mcp.setMass               (mc->getMass());
         mcp.setVertex             (mc->getVertex()); 
         mcp.setEndpoint           (mc->getEndpoint());
-        mcp.setMomentum           (FloatThree(float(mc->getMomentum()[0]), float(mc->getMomentum()[1]), float(mc->getMomentum()[2]) ));
-        mcp.setMomentumAtEndpoint (FloatThree(float(mc->getMomentumAtEndpoint()[0]), float(mc->getMomentumAtEndpoint()[1]), float(mc->getMomentumAtEndpoint()[2]) ));
+        mcp.setMomentum           (edm4hep::Vector3f(float(mc->getMomentum()[0]), float(mc->getMomentum()[1]), float(mc->getMomentum()[2]) ));
+        mcp.setMomentumAtEndpoint (edm4hep::Vector3f(float(mc->getMomentumAtEndpoint()[0]), float(mc->getMomentumAtEndpoint()[1]), float(mc->getMomentumAtEndpoint()[2]) ));
         mcp.setSpin               (mc->getSpin());
         mcp.setColorFlow          (mc->getColorFlow());
     }
@@ -79,16 +106,16 @@ bool HepevtRdr::mutate(MyHepMC::GenEvent& event){
         MCParticleImpl* mc = (MCParticleImpl*) mc_vec->getElementAt(i);
         const MCParticleVec & mc_parents = mc->getParents();
         const MCParticleVec & mc_daughters = mc->getDaughters();
-        plcio::MCParticle pmc = event.m_mc_vec.at(i);
+        auto pmc = event.m_mc_vec.at(i);
         //std::cout<<"mc at "<< i<<", parent size "<<mc_parents.size() <<std::endl;
         for(unsigned int j=0; j< mc_parents.size(); j++){int p_id = mc_parents.at(j)->id();
                                                  //std::cout<<"parent id "<<p_id<<std::endl;
-                                                 pmc.addParent( event.m_mc_vec.at( pmcid_lmcid.at(p_id) ) );
+                                                 pmc.addToParents( event.m_mc_vec.at( pmcid_lmcid.at(p_id) ) );
                                                 }
         //std::cout<<"mc at "<< i<<", daughter size "<<mc_daughters.size() <<std::endl;
         for(unsigned int j=0; j< mc_daughters.size(); j++){int d_id = mc_daughters.at(j)->id();
                                                  //std::cout<<"daughter id "<<d_id<<std::endl;
-                                                 pmc.addDaughter( event.m_mc_vec.at( pmcid_lmcid.at(d_id) ) );
+                                                 pmc.addToDaughters( event.m_mc_vec.at( pmcid_lmcid.at(d_id) ) );
                                                 }
     }
      
@@ -98,13 +125,9 @@ bool HepevtRdr::mutate(MyHepMC::GenEvent& event){
 }
 
 bool HepevtRdr::isEnd(){
-return false;
-}
-
-bool HepevtRdr::configure(){
-return true;
+    return false;
 }
 
 bool HepevtRdr::finish(){
-return true;
+    return true;
 }

@@ -25,7 +25,11 @@ void Navigation::Initialize(){
   m_trkHits.clear();
 }
 
+#if EDM4HEP_BUILD_VERSION <= EDM4HEP_VERSION(0, 10, 5)
 edm4hep::TrackerHit Navigation::GetTrackerHit(const edm4hep::ObjectID& obj_id, bool delete_by_caller){
+#else
+edm4hep::TrackerHit Navigation::GetTrackerHit(const podio::ObjectID& obj_id, bool delete_by_caller){
+#endif
   int id = obj_id.collectionID * 10000000 + obj_id.index;
   if(!delete_by_caller){
     if(m_trkHits.find(id)!=m_trkHits.end()) return m_trkHits[id];
@@ -33,7 +37,7 @@ edm4hep::TrackerHit Navigation::GetTrackerHit(const edm4hep::ObjectID& obj_id, b
   /*
   for(int i=0;i<m_assColVec.size();i++){
     for(auto ass : *m_assColVec[i]){
-      edm4hep::ObjectID rec_id = ass.getRec().getObjectID();
+      auto rec_id = ass.getRec().getObjectID();
       if(rec_id.collectionID!=id.collectionID)break;
       else if(rec_id.index==id.index){
 	m_trkHits.push_back(ass.getRec());
@@ -44,7 +48,7 @@ edm4hep::TrackerHit Navigation::GetTrackerHit(const edm4hep::ObjectID& obj_id, b
   */
   for(int i=0;i<m_hitColVec.size();i++){
     for(auto hit : *m_hitColVec[i]){
-      edm4hep::ObjectID this_id = hit.getObjectID();
+      auto this_id = hit.getObjectID();
       if(this_id.collectionID!=obj_id.collectionID)break;
       else if(this_id.index==obj_id.index){
 	edm4hep::TrackerHit hit_copy = edm4hep::TrackerHit(hit);
@@ -57,11 +61,15 @@ edm4hep::TrackerHit Navigation::GetTrackerHit(const edm4hep::ObjectID& obj_id, b
   throw std::runtime_error("Not found TrackerHit");
 }
 
+#if EDM4HEP_BUILD_VERSION <= EDM4HEP_VERSION(0, 10, 5)
 std::vector<edm4hep::SimTrackerHit> Navigation::GetRelatedTrackerHit(const edm4hep::ObjectID& id){
+#else
+std::vector<edm4hep::SimTrackerHit> Navigation::GetRelatedTrackerHit(const podio::ObjectID& id){
+#endif
   std::vector<edm4hep::SimTrackerHit> hits;
   for(int i=0;i<m_assColVec.size();i++){
     for(auto ass : *m_assColVec[i]){
-      edm4hep::ObjectID this_id = ass.getRec().getObjectID();
+      auto this_id = ass.getRec().getObjectID();
       if(this_id.collectionID!=id.collectionID)break;
       else if(this_id.index==id.index) hits.push_back(ass.getSim()); 
     }
@@ -76,6 +84,15 @@ std::vector<edm4hep::SimTrackerHit> Navigation::GetRelatedTrackerHit(const edm4h
       if(ass.getRec().getObjectID().collectionID != hit.getObjectID().collectionID) break;
       else if(ass.getRec()==hit) hits.push_back(ass.getSim());
     }
+  }
+  return hits;
+}
+
+std::vector<edm4hep::SimTrackerHit> Navigation::GetRelatedTrackerHit(const edm4hep::TrackerHit& hit, const edm4hep::MCRecoTrackerAssociationCollection* col){
+  std::vector<edm4hep::SimTrackerHit> hits;
+  for(auto ass : *col){
+    if(ass.getRec().getObjectID().collectionID != hit.getObjectID().collectionID) break;
+    else if(ass.getRec()==hit) hits.push_back(ass.getSim());
   }
   return hits;
 }

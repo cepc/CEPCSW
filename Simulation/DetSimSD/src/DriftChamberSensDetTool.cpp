@@ -5,7 +5,7 @@
 #include "DD4hep/Detector.h"
 
 #include "DriftChamberSensitiveDetector.h"
-
+#include "TrackerCombineSensitiveDetector.h"
 DECLARE_COMPONENT(DriftChamberSensDetTool)
 
 StatusCode DriftChamberSensDetTool::initialize() {
@@ -22,7 +22,6 @@ StatusCode DriftChamberSensDetTool::initialize() {
         error() << "Failed to find dedx simtoo." << endmsg;
         return StatusCode::FAILURE;
     }
-
     return sc;
 }
 
@@ -39,12 +38,19 @@ DriftChamberSensDetTool::createSD(const std::string& name) {
     G4VSensitiveDetector* sd = nullptr;
 
     if (name == "DriftChamber") {
-        DriftChamberSensitiveDetector* dcsd = new DriftChamberSensitiveDetector(name, *dd4hep_geo);
-        dcsd->setDedxSimTool(m_dedx_simtool);
-
-        sd = dcsd;
+      auto sens = dd4hep_geo->sensitiveDetector(name);
+      if(!sens.combineHits()){
+	DriftChamberSensitiveDetector* dcsd = new DriftChamberSensitiveDetector(name, *dd4hep_geo);
+	dcsd->setDedxSimTool(m_dedx_simtool);
+	sd = dcsd;
+      }
+      else{
+	sd = new TrackerCombineSensitiveDetector(name, *dd4hep_geo);
+      }
     }
-
+    else{
+      warning() << "The SD " << name << " want to use SD for DriftChamber" << endmsg;
+    }
 
     return sd;
 }

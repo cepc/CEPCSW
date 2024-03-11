@@ -57,7 +57,7 @@ pandora::StatusCode MCParticleCreator::CreateMCParticles(const CollectionMaps& c
                     mcParticleParameters.m_particleId = pMcParticle.getPDG();
                     mcParticleParameters.m_mcParticleType = pandora::MC_3D;
                     mcParticleParameters.m_pParentAddress = &pMcParticle;
-                    unsigned int p_id = pMcParticle.id();
+                    unsigned int p_id = pMcParticle.id().index;
                     auto p_mc = &pMcParticle;
                     (*m_id_pMC_map) [p_id]   = p_mc;
                     mcParticleParameters.m_momentum = pandora::CartesianVector(pMcParticle.getMomentum()[0], pMcParticle.getMomentum()[1],
@@ -271,8 +271,8 @@ pandora::StatusCode MCParticleCreator::CreateCaloHitToMCParticleRelationships(co
                             edm4hep::CaloHitContribution conb = pSimHit.getContributions(iCont);
                             auto ipa = conb.getParticle();
                             float  ien = conb.getEnergy();
-                            if( m_id_pMC_map->find(ipa.id()) == m_id_pMC_map->end() ) continue;
-                            auto p_tmp = (*m_id_pMC_map)[ipa.id()]; 
+                            if( m_id_pMC_map->find(ipa.id().index) == m_id_pMC_map->end() ) continue;
+                            auto p_tmp = (*m_id_pMC_map)[ipa.id().index];
                             mcParticleToEnergyWeightMap[p_tmp] += ien;
                         }
                         
@@ -331,12 +331,12 @@ pandora::StatusCode MCParticleCreator::CreateTrackToMCParticleRelationships(cons
                         if( pMCRecoTrackerAssociationCollection.at(ic).getRec().id() != pTrack->getTrackerHits(ith).id() ) continue;
                         auto pSimHit = pMCRecoTrackerAssociationCollection.at(ic).getSim();
                         auto ipa = pSimHit.getMCParticle();
-                        if( m_id_pMC_map->find(ipa.id()) == m_id_pMC_map->end() ) continue;
+                        if( m_id_pMC_map->find(ipa.id().index) == m_id_pMC_map->end() ) continue;
                         const float trueMomentum(pandora::CartesianVector(ipa.getMomentum()[0], ipa.getMomentum()[1], ipa.getMomentum()[2]).GetMagnitude());
                         const float deltaMomentum(std::fabs(recoMomentum - trueMomentum));
                         if (deltaMomentum < bestDeltaMomentum)
                         {
-                            pBestMCParticle = ((*m_id_pMC_map)[ipa.id()]);
+                            pBestMCParticle = ((*m_id_pMC_map)[ipa.id().index]);
                             bestDeltaMomentum = deltaMomentum;
                         }
                     }

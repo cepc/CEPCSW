@@ -8,7 +8,6 @@ logfile=mylog.txt
 
 if [ "$LCG_RELEASE" = "KEY4HEP_STACK" ]; then
     logfile=mylog-k4.sh
-    source /cvmfs/sw.hsf.org/key4hep/setup.sh
     ./build-k4.sh >& ${logfile} &
     buildpid=$!
 else

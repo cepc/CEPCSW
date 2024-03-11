@@ -570,4 +570,15 @@
      <fraction n="0.5103012386298891" ref="C" />
    </material>
 
+   <material name="superconductor">
+      <D type="density" value="6.78" unit="g/cm3" />
+       <fraction n="0.56" ref="Ni" />
+       <fraction n="0.44" ref="Ti" />
+   </material>
+
+    <material name="lN2">
+      <D type="density" value="0.807" unit="g/cm3" />
+       <fraction n="1" ref="N" />
+    </material>
+
   </materials>

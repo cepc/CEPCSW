@@ -9,7 +9,7 @@ from Gaudi.Configuration import *
 # geometry_option = "CepC_v4-onlyTracker.xml"
 # geometry_option = "CepC_v4-onlyVXD.xml"
 geometry_option = "CepC_v4-onlyECAL.xml"
-
+import os
 if not os.getenv("DETCEPCV4ROOT"):
     print("Can't find the geometry. Please setup envvar DETCEPCV4ROOT." )
     sys.exit(-1)

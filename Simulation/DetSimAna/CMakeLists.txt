@@ -5,11 +5,16 @@ include(${Geant4_USE_FILE})
 gaudi_add_module(DetSimAna
                  SOURCES src/Edm4hepWriterAnaElemTool.cpp
                  LINK DetSimInterface
+                      DetSimSDLib
                       ${DD4hep_COMPONENT_LIBRARIES} 
                       Gaudi::GaudiKernel
                       EDM4HEP::edm4hep EDM4HEP::edm4hepDict
                       k4FWCore::k4FWCore
 )
+
+target_include_directories(DetSimAna PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 install(TARGETS DetSimAna
   EXPORT CEPCSWTargets

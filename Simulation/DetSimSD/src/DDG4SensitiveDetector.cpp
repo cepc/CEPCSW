@@ -1,7 +1,6 @@
 #include "DetSimSD/DDG4SensitiveDetector.h"
 
 #include "DDG4/Geant4Converter.h"
-#include "DDG4/Geant4Hits.h"
 #include "DD4hep/Segmentations.h"
 
 #include "DD4hep/Printout.h"

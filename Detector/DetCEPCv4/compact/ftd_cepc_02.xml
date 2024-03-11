@@ -9,7 +9,8 @@
     <detector name="FTD" type="FTD_cepc" vis="FTDVis" id="ILDDetID_FTD" limits="Tracker_limits" readout="FTDCollection" insideTrackingVolume="true">
 
       <envelope vis="ILD_FTDVis">
-        <shape type="BooleanShape" operation="Subtraction" material="Air" >
+	<shape type="Assembly"/>
+        <!--shape type="BooleanShape" operation="Subtraction" material="Air" >
           <shape type="BooleanShape" operation="Subtraction" material="Air" >
             <shape type="BooleanShape" operation="Subtraction" material="Air" >
               <shape type="BooleanShape" operation="Subtraction" material="Air" >
@@ -29,7 +30,7 @@
                  z="(FTD_half_length-BeamPipe_CentralAl_zmax)/2. + env_safety "/>
           <position x="0" y="0" z="-BeamPipe_CentralAl_zmax-(FTD_half_length-BeamPipe_CentralAl_zmax)/2."/>
           <rotation x="0" y="180.*deg" z="0" />
-        </shape>
+        </shape-->
       </envelope>
 
       <type_flags type="DetType_TRACKER +  DetType_ENDCAP  + DetType_PIXEL + DetType_STRIP "/>

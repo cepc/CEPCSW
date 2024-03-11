@@ -9,6 +9,14 @@
 //#include "edm4hep/TrackerHitPlane.h"
 #include "edm4hep/Track.h"
 #include "edm4hep/TrackState.h"
+#if __has_include("edm4hep/EDM4hepVersion.h")
+#include "edm4hep/EDM4hepVersion.h"
+#else
+// Copy the necessary parts from  the header above to make whatever we need to work here
+#define EDM4HEP_VERSION(major, minor, patch) ((UINT64_C(major) << 32) | (UINT64_C(minor) << 16) | (UINT64_C(patch)))
+// v00-09 is the last version without the capitalization change of the track vector members
+#define EDM4HEP_BUILD_VERSION EDM4HEP_VERSION(0, 9, 0)
+#endif
 
 #include <iostream>
 #include <algorithm>
@@ -2833,10 +2841,15 @@ void SiliconTrackingAlg::FinalRefit(edm4hep::TrackCollection* trk_col) {
       MarlinTrk::addHitNumbersToTrack(&track, all_hits, false, cellID_encoder);
       
       delete marlinTrk;
-
+#if EDM4HEP_BUILD_VERSION > EDM4HEP_VERSION(0, 9, 0)
+      int nhits_in_vxd = track.getSubdetectorHitNumbers(0);
+      int nhits_in_ftd = track.getSubdetectorHitNumbers(1);
+      int nhits_in_sit = track.getSubdetectorHitNumbers(2);
+#else
       int nhits_in_vxd = track.getSubDetectorHitNumbers(0);
       int nhits_in_ftd = track.getSubDetectorHitNumbers(1);
       int nhits_in_sit = track.getSubDetectorHitNumbers(2);
+#endif
       
       //debug() << " Hit numbers for Track "<< track.id() << ": "
       debug() << " Hit numbers for Track "<< iTrk <<": "

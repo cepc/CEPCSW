@@ -563,6 +563,9 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
 	  {
             _dbParDisk.ZStartOuterCylinder = _z_position;
 	  }
+
+        _dbParDisk.ZStopOuterCylinder = _zEnd;
+        _dbParDisk.ZStopInnerCylinder = _zEnd;
 	break;
           
       case 7:
@@ -1273,7 +1276,9 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
   ftd.addExtension< ZDiskPetalsData >( zDiskPetalsData ) ;
   
   //--------------------------------------
-  
+  if ( x_det.hasAttr(_U(combineHits)) ) {
+    ftd.setCombineHits(x_det.attr<bool>(_U(combineHits)),sens);
+  }
 
   return ftd;
 }

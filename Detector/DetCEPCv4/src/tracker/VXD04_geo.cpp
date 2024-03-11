@@ -1582,9 +1582,11 @@ static Ref_t create_element(Detector& theDetector, xml_h e, SensitiveDetector se
 
   
   //--------------------------------------
-  
-  
   vxd.setVisAttributes( theDetector, x_det.visStr(), envelope );
+
+  if ( x_det.hasAttr(_U(combineHits)) ) {
+    vxd.setCombineHits(x_det.attr<bool>(_U(combineHits)),sens);
+  }
 
   return vxd;
 }

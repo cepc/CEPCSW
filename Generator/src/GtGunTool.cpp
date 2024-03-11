@@ -32,6 +32,39 @@ GtGunTool::initialize() {
         error() << "Mismatched PositionZs and particles." << endmsg;
         return StatusCode::FAILURE;
     }
+
+
+    if (m_posZmins.value().size()
+        && m_posZmins.value().size() != m_particles.value().size()) {
+        error() << "Mismatched PosZmins and particles." << endmsg;
+        return StatusCode::FAILURE;
+    }
+    if (m_posZmaxs.value().size()
+        && m_posZmaxs.value().size() != m_particles.value().size()) {
+        error() << "Mismatched PosZmaxs and particles." << endmsg;
+        return StatusCode::FAILURE;
+    }
+
+    if (m_posZmins.value().size() != m_posZmaxs.value().size()) {
+        error() << "Mismatched PosZmins and PosZmaxs." << endmsg;
+        return StatusCode::FAILURE;
+    }
+
+    if (m_posRmins.value().size()
+        && m_posRmins.value().size() != m_particles.value().size()) {
+        error() << "Mismatched PosRmins and particles." << endmsg;
+        return StatusCode::FAILURE;
+    }
+    if (m_posRmaxs.value().size()
+        && m_posRmaxs.value().size() != m_particles.value().size()) {
+        error() << "Mismatched PosRmaxs and particles." << endmsg;
+        return StatusCode::FAILURE;
+    }
+
+    if (m_posRmins.value().size() != m_posRmaxs.value().size()) {
+        error() << "Mismatched PosRmins and PosRmaxs." << endmsg;
+        return StatusCode::FAILURE;
+    }
     
     // Energy
     if (m_energymins.value().size() != m_particles.value().size()) {
@@ -137,9 +170,40 @@ GtGunTool::mutate(MyHepMC::GenEvent& event) {
         double x = 0;
         double y = 0;
         double z = 0;
+
+        // ==================================
+        // 1. if there is fixed positions
+        // ==================================
         if (i<m_positionXs.value().size()) { x = m_positionXs.value()[i]; }
         if (i<m_positionYs.value().size()) { y = m_positionYs.value()[i]; }
         if (i<m_positionZs.value().size()) { z = m_positionZs.value()[i]; }
+
+        // ==================================
+        // 2. if there are varied positions
+        // ==================================
+        if (i<m_posZmins.value().size() and i<m_posZmaxs.value().size()) {
+            double zmin = m_posZmins.value()[i];
+            double zmax = m_posZmaxs.value()[i];
+            z = CLHEP::RandFlat::shoot(zmin, zmax);
+        }
+
+        if (i<m_posRmins.value().size() and i<m_posRmaxs.value().size()) {
+            double rmin = fabs(m_posRmins.value()[i]);
+            double rmax = fabs(m_posRmaxs.value()[i]);
+
+            while (true) {
+                double x_ = CLHEP::RandFlat::shoot(-rmax, rmax);
+                double y_ = CLHEP::RandFlat::shoot(-rmax, rmax);
+                double r_ = std::sqrt(x_*x_+y_*y_);
+
+                if (rmin <= r_ && r_ <= rmax) {
+                    x = x_;
+                    y = y_;
+                    break;
+                }
+            }
+        }
+
 
         mcp.setVertex(edm4hep::Vector3d(x,y,z)); 
         // mcp.setEndpoint();

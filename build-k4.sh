@@ -104,12 +104,16 @@ function run-make() {
     cmake --build .
 }
 
+function run-install() {
+    cmake --install .
+}
+
 ##############################################################################
 # Parse the command line options
 ##############################################################################
 
 # The current default platform
-k4_platform=x86_64-linux-gcc9-opt
+k4_platform=x86_64-linux-gcc11-opt
 k4_version=master
 bldtool=${CEPCSW_BLDTOOL} # make, ninja # set in env var
 
@@ -120,3 +124,5 @@ check-working-builddir || exit -1
 run-cmake || exit -1
 
 run-make || exit -1
+
+run-install || exit -1

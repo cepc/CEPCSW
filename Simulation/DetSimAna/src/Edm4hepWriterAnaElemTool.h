@@ -6,6 +6,10 @@
 #include "GaudiKernel/AlgTool.h"
 #include "k4FWCore/DataHandle.h"
 #include "DetSimInterface/IAnaElemTool.h"
+#include "DetSimInterface/CommonUserEventInfo.hh"
+#include "DetSimInterface/CommonUserTrackInfo.hh"
+
+#include "DetInterface/IGeomSvc.h"
 
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4hep/SimTrackerHitCollection.h"
@@ -42,10 +46,10 @@ public:
 private:
     // In order to associate MCParticle with contribution, we need to access MC Particle.
     // - collection MCParticle: the particles in Generator
-    DataHandle<edm4hep::MCParticleCollection> m_mcParGenCol{"MCParticle", 
+    DataHandle<edm4hep::MCParticleCollection> m_mcParGenCol{"MCParticleGen", 
             Gaudi::DataHandle::Writer, this};
     // - collection MCParticleG4: the simulated particles in Geant4
-    DataHandle<edm4hep::MCParticleCollection> m_mcParCol{"MCParticleG4", 
+    DataHandle<edm4hep::MCParticleCollection> m_mcParCol{"MCParticle", 
             Gaudi::DataHandle::Writer, this};
     edm4hep::MCParticleCollection* mcCol;
 
@@ -140,6 +144,14 @@ private:
 
     std::map<int, int> m_track2primary;
 
+    CommonUserEventInfo* m_userinfo = nullptr;
+
+    // get the limitation of R/Z in tracker
+    SmartIF<IGeomSvc> m_geosvc;
+    double R = 0;
+    double Z = 0;
+
+    bool verboseOutput = false;
 };
 
 #endif

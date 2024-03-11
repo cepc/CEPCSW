@@ -11,6 +11,11 @@
   <define>
     <!--only needed for asymetry double pipe-->
     <!--constant name="ForkAsymThickness" value="BeamPipe_Dnstream_inner_radius+BeamPipe_Cu_thickness-BeamPipe_Upstream_inner_radius"/-->
+    <constant name="BeamPipe_QD0_zmax"             value="3950*mm"/>
+    <constant name="BeamPipe_QF1_zmin"             value="4450*mm"/>
+    <constant name="BeamPipe_QF1_zmax"             value="5910*mm"/>
+    <constant name="BeamPipe_QF1_inner_radius"     value="20.5*mm"/>
+    <constant name="BeamPipe_Iron_thickness"       value="2.5*mm"/>
   </define>
 
   <detectors>        
@@ -62,6 +67,132 @@
       <section type="Legs" name="SecondDoublePipe" zStart="BeamPipe_Mask_zmax" zEnd="BeamPipe_SecondSeparated_zmax" rStart="0">
         <layer material="beam" thickness="BeamPipe_Fork_inner_radius" vis="VacVis"/>
         <layer material="G4_Cu" thickness="BeamPipe_Cu_thickness" vis="TubeVis"/>
+      </section>
+      <section type="Legs" name="QD0" zStart="BeamPipe_SecondSeparated_zmax" zEnd="BeamPipe_QD0_zmax" rStart="0">
+        <layer material="beam" thickness="BeamPipe_Fork_inner_radius" vis="VacVis"/>
+        <layer material="stainless_steel" thickness="BeamPipe_Iron_thickness" vis="TubeVis"/>
+        <layer material="G4_Cu" thickness="3.5*mm" vis="TubeVis"/>
+        <layer material="superconductor" thickness="6.0*mm" vis="MagentaVis"/>
+        <layer material="stainless_steel" thickness="8.0*mm" vis="ShellVis"/>
+      </section>
+      <section type="Legs" name="QF1Linker" zStart="BeamPipe_QD0_zmax" zEnd="BeamPipe_QF1_zmin" rStart="0">
+        <layer material="beam" thickness="BeamPipe_Fork_inner_radius" thicknessEnd="BeamPipe_QF1_inner_radius" vis="VacVis"/>
+        <layer material="stainless_steel" thickness="BeamPipe_Iron_thickness" vis="TubeVis"/>
+      </section>
+      <section type="Legs" name="QF1" zStart="BeamPipe_QF1_zmin" zEnd="BeamPipe_QF1_zmax" rStart="0">
+        <layer material="beam" thickness="BeamPipe_QF1_inner_radius" vis="VacVis"/>
+        <layer material="stainless_steel" thickness="BeamPipe_Iron_thickness" vis="TubeVis"/>
+        <layer material="G4_Cu" thickness="3.0*mm" vis="TubeVis"/>
+        <layer material="superconductor" thickness="6.0*mm" vis="MagentaVis"/>
+        <layer material="stainless_steel" thickness="8.0*mm" vis="ShellVis"/>
+      </section>
+      <section type="Legs" name="Farest" zStart="BeamPipe_QF1_zmax" zEnd="BeamPipe_end_z" rStart="0">
+        <layer material="beam" thickness="BeamPipe_QF1_inner_radius" vis="VacVis"/>
+        <layer material="stainless_steel" thickness="BeamPipe_Iron_thickness" vis="TubeVis"/>
+      </section>
+
+      <!-- Magnets and their cooling, support -->
+      <section type="CenterSide" name="Magnet_1" zStart="1160*mm" zEnd="1900*mm" rStart="90*mm">
+        <layer material="superconductor" thickness="20*mm" vis="MagentaVis"/>
+      </section>
+      <section type="CenterSide" name="Magnet_2" zStart="1930*mm" zEnd="3964*mm" rStart="120*mm">
+        <layer material="superconductor" thickness="10*mm" vis="MagentaVis"/>
+      </section>
+      <section type="CenterSide" name="Magnet_3" zStart="3970*mm" zEnd="7000*mm" rStart="185*mm">
+        <layer material="superconductor" thickness="10*mm" vis="MagentaVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetShell_1" zStart="970*mm" zEnd="1110*mm" rStart="33*mm">
+        <layer material="stainless_steel" thickness="1.5*mm" vis="ShellVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetShell_2" zStart="1110*mm" zEnd="1115*mm" rStart="50.0*mm">
+        <layer material="stainless_steel" thickness="91.25*mm" vis="ShellVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetShell_3" zStart="1115*mm" zEnd="1900*mm" rStart="130.75*mm" rEnd="175*mm">
+        <layer material="stainless_steel" thickness="10.5*mm" thicknessEnd="65*mm" vis="ShellVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetShell_4" zStart="1900*mm" zEnd="3800*mm" rStart="175*mm">
+        <layer material="stainless_steel" thickness="65*mm" vis="ShellVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetShell_5" zStart="3800*mm" zEnd="3910*mm" rStart="175*mm">
+        <layer material="stainless_steel" thickness="135*mm" vis="ShellVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetShell_6" zStart="3910*mm" zEnd="7160*mm" rStart="240*mm">
+        <layer material="stainless_steel" thickness="70*mm" vis="ShellVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetSupport_1" zStart="1130*mm" zEnd="1135*mm" rStart="75*mm">
+        <layer material="stainless_steel" thickness="50*mm" vis="ShellVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetSupport_2i" zStart="1135*mm" zEnd="1925*mm" rStart="75*mm">
+        <layer material="stainless_steel" thickness="5*mm" vis="ShellVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetSupport_2o" zStart="1135*mm" zEnd="1900*mm" rStart="120*mm">
+        <layer material="stainless_steel" thickness="5*mm" vis="ShellVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetSupport_3l" zStart="1900*mm" zEnd="1905*mm" rStart="120*mm">
+        <layer material="stainless_steel" thickness="25*mm" vis="ShellVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetSupport_3r" zStart="1925*mm" zEnd="1930*mm" rStart="75*mm">
+        <layer material="stainless_steel" thickness="35*mm" vis="ShellVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetSupport_4i" zStart="1930*mm" zEnd="4000*mm" rStart="105*mm">
+        <layer material="stainless_steel" thickness="5*mm" vis="ShellVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetSupport_4o" zStart="1905*mm" zEnd="3940*mm" rStart="140*mm">
+        <layer material="stainless_steel" thickness="5*mm" vis="ShellVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetSupport_5l" zStart="3940*mm" zEnd="3945*mm" rStart="140*mm">
+        <layer material="stainless_steel" thickness="70*mm" vis="ShellVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetSupport_5r" zStart="4000*mm" zEnd="4005*mm" rStart="105*mm">
+        <layer material="stainless_steel" thickness="70*mm" vis="ShellVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetSupport_6i" zStart="4005*mm" zEnd="7050*mm" rStart="170*mm">
+        <layer material="stainless_steel" thickness="5*mm" vis="ShellVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetSupport_6o" zStart="3945*mm" zEnd="7050*mm" rStart="205*mm">
+        <layer material="stainless_steel" thickness="5*mm" vis="ShellVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetSupport_7" zStart="7050*mm" zEnd="7055*mm" rStart="170*mm">
+        <layer material="stainless_steel" thickness="40*mm" vis="ShellVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetCooling_1l" zStart="1135*mm" zEnd="1160*mm" rStart="80*mm">
+        <layer material="lN2" thickness="40*mm" vis="BlueVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetCooling_1i" zStart="1160*mm" zEnd="1900*mm" rStart="80*mm">
+        <layer material="lN2" thickness="10*mm" vis="BlueVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetCooling_1o" zStart="1160*mm" zEnd="1900*mm" rStart="110*mm">
+        <layer material="lN2" thickness="10*mm" vis="BlueVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetCooling_1r" zStart="1900*mm" zEnd="1925*mm" rStart="80*mm">
+        <layer material="lN2" thickness="40*mm" vis="BlueVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetCooling_2l" zStart="1905*mm" zEnd="1930*mm" rStart="120*mm">
+        <layer material="lN2" thickness="20*mm" vis="BlueVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetCooling_2i" zStart="1925*mm" zEnd="3964*mm" rStart="110*mm">
+        <layer material="lN2" thickness="10*mm" vis="BlueVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetCooling_2o" zStart="1930*mm" zEnd="3945*mm" rStart="130*mm">
+        <layer material="lN2" thickness="10*mm" vis="BlueVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetCooling_2r1" zStart="3964*mm" zEnd="4000*mm" rStart="110*mm">
+        <layer material="lN2" thickness="65*mm" vis="BlueVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetCooling_2r2" zStart="3945*mm" zEnd="3964*mm" rStart="130*mm">
+        <layer material="lN2" thickness="45*mm" vis="BlueVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetCooling_3l" zStart="3945*mm" zEnd="3970*mm" rStart="175*mm">
+        <layer material="lN2" thickness="30*mm" vis="BlueVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetCooling_3i" zStart="3970*mm" zEnd="7000*mm" rStart="175*mm">
+        <layer material="lN2" thickness="10*mm" vis="BlueVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetCooling_3o" zStart="3970*mm" zEnd="7000*mm" rStart="195*mm">
+        <layer material="lN2" thickness="10*mm" vis="BlueVis"/>
+      </section>
+      <section type="CenterSide" name="MagnetCooling_3r" zStart="7000*mm" zEnd="7050*mm" rStart="175*mm">
+        <layer material="lN2" thickness="30*mm" vis="BlueVis"/>
       </section>
     </detector>
   </detectors>        

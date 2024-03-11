@@ -26,6 +26,8 @@
 #include "gear/GEAR.h"
 #include "gear/BField.h"
 
+#include "podio/podioVersion.h"
+
 //#include "streamlog/streamlog.h"
 
 
@@ -76,8 +78,12 @@ namespace MarlinTrk {
   
   
   MarlinKalTestTrack::MarlinKalTestTrack(MarlinKalTest* ktest) 
-    : _ktest(ktest), _trackHitAtPositiveNDF(edm4hep::TrackerHit(0)) {
-    
+    : _ktest(ktest),
+#if PODIO_BUILD_VERSION < PODIO_VERSION(0, 17, 4)
+      _trackHitAtPositiveNDF(edm4hep::TrackerHit(0)) {
+#else
+      _trackHitAtPositiveNDF(edm4hep::TrackerHit::makeEmpty()) {
+#endif
     _kaltrack = new TKalTrack() ;
     _kaltrack->SetOwner() ;
     

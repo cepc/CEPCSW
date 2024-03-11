@@ -15,7 +15,7 @@
 
 
 #include "DD4hep/Detector.h"
-#include "DDG4/Geant4Hits.h"
+#include "DetSimSD/Geant4Hits.h"
 
 #include "G4Step.hh"
 #include "G4HCofThisEvent.hh"
