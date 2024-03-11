@@ -22,7 +22,7 @@
       <envelope>
 	<shape type="BooleanShape" operation="Subtraction" material="Air" >
 	  <shape type="BooleanShape" operation="Subtraction" material="Air" >
-            <shape type="Tube" rmin="VXD_inner_radius+1*mm" rmax="VXD_outer_radius" dz="VXD_half_length" />
+            <shape type="Tube" rmin="VXD_inner_radius" rmax="VXD_outer_radius" dz="VXD_half_length" />
             <shape type="Cone" rmin1="0" rmax1="BeamPipe_VertexRegion_rmax" rmin2="0" rmax2="Vertex_Side_rmin" z="(VXD_half_length-BeamPipe_CentralAl_zmax)/2." />
             <position x="0" y="0" z="VXD_half_length-(VXD_half_length-BeamPipe_CentralAl_zmax)/2."/>
           </shape>

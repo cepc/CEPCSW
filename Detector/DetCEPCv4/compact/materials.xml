@@ -548,5 +548,20 @@
        <fraction n="0.194" ref="Cu" />
     </material>
 
+    <material name="G4_PARAFFIN">
+      <D type="density" value="0.93" unit="g/cm3" />
+       <fraction n="0.148605" ref="H" />
+       <fraction n="0.851395" ref="C" />
+    </material>
 
+    <material name="superconductor">
+      <D type="density" value="6.78" unit="g/cm3" />
+       <fraction n="0.56" ref="Ni" />
+       <fraction n="0.44" ref="Ti" />
+    </material>
+
+    <material name="lN2">
+      <D type="density" value="0.807" unit="g/cm3" />
+       <fraction n="1" ref="N" />
+    </material>
   </materials>

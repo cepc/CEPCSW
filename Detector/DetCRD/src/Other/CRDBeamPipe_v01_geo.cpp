@@ -160,7 +160,7 @@ static Ref_t create_detector(Detector& theDetector,
 	envelope.placeVolume(subLayerLog,  transformer);
 	envelope.placeVolume(subLayerLog,  transmirror);
 	
-        if(material.radLength()<10000*dd4hep::mm){
+        if(type==CEPC::kCenter && material.radLength()<10000*dd4hep::mm){
           double tEff    = thickness/material.radLength()*theDetector.material("G4_Be").radLength();
 	  double tEffEnd = thicknessEnd/material.radLength()*theDetector.material("G4_Be").radLength();
           if(pipeRadius==0)    pipeRadius    = radius;

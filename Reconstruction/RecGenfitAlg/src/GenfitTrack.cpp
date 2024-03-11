@@ -58,6 +58,7 @@
 
 //cpp
 #include <cfloat>
+#include <type_traits>
 
 #undef GENFIT_MY_DEBUG
 //#define GENFIT_MY_DEBUG 1
@@ -1765,3 +1766,4 @@ GenfitHit* GenfitTrack::makeAGenfitHit(edm4hep::TrackerHit* trackerHit,
     }
     return genfitHit;
 }
+

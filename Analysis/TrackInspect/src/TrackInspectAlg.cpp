@@ -39,6 +39,8 @@
 
 #include "DataHelper/HelixClass.h"
 
+#include "podio/podioVersion.h"
+
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <math.h>
 #include <TTree.h>
@@ -179,7 +181,11 @@ StatusCode TrackInspectAlg::execute(){
             if (theTracks.size() == 0) {
                 totalCandidates[m_nParticles] = 0;
                 nCandidate[m_nParticles] = -1;
+#if PODIO_BUILD_VERSION < PODIO_VERSION(0, 17, 4)
                 Fill(particle, edm4hep::Track(nullptr));
+#else
+                Fill(particle, edm4hep::Track::makeEmpty());
+#endif
                 m_nParticles++;
             }
             else {

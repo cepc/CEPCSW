@@ -473,6 +473,10 @@ static dd4hep::Ref_t create_element(dd4hep::Detector& theDetector, xml_h e, dd4h
   //--------------------------------------
   
   sit.setVisAttributes( theDetector, x_det.visStr(), envelope );
+
+  if ( x_det.hasAttr(_U(combineHits)) ) {
+    sit.setCombineHits(x_det.attr<bool>(_U(combineHits)),sens);
+  }
   
   return sit;
 }

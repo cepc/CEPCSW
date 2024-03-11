@@ -180,10 +180,12 @@ AnExampleDetElemTool::ConstructSDandField() {
                 throw std::runtime_error("ConstructSDandField: Failed to access G4LogicalVolume for SD " + nam + " of type " +
                                          typ + ".");
             }
-            info() << " -> Adding " << g4v->GetName() << endmsg;
+            debug() << " -> Adding " << g4v->GetName() << endmsg;
             G4SDManager::GetSDMpointer()->AddNewDetector(g4sd);
             g4v->SetSensitiveDetector(g4sd);
         }
+        info() << "-> Total " << sens_vols.size()
+               << " senstive volumes are registered. " << endmsg;
     }
 
     // =======================================================================

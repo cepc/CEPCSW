@@ -56,11 +56,16 @@ namespace UTIL{
     //
     //  Read the event, check for errors
     //
-    int NHEP;  // number of entries
-    int NOUT ;   // number of outgoing particles
-    int BRE ;   // beam remnants
-    double WEIGHT ;   // weight
-    inputFile >> NHEP >> NOUT >> BRE >> WEIGHT; 
+    int NHEP = -1;  // number of entries
+    int NOUT = -1;   // number of outgoing particles
+    int BRE = -1;   // beam remnants
+    double WEIGHT = -1;   // weight
+
+    std::string line; // modified by Tao
+    std::getline(inputFile, line);
+    std::stringstream ss_(line);
+    ss_ >>  NHEP >> NOUT >> BRE >> WEIGHT; 
+    // std::cout << "NHEP: " << NHEP << std::endl;
     if( inputFile.eof() ) 
       {
 	//
@@ -74,6 +79,7 @@ namespace UTIL{
     //  Create a Collection Vector
     //
     mcVec = new IMPL::LCCollectionVec(LCIO::MCPARTICLE);
+    // std::cout << "mc size: " << mcVec->size() << std::endl;
     MCParticleImpl* p;
     MCParticleImpl* d;
     
@@ -101,12 +107,18 @@ namespace UTIL{
 
     for( int IHEP=0; IHEP<NHEP; IHEP++ )
       {
-	//if ( theFileFormat == HEPEvt)
-	if ( false)
-	  inputFile >> ISTHEP >> IDHEP >> JDAHEP1 >> JDAHEP2
+        std::getline(inputFile, line);
+	if(inputFile.eof())
+		return nullptr;	
+
+        // std::cout << "LINE: " << line << std::endl;
+        std::stringstream ss(line);
+
+	if ( theFileFormat == HEPEvt)
+	  ss >> ISTHEP >> IDHEP >> JDAHEP1 >> JDAHEP2
 		  >> PHEP1 >> PHEP2 >> PHEP3 >> PHEP5;
 	else
-	  inputFile >> ISTHEP >> IDHEP 
+	  ss >> ISTHEP >> IDHEP 
 		    >> JMOHEP1 >> JMOHEP2
 		    >> JDAHEP1 >> JDAHEP2
 		    >> PHEP1 >> PHEP2 >> PHEP3 
@@ -114,8 +126,8 @@ namespace UTIL{
 		    >> VHEP1 >> VHEP2 >> VHEP3
 		    >> VHEP4;
 
-	if(inputFile.eof())
-		return nullptr;	
+        // std::cout << "ISTHEP: " << ISTHEP << std::endl;
+
 	//
 	//  Create a MCParticle and fill it from stdhep info
 	//
@@ -124,6 +136,7 @@ namespace UTIL{
 	//  PDGID
 	//
 	mcp->setPDG(IDHEP);
+        // std::cout << "PDG: " << IDHEP << std::endl;
 	//
 	//  Momentum vector
 	//
@@ -221,6 +234,7 @@ namespace UTIL{
 //
     for( int IHEP=0; IHEP<NHEP; IHEP++ )
       {
+          // continue;
 	//
 	//  Get the MCParticle
 	//

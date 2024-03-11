@@ -10,14 +10,15 @@ gaudi_add_module(GenAlgo
                          src/GenReader.cpp 
                          src/StdHepRdr.cpp 
                          src/GenPrinter.cpp
-                         # src/LCAscHepRdr.cc
-                         # src/HepevtRdr.cpp
+                         src/LCAscHepRdr.cc
+                         src/HepevtRdr.cpp
                          src/SLCIORdr.cpp
                          src/HepMCRdr.cpp
                          src/GtGunTool.cpp
                          # ------- Beam Background -------
                          src/GtBeamBackgroundTool.cpp
                          src/BeamBackgroundFileParserV0.cpp
+                         src/GuineaPigPairsFileParser.cpp
                  LINK ${ROOT_LIBRARIES}
                       k4FWCore::k4FWCore 
                       Gaudi::GaudiAlgLib

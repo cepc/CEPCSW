@@ -44,6 +44,9 @@ GeomSvc::initialize() {
 StatusCode
 GeomSvc::finalize() {
   StatusCode sc;
+
+  dd4hep::Detector::destroyInstance();
+
   return sc;
 }
 

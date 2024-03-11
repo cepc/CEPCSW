@@ -16,7 +16,10 @@
   </includes>
 
   <define>
-    <constant name="world_size" value="2990*mm"/>
+    <constant name="tracker_region_rmax" value="1723*mm" />
+    <constant name="tracker_region_zmax" value="3050*mm" />
+    <constant name="world_size" value="2226*mm"/>
+
     <constant name="world_x" value="world_size"/>
     <constant name="world_y" value="world_size"/>
     <constant name="world_z" value="world_size"/>

@@ -148,6 +148,7 @@ class GenfitTrack {
             std::vector<double>& truthRes);
 
     ///A tool to convert track to the first layer of DC
+  
     void pivotToFirstLayer(const edm4hep::Vector3d& pos,
             const edm4hep::Vector3f& mom, edm4hep::Vector3d& firstPos,
             edm4hep::Vector3f& firstMom);

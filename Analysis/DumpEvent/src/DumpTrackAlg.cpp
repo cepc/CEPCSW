@@ -1,5 +1,15 @@
 #include "DumpTrackAlg.h"
 
+#if __has_include("edm4hep/EDM4hepVersion.h")
+#include "edm4hep/EDM4hepVersion.h"
+#else
+// Copy the necessary parts from  the header above to make whatever we need to work here
+#define EDM4HEP_VERSION(major, minor, patch) ((UINT64_C(major) << 32) | (UINT64_C(minor) << 16) | (UINT64_C(patch)))
+// v00-09 is the last version without the capitalization change of the track vector members
+#define EDM4HEP_BUILD_VERSION EDM4HEP_VERSION(0, 9, 0)
+#endif
+
+
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/IHistogramSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -119,6 +129,15 @@ StatusCode DumpTrackAlg::execute(){
 	//  std::cout << track.getSubDetectorHitNumbers(ii) << " ";
 	//}
 	//std::cout << std::endl;
+#if EDM4HEP_BUILD_VERSION > EDM4HEP_VERSION(0, 9, 0)
+	if(track.subdetectorHitNumbers_size()>=5){
+	  m_nHitsVXD[m_nTracks] = track.getSubdetectorHitNumbers(0);
+	  m_nHitsFTD[m_nTracks] = track.getSubdetectorHitNumbers(1);
+	  m_nHitsSIT[m_nTracks] = track.getSubdetectorHitNumbers(2);
+	  m_nHitsGAS[m_nTracks] = track.getSubdetectorHitNumbers(3);
+	  m_nHitsSET[m_nTracks] = track.getSubdetectorHitNumbers(4);
+	}
+#else
 	if(track.subDetectorHitNumbers_size()>=5){
 	  m_nHitsVXD[m_nTracks] = track.getSubDetectorHitNumbers(0);
 	  m_nHitsFTD[m_nTracks] = track.getSubDetectorHitNumbers(1);
@@ -126,6 +145,7 @@ StatusCode DumpTrackAlg::execute(){
 	  m_nHitsGAS[m_nTracks] = track.getSubDetectorHitNumbers(3);
 	  m_nHitsSET[m_nTracks] = track.getSubDetectorHitNumbers(4);
 	}
+#endif
 	else{
 	  m_nHitsVXD[m_nTracks] = 0;
           m_nHitsSIT[m_nTracks] = 0;

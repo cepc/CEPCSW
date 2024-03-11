@@ -1,5 +1,6 @@
 gaudi_add_module(DumpEvent
                  SOURCES src/DumpMCParticleAlg.cpp
+                         src/DumpSimHitAlg.cpp
 		         #src/DumpHitAlg.cpp
 			 src/DumpTrackAlg.cpp
 			 #src/DumpCalorimeterAlg.cpp
@@ -10,6 +11,7 @@ gaudi_add_module(DumpEvent
                       ${CLHEP_LIBRARIES}
 		      ${DD4hep_COMPONENT_LIBRARIES}
                       DetInterface
+                      k4FWCore::k4FWCore
 )
 
 install(TARGETS DumpEvent

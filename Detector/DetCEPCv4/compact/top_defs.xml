@@ -14,7 +14,7 @@
   <constant name="Field_outer_thickness" value="2550*mm"/>
 
   <!-- VXD -->
-  <constant name="top_VXD_inner_radius"   value="15*mm "/>
+  <constant name="top_VXD_inner_radius"   value="15.5*mm "/>
   <constant name="top_VXD_outer_radius"   value="101*mm "/>
   <constant name="top_VXD_half_length"    value="200*mm "/>
 

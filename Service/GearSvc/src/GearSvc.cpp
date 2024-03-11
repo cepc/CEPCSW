@@ -135,7 +135,7 @@ StatusCode GearSvc::initialize()
     m_gearMgr->setYokeBarrelParameters(barrelYokeParam) ;
     m_gearMgr->setYokeEndcapParameters(endcapYokeParam) ;
     m_gearMgr->setYokePlugParameters(plugYokeParam) ;
-    gear::TiXmlDocument* doc = new gear::TiXmlDocument ;
+
     gear::GearXML::createXMLFile(m_gearMgr, "test.xml");
   }
   
