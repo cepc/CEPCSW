@@ -240,6 +240,8 @@ static dd4hep::Ref_t create_detector(dd4hep::Detector& theDetector,
         }//end of loop over cell
         dd4hep::Transform3D transform_layer(dd4hep::Rotation3D(),
                 dd4hep::Position(0,0,0));
+        dd4hep::PlacedVolume layer_phy = det_chamber_vol.placeVolume(layer_vol,transform_layer);
+        layer_phy.addPhysVolID("layer", layer_id);
     }//end of loop over layers
 
 

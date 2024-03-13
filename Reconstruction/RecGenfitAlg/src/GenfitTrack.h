@@ -164,10 +164,6 @@ class GenfitTrack {
     /// Output: pos and mom of POCA point to point
     /// Input: genfitTrack,point,repID,stopAtBoundary and calcAverageState
     /// repID same with pidType
-//    double extrapolateToPoint(TVector3& pos, TVector3& mom,TMatrixDSym& cov,
-//            const TVector3& point, int repID=0, bool stopAtBoundary = false,
-//            bool calcJacobianNoise = true) const;
-
     double extrapolateToPoint(TVector3& pos, TVector3& mom, TMatrixDSym& cov,
             const TVector3& point, int repID=0,
             bool stopAtBoundary = false, bool calcJacobianNoise = true) const;
