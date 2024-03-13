@@ -43,12 +43,12 @@ namespace dd4hep {
 namespace edm4hep{
     class EventHeaderCollection;
     class MCParticleCollection;
+    class MutableReconstructedParticle;
     class SimTrackerHitCollection;
     class TrackCollection;
     class TrackerHitCollection;
     class MCRecoTrackerAssociationCollection;
     class ReconstructedParticle;
-    class MutableReconstructedParticle;
     class ReconstructedParticleCollection;
     class MutableReconstructedParticleCollection;
     class TrackerHit;
@@ -126,6 +126,10 @@ class RecGenfitAlgSDT:public GaudiAlgorithm {
         //Noise
         DataHandle<edm4hep::MCRecoTrackerAssociationCollection> r_NoiseAssociationCol{
             "NoiseDCHitAssociationCollection", Gaudi::DataHandle::Reader, this};
+
+        //Track Finding
+        DataHandle<edm4hep::TrackerHitCollection> m_DCTrackFindingCol{
+            "DCTrackFindingHitCollection",Gaudi::DataHandle::Reader, this};
 
         //Output hits and particles
         DataHandle<edm4hep::ReconstructedParticleCollection> m_SDTRecParticleCol{
@@ -295,6 +299,7 @@ class RecGenfitAlgSDT:public GaudiAlgorithm {
         NTuple::Matrix<int> m_isFitted;
         NTuple::Matrix<int> m_fittedState;
         NTuple::Item<int> m_nDCDigi;
+        NTuple::Item<int> m_nTruthDCDigi;
         NTuple::Item<int> m_nHitMc;
         NTuple::Item<int> m_nSdtTrack;
         NTuple::Item<int> m_nSdtTrackHit;
@@ -365,8 +370,10 @@ class RecGenfitAlgSDT:public GaudiAlgorithm {
         NTuple::Array<double> m_hitMomEdep;
         NTuple::Array<float> m_truthMomEdep;
         NTuple::Array<float> m_FittedDoca;
+        NTuple::Array<float> m_truthDoca;
         NTuple::Array<float> m_driftDis;
         NTuple::Array<float> m_Res;
+        NTuple::Array<float> m_truthRes;
 
 };
 #endif

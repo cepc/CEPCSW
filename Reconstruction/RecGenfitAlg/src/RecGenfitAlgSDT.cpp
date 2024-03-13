@@ -91,6 +91,9 @@ DECLARE_COMPONENT( RecGenfitAlgSDT )
     declareProperty("SmearDCHitAssociationCollection", r_SmearAssociationCol,
             "Handle of output smear simulationhit and TrackerHit collection");
 
+    declareProperty("DCTrackFindingHitCollection", m_DCTrackFindingCol,
+            "Handle of output TrackFinding TrackerHit collection");
+
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -99,14 +102,6 @@ StatusCode RecGenfitAlgSDT::initialize()
 {
     MsgStream log(msgSvc(), name());
     info()<<" RecGenfitAlgSDT initialize()"<<endmsg;
-
-//    time_t timep;
-//    time(&timep);
-//    std::cout << "Myliu say: the time is "
-//              << ctime(&timep)
-//              << "at the begin of RecGenfitAlgSDT::initialize()"
-//              << std::endl;
-//    system("/scratchfs/bes/myliu/script/memory_rec.sh");
 
     m_eventNo=0;
 
@@ -130,8 +125,7 @@ StatusCode RecGenfitAlgSDT::initialize()
             m_skipWireMaterial);
     m_genfitFitter->setEnergyLossBrems(m_correctBremsstrahlung);
     m_genfitFitter->setNoiseBrems(m_correctBremsstrahlung);
-    //m_genfitFitter->setMultipleMeasurementHandling(
-            //genfit::eMultipleMeasurementHandling(m_multipleMeasurementHandling.value()));
+    //genfit::eMultipleMeasurementHandling(m_multipleMeasurementHandling.value()));
     if(m_debug>10) m_genfitFitter->setDebug(m_debug-10);
     if(m_noMaterialEffects) m_genfitFitter->setNoEffects(true);
     if(-1==m_debugPid) m_genfitFitter->setNoEffects(true);
@@ -233,7 +227,7 @@ StatusCode RecGenfitAlgSDT::initialize()
             sc=m_tuple->addItem("PocaMomZ",m_mcIndex,m_PocaMomZ);
 
             sc=m_tuple->addItem("PocaErrCov",m_mcIndex,m_PocaErrCov,6);
-            
+
             sc=m_tuple->addItem("ErrorcovMatrix",m_mcIndex,m_ErrorcovMatrix,15);
             sc=m_tuple->addItem("D0",m_mcIndex,m_D0);
             sc=m_tuple->addItem("phi",m_mcIndex,m_phi);
@@ -269,6 +263,7 @@ StatusCode RecGenfitAlgSDT::initialize()
             sc=m_tuple->addItem("nHitFailedKal",m_mcIndex,m_nHitFailedKal,5);
             sc=m_tuple->addItem("nHitFitted",m_mcIndex,m_nHitFitted,5);
             sc=m_tuple->addItem("nDCDigi",m_nDCDigi,0,50000);
+            sc=m_tuple->addItem("nTruthDCDigi",m_nTruthDCDigi,0,50000);
             sc=m_tuple->addItem("nHitKalInput",m_nHitKalInput,0,300000);
             //10 is greater than # of tracking detectors
             sc=m_tuple->addItem("hitDetID",10,m_nHitDetType);
@@ -329,7 +324,9 @@ StatusCode RecGenfitAlgSDT::initialize()
             sc=m_tuple->addItem("truthMomedep",m_nTrackerHitDC,m_truthMomEdep);
             sc=m_tuple->addItem("driftDis",m_nTrackerHitDC,m_driftDis);
             sc=m_tuple->addItem("FittedDoca",m_nTrackerHitDC,m_FittedDoca);
+            sc=m_tuple->addItem("truthDoca",m_nTrackerHitDC,m_truthDoca);
             sc=m_tuple->addItem("Res",m_nTrackerHitDC,m_Res);
+            sc=m_tuple->addItem("truthRes",m_nTrackerHitDC,m_truthRes);
             sc=m_tuple->addItem("nTrackerHitSDT",m_nTrackerHitSDT);
             sc=m_tuple->addItem("nGenFitTrackerHit",m_nGenFitTrackerHit);
             debug()<< "Book tuple RecGenfitAlgSDT/recGenfitAlgSDT" << endmsg;
@@ -340,12 +337,6 @@ StatusCode RecGenfitAlgSDT::initialize()
 
     //init genfit event display
     if(m_showDisplay) m_genfitDisplay = genfit::EventDisplay::getInstance();
-//    time(&timep);
-//    std::cout << "Myliu say: the time is "
-//              << ctime(&timep)
-//              << "at the end of RecGenfitAlgSDT::initialize()"
-//              << std::endl;
-//    system("/scratchfs/bes/myliu/script/memory_rec.sh");
 
     return StatusCode::SUCCESS;
 }
@@ -355,13 +346,6 @@ StatusCode RecGenfitAlgSDT::initialize()
 StatusCode RecGenfitAlgSDT::execute()
 {
     info()<<"RecGenfitAlgSDT in execute()"<<endmsg;
-//    time_t timep;
-//    time(&timep);
-//    std::cout << "Myliu say: the time is "
-//              << ctime(&timep)
-//              << "at the begin of RecGenfitAlgSDT::execute()"
-//              << std::endl;
-//    system("/scratchfs/bes/myliu/script/memory_rec.sh");
 
     edm4hep::ReconstructedParticleCollection* sdtRecParticleCol=
         m_SDTRecParticleCol.createAndPut();
@@ -427,7 +411,9 @@ StatusCode RecGenfitAlgSDT::execute()
     std::vector<float> truthMomEdep;
     std::vector<double> driftDis;
     std::vector<double> FittedDoca;
+    std::vector<double> truthDoca;
     std::vector<double> Res;
+    std::vector<double> truthRes;
     for(auto sdtTrack: *sdtTrackCol)
     {
         if(sdtTrack.trackerHits_size()<1e-9) continue;
@@ -538,7 +524,7 @@ StatusCode RecGenfitAlgSDT::execute()
                         pocaToOrigin_pos,pocaToOrigin_mom,pocaToOrigin_cov,
                         pidType,m_ndfCut,m_chi2Cut,nFittedDC,nFittedSDT,
                         ngenfitHit,trackL,hitMom,truthMomEdep,assoDCHitsCol,
-                        driftDis,FittedDoca,Res)){
+                        driftDis,FittedDoca,truthDoca,Res,truthRes)){
                 debug()<<"Fitting failed!"<<std::endl;
             }else{
                 ++m_fitSuccess[pidType];
@@ -570,7 +556,9 @@ StatusCode RecGenfitAlgSDT::execute()
         for(int i=0;i<truthMomEdep.size();i++) m_truthMomEdep[i] = truthMomEdep[i];
         for(int i=0;i<driftDis.size();i++) m_driftDis[i] = driftDis[i];
         for(int i=0;i<FittedDoca.size();i++) m_FittedDoca[i] = FittedDoca[i];
+        for(int i=0;i<truthDoca.size();i++) m_truthDoca[i] = truthDoca[i];
         for(int i=0;i<Res.size();i++) m_Res[i] = Res[i];
+        for(int i=0;i<truthRes.size();i++) m_truthRes[i] = truthRes[i];
         auto finish = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = finish - start;
         debug() << "Elapsed time: " << elapsed.count() << " s"<<endmsg;
@@ -842,8 +830,8 @@ void RecGenfitAlgSDT::debugEvent(const edm4hep::TrackCollection* sdtTrackCol,
 
             double mcPos[3]={(mcPocaPos.x),(mcPocaPos.y),(mcPocaPos.z)};
             double mcMom[3]={(mcPocaMom.x),(mcPocaMom.y),(mcPocaMom.z)};
-            //for(int i=0;i<3;i++){debug()<<"mcPos "<<mcPos[i]<<endmsg;}
-            //for(int i=0;i<3;i++){debug()<<"mcMom "<<mcMom[i]<<endmsg;}
+            for(int i=0;i<3;i++){debug()<<"mcPos "<<mcPos[i]<<endmsg;}
+            for(int i=0;i<3;i++){debug()<<"mcMom "<<mcMom[i]<<endmsg;}
             float mcCharge = mcParticle.getCharge();
             helix_mcP.Initialize_VP(mcPos,mcMom,mcCharge,
                     m_genfitField->getBz(mcPos)/GenfitUnit::tesla);
