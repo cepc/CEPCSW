@@ -38,8 +38,8 @@ bool BeamBackgroundFileParserV0::load(IBeamBackgroundFileParser::BeamBackgroundD
         ss >> loss_turn;        if (ss.fail()) { continue; }
         ss >> z;                if (ss.fail()) { continue; }
         ss >> x;                if (ss.fail()) { continue; }
-        ss >> y;                if (ss.fail()) { continue; }
         ss >> cosx;             if (ss.fail()) { continue; }
+        ss >> y;                if (ss.fail()) { continue; }
         ss >> cosy;             if (ss.fail()) { continue; }
         ss >> dz;               if (ss.fail()) { continue; }
         ss >> dp;               if (ss.fail()) { continue; }
