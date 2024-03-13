@@ -20,8 +20,12 @@ function error:() {
 }
 
 function check-cepcsw-envvar() {
-    # source /cvmfs/sw.hsf.org/key4hep/setup.sh
-    source /cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh
+    if [ "${k4_version}" = "nightlies" ]; then
+        source /cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh
+    else
+        source /cvmfs/sw.hsf.org/key4hep/setup.sh -r ${k4_version}
+    fi
+
     # fix the order of compiler
     local ccdir=$(dirname $CC)
     export PATH=$ccdir:$PATH
@@ -113,8 +117,8 @@ function run-install() {
 ##############################################################################
 
 # The current default platform
-k4_platform=x86_64-linux-gcc11-opt
-k4_version=master
+k4_platform=${K4_PLATFORM:-x86_64-linux-gcc11-opt}
+k4_version=${K4_VERSION:-2024-03-10} # or nightlies
 bldtool=${CEPCSW_BLDTOOL} # make, ninja # set in env var
 
 check-cepcsw-envvar || exit -1
