@@ -47,6 +47,8 @@ build:lcg:el7:
   extends: .build_template
   variables:
     LCG_RELEASE: LCG
+  tags:
+    - centos7
 
 ##############################################################################
 # Build CentOS 7 (KEY4HEP)
@@ -55,4 +57,6 @@ build:k4:el7:
   extends: .build_template
   variables:
     LCG_RELEASE: KEY4HEP_STACK
+  tags:
+    - centos7
 
