@@ -1,3 +1,12 @@
+//====================================================================
+//  Detector description implementation of the Drift Chamber
+//--------------------------------------------------------------------
+//
+//  Author: Tao Lin
+//          Mengyao Liu
+//
+//====================================================================
+
 #include "DD4hep/DetFactoryHelper.h"
 #include "DD4hep/Printout.h"
 #include "XML/Layering.h"

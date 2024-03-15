@@ -54,10 +54,13 @@ protected:
   NTuple::Array<int  > m_chamber   ;
   NTuple::Array<int  > m_layer     ;
   NTuple::Array<int  > m_cell      ;
+  //The position of wire at -z
   NTuple::Array<float> m_cell_x    ;
   NTuple::Array<float> m_cell_y    ;
+  //The position of wire at +z
   NTuple::Array<float> m_cell1_x   ;
   NTuple::Array<float> m_cell1_y   ;
+
   NTuple::Array<float> m_simhit_x  ;
   NTuple::Array<float> m_simhit_y  ;
   NTuple::Array<float> m_simhit_z  ;
