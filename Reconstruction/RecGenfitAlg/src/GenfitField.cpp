@@ -1,4 +1,5 @@
 #include "GenfitField.h"
+#include "GenfitUnit.h"
 
 //External
 #include "DD4hep/DD4hepUnits.h"
@@ -39,16 +40,21 @@ GenfitField::get(const double& posX, const double& posY, const double& posZ,
 {
     /// get field from dd4hepField
     const dd4hep::Direction& field=m_dd4hepField.magneticField(
-            dd4hep::Position(posX/dd4hep::cm,posY/dd4hep::cm,posZ/dd4hep::cm));
-    //m_dd4hepField.magneticField(pos,B);
+            dd4hep::Position(
+              posX/GenfitUnit::cm*dd4hep::cm,
+              posY/GenfitUnit::cm*dd4hep::cm,
+              posZ/GenfitUnit::cm*dd4hep::cm));
 
-    Bx=field.X()/dd4hep::kilogauss;
-    By=field.Y()/dd4hep::kilogauss;
-    Bz=field.Z()/dd4hep::kilogauss;
+    Bx=field.X()/dd4hep::kilogauss*GenfitUnit::kilogauss;
+    By=field.Y()/dd4hep::kilogauss*GenfitUnit::kilogauss;
+    Bz=field.Z()/dd4hep::kilogauss*GenfitUnit::kilogauss;
 
-//    std::cout<<"GenfitField "
-//      <<Form("xyz(%f,%f,%f)cm B(%f,%f,%f)kilogauss",posX,posY,posZ,Bx,By,Bz)
-//      <<std::endl;
+    //std::cout<<"GenfitField "
+    //  <<Form("xyz(%f,%f,%f)cm B(%f,%f,%f)kilogauss",
+    //      posX/GenfitUnit::cm*dd4hep::cm,
+    //      posY/GenfitUnit::cm*dd4hep::cm,
+    //      posZ/GenfitUnit::cm*dd4hep::cm,Bx,By,Bz)
+    //  <<std::endl;
 }
 
 double GenfitField::getBz(const TVector3& pos) const

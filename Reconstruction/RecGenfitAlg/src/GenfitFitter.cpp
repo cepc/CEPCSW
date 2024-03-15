@@ -1,7 +1,14 @@
+
+#undef GENFIT_MY_DEBUG
+//#define GENFIT_MY_DEBUG 1
 #include "GenfitFitter.h"
 #include "GenfitTrack.h"
 #include "GenfitField.h"
 #include "GenfitMaterialInterface.h"
+
+#ifdef GENFIT_MY_DEBUG
+#include "GenfitHist.h"
+#endif
 
 //Gaudi
 #include "GaudiKernel/StatusCode.h"
@@ -33,13 +40,15 @@
 //STL
 #include <iostream>
 #include <string>
+#include <string.h>
 
+//#define GENFIT_MY_DEBUG 1
 
 GenfitFitter::~GenfitFitter(){
     delete m_absKalman;
 }
 
-GenfitFitter::GenfitFitter(const char* type, const char* name):
+GenfitFitter::GenfitFitter(const char* type,int debug,const char* name):
     m_absKalman(nullptr)
     ,m_genfitField(nullptr)
     ,m_geoMaterial(nullptr)
@@ -49,7 +58,7 @@ GenfitFitter::GenfitFitter(const char* type, const char* name):
     ,m_maxIterations(10)
     ,m_deltaPval(1e-3)
     ,m_relChi2Change(0.2)
-    ,m_blowUpFactor(1e3)
+    ,m_blowUpFactor(500)
     ,m_resetOffDiagonals(true)
     ,m_blowUpMaxVal(1.e6)
     ,m_multipleMeasurementHandling(genfit::unweightedClosestToPredictionWire)
@@ -66,9 +75,10 @@ GenfitFitter::GenfitFitter(const char* type, const char* name):
     ,m_noiseBrems(false)
     ,m_ignoreBoundariesBetweenEqualMaterials(true)
     ,m_mscModelName("GEANE")
-    ,m_debug(0)
+    //,m_debug(0)
     ,m_hist(0)
 {
+    m_debug=debug;
     /// Initialize genfit fitter
     init();
 }
@@ -78,15 +88,20 @@ void GenfitFitter::setField(const GenfitField* field)
     if(nullptr==m_genfitField) m_genfitField=field;
 }
 
+
 /// Set geometry for material, use geometry from IOADatabase
-void GenfitFitter::setGeoMaterial(const dd4hep::Detector* dd4hepGeo)
+void GenfitFitter::setGeoMaterial(const dd4hep::Detector* dd4hepGeo,
+        double extDistCut, bool skipWireMaterial)
 {
     if(nullptr==m_geoMaterial){
         m_geoMaterial=GenfitMaterialInterface::getInstance(dd4hepGeo);
     }
+    m_geoMaterial->setMinSafetyDistanceCut(extDistCut);
+    m_geoMaterial->setSkipWireMaterial(skipWireMaterial);
+    m_geoMaterial->setDebugLvl(m_debug);
 }
 
-/// initialize genfit fitter
+/// initialize genfit fitter, old fitter will be deleted
 int GenfitFitter::init(bool deleteOldFitter)
 {
     if(deleteOldFitter && m_absKalman) delete m_absKalman;
@@ -95,17 +110,21 @@ int GenfitFitter::init(bool deleteOldFitter)
         <<m_fitterType<<std::endl;
 
     if (m_fitterType=="DAFRef") {
+        if(m_debug>=2)std::cout<<" m_fitterType==DAFRef "<<std::endl;
         m_absKalman = new genfit::DAF(true,getDeltaPval(),
                 getConvergenceDeltaWeight());
     }
     else if (m_fitterType=="DAF") {
+        if(m_debug>=2)std::cout<<" m_fitterType==DAF"<<std::endl;
         m_absKalman = new genfit::DAF(false,getDeltaPval(),
                 getConvergenceDeltaWeight());
     }
     else if (m_fitterType=="KalmanFitter") {
+        if(m_debug>=2)std::cout<<" m_fitterType==KalmanFitter"<<std::endl;
         m_absKalman = new genfit::KalmanFitter(getMaxIterations());
     }
     else if (m_fitterType=="KalmanFitterRefTrack") {
+        if(m_debug>=2)std::cout<<" m_fitterType==KalmanFitterRefTrack"<<std::endl;
         m_absKalman = new genfit::KalmanFitterRefTrack(getMaxIterations());
     }
     else {
@@ -116,6 +135,9 @@ int GenfitFitter::init(bool deleteOldFitter)
     }
     if(m_debug>=2)std::cout<<"Fitter type is "<<m_fitterType<<std::endl;
     m_absKalman->setDebugLvl(m_debug);
+#ifdef GENFIT_MY_DEBUG
+    //m_absKalman->setDebugLvlLocal(m_debugLocal);
+#endif
 
     return 0;
 }
@@ -125,6 +147,10 @@ int GenfitFitter::processTrackWithRep(GenfitTrack* track,int repID,bool resort)
 {
     if(m_debug>=2)std::cout<< "In ProcessTrackWithRep rep "<<repID<<std::endl;
     if(getDebug()>2) print("");
+    if(track->getNumPoints()<=0){
+        if(m_debug>=2)std::cout<<"skip track w.o. hit"<<std::endl;
+        return false;
+    }
 
     if(getDebug()>0){
         if(m_debug>=2)std::cout<<"Print track seed "<<std::endl;
@@ -147,6 +173,10 @@ int GenfitFitter::processTrackWithRep(GenfitTrack* track,int repID,bool resort)
 int GenfitFitter::processTrack(GenfitTrack* track, bool resort)
 {
     if(m_debug>=2)std::cout<<"In ProcessTrack"<<std::endl;
+    if(track->getNumPoints()<=0){
+        if(m_debug>=2)std::cout<<"skip track w.o. hit"<<std::endl;
+        return false;
+    }
     if(getDebug()>2) print("");
 
     /// Do the fitting
@@ -169,142 +199,6 @@ void GenfitFitter::setFitterType(const char* val)
     if(m_debug>=2)std::cout<<"Fitter type is "<<m_fitterType<<std::endl;
     init(oldFitterType==val);
 }
-
-/// Extrapolate track to the cloest point of approach(POCA) to the wire of hit,
-/// return StateOnPlane of this POCA
-/// inputs
-///  pos,mom ... position & momentum at starting point, unit= [mm]&[GeV/c]
-///              (converted to [cm]&[GeV/c] inside this function)
-///  hit ... destination
-/// outputs poca [mm] (converted from [cm] in this function) ,global
-double GenfitFitter::extrapolateToHit( TVector3& poca, TVector3& pocaDir,
-        TVector3& pocaOnWire, double& doca, const GenfitTrack* track,
-        TVector3 pos, TVector3 mom,
-        TVector3 end0,//one end of the hit wire
-        TVector3 end1,//the orhter end of the hit wire
-        int debug,
-        int repID,
-        bool stopAtBoundary,
-        bool calcJacobianNoise)
-{
-
-    return track->extrapolateToHit(poca,pocaDir,pocaOnWire,doca,pos,mom,end0,
-            end1,debug,repID,stopAtBoundary,calcJacobianNoise);
-}//end of ExtrapolateToHit
-
-
-/// Extrapolate the track to the cyliner at fixed raidus
-/// position & momentum as starting point
-/// position and momentum at global coordinate in dd4hepUnit
-/// return trackLength in dd4hepUnit
-    double
-GenfitFitter::extrapolateToCylinder(TVector3& pos, TVector3& mom,
-        GenfitTrack* track, double radius, const TVector3 linePoint,
-        const TVector3 lineDirection, int hitID, int repID,
-        bool stopAtBoundary, bool calcJacobianNoise)
-{
-    double trackLength(1e9*dd4hep::cm);
-    if(!track->getFitStatus(repID)->isFitted()) return trackLength;
-    try{
-        // get track rep
-        genfit::AbsTrackRep* rep = track->getRep(repID);
-        if(nullptr == rep) {
-            if(m_debug>=2)std::cout<<"In ExtrapolateToCylinder rep is null"
-                <<std::endl;
-            return trackLength*dd4hep::cm;
-        }
-
-        // get track point with fitter info
-        genfit::TrackPoint* tp =
-            track->getTrack()->getPointWithFitterInfo(hitID,rep);
-        if(nullptr == tp) {
-            if(m_debug>=2)std::cout<<
-                "In ExtrapolateToCylinder TrackPoint is null"<<std::endl;
-            return trackLength*dd4hep::cm;
-        }
-
-        // get fitted state on plane of this track point
-        genfit::KalmanFittedStateOnPlane* state =
-            static_cast<genfit::KalmanFitterInfo*>(
-                    tp->getFitterInfo(rep))->getBackwardUpdate();
-
-        if(nullptr == state){
-            if(m_debug>=2)std::cout<<"In ExtrapolateToCylinder "
-                <<"no KalmanFittedStateOnPlane in backwardUpdate"<<std::endl;
-            return trackLength*dd4hep::cm;
-        }
-        rep->setPosMom(*state, pos*(1/dd4hep::cm), mom*(1/dd4hep::GeV));
-
-        /// extrapolate
-        trackLength = rep->extrapolateToCylinder(*state,
-                radius/dd4hep::cm, linePoint*(1/dd4hep::cm), lineDirection,
-                stopAtBoundary, calcJacobianNoise);
-        // get pos&mom at extrapolated point on the cylinder
-        rep->getPosMom(*state,pos,mom);//FIXME exception exist
-        pos = pos*dd4hep::cm;
-        mom = mom*dd4hep::GeV;
-    } catch(genfit::Exception& e){
-        if(m_debug>=3)std::cout
-            <<"Exception in GenfitFitter::extrapolateToCylinder "
-            << e.what()<<std::endl;
-        trackLength = 1e9*dd4hep::cm;
-    }
-    return trackLength*dd4hep::cm;
-}
-
-double GenfitFitter::extrapolateToPoint(TVector3& pos, TVector3& mom,
-        const GenfitTrack* track,
-        const TVector3& point,
-        int repID,// same with pidType
-        bool stopAtBoundary,
-        bool calcJacobianNoise) const
-{
-    double trackLength(1e9*dd4hep::cm);
-    if(!track->getFitStatus(repID)->isFitted()) return trackLength;
-    try{
-        // get track rep
-        genfit::AbsTrackRep* rep = track->getRep(repID);
-        if(nullptr == rep) {
-            if(m_debug>=2)std::cout<<"In ExtrapolateToPoint rep "
-                <<repID<<" not exist!"<<std::endl;
-            return trackLength*dd4hep::cm;
-        }
-
-        /// extrapolate to point
-        //genfit::StateOnPlane state(*(&(track->getTrack()->getFittedState(0,rep))));
-
-        // get track point with fitter info
-        genfit::TrackPoint* tp =
-            track->getTrack()->getPointWithFitterInfo(0,rep);
-        if(nullptr == tp) {
-            if(m_debug>=2)std::cout<<
-                "In ExtrapolateToPoint TrackPoint is null"<<std::endl;
-            return trackLength*dd4hep::cm;
-        }
-
-        // get fitted state on plane of this track point
-        genfit::KalmanFittedStateOnPlane* state =
-            static_cast<genfit::KalmanFitterInfo*>(
-                    tp->getFitterInfo(rep))->getBackwardUpdate();
-
-        if(nullptr == state) {
-            if(m_debug>=2)std::cout<<
-                "In ExtrapolateToPoint KalmanFittedStateOnPlane is null"<<std::endl;
-            return trackLength*dd4hep::cm;
-        }
-        trackLength = rep->extrapolateToPoint(*state,
-                point*(1/dd4hep::cm),stopAtBoundary, calcJacobianNoise);
-        rep->getPosMom(*state,pos,mom);//FIXME exception exist
-        pos = pos*dd4hep::cm;
-        mom = mom*dd4hep::GeV;
-    } catch(genfit::Exception& e){
-        if(m_debug>=3)std::cout
-            <<"Exception in GenfitFitter::extrapolateToPoint"
-            << e.what()<<std::endl;
-        trackLength = 1e9*dd4hep::cm;
-    }
-    return trackLength*dd4hep::cm;
-}//end of ExtrapolateToPoint
 
 GenfitFitter& GenfitFitter::operator=(
         const GenfitFitter& r)
@@ -370,7 +264,7 @@ void GenfitFitter::print(const char* name)
         <<" m_noiseBrems          = " << m_noiseBrems<<std::endl;
     if(m_debug>=2)std::cout<<name
         <<" m_ignoreBoundariesBetweenEqualMaterials= "
-        << m_ignoreBoundariesBetweenEqualMaterials<<std::endl;
+            << m_ignoreBoundariesBetweenEqualMaterials<<std::endl;
     if(m_debug>=2)std::cout<<name
         <<" m_mscModelName        = " << m_mscModelName<<std::endl;
     if(m_debug>=2)std::cout<<name
@@ -458,18 +352,27 @@ void GenfitFitter::setBlowUpFactor(double val)
 {
     m_absKalman->setBlowUpFactor(val);
     m_blowUpFactor = val;
+    if (m_fitterType=="DAFRef" || m_fitterType=="DAF") {
+        getDAF()->getKalman()->setBlowUpFactor(m_blowUpFactor);
+    }
 }
 
 void GenfitFitter::setResetOffDiagonals(bool val)
 {
     m_absKalman->setResetOffDiagonals(val);
     m_resetOffDiagonals = val;
+    if (m_fitterType=="DAFRef" || m_fitterType=="DAF") {
+        getDAF()->getKalman()->setResetOffDiagonals(m_resetOffDiagonals);
+    }
 }
 
 void GenfitFitter::setBlowUpMaxVal(double val)
 {
     m_absKalman->setBlowUpMaxVal(val);
     m_blowUpMaxVal = val;
+    if (m_fitterType=="DAFRef" || m_fitterType=="DAF") {
+        getDAF()->getKalman()->setBlowUpMaxVal(m_blowUpMaxVal);
+    }
 }
 
 void GenfitFitter::setMultipleMeasurementHandling(
@@ -558,14 +461,31 @@ void GenfitFitter::setMaterialDebugLvl(unsigned int val)
     genfit::MaterialEffects::getInstance()->setDebugLvl(val);
 }
 
-///Set GenfitFitter parameters
 void GenfitFitter::setDebug(unsigned int val)
 {
-    if(m_debug>=2)std::cout<<"set fitter debugLvl "<<val<<std::endl;
-    m_absKalman->setDebugLvl(val);
-    if(nullptr!=getDAF()) getDAF()->setDebugLvl(val);
-    if(val>10) genfit::MaterialEffects::getInstance()->setDebugLvl(val);
     m_debug = val;
+}
+
+void GenfitFitter::setDebugGenfit(unsigned int val)
+{
+    //std::cout<<"set fitter debugGenfit "<<val<<std::endl;
+    m_debugGenfit=val;
+    m_absKalman->setDebugLvl(val);
+}
+
+void GenfitFitter::setDebugLocal(unsigned int val)
+{
+    //std::cout<<"set fitter debugLvlLocal "<<val<<std::endl;
+    m_debugLocal=val;
+#ifdef GENFIT_MY_DEBUG
+    ////std::cout<<" GenfitFitter::setDebugLvlLocal "<<val<<std::endl;
+    //m_absKalman->setDebugLvlLocal(val);
+    //if(0==strncmp(m_fitterType.c_str(),"DAF",3)){
+    //std::cout<<" GenfitFitter::setDebugLvlLocal DAF "<<val<<std::endl;
+    //    getDAF()->setDebugLvlLocal(val+1);
+    //}
+    //getDAF()->setDebugLvlLocal();
+#endif
 }
 
 void GenfitFitter::setHist(unsigned int val) {m_hist = val;}
@@ -591,21 +511,33 @@ genfit::KalmanFitterRefTrack* GenfitFitter::getKalRef()
     }catch(...){
         if(m_debug>=3)std::cout
             << "dynamic_cast m_rom AbsFitter to KalmanFitterRefTrack m_ailed!"
-            <<std::endl;
+                <<std::endl;
     }
     return ref;
 }
 
 void GenfitFitter::initHist(std::string name)
 {
-    if(m_debug>=2)std::cout<<"GenfitFitter::initHist "<<name<<std::endl;
-    //getDAF()->initHist(name);
+    if(m_debug)std::cout<<"GenfitFitter::initHist "<<name<<std::endl;
+#ifdef GENFIT_MY_DEBUG
+    genfit::GenfitHist::instance()->initHist(name);
+#endif
 }
 
 void GenfitFitter::writeHist()
 {
-    if(m_debug>=2)std::cout<<"GenfitFitter::writeHist "<<std::endl;
-    //getDAF()->writeHist();
+    if(m_debug)std::cout<<"GenfitFitter::writeHist "<<std::endl;
+#ifdef GENFIT_MY_DEBUG
+    if(genfit::GenfitHist::instance()->initialized()){
+        genfit::GenfitHist::instance()->writeHist();
+    }
+#endif
 }
 
+
+void GenfitFitter::SetRunEvent(int event){
+#ifdef GENFIT_MY_DEBUG
+    m_absKalman->SetRunEvent(event);
+#endif
+}
 

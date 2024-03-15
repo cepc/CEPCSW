@@ -69,6 +69,7 @@ function run-job() {
 lcg_platform=x86_64-centos7-gcc11-opt
 lcg_version=103.0.2
 
+
 bldtool=${CEPCSW_BLDTOOL} # make, ninja # set in env var
 
 check-cepcsw-envvar || exit -1

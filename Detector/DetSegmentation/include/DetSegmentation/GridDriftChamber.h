@@ -34,7 +34,6 @@ typedef struct CID
  {
    int chamberID;
    int layerID;
-//   CID(){}
    CID(int i, int j): chamberID(i),layerID(j){}
    // the operator < defines the operation used in map
    friend bool operator < (const CID &c1, const CID &c2);
@@ -60,23 +59,25 @@ public:
   virtual CellID cellID(const Vector3D& aLocalPosition, const Vector3D& aGlobalPosition,
                         const VolumeID& aVolumeID) const;
   virtual double distanceTrackWire(const CellID& cID, const TVector3& hit_start, const TVector3& hit_end) const;
+  virtual double distanceTrackWire2(const CellID& cID, const TVector3& hit_pos) const;
   virtual void cellposition(const CellID& cID, TVector3& Wstart, TVector3& Wend) const;
+  virtual void cellposition2(int chamber, int layer, int cell, TVector3& Wstart, TVector3& Wend) const;
   TVector3 LineLineIntersect(TVector3& p1, TVector3& p2, TVector3& p3, TVector3& p4) const;
-  virtual TVector3 distanceClosestApproach(const CellID& cID, const TVector3& hitPos) const;
+  virtual TVector3 distanceClosestApproach(const CellID& cID, const TVector3& hitPos, TVector3& PCA) const;
   virtual TVector3 Line_TrackWire(const CellID& cID, const TVector3& hit_start, const TVector3& hit_end) const;
   virtual TVector3 IntersectionTrackWire(const CellID& cID, const TVector3& hit_start, const TVector3& hit_end) const;
   virtual TVector3 wirePos_vs_z(const CellID& cID, const double& zpos) const;
+  virtual double Distance(const CellID& cID, const TVector3& pointIn, const TVector3& pointOut, TVector3& hitPosition, TVector3& PCA) const;
+  virtual TVector3 returnPhi0(int chamber,int layer, double z) const;
+
 
 //  double phi(const CellID& cID) const;
   inline double cell_Size() const { return m_cellSize; }
-  inline double epsilon0() const { return m_epsilon0; }
+  inline double epsilon() const { return m_epsilon; }
   inline double detectorLength() const { return m_detectorLength; }
-  inline double safe_distance() const { return m_safe_distance; }
   inline double layer_width() const { return m_layer_width; }
   inline double DC_rbegin() const { return m_DC_rbegin; }
   inline double DC_rend() const { return m_DC_rend; }
-  inline double DC_rmax() const { return m_DC_rmax; }
-  inline double DC_rmin() const { return m_DC_rmin; }
   inline const std::string& fieldNamePhi() const { return m_phiID; }
   inline const std::string& Layerid() const { return layer_id; }
 
@@ -88,7 +89,13 @@ public:
     return hit_phi;
   }
 
-  inline void setGeomParams(int chamberID, int layerID, double layerphi, double R, double eps, double offset) {
+ inline double phiFromXY2(const TVector3& aposition) const {
+    double hit_phi =  std::atan2(aposition.Y(), aposition.X()) ;
+    if( hit_phi < 0 ) { hit_phi += 2 * M_PI; }
+    return hit_phi;
+  }
+
+ inline void setGeomParams(int chamberID, int layerID, double layerphi, double R, double eps, double offset) {
 
     layer_params.insert(std::pair<vID,LAYER>(vID(chamberID,layerID),LAYER(layerphi,R,eps,offset)));
 
@@ -135,7 +142,18 @@ public:
     _currentRadius = Radius;
     m_epsilon = Eps;
     m_offset = Offset;
- }
+  }
+
+  inline Vector3D returnPosWire0(double z) const {
+    double alpha = returnAlpha();
+    double t = 0.5 * (1 - 2.0 * z / m_detectorLength);
+    double x = _currentRadius * (1 + t * (std::cos(alpha) - 1));
+    double y = _currentRadius * t * std::sin(alpha);
+
+    Vector3D vec(x, y, z);
+    return vec;
+  }
+
 
 protected:
 
@@ -152,19 +170,15 @@ protected:
   }
 
   inline double returnAlpha() const {
-    double alpha = 2 * std::asin(m_detectorLength * std::tan(m_epsilon0)/(2 * _currentRadius));
+    double alpha = 2 * std::asin(m_detectorLength * std::tan(m_epsilon)/(2 * _currentRadius));
     return alpha;
  }
 
   double m_cellSize;
-  double m_epsilon0;
   double m_detectorLength;
   double m_layer_width;
-  double m_safe_distance;
   double m_DC_rbegin;
   double m_DC_rend;
-  double m_DC_rmax;
-  double m_DC_rmin;
 
   std::string m_phiID;
   std::string layer_id;

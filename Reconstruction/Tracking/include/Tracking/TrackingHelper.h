@@ -62,5 +62,4 @@ inline int getLayer(const edm4hep::TrackerHit hit) {
     return layer;
 }
 
-
 #endif

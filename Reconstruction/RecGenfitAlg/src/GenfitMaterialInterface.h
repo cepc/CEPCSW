@@ -11,6 +11,7 @@
 #define RECGENFITALG_GENFITMATERIALINTERFACE_H
 
 #include "AbsMaterialInterface.h"
+//#include "MaterialProperties.h"
 
 class RKTrackRep;
 class TGeoManager;
@@ -33,6 +34,9 @@ class GenfitMaterialInterface : public genfit::AbsMaterialInterface{
         //Set Detector pointer of dd4hep
         void setDetector(dd4hep::Detector*);
 
+        //void getMaterialParameters(double& density,double& Z,double& A,
+        //        double& radiationLength, double& mEE) {return;}
+        //void getMaterialParameters(genfit::MaterialProperties& parameters) {return;}
         /** @brief Initialize the navigator at given position and with given
           direction.  Returns true if the volume changed.
           */
@@ -54,6 +58,11 @@ class GenfitMaterialInterface : public genfit::AbsMaterialInterface{
                 bool varField = true) override;
 
         // ClassDef(GenfitMaterialInterface, 1);
+        void setMinSafetyDistanceCut(double safeDistCut=1e-7)
+        {m_safeDistCut=safeDistCut;}
+        void setSkipWireMaterial(bool skipWireMateria)
+        {m_skipWireMaterial=skipWireMateria;}
+        virtual void setDebugLvl(unsigned int lvl = 1) {debugLvl_ = lvl;}
 
     private:
         static GenfitMaterialInterface* m_instance;
@@ -66,6 +75,8 @@ class GenfitMaterialInterface : public genfit::AbsMaterialInterface{
         bool isSameLocation(double posX, double posY, double posZ,
                 bool change=false);
         void setCurrentDirection(double nx, double ny, double nz);
+        double m_safeDistCut;
+        bool m_skipWireMaterial;
 
 };
 
