@@ -7,6 +7,8 @@
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/Rotation.h"
 #include <bitset>
+#include "TVector3.h"
+#include "DD4hep/DD4hepUnits.h"
 
 std::array<float,6> CEPC::GetCovMatrix(edm4hep::TrackerHit& hit, bool useSpacePointBuilderMethod){
   if(hit.isAvailable()){
@@ -114,4 +116,45 @@ std::array<float, 6> CEPC::ConvertToCovXYZ(float dU, float thetaU, float phiU, f
     cov[5] = cov_xyz[2][2];
   }
   return cov;
+}
+
+const edm4hep::SimTrackerHit CEPC::getAssoClosestSimTrackerHit(
+        const edm4hep::MCRecoTrackerAssociationCollection* assoHits,
+        const edm4hep::TrackerHit trackerHit,
+        const dd4hep::DDSegmentation::GridDriftChamber* segmentation,
+        int docaMehtod)
+{
+  std::vector<edm4hep::SimTrackerHit> hits;
+  for(auto assoHit: *assoHits){
+    if(assoHit.getRec()==trackerHit){
+      hits.push_back(assoHit.getSim());
+    }
+  }
+  edm4hep::SimTrackerHit minSimTrackerHit;
+  double min_distance = 999 ;
+  double tmp_distance =0.;
+  for(auto hit:hits){
+    unsigned long long wcellid=hit.getCellID();
+    TVector3  pos(hit.getPosition()[0]*dd4hep::mm, hit.getPosition()[1]*dd4hep::mm, hit.getPosition()[2]*dd4hep::mm);
+
+    TVector3 sim_mon(hit.getMomentum()[0],hit.getMomentum()[1],hit.getMomentum()[2]);
+    float Steplength = hit.getPathLength();
+    TVector3  pos_start=pos - 0.5 * Steplength * sim_mon.Unit();
+    TVector3  pos_end=pos + 0.5 * Steplength * sim_mon.Unit();
+    TVector3 hitPosition;
+    TVector3 PCA;
+    tmp_distance = segmentation->Distance(wcellid,pos_start,pos_end,hitPosition,PCA);
+    tmp_distance = tmp_distance/dd4hep::mm; //mm
+
+    if(tmp_distance < min_distance){
+      min_distance = tmp_distance;
+      //pos_x = hitPosition.x();     //pos.x();
+      //pos_y = hitPosition.y();     //pos.y();
+      //pos_z = pos.z();
+      //momx = hit.getMomentum()[0];
+      //momy = hit.getMomentum()[1];
+      minSimTrackerHit=hit;
+    }
+  }
+  return minSimTrackerHit;
 }

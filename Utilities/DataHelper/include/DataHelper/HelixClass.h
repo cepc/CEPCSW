@@ -69,6 +69,7 @@ class HelixClass {
  *     - particle charge : q;<br>
  *     - magnetic field (in Tesla) : B<br>
  */  
+    void Initialize_VP(double * pos, double * mom, double q, double B);
     void Initialize_VP(float * pos, float * mom, float q, float B);
 
 /**
@@ -266,35 +267,35 @@ class HelixClass {
     float getCharge();
 
  private:    
-    float _momentum[3]; // momentum @ ref point 
+    float  _momentum[3]; // momentum @ ref point 
     float _referencePoint[3]; // coordinates @ ref point
-    float _phi0; // phi0 in canonical parameterization 
-    float _d0;   // d0 in canonical parameterisation
-    float _z0;   // z0 in canonical parameterisation
-    float _omega; // signed curvuture in canonical parameterisation
-    float _tanLambda; // TanLambda 
-    float _pxy; // Transverse momentum
-    float _charge; // Particle Charge
-    float _bField; // Magnetic field (assumed to point to Z>0)
-    float _radius; // radius of circle in XY plane
-    float _xCentre; // X of circle centre
-    float _yCentre; // Y of circle centre
-    float _phiRefPoint; // Phi w.r.t. (X0,Y0) of circle @ ref point
-    float _phiAtPCA; // Phi w.r.t. (X0,Y0) of circle @ PCA 
-    float _xAtPCA; // X @ PCA
-    float _yAtPCA; // Y @ PCA
-    float _pxAtPCA; // PX @ PCA
-    float _pyAtPCA; // PY @ PCA
-    float _phiMomRefPoint; // Phi of Momentum vector @ ref point
-    float _const_pi; // PI
-    float _const_2pi; // 2*PI
-    float _const_pi2; // PI/2    
-    float _FCT; // 2.99792458E-4
+    double  _phi0; // phi0 in canonical parameterization 
+    double  _d0;   // d0 in canonical parameterisation
+    double  _z0;   // z0 in canonical parameterisation
+    double  _omega; // signed curvuture in canonical parameterisation
+    double  _tanLambda; // TanLambda 
+    double  _pxy; // Transverse momentum
+    double  _charge; // Particle Charge
+    double  _bField; // Magnetic field (assumed to point to Z>0)
+    double  _radius; // radius of circle in XY plane
+    double  _xCentre; // X of circle centre
+    double  _yCentre; // Y of circle centre
+    double  _phiRefPoint; // Phi w.r.t. (X0,Y0) of circle @ ref point
+    double  _phiAtPCA; // Phi w.r.t. (X0,Y0) of circle @ PCA 
+    double  _xAtPCA; // X @ PCA
+    double  _yAtPCA; // Y @ PCA
+    double  _pxAtPCA; // PX @ PCA
+    double  _pyAtPCA; // PY @ PCA
+    double  _phiMomRefPoint; // Phi of Momentum vector @ ref point
+    double  _const_pi; // PI
+    double  _const_2pi; // 2*PI
+    double  _const_pi2; // PI/2    
+    double  _FCT; // 2.99792458E-4
     float _xStart[3]; // Starting point of track segment
     float _xEnd[3]; // Ending point of track segment
 
-    float _bZ;
-    float _phiZ;
+    double  _bZ;
+    double  _phiZ;
 
 };
 

@@ -84,12 +84,16 @@
     <constant name="Vertex_half_length"  value="200*mm"/>
     <constant name="Vertex_Side_rmin"    value="BeamPipe_VertexRegion_rmax"/>
 
+    <!-- Parameters of single drift chamber  -->
+    <constant name="DC_rbegin" value="800*mm"/>
+    <constant name="DC_rend" value="1800*mm"/>
+
     <constant name="DC_Endcap_dz" value="0.1*mm"/>
     <constant name="DC_half_length"  value="2980*mm" />
     <constant name="DC_safe_distance" value="0.02*mm"/>
-    <constant name="SDT_inner_wall_thickness" value="0.2*mm"/>
-    <constant name="SDT_outer_wall_thickness" value="2.8*mm"/>
-    <constant name="MainTracker_half_length"  value="DC_half_length+DC_Endcap_dz" />
+    <constant name="DC_inner_wall_thickness" value="0.2*mm"/>
+    <constant name="DC_outer_wall_thickness" value="2.8*mm"/>
+    <constant name="MainTracker_half_length"  value="DC_half_length"/>
 
     <!--obselete for single drift chamber-->
     <constant name="InnerTracker_half_length"  value="DC_half_length" />
@@ -98,13 +102,6 @@
     <constant name="OuterTracker_half_length"  value="DC_half_length"/>
     <constant name="OuterTracker_inner_radius" value="1082.18*mm"/>
     <constant name="OuterTracker_outer_radius" value="1723*mm"/>
-
-    <!-- Parameters of single drift chamber  -->
-    <constant name="DC_chamber_layer_rbegin" value="800*mm"/>
-    <constant name="DC_chamber_layer_rend" value="1800*mm"/>
-
-    <constant name="DC_inner_radius" value="DC_chamber_layer_rbegin-SDT_inner_wall_thickness-DC_safe_distance"/>
-    <constant name="DC_outer_radius" value="DC_chamber_layer_rend+SDT_outer_wall_thickness+DC_safe_distance"/>
 
     <constant name="SIT1_inner_radius"   value="230*mm"/>
     <constant name="SIT2_inner_radius"   value="410*mm"/>
