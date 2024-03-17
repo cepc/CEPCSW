@@ -1,0 +1,62 @@
+##############################################################################
+# CI for CEPCSW at IHEP GitLab
+##############################################################################
+
+workflow:
+  rules:
+    # These 3 rules from https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Workflows/MergeRequest-Pipelines.gitlab-ci.yml
+    # Run on merge requests
+    - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    # Run on tags
+    - if: $CI_COMMIT_TAG
+    # Run when called from an upstream pipeline https://docs.gitlab.com/ee/ci/pipelines/downstream_pipelines.html?tab=Multi-project+pipeline#use-rules-to-control-downstream-pipeline-jobs
+    - if: $CI_PIPELINE_SOURCE == 'pipeline'
+    - if: $CI_PIPELINE_SOURCE == 'parent-child'
+    # Run on commits to the default branch
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    # The last rule above blocks manual and scheduled pipelines on non-default branch. The rule below allows them:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    # Run if triggered from Web using 'Run Pipelines'
+    - if: $CI_PIPELINE_SOURCE == "web"
+    # Run if triggered from WebIDE
+    - if: $CI_PIPELINE_SOURCE == "webide"
+
+
+
+stages:
+  - build
+  # - test
+
+##############################################################################
+# Build Template
+##############################################################################
+.build_template:
+  stage: build
+  variables:
+    LCG_RELEASE:
+    CEPCSW_BLDTOOL: ninja
+  script:
+    - bash ./.build.ci.sh
+
+
+##############################################################################
+# Build CentOS 7 (LCG)
+##############################################################################
+build:lcg:el7:
+  extends: .build_template
+  variables:
+    LCG_RELEASE: LCG
+  tags:
+    - centos7
+
+##############################################################################
+# Build CentOS 7 (KEY4HEP)
+##############################################################################
+# build:k4:el7:
+#   extends: .build_template
+#   variables:
+#     LCG_RELEASE: KEY4HEP_STACK
+#   tags:
+#     - centos7
+
